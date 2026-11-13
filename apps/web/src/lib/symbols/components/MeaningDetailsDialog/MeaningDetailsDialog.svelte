@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { Alert, Button, Checkbox, Dialog } from '@study-atelier/ui';
+	import { Alert, Button, Dialog } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import DetailLens from '#lib/pins/components/DetailLens/DetailLens.svelte';
+	import TickTile from '#lib/shared/forms/TickTile/TickTile.svelte';
 	import type { SymbolDetail } from '#lib/symbols/types/symbol-detail.ts';
 	import type { SymbolMeaning } from '#lib/symbols/types/symbol-meaning.ts';
 
@@ -55,26 +56,25 @@
 		{#if details.length === 0}
 			<p class="empty">{m.symbols.meaningDialog.noPins}</p>
 		{:else}
-			<ul>
+			<ul class="grid">
 				{#each details as detail (detail.pinId)}
 					<li>
-						<Checkbox
+						<TickTile
 							checked={ticked[detail.pinId] ?? false}
-							onchange={(event) => (ticked[detail.pinId] = event.currentTarget.checked)}
+							framed={false}
+							ontoggle={() => (ticked[detail.pinId] = !ticked[detail.pinId])}
 						>
-							<span class="detail">
+							{#snippet picture()}
 								{#if detail.lens}
 									<DetailLens lens={detail.lens} />
 								{/if}
-								<span class="text">
-									<span class="title">{detail.title}</span>
-									<span class="caption">{detail.byline}</span>
-									{#if detail.meaningId !== meaning?.id}
-										<span class="caption">{currentOf(detail)}</span>
-									{/if}
-								</span>
-							</span>
-						</Checkbox>
+							{/snippet}
+							<cite class="title">{detail.title}</cite>
+							<span class="caption">{detail.byline}</span>
+							{#if detail.meaningId !== meaning?.id}
+								<span class="caption">{currentOf(detail)}</span>
+							{/if}
+						</TickTile>
 					</li>
 				{/each}
 			</ul>
@@ -96,36 +96,34 @@
 		gap: var(--spacing-4);
 	}
 
-	ul {
+	.grid {
+		--detail-lens: 104px;
+
 		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
 		gap: var(--spacing-3);
 		list-style: none;
 	}
 
-	.detail {
-		--detail-lens: 48px;
-
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-3);
-	}
-
-	.text {
-		display: grid;
-	}
-
 	.title {
 		font-family: var(--font-family-title), Georgia, serif;
+		font-size: var(--font-size-sm);
 		font-style: italic;
+		line-height: var(--line-height-sm);
 	}
 
-	.caption,
-	.empty {
-		color: var(--color-fg-muted);
+	.title,
+	.caption {
+		text-align: center;
 	}
 
 	.caption {
-		font-size: var(--font-size-sm);
-		line-height: var(--line-height-sm);
+		font-size: var(--font-size-xs);
+		line-height: var(--line-height-xs);
+		opacity: 0.75;
+	}
+
+	.empty {
+		color: var(--color-fg-muted);
 	}
 </style>
