@@ -19,10 +19,19 @@ vi.mock('$app/state', () => ({
 	navigating: { to: null },
 	updated: { current: false }
 }));
-vi.mock('$app/navigation', () => ({ afterNavigate: vi.fn(), goto: vi.fn() }));
+vi.mock('$app/navigation', () => ({
+	afterNavigate: vi.fn(),
+	goto: vi.fn(),
+	invalidateAll: vi.fn()
+}));
 vi.mock('#lib/symbols/symbols-data/symbols-data.ts', () => ({
 	deleteSymbol: vi.fn(),
+	saveSymbol: vi.fn(),
+	searchArtworkContexts: vi.fn(),
 	setSymbolCover: vi.fn()
+}));
+vi.mock('#lib/symbols/symbol-page-data/symbol-page-data.ts', () => ({
+	loadSymbolForm: vi.fn()
 }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
