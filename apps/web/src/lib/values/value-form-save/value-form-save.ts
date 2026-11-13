@@ -6,7 +6,10 @@ import { valueDetailsChanged } from '#lib/values/value-details/value-details.ts'
 import { applyEraBounds } from '#lib/catalogue/era-bounds/era-bounds.svelte.ts';
 import { saveEraBounds } from '#lib/profile/era-bounds-data/era-bounds-data.ts';
 import { setPlacePoint } from '#lib/map/places-data/places-data.ts';
-import { saveValueDetails } from '#lib/values/value-details-data/value-details-data.ts';
+import {
+	ensureCityPlace,
+	saveValueDetails
+} from '#lib/values/value-details-data/value-details-data.ts';
 import { valueFormDetails } from '#lib/values/value-form/value-form.ts';
 import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
 import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
@@ -50,6 +53,7 @@ async function savedPosition(
 	form: ValueFormFields,
 	saved: ValueFormFields
 ): Promise<string | undefined> {
+	if (form.location?.city) return undefined;
 	const point = form.location?.point ?? null;
 	if (JSON.stringify(point) === JSON.stringify(saved.location?.point ?? null)) return undefined;
 	const result = await setPlacePoint(
@@ -65,6 +69,12 @@ async function savedDetails(
 	input: ValueFormSave
 ): Promise<string | undefined> {
 	const details = valueFormDetails(input.form);
+	const city = details.location?.placeType === 'city' ? null : details.location?.city;
+	if (details.location && city && !city.id) {
+		const ensured = await ensureCityPlace(city);
+		if (ensured.error !== undefined) return ensured.error;
+		details.location.city = { ...city, id: ensured.id };
+	}
 	if (valueDetailsChanged(details, valueFormDetails(input.saved))) {
 		const result = await saveValueDetails(subject, details, input.details);
 		if (result.error) return result.error;

@@ -22,6 +22,8 @@ import { isCountryCode } from '#lib/catalogue/countries/countries.ts';
 import { isPlaceType } from '#lib/catalogue/place-types/place-types.ts';
 import type { AuthorDetails } from '#lib/values/types/author-details.ts';
 import type { LocationDetails } from '#lib/values/types/location-details.ts';
+import type { PlaceCity } from '#lib/values/types/place-city.ts';
+import type { PlacePoint } from '#lib/map/types/place-point.ts';
 import type { ValueDetails } from '#lib/values/types/value-details.ts';
 import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
 import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
@@ -47,12 +49,21 @@ type LocationRow = {
 	place_type: string | null;
 	latitude: number | null;
 	longitude: number | null;
+	city_id: string | null;
+};
+
+type CityRow = {
+	name: string;
+	location_details: Pick<LocationRow, 'country_code' | 'latitude' | 'longitude'> | null;
 };
 
 type DetailsRow = { summary: string | null; notes: string | null } & Partial<AuthorRow> &
 	Partial<LocationRow>;
 
-const LOCATION_COLUMNS = 'summary, notes, country_code, place_type, latitude, longitude';
+const LOCATION_COLUMNS = 'summary, notes, country_code, place_type, latitude, longitude, city_id';
+
+const CITY_COLUMNS =
+	'name, location_details!location_details_value_id_owner_id_category_code_fkey(country_code, latitude, longitude)';
 
 const AUTHOR_COLUMNS = [
 	'summary',
@@ -129,15 +140,38 @@ async function authorOf(
 	};
 }
 
-function locationOf(row: DetailsRow | null): LocationDetails {
+function pointOf(row: Partial<LocationRow> | null | undefined): PlacePoint | null {
+	return row?.latitude != null && row.longitude != null
+		? { latitude: row.latitude, longitude: row.longitude }
+		: null;
+}
+
+async function cityOf(cityId: string | null | undefined): Promise<PlaceCity | null> {
+	if (!cityId) return null;
+	const { data } = await supabase
+		.from('category_values')
+		.select(CITY_COLUMNS)
+		.eq('id', cityId)
+		.maybeSingle();
+	const row = data as CityRow | null;
+	if (!row) return null;
+	const details = row.location_details;
+	return {
+		id: cityId,
+		name: row.name,
+		countryCode: isCountryCode(details?.country_code) ? details.country_code : null,
+		point: pointOf(details)
+	};
+}
+
+async function locationOf(row: DetailsRow | null): Promise<LocationDetails> {
 	const placeType = row?.place_type;
+	const city = await cityOf(row?.city_id);
 	return {
 		countryCode: isCountryCode(row?.country_code) ? row.country_code : null,
 		placeType: isPlaceType(placeType) ? placeType : null,
-		point:
-			row?.latitude != null && row.longitude != null
-				? { latitude: row.latitude, longitude: row.longitude }
-				: null
+		point: pointOf(row),
+		...(city ? { city } : {})
 	};
 }
 
@@ -150,7 +184,7 @@ export async function loadValueDetails(subject: ValueSubject): Promise<ValueDeta
 	if (related?.error) return { details: emptyValueDetails(), error: related.error };
 	const details: ValueDetails = { summary: data?.summary ?? '', notes: data?.notes ?? '' };
 	if (subject.kind === 'author') details.author = await authorOf(data, related?.relations ?? []);
-	if (subject.kind === 'location') details.location = locationOf(data);
+	if (subject.kind === 'location') details.location = await locationOf(data);
 	return { details };
 }
 
@@ -175,7 +209,13 @@ function detailsPayload(
 	return {
 		...text,
 		...(author ? authorColumns(author, imageColumns(image)) : {}),
-		...(location ? { country_code: location.countryCode, place_type: location.placeType } : {})
+		...(location
+			? {
+					country_code: location.countryCode,
+					place_type: location.placeType,
+					city_id: location.placeType === 'city' ? null : (location.city?.id ?? null)
+				}
+			: {})
 	};
 }
 
@@ -227,4 +267,22 @@ export async function saveValueDetails(
 
 	await removeReplacedUpload(details, previous, stored.image);
 	return {};
+}
+
+export async function ensureCityPlace(
+	city: PlaceCity
+): Promise<{ id: string; error?: undefined } | { id?: undefined; error: string }> {
+	if (city.id) return { id: city.id };
+	const { data, error } = await supabase.rpc('ensure_city_place', {
+		city_name: city.name,
+		wikidata_id: city.wikidataId ?? undefined,
+		country_code: city.countryCode ?? undefined,
+		latitude: city.point?.latitude,
+		longitude: city.point?.longitude
+	});
+	forgetCached([cacheKeys.cardIndex]);
+	if (error || !data) {
+		return { error: await failureMessage(error ?? {}, cardIndexErrorMessage) };
+	}
+	return { id: data };
 }

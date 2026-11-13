@@ -69,14 +69,28 @@
 	let lifeYears = $derived(
 		author && formatLifeYears(author.birthYear, author.deathYear, author.yearsApproximate)
 	);
+	let city = $derived(details.location?.placeType === 'city' ? null : details.location?.city);
 	let place = $derived([
 		details.location?.placeType ? placeTypeName(details.location.placeType) : null,
-		details.location?.countryCode ? countryName(details.location.countryCode) : null
+		city
+			? cityLine
+			: details.location?.countryCode
+				? countryName(details.location.countryCode)
+				: null
 	]);
 	let title = $derived(
 		subject.kind === 'era' ? `${name.charAt(0).toLocaleUpperCase()}${name.slice(1)}` : name
 	);
 </script>
+
+{#snippet cityLine()}
+	{#if city}
+		{#if city.id}
+			<a class="city" href={valuePath('location', city.id)}>{city.name}</a
+			>{:else}{city.name}{/if}{#if city.countryCode},
+			{countryName(city.countryCode)}{/if}
+	{/if}
+{/snippet}
 
 <article class:with-portrait={portrait} class:with-position={subject.kind === 'location'}>
 	{#if portrait}
@@ -166,7 +180,7 @@
 	</div>
 	{#if subject.kind === 'location' && details.location}
 		<aside class="position">
-			<PlacePosition point={details.location.point ?? null} />
+			<PlacePosition point={city?.point ?? details.location.point ?? null} />
 		</aside>
 	{/if}
 </article>
@@ -229,6 +243,13 @@
 		display: flex;
 		align-items: center;
 		gap: var(--spacing-2);
+	}
+
+	.city {
+		color: inherit;
+		text-decoration: underline;
+		text-decoration-thickness: var(--border-width-hairline);
+		text-underline-offset: 0.2em;
 	}
 
 	.mark {

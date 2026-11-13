@@ -787,7 +787,8 @@ async function mockSupabase(context) {
 					...(author?.sort_name ? { sort_name: author.sort_name } : {}),
 					...(author?.birth_year ? { birth_year: author.birth_year } : {}),
 					...(place?.country_code ? { country_code: place.country_code } : {}),
-					...(place?.place_type ? { place_type: place.place_type } : {})
+					...(place?.place_type ? { place_type: place.place_type } : {}),
+					...(place?.city_id ? { city_id: place.city_id } : {})
 				};
 			});
 			return json(route, {
@@ -938,6 +939,17 @@ async function mockSupabase(context) {
 		if (url.pathname === '/rest/v1/rpc/save_exhibition') return json(route, 4);
 		if (url.pathname === '/rest/v1/rpc/save_visit') return json(route, VISITS[0].id);
 		if (url.pathname === '/rest/v1/catalogue_museums') return json(route, CATALOGUE_MUSEUMS);
+		if (
+			url.pathname === '/rest/v1/category_values' &&
+			url.searchParams.get('select')?.includes('latitude') &&
+			url.searchParams.get('id')?.startsWith('eq.')
+		) {
+			const place = MAP_PLACES.find((row) => `eq.${row.id}` === url.searchParams.get('id'));
+			return json(
+				route,
+				place ? { name: place.name, location_details: place.location_details[0] } : null
+			);
+		}
 		if (
 			url.pathname === '/rest/v1/category_values' &&
 			url.searchParams.get('select')?.includes('latitude')

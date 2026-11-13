@@ -77,4 +77,58 @@ describe('PlaceField', () => {
 
 		expect(value.point).toBeNull();
 	});
+
+	it('gives a suggestion near a catalogue town as the city of the place, not a point', async () => {
+		vi.mocked(searchWikidataPlaces).mockResolvedValue([
+			{
+				wikidataId: 'Q19675',
+				label: 'Luwr',
+				description: 'muzeum',
+				latitude: 48.861,
+				longitude: 2.336
+			}
+		]);
+		const ontown = vi.fn();
+		const value = $state<{ point: Point | null }>({ point: null });
+		render(PlaceField, {
+			name: 'Luwr',
+			ontown,
+			get point() {
+				return value.point;
+			},
+			set point(next) {
+				value.point = next;
+			}
+		});
+
+		await page.getByRole('button', { name: /muzeum/ }).click();
+
+		expect(ontown).toHaveBeenCalledWith(expect.objectContaining({ name: 'Paryż' }));
+		expect(value.point).toBeNull();
+	});
+
+	it('suggests the catalogue town by the name of a city and takes its country', async () => {
+		vi.mocked(searchWikidataPlaces).mockResolvedValue([]);
+		const geography = testGeography();
+		geography.towns = [{ ...geography.towns[0], wikidataId: 'Q90' }];
+		vi.mocked(loadGeography).mockResolvedValue(geography);
+		const oncountry = vi.fn();
+		const value = $state<{ point: Point | null }>({ point: null });
+		render(PlaceField, {
+			name: 'Paryż',
+			city: true,
+			oncountry,
+			get point() {
+				return value.point;
+			},
+			set point(next) {
+				value.point = next;
+			}
+		});
+
+		await page.getByRole('button', { name: /Paryż/ }).click();
+
+		expect(oncountry).toHaveBeenCalledWith('FR');
+		expect(value.point).toEqual({ latitude: 48.857, longitude: 2.35 });
+	});
 });
