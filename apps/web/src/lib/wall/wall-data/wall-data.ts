@@ -217,12 +217,14 @@ export async function loadAtelier(): Promise<AtelierResult> {
 type WallFilter =
 	| { eraCode: string }
 	| { valueId: string }
+	| { valueIds: string[] }
 	| { termId: string }
 	| { symbolId: string }
 	| { visitId: string };
 
 const FILTER_EMBEDS: Record<string, string> = {
 	valueId: 'valued:artwork_values!inner(value_id)',
+	valueIds: 'valued:artwork_values!inner(value_id)',
 	termId: 'pinned:artwork_images!inner(artwork_pins!inner(glossary_entry_id))',
 	symbolId: 'symbolised:artwork_images!inner(artwork_pins!inner(symbol_id))',
 	visitId: 'seen:visit_artworks!inner(visit_id)'
@@ -231,6 +233,7 @@ const FILTER_EMBEDS: Record<string, string> = {
 const FILTER_COLUMNS: Record<string, string> = {
 	eraCode: 'era_code',
 	valueId: 'valued.value_id',
+	valueIds: 'valued.value_id',
 	termId: 'pinned.artwork_pins.glossary_entry_id',
 	symbolId: 'symbolised.artwork_pins.symbol_id',
 	visitId: 'seen.visit_id'
@@ -243,7 +246,11 @@ function fetchWallRows(filter?: WallFilter): Promise<{ rows: ArtworkRow[]; error
 		const query = supabase
 			.from('artworks')
 			.select(embed ? `${ARTWORK_COLUMNS}, ${embed}` : ARTWORK_COLUMNS);
-		const filtered = name ? query.eq(FILTER_COLUMNS[name], value as string) : query;
+		const filtered = !name
+			? query
+			: Array.isArray(value)
+				? query.in(FILTER_COLUMNS[name], value)
+				: query.eq(FILTER_COLUMNS[name], value as string);
 		return filtered
 			.eq('artwork_images.position', 0)
 			.is('deleted_at', null)
@@ -263,7 +270,7 @@ async function loadWall(filter: WallFilter): Promise<AtelierResult> {
 }
 
 export function loadArtworksOfValue(
-	value: { eraCode: string } | { valueId: string }
+	value: { eraCode: string } | { valueId: string } | { valueIds: string[] }
 ): Promise<AtelierResult> {
 	return loadWall(value);
 }

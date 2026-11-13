@@ -6,9 +6,9 @@ function names(records: { name: string }[]): string[] {
 }
 
 describe('sortsOf', () => {
-	it('offers the years of life for authors, the country for places and the date for events', () => {
+	it('offers the years of life for authors and the date for events', () => {
 		expect(sortsOf('author')).toEqual(['name', 'count', 'life']);
-		expect(sortsOf('location')).toEqual(['name', 'count', 'country']);
+		expect(sortsOf('location')).toEqual(['name', 'count']);
 		expect(sortsOf('events')).toEqual(['name', 'date']);
 		expect(sortsOf('material')).toEqual(['name', 'count']);
 	});
@@ -95,10 +95,10 @@ describe('rememberedSort', () => {
 
 	it('remembers the sort of each tab and falls back to the name', () => {
 		rememberSort('author', 'life');
-		rememberSort('location', 'country');
+		rememberSort('location', 'count');
 
 		expect(rememberedSort('author')).toBe('life');
-		expect(rememberedSort('location')).toBe('country');
+		expect(rememberedSort('location')).toBe('count');
 		expect(rememberedSort('material')).toBe('name');
 	});
 

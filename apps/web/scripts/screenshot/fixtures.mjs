@@ -504,6 +504,44 @@ export const VALUE_DETAILS = {
 			place_type: 'city',
 			latitude: 48.85661,
 			longitude: 2.35222
+		},
+		{
+			value_id: valueId('location', 'Notre-Dame de Paris'),
+			summary: null,
+			notes: null,
+			country_code: 'FR',
+			place_type: 'on_site',
+			latitude: null,
+			longitude: null,
+			city_id: valueId('location', 'Paryż')
+		},
+		{
+			value_id: valueId('location', 'Florencja'),
+			summary: null,
+			notes: null,
+			country_code: 'IT',
+			place_type: 'city',
+			latitude: 43.7696,
+			longitude: 11.2558
+		},
+		{
+			value_id: valueId('location', 'Uffizi'),
+			summary: null,
+			notes: null,
+			country_code: 'IT',
+			place_type: 'museum',
+			latitude: null,
+			longitude: null,
+			city_id: valueId('location', 'Florencja')
+		},
+		{
+			value_id: valueId('location', 'Belvedere'),
+			summary: null,
+			notes: null,
+			country_code: 'AT',
+			place_type: 'museum',
+			latitude: 48.19139,
+			longitude: 16.38083
 		}
 	],
 	period_details: [
@@ -716,11 +754,12 @@ export const VISITS = [
 	)
 ];
 
-if (!VALUE_USAGE.some((row) => row.id === valueId('location', 'Paryż'))) {
+for (const name of ['Paryż', 'Florencja']) {
+	if (VALUE_USAGE.some((row) => row.id === valueId('location', name))) continue;
 	VALUE_USAGE.push({
-		id: valueId('location', 'Paryż'),
+		id: valueId('location', name),
 		category_code: 'location',
-		name: 'Paryż',
+		name,
 		artwork_count: 0,
 		visit_count: 0
 	});

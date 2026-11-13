@@ -1113,6 +1113,7 @@ export const pl = {
 		emptyEra: 'W tej epoce nie ma jeszcze okresów.',
 		periodsWithoutEra: 'Okresy bez epoki',
 		stylesWithoutPeriod: 'Style bez okresu',
+		placesWithoutCountry: 'Miejsca bez kraju',
 		emptyTimeline:
 			'Nie ma tu jeszcze okresów ani stylów. Dodaj pierwszy tutaj albo wpisz go przy dziele.',
 		emptyList: {
@@ -1195,6 +1196,8 @@ export const pl = {
 				`${workCount(count)} z „${merged}” ${count === 1 ? 'przypisze' : 'przypiszą'} się do „${kept}”, a „${merged}” zniknie z Kartoteki.`,
 			visits: (merged: string, kept: string, count: number): string =>
 				`Wizyty w „${merged}” (${count}) przeniosą się do „${kept}”.`,
+			places: (merged: string, kept: string, count: number): string =>
+				`Miejsca w „${merged}” (${count}) przeniosą się do „${kept}”.`,
 			periodLinks: (merged: string, kept: string): string =>
 				`Epoki i style okresu „${merged}” dołączą do „${kept}”.`,
 			pageContent: (merged: string): string =>
@@ -2647,6 +2650,14 @@ export const pl = {
 		back: 'Kartoteka',
 		deleteBlocked: (demonstrative: string, count: string, other: string): string =>
 			`${demonstrative} ma jeszcze ${count}, więc nie da się go usunąć. Możesz go połączyć z ${other}.`,
+		cityDeleteBlocked: (count: number, places: number): string =>
+			`To miasto ma jeszcze ${count > 0 ? `${workCount(count)} i ` : ''}${placeCount(places)}, więc nie da się go usunąć. Możesz je połączyć z innym miastem.`,
+		city: {
+			places: 'Miejsca w tym mieście',
+			artworks: 'Dzieła z tego miasta',
+			noNotes: 'Nie masz jeszcze notatek o tym mieście.',
+			noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła z tego miasta.'
+		},
 		header: (kind: string, count: string): string => `${kind} · ${count}`,
 		born: (year: string): string => `ur. ${year}`,
 		died: (year: string): string => `zm. ${year}`,
@@ -2985,6 +2996,10 @@ function tripCount(count: number): string {
 
 function visitCount(count: number): string {
 	return `${count} ${plural(count, { one: 'wizyta', few: 'wizyty', many: 'wizyt' })}`;
+}
+
+function placeCount(count: number): string {
+	return `${count} ${plural(count, { one: 'miejsce', few: 'miejsca', many: 'miejsc' })}`;
 }
 
 function workCount(count: number): string {

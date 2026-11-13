@@ -1,9 +1,11 @@
-import { loadPlaceVisits } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
+import { loadPlacesVisits } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
 import { loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { loadArtworksOfValue } from '#lib/wall/wall-data/wall-data.ts';
 import { loadCardIndex } from '#lib/card-index/card-index-data/card-index-data.ts';
 import { emptyCardIndex } from '#lib/card-index/card-index/card-index.ts';
+import { cityValueIds, placesOfCity } from '#lib/card-index/place-tree/place-tree.ts';
+import type { CardIndexPlace } from '#lib/card-index/types/card-index-place.ts';
 import { loadMentions } from '#lib/notes/mentions-data/mentions-data.ts';
 import {
 	loadEditorNoteLinks,
@@ -47,6 +49,7 @@ type ValuePageResult = {
 	visits?: Visit[];
 	relations?: Relations;
 	symbolUses?: SymbolUse[];
+	cityPlaces?: CardIndexPlace[];
 	notFound?: boolean;
 	error?: string;
 };
@@ -61,8 +64,23 @@ function failed(error: string, notFound = false): ValuePageResult {
 	};
 }
 
-function valueFilter(subject: ValueSubject): { eraCode: string } | { valueId: string } {
-	return subject.kind === 'era' ? { eraCode: subject.code } : { valueId: subjectId(subject) };
+function cityPlacesOf(subject: ValueSubject, index: CardIndexData): CardIndexPlace[] | undefined {
+	return subject.kind === 'location' && subject.record.placeType === 'city'
+		? placesOfCity(index, subject.record.id)
+		: undefined;
+}
+
+async function placeIds(subject: ValueSubject): Promise<string[]> {
+	const id = subjectId(subject);
+	if (subject.kind !== 'location') return [id];
+	const { index } = await loadCardIndex();
+	return cityValueIds(index, id);
+}
+
+async function loadOwnArtworks(subject: ValueSubject): ReturnType<typeof loadArtworksOfValue> {
+	if (subject.kind === 'era') return loadArtworksOfValue({ eraCode: subject.code });
+	const ids = await placeIds(subject);
+	return loadArtworksOfValue(ids.length > 1 ? { valueIds: ids } : { valueId: ids[0] });
 }
 
 async function loadPageExtras(
@@ -72,7 +90,9 @@ async function loadPageExtras(
 	if (!withArtworks) return {};
 	const [mentions, places] = await Promise.all([
 		loadMentions(valueLinkTarget(subject), subjectPath(subject)),
-		subject.kind === 'location' ? loadPlaceVisits(subject.record.id) : Promise.resolve(undefined)
+		subject.kind === 'location'
+			? placeIds(subject).then(loadPlacesVisits)
+			: Promise.resolve(undefined)
 	]);
 	return { mentions, visits: places?.error ? undefined : places?.visits };
 }
@@ -115,7 +135,13 @@ function loadRelatedExtras(
 	return Promise.all([
 		loadRelations({
 			kind: subject.kind,
-			artworks: artworksOfValue(artworks, subject),
+			artworks: artworksOfValue(
+				artworks,
+				subject,
+				subject.kind === 'location'
+					? placesOfCity(index, subject.record.id).map((place) => place.name)
+					: []
+			),
 			index,
 			bounds: subjectBounds(subject, details),
 			authors: details.author?.relations
@@ -140,7 +166,7 @@ export async function loadValuePage(
 		loadCardIndex(),
 		loadValueDetails(route).then((loaded) => withNoteExtras(loaded, route, withArtworks)),
 		loadPageExtras(route, withArtworks),
-		withArtworks ? loadArtworksOfValue(valueFilter(route)) : Promise.resolve({ artworks: [] })
+		withArtworks ? loadOwnArtworks(route) : Promise.resolve({ artworks: [] })
 	]);
 	if (cardIndex.error) return failed(cardIndex.error);
 	const subject = findSubject(cardIndex.index, kind, id);
@@ -157,6 +183,7 @@ export async function loadValuePage(
 		subject,
 		index: cardIndex.index,
 		artworks: own.artworks,
+		cityPlaces: cityPlacesOf(subject, cardIndex.index),
 		details,
 		noteLinks,
 		glossary: glossary?.terms,

@@ -89,7 +89,7 @@ export function valueParents(index: CardIndexData, subject: ValueSubject): Value
 	return [];
 }
 
-function usesValue(artwork: WallArtwork, subject: ValueSubject): boolean {
+function usesValue(artwork: WallArtwork, subject: ValueSubject, places: string[]): boolean {
 	switch (subject.kind) {
 		case 'era':
 			return artwork.eraCode === subject.code;
@@ -102,7 +102,7 @@ function usesValue(artwork: WallArtwork, subject: ValueSubject): boolean {
 		case 'author':
 			return artwork.authors.includes(subject.record.name);
 		case 'location':
-			return artwork.location === subject.record.name;
+			return artwork.location === subject.record.name || places.includes(artwork.location ?? '');
 	}
 }
 
@@ -115,6 +115,10 @@ function chronologically(a: WallArtwork, b: WallArtwork): number {
 	return a.number - b.number;
 }
 
-export function artworksOfValue(artworks: WallArtwork[], subject: ValueSubject): WallArtwork[] {
-	return artworks.filter((artwork) => usesValue(artwork, subject)).sort(chronologically);
+export function artworksOfValue(
+	artworks: WallArtwork[],
+	subject: ValueSubject,
+	places: string[] = []
+): WallArtwork[] {
+	return artworks.filter((artwork) => usesValue(artwork, subject, places)).sort(chronologically);
 }

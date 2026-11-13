@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { LucideIcon } from '@lucide/svelte';
 	import Plus from '@lucide/svelte/icons/plus';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { Button, Icon, PopupButton, Tabs } from '@study-atelier/ui';
@@ -14,14 +13,14 @@
 	} from '#lib/card-index/card-index-sort/card-index-sort.ts';
 	import CardIndexEvents from '#lib/card-index/components/CardIndexEvents/CardIndexEvents.svelte';
 	import CardIndexList from '#lib/card-index/components/CardIndexList/CardIndexList.svelte';
+	import CardIndexPlaces from '#lib/card-index/components/CardIndexPlaces/CardIndexPlaces.svelte';
+	import { buildPlaceTree } from '#lib/card-index/place-tree/place-tree.ts';
 	import CardIndexTimeline from '#lib/card-index/components/CardIndexTimeline/CardIndexTimeline.svelte';
 	import OwnFieldsTab from '#lib/card-index/components/OwnFieldsTab/OwnFieldsTab.svelte';
 	import { withOwnValues } from '#lib/card-index/own-fields/own-fields.ts';
 	import { loadOwnFields } from '#lib/card-index/own-fields-data/own-fields-data.ts';
 	import { newValuePath, valuePath } from '#lib/card-index/value-pages/value-pages.ts';
 	import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
-	import { countryName } from '#lib/catalogue/countries/countries.ts';
-	import { placeTypeIcon, placeTypeName } from '#lib/catalogue/place-types/place-types.ts';
 	import { formatDate } from '#lib/catalogue/years/years.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { isSpan } from '#lib/timeline/event-page/event-page.ts';
@@ -29,13 +28,6 @@
 	import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 	import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
 	import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
-
-	type ListedValue = CardIndexRecord & {
-		country?: string;
-		detail?: string;
-		icon?: LucideIcon;
-		iconLabel?: string;
-	};
 
 	type Props = {
 		index: CardIndexData;
@@ -67,6 +59,7 @@
 		Object.fromEntries(CARD_INDEX_TABS.map((value) => [value, rememberedSort(value)]))
 	);
 	let timeline = $derived(buildTimeline(index));
+	let places = $derived(buildPlaceTree(index));
 	let eventRecords = $derived(
 		events.map((event) => ({
 			id: event.id,
@@ -88,17 +81,8 @@
 		rememberSort(value, sort);
 	}
 
-	function listed(kind: 'material' | 'author' | 'location'): ListedValue[] {
-		return valuesOf(index, kind).map((record) => {
-			const country = record.countryCode ? countryName(record.countryCode) : undefined;
-			const type = record.placeType;
-			return {
-				...record,
-				country,
-				detail: kind === 'location' ? country : undefined,
-				...(type ? { icon: placeTypeIcon(type), iconLabel: placeTypeName(type) } : {})
-			};
-		});
+	function listed(kind: 'material' | 'author'): CardIndexRecord[] {
+		return valuesOf(index, kind);
 	}
 
 	async function ownFieldsChanged(message?: string): Promise<void> {
@@ -154,7 +138,19 @@
 				bind:sort={() => sorts.timeline, (sort) => setSort('timeline', sort)}
 			/>
 		</div>
-	{:else if tab === 'material' || tab === 'author' || tab === 'location'}
+	{:else if tab === 'location'}
+		{#snippet placeAdds()}
+			{@render adds(['location'])}
+		{/snippet}
+		<div class="tab">
+			<CardIndexPlaces
+				actions={placeAdds}
+				{places}
+				bind:query
+				bind:sort={() => sorts.location, (sort) => setSort('location', sort)}
+			/>
+		</div>
+	{:else if tab === 'material' || tab === 'author'}
 		{@const kind = tab}
 		{#snippet kindAdds()}
 			{@render adds([kind])}

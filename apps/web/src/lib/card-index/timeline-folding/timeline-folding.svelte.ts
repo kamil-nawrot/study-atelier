@@ -6,18 +6,27 @@ export const OPEN_PERIODS_KEY = 'study-atelier:card-index-open-periods';
 
 type Search = { query: string; matched: readonly string[]; periods: readonly string[] };
 
+type FoldingKeys = { folded: string; open: string };
+
 function toggled(list: readonly string[], item: string): string[] {
 	return list.includes(item) ? list.filter((other) => other !== item) : [...list, item];
 }
 
 export class TimelineFolding {
-	#foldedEras = $state(readStoredStrings('local', FOLDED_ERAS_KEY));
-	#openPeriods = $state(readStoredStrings('local', OPEN_PERIODS_KEY));
+	#keys: FoldingKeys;
+	#foldedEras: string[] = $state([]);
+	#openPeriods: string[] = $state([]);
 	#flips = $state<{ term: string; keys: string[] }>({ term: '', keys: [] });
 	#search: () => Search;
 
-	constructor(search: () => Search) {
+	constructor(
+		search: () => Search,
+		keys: FoldingKeys = { folded: FOLDED_ERAS_KEY, open: OPEN_PERIODS_KEY }
+	) {
 		this.#search = search;
+		this.#keys = keys;
+		this.#foldedEras = readStoredStrings('local', keys.folded);
+		this.#openPeriods = readStoredStrings('local', keys.open);
 	}
 
 	isEraOpen(code: string): boolean {
@@ -38,7 +47,7 @@ export class TimelineFolding {
 			return;
 		}
 		this.#foldedEras = toggled(this.#foldedEras, code);
-		writeStored('local', FOLDED_ERAS_KEY, JSON.stringify(this.#foldedEras));
+		writeStored('local', this.#keys.folded, JSON.stringify(this.#foldedEras));
 	}
 
 	togglePeriod(id: string): void {
@@ -51,7 +60,7 @@ export class TimelineFolding {
 			this.#openPeriods.filter((open) => open === id || present.includes(open)),
 			id
 		);
-		writeStored('local', OPEN_PERIODS_KEY, JSON.stringify(this.#openPeriods));
+		writeStored('local', this.#keys.open, JSON.stringify(this.#openPeriods));
 	}
 
 	#term(): string {
