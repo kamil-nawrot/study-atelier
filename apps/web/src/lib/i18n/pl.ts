@@ -2109,6 +2109,8 @@ export const pl = {
 		wallLink: 'Mapa wizyt',
 		zoomIn: 'Przybliż',
 		zoomOut: 'Oddal',
+		group: (cities: string[], artworks: number): string =>
+			`${cities.join(', ')}, ${workCount(artworks)}. Przybliż, żeby rozdzielić miasta`,
 		filtersLabel: 'Które dzieła pokazać',
 		filters: {
 			all: 'Wszystkie',

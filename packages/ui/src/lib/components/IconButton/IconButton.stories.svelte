@@ -15,4 +15,6 @@
 
 <Story name="Danger" args={{ variant: 'danger' }} />
 
+<Story name="Plain" args={{ variant: 'plain' }} />
+
 <Story name="Disabled" args={{ disabled: true }} />

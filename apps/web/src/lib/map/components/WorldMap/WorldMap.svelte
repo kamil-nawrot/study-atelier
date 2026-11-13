@@ -5,8 +5,16 @@
 	import { geoPath } from 'd3-geo';
 	import { untrack } from 'svelte';
 	import { m } from '#lib/i18n/i18n.ts';
+	import CityMarker from '#lib/map/components/CityMarker/CityMarker.svelte';
+	import {
+		type CityGroup,
+		type CitySpot,
+		groupCities,
+		labelledCities,
+		splitFactor
+	} from '#lib/map/map-groups/map-groups.ts';
 	import { MapPointer } from '#lib/map/map-pointer/map-pointer.ts';
-	import { MapZoom, ZOOM_STEP } from '#lib/map/map-zoom/map-zoom.svelte.ts';
+	import { MapZoom, MAX_ZOOM, ZOOM_STEP } from '#lib/map/map-zoom/map-zoom.svelte.ts';
 	import { mapProjection } from '#lib/map/projection/projection.ts';
 	import type { Geography } from '#lib/map/types/geography.ts';
 	import type { MapCity } from '#lib/map/types/map-city.ts';
@@ -57,6 +65,15 @@
 	const zoom = new MapZoom();
 	const pointer = new MapPointer(zoom, pick);
 
+	let spots = $derived(
+		cities.flatMap((city): CitySpot[] => {
+			const spot = place(city.point);
+			return spot ? [{ city, x: spot[0], y: spot[1] }] : [];
+		})
+	);
+	let groups = $derived(groupCities(spots, radius));
+	let labelled = $derived(labelledCities(groups, labelSize, selected));
+
 	$effect(() => {
 		if (width === 0 || height === 0 || frame?.key === fitKey) return;
 		frame = { key: fitKey, width, height };
@@ -92,7 +109,22 @@
 	}
 
 	function radius(count: number): number {
-		return narrow ? 8 + Math.sqrt(count) * 3.5 : 11 + Math.sqrt(count) * 5;
+		return narrow ? 7 + Math.sqrt(count) * 1.2 : 9 + Math.sqrt(count) * 1.5;
+	}
+
+	function labelSize(city: MapCity): { width: number; height: number } {
+		const size = narrow ? 14 : 16;
+		return { width: city.name.length * size * 0.5 + 8, height: size * 1.4 };
+	}
+
+	function open(group: CityGroup): void {
+		const largest = group.cities[0];
+		if (group.cities.length === 1 || zoom.scale >= MAX_ZOOM) {
+			onselect?.(largest);
+			return;
+		}
+		zoom.zoomAt(group.x, group.y, Math.max(ZOOM_STEP, splitFactor(group, spots, radius)));
+		zoom.panBy(width / 2 - group.x, height / 2 - group.y);
 	}
 
 	function pick(x: number, y: number): void {
@@ -104,7 +136,7 @@
 		onpick({ latitude: round(inverted[1]), longitude: round(inverted[0]) });
 	}
 
-	function wheel(element: SVGSVGElement): () => void {
+	function wheel(element: HTMLElement): () => void {
 		const listener = (event: WheelEvent): void => pointer.wheel(event);
 		element.addEventListener('wheel', listener, { passive: false });
 		return () => element.removeEventListener('wheel', listener);
@@ -119,11 +151,11 @@
 	class="map"
 	class:picking={onpick}
 	class:small
+	{@attach wheel}
 	bind:clientHeight={height}
 	bind:clientWidth={width}
 >
 	<svg
-		{@attach wheel}
 		aria-hidden="true"
 		onpointercancel={(event) => pointer.cancel(event)}
 		onpointerdown={(event) => pointer.down(event)}
@@ -136,29 +168,14 @@
 			<path class="borders" d={borders} />
 		</g>
 	</svg>
-	{#each cities as city (city.key)}
-		{@const spot = place(city.point)}
-		{#if spot}
-			<button
-				style:left="{spot[0]}px"
-				style:top="{spot[1]}px"
-				style:--city-size="{radius(city.count) * 2}px"
-				class="city"
-				class:narrow
-				class:seen={city.seen > 0}
-				class:selected={city.key === selected}
-				aria-label="{city.name}, {m.map.city.artworks(city.count)}"
-				aria-pressed={city.key === selected}
-				onclick={() => onselect?.(city)}
-				type="button"
-			>
-				<span class="disc">
-					<svg aria-hidden="true" viewBox="0 0 2 2"><circle cx="1" cy="1" r="0.94" /></svg>
-					<span class="count">{city.count}</span>
-				</span>
-				<span class="name">{city.name}</span>
-			</button>
-		{/if}
+	{#each groups as group (group.key)}
+		<CityMarker
+			{group}
+			labelled={labelled.has(group.key)}
+			{narrow}
+			onclick={() => open(group)}
+			selected={group.cities.some((city) => city.key === selected)}
+		/>
 	{/each}
 	{#if marker}
 		{@const spot = place(marker)}
@@ -218,91 +235,6 @@
 		stroke: var(--color-fg-muted);
 		stroke-width: var(--border-width-hairline);
 		vector-effect: non-scaling-stroke;
-	}
-
-	.city {
-		position: absolute;
-		display: grid;
-		justify-items: center;
-		gap: var(--spacing-1);
-		padding: 0;
-		border: none;
-		background: none;
-		color: var(--color-fg);
-		font: inherit;
-		cursor: pointer;
-		transform: translate(-50%, calc(var(--city-size) / -2));
-	}
-
-	.disc {
-		display: grid;
-		width: var(--city-size);
-		height: var(--city-size);
-	}
-
-	.disc > * {
-		grid-area: 1 / 1;
-	}
-
-	.disc svg {
-		width: 100%;
-		height: 100%;
-		overflow: visible;
-	}
-
-	.disc circle {
-		fill: var(--color-bg);
-		stroke: var(--color-fg);
-		stroke-width: 0.12;
-	}
-
-	.count {
-		place-self: center;
-		font-size: var(--font-size-xs);
-		font-variant-numeric: tabular-nums;
-		font-weight: var(--font-weight-medium);
-		line-height: 1;
-	}
-
-	.seen circle {
-		fill: var(--color-highlight);
-		stroke: var(--color-highlight);
-	}
-
-	.seen .count {
-		color: var(--color-on-fg);
-	}
-
-	.selected circle {
-		fill: var(--color-highlight);
-		stroke: var(--color-fg);
-	}
-
-	.selected .count {
-		color: var(--color-on-fg);
-	}
-
-	.city:focus-visible .disc {
-		outline: var(--border-width-base) solid var(--color-fg);
-		outline-offset: var(--spacing-1);
-	}
-
-	.city:focus-visible {
-		outline: none;
-	}
-
-	.name {
-		padding: 0 var(--spacing-1);
-		background: color-mix(in srgb, var(--color-tag) 80%, transparent);
-		font-family: var(--font-family-title), Georgia, serif;
-		font-size: var(--font-size-md);
-		font-style: italic;
-		line-height: var(--line-height-xs);
-		white-space: nowrap;
-	}
-
-	.narrow .name {
-		font-size: var(--font-size-sm);
 	}
 
 	.marker {
