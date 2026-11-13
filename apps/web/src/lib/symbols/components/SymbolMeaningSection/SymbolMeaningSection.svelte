@@ -8,9 +8,11 @@
 		section: MeaningSection;
 		number: number;
 		pinsShown: boolean;
+		coverPinId?: string;
+		onsetcover?: (pinId: string | null) => void;
 	};
 
-	let { section, number, pinsShown }: Props = $props();
+	let { section, number, pinsShown, coverPinId, onsetcover }: Props = $props();
 </script>
 
 <section class="meaning" aria-labelledby="meaning-{section.meaning.id}">
@@ -21,12 +23,9 @@
 	<div class="body">
 		<div class="about">
 			<ContextTags contexts={section.meaning.contexts} />
-			{#if section.summary}
-				<p class="summary">{section.summary}</p>
-			{/if}
 		</div>
 		{#if section.details.length > 0}
-			<SymbolDetails details={section.details} />
+			<SymbolDetails {coverPinId} details={section.details} {onsetcover} />
 		{:else if pinsShown}
 			<p class="empty">{m.symbols.view.noDetails}</p>
 		{/if}
@@ -75,7 +74,6 @@
 		gap: var(--spacing-2);
 	}
 
-	.summary,
 	.empty {
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-sm);

@@ -106,7 +106,7 @@ declare
     'career_standing', 'note_link_mentions', 'note_link_labels', 'note_link_suggestions', 'atelier_empty',
     'collection_statistics', 'record_right_answer', 'note_gap_artwork', 'artwork_field_type_impact',
     'mastered_artworks', 'save_exhibition', 'record_night_light', 'record_long_look', 'save_symbol', 'symbol_atlas',
-    'set_place_point'
+    'set_place_point', 'set_symbol_cover'
   ];
   table_name text;
   routine record;
@@ -556,6 +556,8 @@ begin
   assert security_test.denied(format(
     'select public.save_symbol(''Mine'', ''[]'', %L)', a_symbol)),
     'B renames a symbol of A through save_symbol';
+  assert security_test.denied(format('select public.set_symbol_cover(%L)', a_symbol)),
+    'B changes the main detail of a symbol of A through set_symbol_cover';
   assert (select count(*) from public.symbol_atlas()) = 0, 'B sees the symbol atlas of A';
   perform public.set_place_point(a_place, 48.86, 2.34, 'Q19675');
   assert security_test.denied(format(

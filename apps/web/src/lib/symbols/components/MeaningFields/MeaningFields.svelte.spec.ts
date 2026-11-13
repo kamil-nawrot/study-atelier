@@ -54,4 +54,16 @@ describe('MeaningFields', () => {
 			.not.toBeInTheDocument();
 		expect(single.onmove).not.toHaveBeenCalled();
 	});
+
+	it('keeps the context field behind a button until it is asked for', async () => {
+		renderMeaning(1, 1);
+
+		await expect
+			.element(page.getByRole('combobox', { name: m.symbols.form.context }))
+			.not.toBeInTheDocument();
+		await page.getByRole('button', { name: m.symbols.form.addContext }).click();
+		await expect
+			.element(page.getByRole('combobox', { name: m.symbols.form.context }))
+			.toBeVisible();
+	});
 });

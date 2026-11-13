@@ -1632,6 +1632,7 @@ export type Database = {
       };
       symbols: {
         Row: {
+          cover_pin_id: string | null;
           created_at: string;
           id: string;
           name: string;
@@ -1640,6 +1641,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          cover_pin_id?: string | null;
           created_at?: string;
           id?: string;
           name: string;
@@ -1647,13 +1649,22 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          cover_pin_id?: string | null;
           created_at?: string;
           id?: string;
           name?: string;
           owner_id?: string;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "symbols_cover_pin_id_fkey";
+            columns: ["cover_pin_id"];
+            isOneToOne: false;
+            referencedRelation: "artwork_pins";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       timeline_events: {
         Row: {
@@ -1997,6 +2008,10 @@ export type Database = {
       };
       set_style_periods: {
         Args: { period_ids: string[]; target_style: string };
+        Returns: undefined;
+      };
+      set_symbol_cover: {
+        Args: { pin_id?: string; symbol_id: string };
         Returns: undefined;
       };
       storage_has_room: { Args: { adding: number }; Returns: boolean };

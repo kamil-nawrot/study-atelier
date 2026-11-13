@@ -62,8 +62,9 @@ begin
     jsonb_build_object('text', 'purity', 'contexts', jsonb_build_array(jsonb_build_object('value_id', vermeer),
       jsonb_build_object('text', 'Dutch genre'))),
     jsonb_build_object('text', 'vanity')));
-  insert into public.artwork_pins (image_id, x, y, symbol_id, symbol_meaning_id)
-    select image, 0.5, 0.5, meaning.symbol_id, meaning.id from public.symbol_meanings as meaning where meaning.position = 1;
+  insert into public.artwork_pins (image_id, x, y, view_width, symbol_id, symbol_meaning_id)
+    select image, 0.5, 0.5, 0.2, meaning.symbol_id, meaning.id from public.symbol_meanings as meaning where meaning.position = 1;
+  perform public.set_symbol_cover(pin.symbol_id, pin.id) from public.artwork_pins as pin where pin.symbol_id is not null;
   insert into public.timeline_events (name, year_to) values ('War', 1648);
   perform public.save_visit('{"visited_on": "2026-10-12", "date_precision": "day", "notes": "Seen"}', 'Louvre',
     array[first_artwork, third_artwork]);
@@ -211,6 +212,9 @@ begin
   assert (select meaning.text from public.artwork_pins as pin
       join public.symbol_meanings as meaning on meaning.id = pin.symbol_meaning_id) = 'vanity',
     'a pin does not follow the new symbol and meaning';
+  assert (select pin.symbol_id from public.symbols as symbol
+      join public.artwork_pins as pin on pin.id = symbol.cover_pin_id) = (select id from public.symbols where name = 'Pearl'),
+    'the main detail of a symbol does not follow the new pin';
 
   assert (select count(*) from public.artwork_relations) = 2,
     'the relations of the artworks do not come back';

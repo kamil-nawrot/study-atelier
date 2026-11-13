@@ -23,10 +23,26 @@ describe('symbolTimeline', () => {
 	});
 
 	it('handles years before the common era', () => {
-		const timeline = symbolTimeline([detail('a', -450), detail('b', 120)]);
+		const timeline = symbolTimeline([detail('a', -450), detail('b', -300)]);
 
 		expect(timeline?.ticks[0].year).toBe(-500);
-		expect(timeline?.ticks.at(-1)?.year).toBe(200);
+		expect(timeline?.ticks.at(-1)?.year).toBe(-300);
+	});
+
+	it('shortens a long gap into a break so a distant detail does not stretch the axis', () => {
+		const timeline = symbolTimeline([detail('a', -30000), detail('b', 1500), detail('c', 1650)]);
+
+		expect(timeline?.breaks).toHaveLength(1);
+		expect(timeline?.ticks.length).toBeLessThan(20);
+		expect(timeline?.placed[0].left).toBe(0);
+		expect(timeline?.placed[1].left).toBeGreaterThan(timeline?.breaks[0] ?? 100);
+		expect(timeline?.placed[2].left).toBeCloseTo(90, 0);
+	});
+
+	it('uses wider tick steps for a long span', () => {
+		const timeline = symbolTimeline([detail('a', -3000), detail('b', 0), detail('c', 400)]);
+
+		expect(timeline?.ticks.length).toBeLessThanOrEqual(13);
 	});
 
 	it('shows no axis without dated details', () => {

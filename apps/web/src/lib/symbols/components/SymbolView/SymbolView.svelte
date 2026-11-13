@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Alert } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
+	import { setSymbolCover } from '#lib/symbols/symbols-data/symbols-data.ts';
 	import SymbolDetails from '#lib/symbols/components/SymbolDetails/SymbolDetails.svelte';
 	import SymbolMeaningSection from '#lib/symbols/components/SymbolMeaningSection/SymbolMeaningSection.svelte';
 	import SymbolTimeline from '#lib/symbols/components/SymbolTimeline/SymbolTimeline.svelte';
@@ -13,6 +14,17 @@
 	};
 
 	let { symbol, page }: Props = $props();
+
+	let chosen = $state<{ pinId: string | null }>();
+	let coverError = $state<string>();
+	const coverPinId = $derived(chosen ? (chosen.pinId ?? undefined) : symbol.coverPinId);
+
+	async function setCover(pinId: string | null): Promise<void> {
+		coverError = undefined;
+		const { error } = await setSymbolCover(symbol.id, pinId);
+		if (error) coverError = error;
+		else chosen = { pinId };
+	}
 </script>
 
 <header class="head">
@@ -24,14 +36,24 @@
 	<Alert tone="danger">{page.detailsError}</Alert>
 {/if}
 
+{#if coverError}
+	<Alert tone="danger">{coverError}</Alert>
+{/if}
+
 {#each page.sections as section, index (section.meaning.id)}
-	<SymbolMeaningSection number={index + 1} pinsShown={!page.detailsError} {section} />
+	<SymbolMeaningSection
+		{coverPinId}
+		number={index + 1}
+		onsetcover={setCover}
+		pinsShown={!page.detailsError}
+		{section}
+	/>
 {/each}
 
 {#if page.withoutMeaning.length > 0}
 	<section class="rest" aria-labelledby="without-meaning">
 		<h2 id="without-meaning">{m.symbols.view.withoutMeaning}</h2>
-		<SymbolDetails details={page.withoutMeaning} />
+		<SymbolDetails {coverPinId} details={page.withoutMeaning} onsetcover={setCover} />
 	</section>
 {/if}
 
