@@ -462,6 +462,34 @@ alternatives:
     loses:
       - 'A place named after a whole city has the point of the city.'
 
+  - id: M10
+    name: Keep trips in the visits table and give a place the type city
+    status: 'designed in 0.23 (ATL-700); built in ATL-701 and ATL-702'
+    kind: schema
+    tables: [visits, location_details]
+    serves: [R34, W29, W30]
+    pull_requests: 2
+    risk: low
+    risk_because: 'new nullable columns and a kind with a default; every existing row stays a visit, and every read of seen in person keeps reading visit_artworks'
+    how: >
+      visits gains kind ('visit' or 'trip', default 'visit'), ends_on (a trip with day precision only, not before
+      visited_on) and trip_id (a visit's trip, references visits (id, owner_id) on delete set null).
+      location_details.place_type accepts 'city'. save_visit takes the kind, the end and the trip, and refuses a
+      trip at a place that is not a city. The trip's artworks stay in visit_artworks, so the trigger that clears
+      want_to_see and records wish_seen covers trips.
+    design:
+      - 'Checks: ends_on only on a trip, null unless date_precision is day, not before visited_on; trip_id only on a visit.'
+      - 'A trigger keeps trip_id pointing at a row of kind trip; the foreign key on (trip_id, owner_id) uses on delete set null (trip_id), so owner_id stays.'
+      - 'The exhibit of three places in one day filters kind = visit; the other counts of visits read both kinds.'
+      - 'export_atelier and import_atelier carry kind, ends_on and trip_id; an older export imports as visits.'
+      - 'Existing city places get the type from a one-off reviewed SQL file run after the release, not from the migration.'
+    cost:
+      - 'migration 20261113030000: columns, checks, trigger, place type, save_visit, the boots exhibit, export and import'
+      - 'SQL tests: a trip at a city and at another place, end before start, a visit linked and unlinked, deleting a trip, import of an old and a new export, the boots exhibit ignoring trips'
+      - 'database.types.ts, screenshot mocks for a trip'
+    loses:
+      - 'A trip covers one city; a journey through several is several trips.'
+
 patterns:
   - { id: R01, today: 10, target: 5, model: none, also: [T1, T2] }
   - { id: R02, today: 2, target: 2, model: none, also: [T13] }
@@ -550,6 +578,12 @@ patterns:
       today: 'new',
       target: '1 select of the places with their details, artworks from the wall cache',
       model: [M9]
+    }
+  - {
+      id: R34,
+      today: 'new',
+      target: 'as R13 plus 1 select of the visits of the trip',
+      model: [M10]
     }
 
 writes:
@@ -661,6 +695,8 @@ writes:
     }
   - { id: W27, today: 'new', after: 'one artwork update of want_to_see', model: [M9] }
   - { id: W28, today: 'new', after: 'one location_details upsert of the point and id', model: [M9] }
+  - { id: W29, today: 'new', after: 'save_visit with kind trip', model: [M10] }
+  - { id: W30, today: 'new', after: 'save_visit sets trip_id', model: [M10] }
 
 decisions:
   - id: D1
