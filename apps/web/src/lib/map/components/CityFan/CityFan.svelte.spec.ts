@@ -9,6 +9,7 @@ import CityFan from './CityFan.svelte';
 function fanned(name: string, count: number, y: number): FannedCity {
 	const city: MapCity = {
 		key: name,
+		cityId: null,
 		name,
 		countryCode: 'IT',
 		point: { latitude: 0, longitude: 0 },

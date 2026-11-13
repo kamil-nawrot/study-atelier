@@ -1,6 +1,6 @@
 import { valueKey } from '#lib/card-index/value-suggestions/value-suggestions.ts';
 import { m } from '#lib/i18n/i18n.ts';
-import { townKey, tripPlaceOf } from '#lib/chronicle/trip-artworks/trip-artworks.ts';
+import { cityKey, tripPlaceOf } from '#lib/chronicle/trip-artworks/trip-artworks.ts';
 import { tripDateName } from '#lib/chronicle/trip-date/trip-date.ts';
 import { dateFromParts, isVisitDate } from '#lib/chronicle/visit-date/visit-date.ts';
 import { placeOf } from '#lib/chronicle/visit-form/visit-form.ts';
@@ -10,7 +10,6 @@ import type { SelectOption } from '@study-atelier/ui';
 import type { TripPlace } from '#lib/chronicle/types/trip-place.ts';
 import type { Visit } from '#lib/chronicle/types/visit.ts';
 import type { VisitDate } from '#lib/chronicle/types/visit-date.ts';
-import type { Town } from '#lib/map/types/town.ts';
 
 function lastDay(date: VisitDate): string {
 	const [year, month] = date.on.split('-').map(Number);
@@ -31,17 +30,16 @@ export function tripsCovering(trips: readonly Visit[], date: VisitDate): Visit[]
 export function sameCityTrip(
 	trips: readonly Visit[],
 	place: string,
-	places: readonly TripPlace[],
-	towns: readonly Town[]
+	places: readonly TripPlace[]
 ): Visit | undefined {
 	const key = valueKey(place);
 	if (key === '') return undefined;
 	const visited = tripPlaceOf(places, place);
-	const town = visited ? townKey(visited, towns) : null;
+	const city = visited ? cityKey(visited) : null;
 	return trips.find((trip) => {
 		if (valueKey(trip.place) === key) return true;
-		const city = tripPlaceOf(places, trip.place);
-		return town !== null && city !== undefined && townKey(city, towns) === town;
+		const target = tripPlaceOf(places, trip.place);
+		return city !== null && target !== undefined && cityKey(target) === city;
 	});
 }
 
@@ -60,7 +58,7 @@ export type TripLink = {
 export function linkedTrip(
 	form: VisitFormState,
 	trips: readonly Visit[],
-	source: Pick<SuggestionSource, 'tripPlaces' | 'towns'>,
+	source: Pick<SuggestionSource, 'tripPlaces'>,
 	chosen: boolean
 ): TripLink {
 	const date = dateFromParts(form);
@@ -70,6 +68,6 @@ export function linkedTrip(
 		const kept = covering.some((trip) => trip.id === form.tripId);
 		return { trips: covering, tripId: kept ? form.tripId : '' };
 	}
-	const match = sameCityTrip(covering, placeOf(form), source.tripPlaces, source.towns);
+	const match = sameCityTrip(covering, placeOf(form), source.tripPlaces);
 	return { trips: covering, tripId: match?.id ?? '' };
 }

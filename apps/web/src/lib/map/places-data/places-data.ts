@@ -12,6 +12,7 @@ type DetailsRow = {
 	country_code: string | null;
 	latitude: number | null;
 	longitude: number | null;
+	city_id?: string | null;
 };
 
 type PlaceRow = {
@@ -39,7 +40,8 @@ export function mapPlaceOf(row: PlaceRow): MapPlace {
 		point:
 			details?.latitude != null && details.longitude != null
 				? { latitude: details.latitude, longitude: details.longitude }
-				: null
+				: null,
+		cityId: details?.city_id ?? null
 	};
 }
 
@@ -47,7 +49,7 @@ export async function loadMapPlaces(): Promise<{ places: MapPlace[]; error?: str
 	const { data, error } = await supabase
 		.from('category_values')
 		.select(
-			'id, name, location_details!location_details_value_id_owner_id_category_code_fkey(place_type, country_code, latitude, longitude)'
+			'id, name, location_details!location_details_value_id_owner_id_category_code_fkey(place_type, country_code, latitude, longitude, city_id)'
 		)
 		.eq('category_code', 'location')
 		.order('name');

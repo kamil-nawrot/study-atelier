@@ -42,9 +42,17 @@ describe('places data', () => {
 					name: 'Louvre',
 					placeType: 'museum',
 					countryCode: 'FR',
-					point: { latitude: 48.86, longitude: 2.34 }
+					point: { latitude: 48.86, longitude: 2.34 },
+					cityId: null
 				},
-				{ id: 'place-2', name: 'Rzym', placeType: null, countryCode: null, point: null }
+				{
+					id: 'place-2',
+					name: 'Rzym',
+					placeType: null,
+					countryCode: null,
+					point: null,
+					cityId: null
+				}
 			]
 		});
 		expect(supabase.from).toHaveBeenCalledWith('category_values');
@@ -67,6 +75,22 @@ describe('places data', () => {
 				]
 			})
 		).toMatchObject({ placeType: null, countryCode: null, point: null });
+	});
+
+	it('reads the stored city of a place', () => {
+		expect(
+			mapPlaceOf({
+				id: 'place-4',
+				name: 'Louvre',
+				location_details: {
+					place_type: 'museum',
+					country_code: 'FR',
+					latitude: null,
+					longitude: null,
+					city_id: 'place-paris'
+				}
+			})
+		).toMatchObject({ cityId: 'place-paris', point: null });
 	});
 
 	it('sets and removes the point of a place in one call', async () => {

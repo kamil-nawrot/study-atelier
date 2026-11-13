@@ -1,87 +1,106 @@
 import { describe, expect, it } from 'vitest';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
-import { testGeography, testPlace } from '#lib/testing/map/map.ts';
-import { filterCounts, mapCities, placesToFill } from './map-cities.ts';
+import { testPlace } from '#lib/testing/map/map.ts';
+import { filterCounts, mapCities, onMap } from './map-cities.ts';
 
-const towns = testGeography().towns;
-const louvre = testPlace('Louvre', { point: { latitude: 48.86111, longitude: 2.33583 } });
-const orsay = testPlace("Musée d'Orsay", { point: { latitude: 48.86, longitude: 2.3266 } });
-const uffizi = testPlace('Uffizi', { point: { latitude: 43.76778, longitude: 11.25528 } });
-const moma = testPlace('MoMA', {
-	countryCode: 'US',
-	point: { latitude: 40.76139, longitude: -73.97778 }
+const paris = testPlace('Paryż', {
+	placeType: 'city',
+	countryCode: 'FR',
+	point: { latitude: 48.857, longitude: 2.35 }
 });
+const florence = testPlace('Florencja', {
+	placeType: 'city',
+	countryCode: 'IT',
+	point: { latitude: 43.78, longitude: 11.25 }
+});
+const louvre = testPlace('Louvre', { cityId: paris.id, countryCode: 'FR' });
+const orsay = testPlace("Musée d'Orsay", { cityId: paris.id, countryCode: 'FR' });
+const uffizi = testPlace('Uffizi', { cityId: florence.id, countryCode: 'IT' });
+const lascaux = testPlace('Lascaux, Francja', {
+	placeType: 'on_site',
+	countryCode: 'FR',
+	point: { latitude: 45.05, longitude: 1.17 }
+});
+const tum = testPlace('Tum', { placeType: 'city' });
+const collegiate = testPlace('Kolegiata', { cityId: tum.id });
 const belvedere = testPlace('Belvedere');
+const places = [paris, florence, louvre, orsay, uffizi, lascaux, tum, collegiate, belvedere];
 
 const artworks = [
 	testArtwork(1, 'Mona Lisa', { location: 'Louvre', seen: true }),
 	testArtwork(2, 'Olympia', { location: "Musée d'Orsay", wantToSee: true }),
 	testArtwork(3, 'Primavera', { location: 'Uffizi', wantToSee: true }),
 	testArtwork(4, 'Birth of Venus', { location: 'Uffizi' }),
-	testArtwork(5, 'The Starry Night', { location: 'MoMA, New York' }),
-	testArtwork(6, 'The Kiss', { location: 'Belvedere' }),
-	testArtwork(7, 'Untitled')
+	testArtwork(5, 'Bull', { location: 'Lascaux, Francja' }),
+	testArtwork(6, 'Paris street', { location: 'Paryż' }),
+	testArtwork(7, 'Portal', { location: 'Kolegiata' }),
+	testArtwork(8, 'The Kiss', { location: 'Belvedere' }),
+	testArtwork(9, 'Untitled')
 ];
 
 describe('mapCities', () => {
-	it('groups the places of one town into a city with its counts, most artworks first', () => {
-		const cities = mapCities([louvre, orsay, uffizi, belvedere], artworks, towns, 'all');
+	it('groups places by their stored city at the point of the city, most artworks first', () => {
+		const cities = mapCities(places, artworks, 'all');
 
 		expect(cities.map((city) => [city.name, city.count, city.seen])).toEqual([
-			['Paryż', 2, 1],
-			['Florencja', 2, 0]
+			['Paryż', 3, 1],
+			['Florencja', 2, 0],
+			['Lascaux', 1, 0]
 		]);
-		expect(cities[0]).toMatchObject({ key: 'FR:Paryż', countryCode: 'FR' });
-		expect(cities[0].point).toEqual({ latitude: 48.857, longitude: 2.35 });
-		expect(cities[0].places.map(({ place }) => place.name)).toEqual(['Louvre', "Musée d'Orsay"]);
+		expect(cities[0]).toMatchObject({
+			key: `city:${paris.id}`,
+			cityId: paris.id,
+			countryCode: 'FR',
+			point: paris.point
+		});
+		expect(cities[0].places.map(({ place }) => place.name)).toEqual([
+			'Paryż',
+			'Louvre',
+			"Musée d'Orsay"
+		]);
 	});
 
-	it('names a place far from every town after the part of its name before a comma', () => {
-		const place = { ...moma, name: 'MoMA, New York' };
+	it('draws a place without a city at its own point, named before the comma', () => {
+		const lonely = mapCities(places, artworks, 'all').find((city) => city.key.startsWith('place:'));
 
-		const [city] = mapCities([place], artworks, towns, 'all');
+		expect(lonely).toMatchObject({
+			key: `place:${lascaux.id}`,
+			cityId: null,
+			name: 'Lascaux',
+			point: lascaux.point
+		});
+	});
 
-		expect(city).toMatchObject({ key: `place:${place.id}`, name: 'MoMA', countryCode: 'US' });
-		expect(city.point).toEqual(place.point);
+	it('leaves out places whose city has no position and places with neither', () => {
+		const names = mapCities(places, artworks, 'all').flatMap((city) =>
+			city.places.map(({ place }) => place.name)
+		);
+
+		expect(names).not.toContain('Kolegiata');
+		expect(names).not.toContain('Belvedere');
 	});
 
 	it('narrows the cities to the artworks the filter names', () => {
-		expect(mapCities([louvre, orsay, uffizi], artworks, towns, 'wantToSee')).toMatchObject([
+		expect(mapCities(places, artworks, 'wantToSee')).toMatchObject([
 			{ name: 'Paryż', count: 1 },
 			{ name: 'Florencja', count: 1 }
 		]);
-		expect(mapCities([louvre, orsay, uffizi], artworks, towns, 'seen')).toMatchObject([
+		expect(mapCities(places, artworks, 'seen')).toMatchObject([
 			{ name: 'Paryż', count: 1, seen: 1 }
 		]);
 	});
 });
 
-describe('filterCounts', () => {
-	it('counts only the artworks at places with a point', () => {
-		expect(filterCounts([louvre, orsay, uffizi, belvedere], artworks)).toEqual({
-			all: 4,
-			wantToSee: 2,
-			seen: 1
-		});
+describe('onMap', () => {
+	it('names the places that reach the map through their city or their own point', () => {
+		expect([...onMap(places)].sort()).toEqual(
+			['Florencja', 'Lascaux, Francja', 'Louvre', "Musée d'Orsay", 'Paryż', 'Uffizi'].sort()
+		);
 	});
 });
 
-describe('placesToFill', () => {
-	it('lists the places without a point that hold artworks, most artworks first', () => {
-		const rome = testPlace('Rzym');
-		const lonely = testPlace('Empty place');
-		const list = placesToFill(
-			[louvre, belvedere, rome, lonely],
-			[
-				...artworks,
-				testArtwork(8, 'Pieta', { location: 'Rzym' }),
-				testArtwork(9, 'Moses', { location: 'Rzym' })
-			]
-		);
-
-		expect(list.map(({ place, count }) => [place.name, count])).toEqual([
-			['Rzym', 2],
-			['Belvedere', 1]
-		]);
+describe('filterCounts', () => {
+	it('counts only the artworks at places on the map', () => {
+		expect(filterCounts(places, artworks)).toEqual({ all: 6, wantToSee: 2, seen: 1 });
 	});
 });
