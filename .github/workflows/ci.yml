@@ -14,6 +14,7 @@ on:
       - '!docs/**'
       - '!**/*.md'
       - 'apps/web/src/**/*.md'
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -22,19 +23,20 @@ concurrency:
 jobs:
   ui:
     name: UI library
-    if: github.event_name == 'push'
+    if: github.event_name != 'pull_request' && (github.ref_name == 'develop' || github.ref_name == 'main')
     uses: ./.github/workflows/ui.yml
 
   migrations:
     name: Migrations on local Supabase
-    if: github.event_name == 'push'
+    if: github.event_name != 'pull_request' && (github.ref_name == 'develop' || github.ref_name == 'main')
     uses: ./.github/workflows/migrations.yml
 
   web:
     name: Web app
+    if: github.event_name != 'workflow_dispatch' || github.ref_name == 'develop' || github.ref_name == 'main'
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    environment: ${{ github.event_name == 'push' && (github.ref_name == 'main' && 'production' || 'develop') || '' }}
+    environment: ${{ github.event_name != 'pull_request' && (github.ref_name == 'main' && 'production' || 'develop') || '' }}
     env:
       CLOUDFLARE_CONFIGURED: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
       SUPABASE_URL: ${{ github.event_name == 'pull_request' && 'https://test.supabase.co' || secrets.SUPABASE_URL }}
@@ -44,10 +46,10 @@ jobs:
       LEGAL_NIP: ${{ vars.LEGAL_NIP }}
       TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
       SENTRY_DSN: ${{ vars.SENTRY_DSN }}
-      SENTRY_ENVIRONMENT: ${{ github.event_name == 'push' && (github.ref_name == 'main' && 'production' || 'develop') || '' }}
+      SENTRY_ENVIRONMENT: ${{ github.event_name != 'pull_request' && (github.ref_name == 'main' && 'production' || 'develop') || '' }}
       SENTRY_ORG: ${{ vars.SENTRY_ORG }}
       SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
-      SENTRY_AUTH_TOKEN: ${{ github.event_name == 'push' && github.ref_name == 'main' && secrets.SENTRY_AUTH_TOKEN || '' }}
+      SENTRY_AUTH_TOKEN: ${{ github.event_name != 'pull_request' && github.ref_name == 'main' && secrets.SENTRY_AUTH_TOKEN || '' }}
     steps:
       - uses: actions/checkout@v7
 
@@ -97,7 +99,7 @@ jobs:
         run: pnpm --filter @study-atelier/web build
 
       - name: Create Cloudflare Pages project
-        if: github.event_name == 'push' && env.CLOUDFLARE_CONFIGURED == 'true'
+        if: github.event_name != 'pull_request' && env.CLOUDFLARE_CONFIGURED == 'true'
         working-directory: apps/web
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -108,7 +110,7 @@ jobs:
           fi
 
       - name: Deploy to Cloudflare Pages
-        if: github.event_name == 'push' && env.CLOUDFLARE_CONFIGURED == 'true'
+        if: github.event_name != 'pull_request' && env.CLOUDFLARE_CONFIGURED == 'true'
         working-directory: apps/web
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -123,7 +125,7 @@ jobs:
   database:
     name: Database migrations
     needs: [web, migrations]
-    if: github.event_name == 'push' && (github.ref_name == 'develop' || github.ref_name == 'main')
+    if: github.event_name != 'pull_request' && (github.ref_name == 'develop' || github.ref_name == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment: ${{ github.ref_name == 'main' && 'production' || 'develop' }}
