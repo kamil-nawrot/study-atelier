@@ -8,6 +8,9 @@ import { testGeography } from '#lib/testing/map/map.ts';
 import type { PlacePoint as Point } from '#lib/map/types/place-point.ts';
 import PlaceField from './PlaceField.svelte';
 
+vi.mock('#lib/map/museum-places-data/museum-places-data.ts', () => ({
+	loadMuseumPlaces: vi.fn().mockResolvedValue([])
+}));
 vi.mock('#lib/images/wikidata-places/wikidata-places.ts', () => ({
 	searchWikidataPlaces: vi.fn()
 }));

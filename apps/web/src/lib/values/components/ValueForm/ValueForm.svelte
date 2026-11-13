@@ -256,19 +256,6 @@
 						options={placeOptions}
 						value={form.location.placeType}
 					/>
-					{#if !creating}
-						<PlaceField
-							name={form.name}
-							bind:point={
-								() => form.location?.point ?? null,
-								(point) => form.location && (form.location.point = point)
-							}
-							bind:wikidataId={
-								() => form.location?.wikidataId ?? null,
-								(wikidataId) => form.location && (form.location.wikidataId = wikidataId)
-							}
-						/>
-					{/if}
 				{/if}
 
 				{#if form.author}
@@ -323,6 +310,19 @@
 					/>
 				{/if}
 			</div>
+			{#if form.location && !creating}
+				<PlaceField
+					name={form.name}
+					bind:point={
+						() => form.location?.point ?? null,
+						(point) => form.location && (form.location.point = point)
+					}
+					bind:wikidataId={
+						() => form.location?.wikidataId ?? null,
+						(wikidataId) => form.location && (form.location.wikidataId = wikidataId)
+					}
+				/>
+			{/if}
 		</div>
 
 		<FormActions>

@@ -6,6 +6,9 @@ import { m } from '#lib/i18n/i18n.ts';
 import { testPlace } from '#lib/testing/map/map.ts';
 import FillPanel from './FillPanel.svelte';
 
+vi.mock('#lib/map/museum-places-data/museum-places-data.ts', () => ({
+	loadMuseumPlaces: vi.fn().mockResolvedValue([])
+}));
 vi.mock('#lib/images/wikidata-places/wikidata-places.ts', () => ({
 	searchWikidataPlaces: vi.fn().mockResolvedValue([])
 }));

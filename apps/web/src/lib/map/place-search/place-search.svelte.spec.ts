@@ -79,6 +79,7 @@ describe('PlaceSearch', () => {
 		const search = new PlaceSearch();
 
 		const first = search.search('Rzym');
+		await vi.waitFor(() => expect(searchWikidataPlaces).toHaveBeenCalledTimes(1));
 		await search.search('Nowhere');
 		answerFirst([rome]);
 		await first;
