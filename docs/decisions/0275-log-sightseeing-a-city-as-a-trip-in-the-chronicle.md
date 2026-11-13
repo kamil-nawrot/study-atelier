@@ -1,6 +1,6 @@
 # 0275. Log sightseeing a city as a trip in the chronicle
 
-- Status: accepted
+- Status: accepted; the "Na miejscu" places of a trip found by distance are superseded by [0282](0282-give-a-place-its-city-and-group-the-places-of-kartoteka-by-country-and-city.md)
 - Date: 2026-11-13
 
 ## Context and problem statement
