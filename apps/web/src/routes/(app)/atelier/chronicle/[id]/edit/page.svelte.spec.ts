@@ -29,7 +29,8 @@ describe('visit edit page', () => {
 				artworks: [],
 				places: [],
 				tripPlaces: [],
-				towns: []
+				towns: [],
+				trips: []
 			},
 			params: { id: testVisit().id }
 		});
@@ -48,7 +49,8 @@ describe('visit edit page', () => {
 				artworks: [],
 				places: [],
 				tripPlaces: [],
-				towns: []
+				towns: [],
+				trips: []
 			},
 			params: { id: testVisit().id }
 		});
@@ -66,7 +68,8 @@ describe('visit edit page', () => {
 				artworks: [],
 				places: [],
 				tripPlaces: [],
-				towns: []
+				towns: [],
+				trips: []
 			},
 			params: { id: 'unknown' }
 		});

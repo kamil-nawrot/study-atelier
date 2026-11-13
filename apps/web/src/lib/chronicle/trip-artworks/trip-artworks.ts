@@ -4,7 +4,7 @@ import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import type { TripPlace } from '#lib/chronicle/types/trip-place.ts';
 import type { Town } from '#lib/map/types/town.ts';
 
-function townKey(place: TripPlace, towns: readonly Town[]): string | null {
+export function townKey(place: TripPlace, towns: readonly Town[]): string | null {
 	if (!place.point) return null;
 	const town = nearestTown(place.point, towns);
 	return town ? `${town.countryCode}:${town.name}` : null;

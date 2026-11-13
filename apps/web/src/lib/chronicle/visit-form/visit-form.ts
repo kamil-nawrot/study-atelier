@@ -43,6 +43,7 @@ export function emptyVisitForm(kind: VisitKind = 'visit'): VisitFormState {
 		endDay: '',
 		endMonth: '',
 		endYear: '',
+		tripId: '',
 		notes: '',
 		chosen: [],
 		extra: []
@@ -65,6 +66,7 @@ export function visitFormOf(
 		endDay: end.day,
 		endMonth: end.month,
 		endYear: end.year,
+		tripId: visit.tripId ?? '',
 		notes: visit.notes,
 		chosen: visit.artworkIds.filter((id) => known.has(id)),
 		extra: visit.artworkIds.filter((id) => known.has(id) && !atPlace.has(id))
@@ -167,6 +169,7 @@ export function draftOfVisitForm(form: VisitFormState, kept: readonly string[] =
 		place: placeOf(form),
 		date,
 		endsOn: end,
+		tripId: form.kind === 'visit' && form.tripId !== '' ? form.tripId : null,
 		notes: form.notes,
 		artworkIds: [...new Set([...form.chosen, ...kept])]
 	};
@@ -175,18 +178,12 @@ export function draftOfVisitForm(form: VisitFormState, kept: readonly string[] =
 export function visitFormChanged(current: VisitFormState, saved: VisitFormState): boolean {
 	const sameSet = (a: string[], b: string[]): boolean =>
 		a.length === b.length && a.every((id) => b.includes(id));
-	const sameText = (key: 'day' | 'year' | 'endDay' | 'endYear'): boolean =>
-		current[key].trim() === saved[key].trim();
+	const trimmed = ['day', 'year', 'endDay', 'endYear'] as const;
+	const exact = ['kind', 'month', 'endMonth', 'tripId', 'notes'] as const;
 	return (
-		current.kind !== saved.kind ||
 		placeOf(current) !== placeOf(saved) ||
-		!sameText('day') ||
-		current.month !== saved.month ||
-		!sameText('year') ||
-		!sameText('endDay') ||
-		current.endMonth !== saved.endMonth ||
-		!sameText('endYear') ||
-		current.notes !== saved.notes ||
+		trimmed.some((key) => current[key].trim() !== saved[key].trim()) ||
+		exact.some((key) => current[key] !== saved[key]) ||
 		!sameSet(current.chosen, saved.chosen) ||
 		!sameSet(current.extra, saved.extra)
 	);

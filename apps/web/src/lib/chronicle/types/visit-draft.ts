@@ -6,6 +6,7 @@ export type VisitDraft = {
 	place: string;
 	date: VisitDate;
 	endsOn: string | null;
+	tripId: string | null;
 	notes: string;
 	artworkIds: string[];
 };

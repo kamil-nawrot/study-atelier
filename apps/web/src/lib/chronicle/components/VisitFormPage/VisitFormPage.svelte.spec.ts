@@ -26,7 +26,7 @@ describe('VisitFormPage', () => {
 
 	it('says that the visit does not exist', async () => {
 		render(VisitFormPage, {
-			data: { notFound: true, artworks: [], places: [], tripPlaces: [], towns: [] }
+			data: { notFound: true, artworks: [], places: [], tripPlaces: [], towns: [], trips: [] }
 		});
 
 		await expect.element(page.getByText(m.chronicle.errors.notFound)).toBeInTheDocument();
@@ -41,7 +41,8 @@ describe('VisitFormPage', () => {
 				artworks: [],
 				places: ['Orsay'],
 				tripPlaces: [],
-				towns: []
+				towns: [],
+				trips: []
 			}
 		});
 

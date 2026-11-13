@@ -10,6 +10,7 @@ export type VisitFormState = {
 	endDay: string;
 	endMonth: string;
 	endYear: string;
+	tripId: string;
 	notes: string;
 	chosen: string[];
 	extra: string[];

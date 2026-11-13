@@ -9,6 +9,7 @@
 		Form,
 		FormActions,
 		NotesEditor,
+		Select,
 		ValueField,
 		type NoteLinks
 	} from '@study-atelier/ui';
@@ -30,6 +31,7 @@
 		visitFormOf,
 		withPlaceArtworks
 	} from '#lib/chronicle/visit-form/visit-form.ts';
+	import { linkedTrip, tripOptions } from '#lib/chronicle/visit-trip/visit-trip.ts';
 	import VisitDateField from '#lib/chronicle/components/VisitDateField/VisitDateField.svelte';
 	import VisitArtworksField from '#lib/chronicle/components/VisitArtworksField/VisitArtworksField.svelte';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -47,6 +49,7 @@
 		places: string[];
 		tripPlaces?: TripPlace[];
 		towns?: Town[];
+		trips?: Visit[];
 		placeStarter?: PlaceStarter;
 		noteLinks?: NoteLinks;
 		cancelHref: string;
@@ -62,6 +65,7 @@
 		places,
 		tripPlaces = [],
 		towns = [],
+		trips = [],
 		placeStarter,
 		noteLinks,
 		cancelHref,
@@ -140,6 +144,14 @@
 		);
 	});
 
+	let tripChosen = $state(untrack(() => existing !== undefined));
+	let link = $derived(linkedTrip(form, trips, { tripPlaces, towns }, tripChosen));
+
+	$effect(() => {
+		const next = link.tripId;
+		if (untrack(() => form.tripId) !== next) form.tripId = next;
+	});
+
 	function chooseKind(value: string | null): void {
 		form.kind = value === 'trip' ? 'trip' : 'visit';
 	}
@@ -210,6 +222,16 @@
 						bind:day={form.endDay}
 						bind:month={form.endMonth}
 						bind:year={form.endYear}
+					/>
+				{/if}
+
+				{#if link.trips.length > 0}
+					<Select
+						hint={m.chronicle.form.tripHint}
+						label={m.chronicle.form.trip}
+						onchange={() => (tripChosen = true)}
+						options={tripOptions(link.trips)}
+						bind:value={form.tripId}
 					/>
 				{/if}
 

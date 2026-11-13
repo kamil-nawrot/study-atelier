@@ -261,6 +261,20 @@ begin
   end;
   assert rejected, 'a visit is part of another visit';
 
+  perform public.save_visit(
+    jsonb_build_object('visited_on', '2026-10-12', 'date_precision', 'day', 'trip_id', trip), 'Louvre', '{}', museum_visit);
+  assert (select trip_id from public.visits where id = museum_visit) = trip, 'save_visit drops the trip of a visit';
+  perform public.save_visit(
+    jsonb_build_object('visited_on', '2026-10-12', 'date_precision', 'day', 'trip_id', museum_visit), 'Paris', '{}', trip);
+  assert (select trip_id from public.visits where id = trip) is null, 'save_visit puts a trip in a trip';
+  rejected := false;
+  begin
+    perform public.save_visit(
+      jsonb_build_object('visited_on', '2026-10-12', 'date_precision', 'day', 'trip_id', museum_visit), 'Orsay', '{}');
+  exception when foreign_key_violation then rejected := true;
+  end;
+  assert rejected, 'save_visit links a visit to another visit';
+
   delete from public.visits where id = trip;
   assert (select trip_id from public.visits where id = museum_visit) is null,
     'deleting a trip does not free its visits';

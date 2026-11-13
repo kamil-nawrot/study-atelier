@@ -81,6 +81,20 @@ export async function loadVisits(): Promise<VisitsResult> {
 	return { visits: rows.map(visitOf) };
 }
 
+export async function loadTrips(): Promise<VisitsResult> {
+	const { rows, error } = await fetchAll<VisitRow>((from, to) =>
+		supabase
+			.from('visits')
+			.select(ENTRY_COLUMNS)
+			.eq('kind', 'trip')
+			.order('visited_on', { ascending: false })
+			.order('id', { ascending: false })
+			.range(from, to)
+	);
+	if (error) return { visits: [], error: chronicleErrorMessage(error) };
+	return { visits: rows.map(visitOf) };
+}
+
 export async function loadArtworkVisits(number: number): Promise<VisitsResult> {
 	const { rows, error } = await fetchAll<VisitRow>((from, to) =>
 		supabase
@@ -145,6 +159,7 @@ export async function saveVisit(draft: VisitDraft, existingId?: string): Promise
 			visited_on: draft.date.on,
 			date_precision: draft.date.precision,
 			ends_on: draft.endsOn,
+			trip_id: draft.tripId,
 			notes: notes === '' ? null : notes
 		},
 		place: draft.place.trim(),

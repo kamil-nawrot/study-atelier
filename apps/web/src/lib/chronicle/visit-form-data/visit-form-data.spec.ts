@@ -3,11 +3,11 @@ import { loadVisitPlaces } from '#lib/card-index/category-values-data/category-v
 import { loadPlaceStarter } from '#lib/card-index/place-starter-data/place-starter-data.ts';
 import { emptyPlaceStarter } from '#lib/card-index/place-starter/place-starter.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
-import { loadVisit } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
+import { loadTrips, loadVisit } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
 import { loadTowns } from '#lib/map/geography/geography.ts';
 import { loadMapPlaces } from '#lib/map/places-data/places-data.ts';
 import { loadEditorNoteLinks } from '#lib/notes/note-link-data/note-link-data.ts';
-import { testVisit } from '#lib/testing/chronicle/chronicle.ts';
+import { testTrip, testVisit } from '#lib/testing/chronicle/chronicle.ts';
 import { loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
 import { loadVisitForm } from './visit-form-data.ts';
 
@@ -17,7 +17,10 @@ vi.mock('#lib/card-index/category-values-data/category-values-data.ts', () => ({
 vi.mock('#lib/card-index/place-starter-data/place-starter-data.ts', () => ({
 	loadPlaceStarter: vi.fn()
 }));
-vi.mock('#lib/chronicle/chronicle-data/chronicle-data.ts', () => ({ loadVisit: vi.fn() }));
+vi.mock('#lib/chronicle/chronicle-data/chronicle-data.ts', () => ({
+	loadVisit: vi.fn(),
+	loadTrips: vi.fn()
+}));
 vi.mock('#lib/notes/note-link-data/note-link-data.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/notes/note-link-data/note-link-data.ts')>()),
 	loadEditorNoteLinks: vi.fn()
@@ -46,6 +49,7 @@ beforeEach(() => {
 		]
 	});
 	vi.mocked(loadTowns).mockResolvedValue([paris]);
+	vi.mocked(loadTrips).mockResolvedValue({ visits: [testTrip()] });
 });
 
 describe('loadVisitForm', () => {
@@ -56,6 +60,13 @@ describe('loadVisitForm', () => {
 			{ name: 'Paryż', placeType: 'city', point: { latitude: 48.857, longitude: 2.352 } }
 		]);
 		expect(data.towns).toEqual([paris]);
+	});
+
+	it('gives the trips a visit can be part of, but not the trip being edited', async () => {
+		expect((await loadVisitForm()).trips).toEqual([testTrip()]);
+
+		vi.mocked(loadVisit).mockResolvedValue({ visit: testTrip() });
+		expect((await loadVisitForm(testTrip().id)).trips).toEqual([]);
 	});
 
 	it('opens the form without towns when they do not load', async () => {

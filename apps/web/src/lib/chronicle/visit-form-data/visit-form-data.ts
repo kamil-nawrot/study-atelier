@@ -1,6 +1,6 @@
 import { loadVisitPlaces } from '#lib/card-index/category-values-data/category-values-data.ts';
 import { loadPlaceStarter } from '#lib/card-index/place-starter-data/place-starter-data.ts';
-import { loadVisit } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
+import { loadTrips, loadVisit } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
 import { locale } from '#lib/i18n/i18n.ts';
 import { loadEditorNoteLinks, mentionsLinks } from '#lib/notes/note-link-data/note-link-data.ts';
 import { loadTowns } from '#lib/map/geography/geography.ts';
@@ -12,7 +12,7 @@ import type { VisitResult } from '#lib/chronicle/types/visit-result.ts';
 
 export async function loadVisitForm(id?: string): Promise<VisitFormData> {
 	const visit = id ? loadVisit(id) : Promise.resolve<VisitResult>({});
-	const [result, noteLinks, atelier, visitPlaces, placeStarter, mapPlaces, towns] =
+	const [result, noteLinks, atelier, visitPlaces, placeStarter, mapPlaces, towns, trips] =
 		await Promise.all([
 			visit,
 			visit.then((loaded) =>
@@ -22,7 +22,8 @@ export async function loadVisitForm(id?: string): Promise<VisitFormData> {
 			loadVisitPlaces(),
 			loadPlaceStarter(),
 			loadMapPlaces(),
-			loadTowns().catch((): Town[] => [])
+			loadTowns().catch((): Town[] => []),
+			loadTrips()
 		]);
 	const places = new Set([
 		...visitPlaces.places,
@@ -30,11 +31,12 @@ export async function loadVisitForm(id?: string): Promise<VisitFormData> {
 	]);
 	return {
 		...result,
-		error: result.error ?? atelier.error,
+		error: result.error ?? atelier.error ?? trips.error,
 		artworks: atelier.artworks,
 		places: [...places].sort((a, b) => a.localeCompare(b, locale)),
 		tripPlaces: mapPlaces.places.map(({ name, placeType, point }) => ({ name, placeType, point })),
 		towns,
+		trips: trips.visits.filter((trip) => trip.id !== id),
 		placeStarter,
 		noteLinks
 	};

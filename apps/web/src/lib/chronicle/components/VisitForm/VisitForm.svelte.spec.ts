@@ -82,6 +82,7 @@ describe('VisitForm', () => {
 			place: 'Orsay',
 			date: { on: '2026-10-01', precision: 'month' },
 			endsOn: null,
+			tripId: null,
 			notes: '',
 			artworkIds: [lilies.id]
 		};
@@ -212,5 +213,70 @@ describe('VisitForm', () => {
 		await expect
 			.element(page.getByRole('radio', { name: new RegExp(m.chronicle.trip.kind) }))
 			.not.toBeInTheDocument();
+	});
+
+	it('links a visit in the days of a trip to the trip of its city, and lets the learner leave it out', async () => {
+		save.mockResolvedValue({ id: VISIT_ID });
+		const onsaved = vi.fn();
+		const vienna = testTrip({
+			id: 'vienna',
+			place: 'Vienna',
+			date: { on: '2026-10-11', precision: 'day' }
+		});
+		render(VisitForm, {
+			artworks,
+			places: ['Orsay', 'Belvedere'],
+			tripPlaces: [
+				{ name: 'Paris', placeType: 'city', point: { latitude: 48.857, longitude: 2.352 } },
+				{ name: 'Vienna', placeType: 'city', point: { latitude: 48.208, longitude: 16.373 } },
+				{ name: 'Belvedere', placeType: 'museum', point: { latitude: 48.191, longitude: 16.381 } }
+			],
+			towns: [
+				{ name: 'Paris', countryCode: 'FR', latitude: 48.857, longitude: 2.352 },
+				{ name: 'Vienna', countryCode: 'AT', latitude: 48.208, longitude: 16.373 }
+			],
+			trips: [testTrip(), vienna],
+			cancelHref: '/atelier/chronicle',
+			onsaved
+		});
+
+		await pickPlace('Belvedere');
+		await expect.element(page.getByLabelText(m.chronicle.form.trip)).not.toBeInTheDocument();
+		await page.getByLabelText(m.chronicle.form.day).fill('12');
+		await userEvent.selectOptions(page.getByLabelText(m.chronicle.form.month), 'październik');
+		await page.getByLabelText(m.chronicle.form.year).fill('2026');
+
+		const trip = page.getByLabelText(m.chronicle.form.trip);
+		await expect.element(trip).toHaveValue('vienna');
+		await expect.element(page.getByText(m.chronicle.form.tripHint)).toBeInTheDocument();
+
+		await userEvent.selectOptions(trip, m.chronicle.form.noTrip);
+		await page.getByLabelText(m.chronicle.form.day).fill('13');
+		await expect.element(trip).toHaveValue('');
+		await userEvent.click(saveButton());
+
+		await vi.waitFor(() => expect(onsaved).toHaveBeenCalled());
+		expect(save).toHaveBeenCalledWith(expect.objectContaining({ tripId: null }), undefined);
+	});
+
+	it('saves the trip of a visit chosen by hand', async () => {
+		save.mockResolvedValue({ id: VISIT_ID });
+		const onsaved = vi.fn();
+		render(VisitForm, {
+			visit: testVisit({ place: 'Orsay', date: { on: '2026-10-12', precision: 'day' } }),
+			artworks,
+			places: ['Orsay'],
+			trips: [testTrip()],
+			cancelHref: '/atelier/chronicle',
+			onsaved
+		});
+
+		const trip = page.getByLabelText(m.chronicle.form.trip);
+		await expect.element(trip).toHaveValue('');
+		await userEvent.selectOptions(trip, TRIP_ID);
+		await userEvent.click(saveButton());
+
+		await vi.waitFor(() => expect(onsaved).toHaveBeenCalled());
+		expect(save).toHaveBeenCalledWith(expect.objectContaining({ tripId: TRIP_ID }), VISIT_ID);
 	});
 });
