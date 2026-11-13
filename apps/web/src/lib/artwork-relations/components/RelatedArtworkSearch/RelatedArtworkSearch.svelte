@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { MetaLine, SearchField } from '@study-atelier/ui';
+	import { ValueField, type ValueOption } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { searchRelatedArtworks } from '#lib/artwork-relations/artwork-relations-data/artwork-relations-data.ts';
 	import type { ArtworkRelationMatch } from '#lib/artwork-relations/types/artwork-relation-match.ts';
@@ -7,23 +7,35 @@
 
 	type Props = {
 		id?: string;
+		artwork: RelatedArtwork | null;
 		excluded: ReadonlySet<string>;
 		invalid?: boolean;
-		onpick: (artwork: RelatedArtwork) => void;
 	};
 
 	const SEARCH_DELAY_MS = 250;
 	const SHOWN = 8;
 
-	let { id, excluded, invalid = false, onpick }: Props = $props();
+	let { id, artwork = $bindable(), excluded, invalid = false }: Props = $props();
 
 	let query = $state('');
 	let found = $state<ArtworkRelationMatch[]>();
 	let error = $state<string>();
 
 	let phrase = $derived(query.trim());
-	let results = $derived(
-		(found ?? []).filter((artwork) => !excluded.has(artwork.id)).slice(0, SHOWN)
+	let matches = $derived((found ?? []).filter((match) => !excluded.has(match.id)).slice(0, SHOWN));
+	let options = $derived<ValueOption[]>(
+		matches.map((match) => ({
+			kind: 'found',
+			id: match.id,
+			name: match.title,
+			note: match.authors.join(', ')
+		}))
+	);
+	let hint = $derived(
+		error ??
+			(phrase !== '' && found !== undefined && matches.length === 0
+				? m.artworkRelations.noMatch
+				: undefined)
 	);
 
 	$effect(() => {
@@ -45,68 +57,30 @@
 		};
 	});
 
-	function pick(artwork: ArtworkRelationMatch): void {
-		onpick({ id: artwork.id, number: artwork.number, title: artwork.title });
+	function pick(option: ValueOption): void {
+		const match = matches.find((candidate) => candidate.id === option.id);
+		if (match) artwork = { id: match.id, number: match.number, title: match.title };
+	}
+
+	function values(): string[] {
+		return artwork ? [artwork.title] : [];
+	}
+
+	function setValues(next: string[]): void {
+		if (next.length === 0) artwork = null;
 	}
 </script>
 
-<div class="search">
-	<SearchField
-		{id}
-		aria-invalid={invalid ? true : undefined}
-		compact
-		label={m.artworkRelations.search}
-		placeholder={m.artworkRelations.search}
-		bind:value={query}
-	/>
-	{#if error}
-		<p class="caption">{error}</p>
-	{:else if found !== undefined && phrase !== ''}
-		{#if results.length > 0}
-			<ul class="results">
-				{#each results as artwork (artwork.id)}
-					<li>
-						<button class="result" onclick={() => pick(artwork)} type="button">
-							<cite class="artwork-title">{artwork.title}</cite>
-							<MetaLine class="caption" parts={[artwork.authors.join(', ')]} />
-						</button>
-					</li>
-				{/each}
-			</ul>
-		{:else}
-			<p class="caption">{m.artworkRelations.noMatch}</p>
-		{/if}
-	{/if}
-</div>
-
-<style>
-	.search {
-		display: grid;
-		gap: var(--spacing-2);
-		min-width: 0;
-	}
-
-	.results {
-		display: grid;
-		margin: 0;
-		padding: 0;
-		border: var(--border-width-hairline) solid var(--color-line);
-		list-style: none;
-	}
-
-	.result {
-		display: grid;
-		width: 100%;
-		padding: var(--spacing-2) var(--spacing-3);
-		border: 0;
-		background: transparent;
-		color: var(--color-fg);
-		text-align: start;
-		cursor: pointer;
-	}
-
-	.result:hover,
-	.result:focus-visible {
-		background: var(--color-surface);
-	}
-</style>
+<ValueField
+	{id}
+	{hint}
+	{invalid}
+	label={m.artworkRelations.search}
+	labelHidden
+	onpick={pick}
+	{options}
+	placeholder={m.artworkRelations.search}
+	single
+	bind:query
+	bind:values={values, setValues}
+/>

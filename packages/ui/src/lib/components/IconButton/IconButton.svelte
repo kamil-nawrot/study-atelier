@@ -8,6 +8,7 @@
 		icon: LucideIcon;
 		label: string;
 		variant?: 'secondary' | 'danger' | 'plain';
+		tone?: 'danger';
 		tooltipPlacement?: 'top' | 'bottom' | 'left';
 		tooltipAlign?: 'start' | 'end';
 	};
@@ -16,6 +17,7 @@
 		icon,
 		label,
 		variant = 'secondary',
+		tone,
 		tooltipPlacement,
 		tooltipAlign,
 		...rest
@@ -26,6 +28,7 @@
 	{#snippet children(describedby)}
 		<button
 			class="icon-button {variant}"
+			class:tone-danger={tone === 'danger'}
 			aria-describedby={describedby}
 			aria-label={label}
 			type="button"
@@ -60,6 +63,10 @@
 
 	.plain {
 		border: none;
+	}
+
+	.tone-danger {
+		color: var(--color-danger);
 	}
 
 	.icon-button:not(.plain):hover:not(:disabled) {

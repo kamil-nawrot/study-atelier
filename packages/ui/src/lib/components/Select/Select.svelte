@@ -17,6 +17,7 @@
 		compact?: boolean;
 		hideLabel?: boolean;
 		iconOnPhone?: boolean;
+		placeholderUntilChosen?: boolean;
 	};
 
 	let {
@@ -30,6 +31,7 @@
 		compact = false,
 		hideLabel = false,
 		iconOnPhone = false,
+		placeholderUntilChosen = false,
 		id,
 		...rest
 	}: Props = $props();
@@ -42,7 +44,7 @@
 
 <div class="field" class:compact class:icon-on-phone={iconOnPhone && !!icon}>
 	<label class:visually-hidden={hideLabel} for={selectId}>{label}</label>
-	<div class="control" class:invalid={!!error} class:with-icon={!!icon}>
+	<div class="control" class:invalid={!!error || !!rest['aria-invalid']} class:with-icon={!!icon}>
 		{#if icon}
 			<span class="glyph">
 				<Icon {icon} />
@@ -56,7 +58,11 @@
 			bind:value
 		>
 			{#if placeholder !== undefined}
-				<option value="">{placeholder}</option>
+				<option
+					disabled={placeholderUntilChosen && value !== ''}
+					hidden={placeholderUntilChosen && value !== ''}
+					value="">{placeholder}</option
+				>
 			{/if}
 			{#each options as option (option.value)}
 				<option value={option.value}>{option.label}</option>

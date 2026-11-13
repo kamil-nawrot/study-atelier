@@ -49,12 +49,15 @@ describe('ArtworkRelationsField', () => {
 			page.getByRole('combobox', { name: m.artworkRelations.type }),
 			m.artworkRelations.types.copyFrom
 		);
-		await userEvent.fill(page.getByRole('searchbox', { name: m.artworkRelations.search }), 'the');
-		await userEvent.click(page.getByRole('button', { name: /The Kiss/ }));
+		await userEvent.fill(page.getByRole('combobox', { name: m.artworkRelations.search }), 'the');
+		await userEvent.click(page.getByRole('option', { name: /The Kiss/ }));
 
 		await expect
 			.element(page.getByRole('button', { name: m.artworkRelations.remove('The Kiss') }))
-			.toHaveFocus();
+			.toBeVisible();
+		expect(
+			page.getByRole('option', { name: m.artworkRelations.choose, includeHidden: true }).element()
+		).toBeDisabled();
 		expect(rows()).toEqual([{ key: expect.any(String), type: 'copyFrom', artwork: kiss }]);
 	});
 
@@ -62,30 +65,33 @@ describe('ArtworkRelationsField', () => {
 		field([{ key: 'venus', type: 'related', artwork: venus }]);
 
 		await userEvent.click(page.getByRole('button', { name: m.artworkRelations.add }));
-		await userEvent.fill(page.getByRole('searchbox', { name: m.artworkRelations.search }), 'the');
+		await userEvent.fill(page.getByRole('combobox', { name: m.artworkRelations.search }), 'the');
 
-		await expect.element(page.getByRole('button', { name: /The Kiss/ })).toBeVisible();
-		expect(page.getByRole('button', { name: /^Mona Lisa/ }).query()).toBeNull();
-		expect(page.getByRole('button', { name: /^The Birth of Venus/ }).query()).toBeNull();
+		await expect.element(page.getByRole('option', { name: /The Kiss/ })).toBeVisible();
+		expect(page.getByRole('option', { name: /^Mona Lisa/ }).query()).toBeNull();
+		expect(page.getByRole('option', { name: /^The Birth of Venus/ }).query()).toBeNull();
 	});
 
-	it('removes a row and shows the error of the section', async () => {
+	it('marks only the missing part of a row and removes a row', async () => {
 		const { rows } = field(
 			[
-				{ key: 'kiss', type: 'copyTo', artwork: kiss },
-				{ key: 'new', type: '', artwork: null }
+				{ key: 'kiss', type: '', artwork: kiss },
+				{ key: 'new', type: 'related', artwork: null }
 			],
 			m.artworkRelations.artworkRequired
 		);
 
 		await expect.element(page.getByText(m.artworkRelations.artworkRequired)).toBeVisible();
+		const [first, second] = page.getByRole('combobox', { name: m.artworkRelations.type }).all();
+		await expect.element(first).toHaveAttribute('aria-invalid', 'true');
+		await expect.element(second).not.toHaveAttribute('aria-invalid');
 		await expect
-			.element(page.getByRole('searchbox', { name: m.artworkRelations.search }))
+			.element(page.getByRole('combobox', { name: m.artworkRelations.search }))
 			.toHaveAttribute('aria-invalid', 'true');
 		await userEvent.click(
 			page.getByRole('button', { name: m.artworkRelations.removeEmpty, exact: true })
 		);
 
-		expect(rows()).toEqual([{ key: 'kiss', type: 'copyTo', artwork: kiss }]);
+		expect(rows()).toEqual([{ key: 'kiss', type: '', artwork: kiss }]);
 	});
 });
