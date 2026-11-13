@@ -65,11 +65,12 @@ describe('WorldMap', () => {
 	it('gives the point of a click and shows it as a marker', async () => {
 		await page.viewport(1000, 800);
 		const onpick = vi.fn();
+		const size = document.head.appendChild(document.createElement('style'));
+		size.textContent = '.map { flex: none; width: 400px; height: 360px; }';
 		render(WorldMap, {
 			geography: testGeography(),
 			fit: [paris.point],
 			marker: paris.point,
-			small: true,
 			onpick
 		});
 		const map = document.querySelector('svg:not(.marker)') as SVGSVGElement;

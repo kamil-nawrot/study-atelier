@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { createValue, saveValue } from '#lib/card-index/card-index-data/card-index-data.ts';
+import { setPlacePoint } from '#lib/map/places-data/places-data.ts';
 import { saveValueDetails } from '#lib/values/value-details-data/value-details-data.ts';
 import type { ValueFormFields } from '#lib/values/types/value-form-fields.ts';
 import { saveValueForm } from './value-form-save.ts';
@@ -9,6 +10,7 @@ vi.mock('#lib/card-index/card-index-data/card-index-data.ts', () => ({
 	createValue: vi.fn(),
 	saveValue: vi.fn()
 }));
+vi.mock('#lib/map/places-data/places-data.ts', () => ({ setPlacePoint: vi.fn() }));
 vi.mock('#lib/values/value-details-data/value-details-data.ts', () => ({
 	saveValueDetails: vi.fn()
 }));
@@ -37,6 +39,7 @@ describe('saveValueForm', () => {
 		vi.mocked(createValue).mockResolvedValue({ id: 'period-new' });
 		vi.mocked(saveValue).mockResolvedValue({});
 		vi.mocked(saveValueDetails).mockResolvedValue({});
+		vi.mocked(setPlacePoint).mockResolvedValue({});
 	});
 
 	it('creates a new value, saves its eras and details and leads to its page', async () => {
@@ -131,5 +134,44 @@ describe('saveValueForm', () => {
 			path: '/atelier/values/material/material-1',
 			message: m.valuePage.saved
 		});
+	});
+
+	it('saves a changed position of a place with its Wikidata item', async () => {
+		const point = { latitude: 48.86111, longitude: 2.33583 };
+		const subject = {
+			kind: 'location' as const,
+			record: { id: 'place-1', category: 'location' as const, name: 'Luwr', count: 1 }
+		};
+		const location = { countryCode: 'FR', placeType: null, point: null };
+
+		await saveValueForm({
+			subject,
+			form: fields({ name: 'Luwr', location: { ...location, point, wikidataId: 'Q19675' } }),
+			saved: fields({ name: 'Luwr', location }),
+			details: { summary: '', notes: '' },
+			name: 'Luwr',
+			linksChanged: false
+		});
+
+		expect(setPlacePoint).toHaveBeenCalledWith('place-1', point, 'Q19675');
+	});
+
+	it('leaves the position alone when it did not change', async () => {
+		const subject = {
+			kind: 'location' as const,
+			record: { id: 'place-1', category: 'location' as const, name: 'Luwr', count: 1 }
+		};
+		const location = { countryCode: 'FR', placeType: null, point: null };
+
+		await saveValueForm({
+			subject,
+			form: fields({ name: 'Luwr', location }),
+			saved: fields({ name: 'Luwr', location }),
+			details: { summary: '', notes: '' },
+			name: 'Luwr',
+			linksChanged: false
+		});
+
+		expect(setPlacePoint).not.toHaveBeenCalled();
 	});
 });

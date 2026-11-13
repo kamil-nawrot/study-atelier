@@ -11,11 +11,20 @@ export class MapZoom {
 	#bounds: MapBounds | null = null;
 	#width = 0;
 	#height = 0;
+	#least = MIN_ZOOM;
 
-	limit(bounds: MapBounds | null, width: number, height: number): void {
+	limit(bounds: MapBounds | null, width: number, height: number, wholeWorld = false): void {
 		this.#bounds = bounds;
 		this.#width = width;
 		this.#height = height;
+		this.#least =
+			wholeWorld && bounds && width > 0 && height > 0
+				? Math.min(
+						MIN_ZOOM,
+						Math.max(width / (bounds.right - bounds.left), height / (bounds.bottom - bounds.top))
+					)
+				: MIN_ZOOM;
+		if (this.scale < this.#least) this.scale = this.#least;
 		this.#clamp();
 	}
 
@@ -34,7 +43,7 @@ export class MapZoom {
 	}
 
 	zoomAt(centreX: number, centreY: number, factor: number): void {
-		const scale = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, this.scale * factor));
+		const scale = Math.min(MAX_ZOOM, Math.max(this.#least, this.scale * factor));
 		const applied = scale / this.scale;
 		this.x = centreX - (centreX - this.x) * applied;
 		this.y = centreY - (centreY - this.y) * applied;

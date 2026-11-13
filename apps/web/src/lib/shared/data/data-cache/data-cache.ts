@@ -11,7 +11,8 @@ export const cacheKeys = {
 	glossary: 'glossary',
 	ownFields: 'own-fields',
 	eraSummaries: 'era-summaries',
-	museums: 'museums'
+	museums: 'museums',
+	museumPoints: 'museum-points'
 } as const;
 
 export type CacheKey = (typeof cacheKeys)[keyof typeof cacheKeys];

@@ -44,6 +44,7 @@
 	import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
+	import PlaceField from '#lib/map/components/PlaceField/PlaceField.svelte';
 	import ImageField from '#lib/images/components/ImageField/ImageField.svelte';
 	import EraBoundsField from '#lib/values/components/EraBoundsField/EraBoundsField.svelte';
 	import { validateEraBounds } from '#lib/values/era-bounds-form/era-bounds-form.ts';
@@ -255,6 +256,19 @@
 						options={placeOptions}
 						value={form.location.placeType}
 					/>
+					{#if !creating}
+						<PlaceField
+							name={form.name}
+							bind:point={
+								() => form.location?.point ?? null,
+								(point) => form.location && (form.location.point = point)
+							}
+							bind:wikidataId={
+								() => form.location?.wikidataId ?? null,
+								(wikidataId) => form.location && (form.location.wikidataId = wikidataId)
+							}
+						/>
+					{/if}
 				{/if}
 
 				{#if form.author}

@@ -27,7 +27,7 @@
 		cities?: MapCity[];
 		selected?: string;
 		marker?: PlacePoint | null;
-		small?: boolean;
+		wholeWorld?: boolean;
 		onselect?: (city: MapCity) => void;
 		onpick?: (point: PlacePoint) => void;
 	};
@@ -38,7 +38,7 @@
 		cities = [],
 		selected,
 		marker = null,
-		small = false,
+		wholeWorld = false,
 		onselect,
 		onpick
 	}: Props = $props();
@@ -88,7 +88,7 @@
 	});
 
 	$effect(() => {
-		zoom.limit(mapBounds(projection), width, height);
+		zoom.limit(mapBounds(projection), width, height, wholeWorld);
 	});
 
 	$effect(() => {
@@ -166,7 +166,6 @@
 <div
 	class="map"
 	class:picking={onpick}
-	class:small
 	{@attach wheel}
 	bind:clientHeight={height}
 	bind:clientWidth={width}
@@ -246,12 +245,6 @@
 		background: var(--color-bg);
 		border: var(--border-width-hairline) solid var(--color-line);
 		user-select: none;
-	}
-
-	.small {
-		flex: none;
-		max-height: 280px;
-		aspect-ratio: 10 / 9;
 	}
 
 	svg {
