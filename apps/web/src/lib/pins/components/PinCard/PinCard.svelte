@@ -1,6 +1,5 @@
 <script lang="ts">
 	import ArrowRight from '@lucide/svelte/icons/arrow-right';
-	import Pencil from '@lucide/svelte/icons/pencil';
 	import KeyRound from '@lucide/svelte/icons/key-round';
 	import { Icon } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -47,13 +46,6 @@
 				<a class="open" href={resolve('/(app)/atelier/glossary/symbols/[id]', { id: symbol.id })}>
 					{m.symbols.card.open}
 					<Icon icon={ArrowRight} size="sm" />
-				</a>
-				<a
-					class="open"
-					href={resolve('/(app)/atelier/glossary/symbols/[id]/edit', { id: symbol.id })}
-				>
-					{m.symbols.card.edit}
-					<Icon icon={Pencil} size="sm" />
 				</a>
 			</div>
 		</div>

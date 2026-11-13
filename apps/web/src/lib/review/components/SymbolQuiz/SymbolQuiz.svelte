@@ -76,7 +76,7 @@
 					{quiz.options[quiz.answer].label}.
 				</p>
 				{#if !correct}
-					<p class="caption">{m.review.quiz.definitionRetry}</p>
+					<p class="caption">{m.review.quiz.symbolRetry}</p>
 				{/if}
 			{/if}
 		</div>

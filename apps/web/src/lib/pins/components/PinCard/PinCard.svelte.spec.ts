@@ -52,9 +52,7 @@ describe('PinCard', () => {
 		await expect
 			.element(page.getByRole('link', { name: m.symbols.card.open }))
 			.toHaveAttribute('href', '/atelier/glossary/symbols/keys');
-		await expect
-			.element(page.getByRole('link', { name: m.symbols.card.edit }))
-			.toHaveAttribute('href', '/atelier/glossary/symbols/keys/edit');
+		await expect.element(page.getByRole('link', { name: 'Edytuj symbol' })).not.toBeInTheDocument();
 	});
 
 	it('shows a symbol without a meaning with the link only', async () => {

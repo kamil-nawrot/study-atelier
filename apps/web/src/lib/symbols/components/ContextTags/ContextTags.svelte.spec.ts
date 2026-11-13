@@ -29,6 +29,8 @@ describe('ContextTags', () => {
 		await expect.element(peter).toHaveAttribute('href', '/atelier/glossary/t1');
 		await expect.element(peter).toHaveTextContent(m.symbols.contextKinds.person);
 		await expect.element(page.getByText('heraldry')).toBeVisible();
+		await expect.element(page.getByText(m.symbols.view.context)).toBeVisible();
+		await expect.element(page.getByText(m.symbols.view.general)).not.toBeInTheDocument();
 		await expect.element(page.getByRole('link', { name: /heraldry/ })).not.toBeInTheDocument();
 	});
 
@@ -36,5 +38,6 @@ describe('ContextTags', () => {
 		render(ContextTags, { contexts: [] });
 
 		await expect.element(page.getByText(m.symbols.view.general)).toBeVisible();
+		await expect.element(page.getByText(m.symbols.view.context)).not.toBeInTheDocument();
 	});
 });

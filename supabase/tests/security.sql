@@ -106,7 +106,7 @@ declare
     'career_standing', 'note_link_mentions', 'note_link_labels', 'note_link_suggestions', 'atelier_empty',
     'collection_statistics', 'record_right_answer', 'note_gap_artwork', 'artwork_field_type_impact',
     'mastered_artworks', 'save_exhibition', 'record_night_light', 'record_long_look', 'save_symbol', 'symbol_atlas',
-    'set_place_point', 'set_symbol_cover', 'ensure_city_place'
+    'set_place_point', 'set_symbol_cover', 'assign_symbol_meaning', 'ensure_city_place'
   ];
   table_name text;
   routine record;
@@ -309,6 +309,7 @@ declare
   a_exhibition uuid;
   a_style uuid;
   a_symbol uuid;
+  a_meaning uuid;
   c constant uuid := '00000000-0000-0000-0000-00000000000c';
   table_name text;
   writable_column text;
@@ -325,6 +326,7 @@ begin
   select id into a_exhibition from public.exhibitions where owner_id = a;
   select id into a_style from public.category_values where owner_id = a and name = 'Tenebrism';
   select id into a_symbol from public.symbols where owner_id = a;
+  select id into a_meaning from public.symbol_meanings where owner_id = a;
   assert a_visit is not null, 'the visit of owner A was not created';
   assert a_exhibition is not null, 'the exhibition of owner A was not created';
   assert a_artwork is not null and a_value is not null, 'fixture for owner A was not created';
@@ -558,6 +560,8 @@ begin
     'B renames a symbol of A through save_symbol';
   assert security_test.denied(format('select public.set_symbol_cover(%L)', a_symbol)),
     'B changes the main detail of a symbol of A through set_symbol_cover';
+  assert security_test.denied(format('select public.assign_symbol_meaning(%L, ''{}'')', a_meaning)),
+    'B moves the details of a meaning of A through assign_symbol_meaning';
   assert (select count(*) from public.symbol_atlas()) = 0, 'B sees the symbol atlas of A';
   perform public.set_place_point(a_place, 48.86, 2.34, 'Q19675');
   assert security_test.denied(format(

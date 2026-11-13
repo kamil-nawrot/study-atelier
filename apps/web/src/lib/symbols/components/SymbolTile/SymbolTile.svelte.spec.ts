@@ -15,6 +15,7 @@ describe('SymbolTile', () => {
 			.element(link)
 			.toHaveTextContent(`${m.symbols.details(3)} · ${m.symbols.meanings(2)}`);
 		expect(document.querySelector('.lens img')).not.toBeNull();
+		expect(document.querySelector('.meta-line')).not.toBeNull();
 		expect(document.querySelector('.meaning')).toBeNull();
 	});
 

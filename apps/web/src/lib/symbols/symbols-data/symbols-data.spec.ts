@@ -11,7 +11,7 @@ import {
 	loadSymbolPins,
 	saveSymbol,
 	searchArtworkContexts,
-	setPinMeaning,
+	assignMeaning,
 	setSymbolCover
 } from './symbols-data.ts';
 
@@ -25,7 +25,6 @@ const SKULL = '00000000-0000-4000-8000-000000000001';
 const query = {
 	select: vi.fn(),
 	delete: vi.fn(),
-	update: vi.fn(),
 	eq: vi.fn(),
 	order: vi.fn(),
 	maybeSingle: vi.fn(),
@@ -45,8 +44,7 @@ const image = {
 };
 
 function chain(result: unknown): void {
-	for (const method of ['select', 'delete', 'update', 'eq'] as const)
-		query[method].mockReturnValue(query);
+	for (const method of ['select', 'delete', 'eq'] as const) query[method].mockReturnValue(query);
 	let orders = 0;
 	query.order.mockImplementation(() => (++orders === 2 ? Promise.resolve(result) : query));
 	query.maybeSingle.mockResolvedValue(result);
@@ -253,16 +251,23 @@ describe('symbols data', () => {
 		});
 	});
 
-	it('moves a pin to another meaning or to none', async () => {
-		chain({ error: null });
-		query.eq.mockResolvedValue({ error: null });
+	it('assigns the ticked pins to a meaning in one call', async () => {
+		vi.mocked(supabase.rpc).mockResolvedValue({ data: null, error: null } as never);
 
-		await expect(setPinMeaning('pin-1', 'm2')).resolves.toEqual({});
-		expect(supabase.from).toHaveBeenCalledWith('artwork_pins');
-		expect(query.update).toHaveBeenLastCalledWith({ symbol_meaning_id: 'm2' });
-		expect(query.eq).toHaveBeenLastCalledWith('id', 'pin-1');
-		await setPinMeaning('pin-1', null);
-		expect(query.update).toHaveBeenLastCalledWith({ symbol_meaning_id: null });
+		await expect(assignMeaning('m2', ['pin-1'])).resolves.toEqual({});
+		expect(supabase.rpc).toHaveBeenCalledWith('assign_symbol_meaning', {
+			target_meaning: 'm2',
+			pin_ids: ['pin-1']
+		});
+	});
+
+	it('reports an assignment that failed', async () => {
+		vi.mocked(supabase.rpc).mockResolvedValue({
+			data: null,
+			error: { message: 'Failed to fetch' }
+		} as never);
+
+		await expect(assignMeaning('m2', [])).resolves.toEqual({ error: m.common.network });
 	});
 
 	it('deletes a symbol', async () => {
