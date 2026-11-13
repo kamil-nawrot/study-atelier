@@ -4,7 +4,7 @@ import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { saveVisit } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
-import { testVisit, VISIT_ID } from '#lib/testing/chronicle/chronicle.ts';
+import { TRIP_ID, testTrip, testVisit, VISIT_ID } from '#lib/testing/chronicle/chronicle.ts';
 import VisitForm from './VisitForm.svelte';
 import type { Visit } from '#lib/chronicle/types/visit.ts';
 
@@ -152,5 +152,65 @@ describe('VisitForm', () => {
 		await expect.element(page.getByText(m.chronicle.form.errorTitle)).toBeInTheDocument();
 		await expect.element(page.getByText(m.common.network)).toBeInTheDocument();
 		expect(onsaved).not.toHaveBeenCalled();
+	});
+
+	it('saves a trip to a city with its end and the artworks of the city', async () => {
+		const marais = testArtwork(4, 'Le Marais', { location: 'Paris' });
+		save.mockResolvedValue({ id: TRIP_ID });
+		const onsaved = vi.fn();
+		render(VisitForm, {
+			artworks: [...artworks, marais],
+			places: ['Orsay', 'Paris'],
+			tripPlaces: [{ name: 'Paris', placeType: 'city', point: null }],
+			towns: [],
+			cancelHref: '/atelier/chronicle',
+			onsaved
+		});
+
+		await userEvent.click(page.getByRole('radio', { name: new RegExp(m.chronicle.trip.kind) }));
+		await page.getByRole('combobox', { name: m.chronicle.trip.form.place }).fill('Paris');
+		await userEvent.click(page.getByRole('option', { name: /Paris/ }));
+		const start = page.getByRole('group', { name: m.chronicle.trip.form.start });
+		await start.getByLabelText(m.chronicle.form.day).fill('10');
+		await userEvent.selectOptions(start.getByLabelText(m.chronicle.form.month), 'październik');
+		await start.getByLabelText(m.chronicle.form.year).fill('2026');
+		const end = page.getByRole('group', { name: m.chronicle.trip.form.end });
+		await end.getByLabelText(m.chronicle.form.day).fill('14');
+		await expect.element(page.getByText(m.chronicle.trip.form.ticked)).toBeInTheDocument();
+		await userEvent.click(saveButton());
+
+		await vi.waitFor(() => expect(onsaved).toHaveBeenCalled());
+		expect(save).toHaveBeenCalledWith(
+			expect.objectContaining({
+				kind: 'trip',
+				place: 'Paris',
+				date: { on: '2026-10-10', precision: 'day' },
+				endsOn: '2026-10-14',
+				artworkIds: [marais.id]
+			}),
+			undefined
+		);
+	});
+
+	it('opens a saved trip without the kind tiles', async () => {
+		render(VisitForm, {
+			visit: testTrip(),
+			artworks,
+			places: ['Paris'],
+			tripPlaces: [{ name: 'Paris', placeType: 'city', point: null }],
+			cancelHref: '/atelier/chronicle',
+			onsaved: vi.fn()
+		});
+
+		await expect
+			.element(
+				page
+					.getByRole('group', { name: m.chronicle.trip.form.end })
+					.getByLabelText(m.chronicle.form.day)
+			)
+			.toHaveValue('14');
+		await expect
+			.element(page.getByRole('radio', { name: new RegExp(m.chronicle.trip.kind) }))
+			.not.toBeInTheDocument();
 	});
 });

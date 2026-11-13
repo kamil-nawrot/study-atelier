@@ -4,8 +4,10 @@ import {
 	tripDays,
 	tripEndFromParts,
 	tripEndParts,
+	tripOverline,
 	tripTicketDate
 } from './trip-date.ts';
+import { m } from '#lib/i18n/i18n.ts';
 
 const day = { on: '2026-10-10', precision: 'day' } as const;
 
@@ -81,5 +83,14 @@ describe('tripTicketDate', () => {
 
 		expect(date.main).toBe('10–2');
 		expect(date.sub).toMatch(/^paź.*–lis.* 2026$/);
+	});
+});
+
+describe('tripOverline', () => {
+	it('names the days of a trip, or its month without exact days', () => {
+		expect(tripOverline({ date: day, endsOn: '2026-10-14' })).toBe(m.chronicle.trip.overline(5));
+		expect(tripOverline({ date: { on: '2026-10-01', precision: 'month' }, endsOn: null })).toMatch(
+			/^Podróż · październik 2026$/
+		);
 	});
 });
