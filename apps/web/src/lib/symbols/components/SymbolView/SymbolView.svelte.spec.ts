@@ -65,7 +65,7 @@ describe('SymbolView', () => {
 		await page.getByRole('dialog').getByText('Saint Jerome Writing').click();
 		await page.getByRole('button', { name: m.common.save }).click();
 
-		expect(assignMeaning).toHaveBeenCalledWith('transience', ['pin-1'], []);
+		expect(assignMeaning).toHaveBeenCalledWith('transience', ['pin-1']);
 		expect(invalidateAll).toHaveBeenCalled();
 		await expect.element(page.getByText(m.symbols.meaningDialog.assigned)).toBeVisible();
 	});

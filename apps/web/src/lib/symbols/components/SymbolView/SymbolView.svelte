@@ -102,10 +102,10 @@
 		assignOpen = true;
 	}
 
-	async function saveAssigned(added: string[], dropped: string[]): Promise<void> {
+	async function saveAssigned(pinIds: string[]): Promise<void> {
 		if (!editing) return;
 		busy = true;
-		const { error } = await assignMeaning(editing.id, added, dropped);
+		const { error } = await assignMeaning(editing.id, pinIds);
 		busy = false;
 		if (error) {
 			dialogError = error;

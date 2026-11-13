@@ -26,7 +26,7 @@ For sorting details:
 
 Chosen option: "Przypisz detale" in the menu of a meaning. It is built from a menu, a dialog and checkboxes, which the app already has, and works the same on every device. Dragging was set aside because it fights the sideways scroll of the row on a phone and needs its own keyboard path. The pin card would send the learner from artwork to artwork, and a mode with a select per lens is a new pattern again.
 
-The lens keeps only the star of the main detail. Saving the dialog moves the ticked details to the meaning and the unticked ones that had it to none.
+The lens keeps only the star of the main detail. Saving the dialog moves the ticked details to the meaning and the unticked ones that had it to none, in one transaction of `assign_symbol_meaning(target_meaning, pin_ids)`, which also refuses a pin of another symbol.
 
 The page follows the app:
 

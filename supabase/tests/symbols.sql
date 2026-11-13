@@ -99,6 +99,26 @@ begin
   end;
   assert rejected, 'a pin takes a meaning of another symbol';
 
+  perform public.assign_symbol_meaning(vanitas, array[viewed_pin, symbol_pin]);
+  assert (select count(*) from public.artwork_pins where symbol_meaning_id = vanitas) = 2,
+    'assigning a meaning misses a pin';
+  perform public.assign_symbol_meaning(vanitas, array[symbol_pin]);
+  assert (select symbol_meaning_id from public.artwork_pins where id = viewed_pin) is null,
+    'an unticked pin keeps the meaning';
+  assert (select symbol_meaning_id from public.artwork_pins where id = symbol_pin) = vanitas,
+    'a ticked pin loses the meaning';
+  rejected := false;
+  begin
+    perform public.assign_symbol_meaning(purity, array[symbol_pin]);
+  exception when invalid_parameter_value then rejected := true;
+  end;
+  assert rejected, 'a meaning is assigned to a pin of another symbol';
+  assert (select symbol_meaning_id from public.artwork_pins where id = symbol_pin) = vanitas,
+    'a rejected assignment changes a pin';
+  perform public.assign_symbol_meaning(vanitas, '{}');
+  assert not exists (select 1 from public.artwork_pins where symbol_meaning_id = vanitas),
+    'an empty assignment keeps the meaning on pins';
+
   rejected := false;
   begin
     perform public.save_symbol('skull', '[]');

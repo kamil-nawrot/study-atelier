@@ -12,7 +12,7 @@
 		details: readonly SymbolDetail[];
 		error?: string;
 		busy?: boolean;
-		onsave: (added: string[], dropped: string[]) => void;
+		onsave: (pinIds: string[]) => void;
 	};
 
 	let {
@@ -39,15 +39,7 @@
 	}
 
 	function save(): void {
-		if (!meaning) return;
-		const id = meaning.id;
-		const added = details
-			.filter((detail) => ticked[detail.pinId] && detail.meaningId !== id)
-			.map((detail) => detail.pinId);
-		const dropped = details
-			.filter((detail) => !ticked[detail.pinId] && detail.meaningId === id)
-			.map((detail) => detail.pinId);
-		onsave(added, dropped);
+		onsave(details.filter((detail) => ticked[detail.pinId]).map((detail) => detail.pinId));
 	}
 </script>
 

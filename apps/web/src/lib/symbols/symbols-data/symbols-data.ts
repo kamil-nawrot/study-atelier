@@ -249,21 +249,13 @@ export async function setSymbolCover(
 
 export async function assignMeaning(
 	meaningId: string,
-	added: readonly string[],
-	dropped: readonly string[]
+	pinIds: readonly string[]
 ): Promise<DeleteResult> {
-	const changes = [
-		{ meaning: meaningId, pins: added },
-		{ meaning: null, pins: dropped }
-	].filter((change) => change.pins.length > 0);
-	for (const change of changes) {
-		const { error } = await supabase
-			.from('artwork_pins')
-			.update({ symbol_meaning_id: change.meaning })
-			.in('id', [...change.pins]);
-		if (error) return { error: await failureMessage(error, symbolErrorMessage) };
-	}
-	return {};
+	const { error } = await supabase.rpc('assign_symbol_meaning', {
+		target_meaning: meaningId,
+		pin_ids: [...pinIds]
+	});
+	return error ? { error: await failureMessage(error, symbolErrorMessage) } : {};
 }
 
 export async function createSymbolOption(

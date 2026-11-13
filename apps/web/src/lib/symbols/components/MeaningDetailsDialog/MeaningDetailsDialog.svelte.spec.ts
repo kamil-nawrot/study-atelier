@@ -39,14 +39,14 @@ describe('MeaningDetailsDialog', () => {
 			.toBeVisible();
 	});
 
-	it('saves the details added to the meaning and the ones taken off it', async () => {
+	it('saves the ticked details', async () => {
 		const onsave = renderDialog();
 
 		await page.getByText('Vanitas').click();
 		await page.getByText('The Ambassadors').click();
 		await page.getByRole('button', { name: m.common.save }).click();
 
-		expect(onsave).toHaveBeenCalledWith(['pin-3'], ['pin-1']);
+		expect(onsave).toHaveBeenCalledWith(['pin-3']);
 	});
 
 	it('says when the symbol has no details yet', async () => {
