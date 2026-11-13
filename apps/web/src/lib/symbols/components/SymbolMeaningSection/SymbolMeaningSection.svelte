@@ -51,9 +51,9 @@
 			<span class="text">{section.meaning.text}</span>
 		</h2>
 		{#if onedit && onremove && onmove}
-			<PopupButton bind:this={popup} align="end" label={m.symbols.meaningDialog.actions}>
+			<PopupButton bind:this={popup} align="end" bare label={m.symbols.meaningDialog.actions}>
 				{#snippet trigger()}
-					<Icon icon={Ellipsis} />
+					<span class="more"><Icon icon={Ellipsis} /></span>
 				{/snippet}
 				<ul class="actions">
 					<li>
@@ -111,10 +111,21 @@
 	}
 
 	.head {
+		position: relative;
 		display: flex;
 		align-items: baseline;
 		justify-content: space-between;
 		gap: var(--spacing-3);
+	}
+
+	.more {
+		display: flex;
+		padding: var(--spacing-2);
+		color: var(--color-fg-muted);
+	}
+
+	.more:hover {
+		color: var(--color-fg);
 	}
 
 	.actions {
