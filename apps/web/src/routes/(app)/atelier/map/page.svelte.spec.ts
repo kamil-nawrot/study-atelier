@@ -30,7 +30,14 @@ describe('map page', () => {
 			data: {
 				session: testSession(),
 				artworks: [testArtwork(1, 'Mona Lisa', { location: 'Louvre', seen: true })],
-				places: [testPlace('Louvre', { point: { latitude: 48.86111, longitude: 2.33583 } })]
+				places: [
+					testPlace('Paryż', {
+						placeType: 'city',
+						countryCode: 'FR',
+						point: { latitude: 48.857, longitude: 2.35 }
+					}),
+					testPlace('Louvre', { cityId: testPlace('Paryż').id })
+				]
 			},
 			params: {}
 		});
