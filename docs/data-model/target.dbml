@@ -744,10 +744,12 @@ Table symbols {
   id uuid [pk, default: `gen_random_uuid()`]
   owner_id uuid [not null, default: `auth.uid()`]
   name text [not null]
+  cover_pin_id uuid
   created_at "timestamp with time zone" [not null, default: `now()`]
   updated_at "timestamp with time zone" [not null, default: `now()`]
 
   indexes {
+    cover_pin_id [name: 'symbols_cover_pin_id_idx', note: 'ATL-703; where (cover_pin_id IS NOT NULL)']
     (id, owner_id) [unique]
     (owner_id, `lower(name)`) [name: 'symbols_name_key', unique]
   }
@@ -795,3 +797,4 @@ Ref: symbol_meaning_contexts.era_code > eras.code
 Ref: symbol_meaning_contexts.artwork_id > artworks.id [delete: cascade]
 Ref: symbol_meaning_contexts.glossary_entry_id > glossary_entries.id [delete: cascade]
 Ref: artwork_pins.symbol_id > symbols.id [delete: set null]
+Ref: symbols.cover_pin_id > artwork_pins.id [delete: set null]

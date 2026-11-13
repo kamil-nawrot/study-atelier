@@ -24,6 +24,7 @@ declare
   purity uuid;
   viewed_pin uuid;
   symbol_pin uuid;
+  second_view uuid;
   rejected boolean;
   atlas record;
 begin
@@ -153,6 +154,24 @@ begin
   assert atlas.meaning_count = 1 and atlas.pin_count = 2, 'the atlas counts wrong';
   assert (atlas.cover ->> 'pin_id')::uuid = viewed_pin, 'the atlas cover is not the pin with a view';
   assert (atlas.cover ->> 'own_image_url') = 'https://example.com/jerome.jpg', 'the atlas cover has no image';
+
+  insert into public.artwork_pins (image_id, x, y, view_width, symbol_id)
+    values (image, 0.7, 0.7, 0.2, skull) returning id into second_view;
+  rejected := false;
+  begin
+    perform public.set_symbol_cover(skull, symbol_pin);
+  exception when invalid_parameter_value then rejected := true;
+  end;
+  assert rejected, 'a pin without a crop becomes the main detail';
+  perform public.set_symbol_cover(skull, second_view);
+  select * into atlas from public.symbol_atlas() where id = skull;
+  assert (atlas.cover ->> 'pin_id')::uuid = second_view, 'the chosen main detail is not the cover';
+  perform public.set_symbol_cover(skull, viewed_pin);
+  select * into atlas from public.symbol_atlas() where id = skull;
+  assert (atlas.cover ->> 'pin_id')::uuid = viewed_pin, 'the older main detail loses to the newest pin';
+  perform public.set_symbol_cover(skull, null);
+  select * into atlas from public.symbol_atlas() where id = skull;
+  assert (atlas.cover ->> 'pin_id')::uuid = second_view, 'clearing the main detail keeps it';
 
   update public.artworks set deleted_at = now() where id = painting;
   select * into atlas from public.symbol_atlas() where id = skull;

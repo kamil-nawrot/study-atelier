@@ -24,6 +24,9 @@
 						<span class="year">{tick.year}</span>
 					</li>
 				{/each}
+				{#each timeline.breaks as left (left)}
+					<li style:left="{left}%" class="break" aria-hidden="true"></li>
+				{/each}
 				{#each timeline.placed as { detail, left } (detail.pinId)}
 					<li style:left="{left}%" class="placed">
 						<a
@@ -81,6 +84,13 @@
 		top: 0;
 		bottom: 0;
 		border-left: var(--border-width-hairline) solid var(--color-line);
+	}
+
+	.break {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		border-left: var(--border-width-hairline) dashed var(--color-line);
 	}
 
 	.year {

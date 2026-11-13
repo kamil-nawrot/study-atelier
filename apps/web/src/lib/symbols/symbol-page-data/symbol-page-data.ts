@@ -25,7 +25,7 @@ export async function loadSymbolPage(id: string): Promise<SymbolPageResult> {
 	const symbol = found.symbol;
 	const detailsError = pins.error ?? atelier.error;
 	if (detailsError) {
-		return { ...EMPTY, symbol, sections: meaningSections(symbol.meanings, [], []), detailsError };
+		return { ...EMPTY, symbol, sections: meaningSections(symbol.meanings, []), detailsError };
 	}
 	const lenses = await fragmentLenses(
 		pins.pins.flatMap((pin): PinFragment[] => (pin.fragment ? [pin.fragment] : []))
@@ -33,7 +33,7 @@ export async function loadSymbolPage(id: string): Promise<SymbolPageResult> {
 	const details = symbolDetails(pins.pins, atelier.artworks, lenses);
 	return {
 		symbol,
-		sections: meaningSections(symbol.meanings, details, atelier.artworks),
+		sections: meaningSections(symbol.meanings, details),
 		withoutMeaning: detailsWithoutMeaning(symbol.meanings, details),
 		details
 	};

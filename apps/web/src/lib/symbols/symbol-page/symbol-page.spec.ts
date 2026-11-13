@@ -6,7 +6,6 @@ import type { SymbolPin } from '#lib/symbols/types/symbol-pin.ts';
 import {
 	detailsWithoutMeaning,
 	meaningSections,
-	meaningSummary,
 	symbolDetails
 } from './symbol-page.ts';
 
@@ -70,41 +69,19 @@ describe('symbolDetails', () => {
 	});
 });
 
-describe('meaningSummary', () => {
-	it('counts eras, periods and styles, and names the authors', () => {
-		expect(meaningSummary([holbein, caravaggio])).toBe(
-			m.symbols.view.summary(
-				`${m.eras.early_modern.name} 2 · Baroque 1 · Renaissance 1 · Tenebrism 1 · Caravaggio, Hans Holbein`
-			)
-		);
-	});
-
-	it('says nothing without artworks', () => {
-		expect(meaningSummary([])).toBeUndefined();
-	});
-});
-
 describe('meaning sections', () => {
-	it('groups the details under their meanings with a summary each', () => {
+	it('groups the details under their meanings ', () => {
 		const artworks = [holbein, caravaggio, cezanne];
 		const details = symbolDetails(pins, artworks, new Map());
-		const sections = meaningSections(meanings, details, artworks);
+		const sections = meaningSections(meanings, details);
 
 		expect(sections.map((section) => section.details.map((detail) => detail.pinId))).toEqual([
 			['p1'],
 			['p2']
 		]);
-		expect(sections[1].summary).toContain('Caravaggio');
 		expect(detailsWithoutMeaning(meanings, details).map((detail) => detail.pinId)).toEqual([
 			'p3',
 			'p5'
 		]);
-	});
-
-	it('gives a meaning without details no summary', () => {
-		const [section] = meaningSections(meanings, [], []);
-
-		expect(section.details).toEqual([]);
-		expect(section.summary).toBeUndefined();
 	});
 });

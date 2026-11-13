@@ -562,10 +562,12 @@ Table symbols {
   id uuid [pk, default: `gen_random_uuid()`]
   owner_id uuid [not null, default: `auth.uid()`]
   name text [not null]
+  cover_pin_id uuid
   created_at "timestamp with time zone" [not null, default: `now()`]
   updated_at "timestamp with time zone" [not null, default: `now()`]
 
   indexes {
+    cover_pin_id [name: 'symbols_cover_pin_id_idx']
     (id, owner_id) [unique]
     (owner_id, `lower(name)`) [name: 'symbols_name_key', unique]
   }
@@ -677,6 +679,7 @@ Ref symbol_meaning_contexts_owner_id_fkey: symbol_meaning_contexts.owner_id > au
 Ref symbol_meaning_contexts_value_id_owner_id_fkey: symbol_meaning_contexts.(value_id, owner_id) > category_values.(id, owner_id) [delete: cascade]
 Ref symbol_meanings_owner_id_fkey: symbol_meanings.owner_id > auth.users.id [delete: cascade]
 Ref symbol_meanings_symbol_id_owner_id_fkey: symbol_meanings.(symbol_id, owner_id) > symbols.(id, owner_id) [delete: cascade]
+Ref symbols_cover_pin_id_fkey: symbols.cover_pin_id > artwork_pins.id [delete: set null]
 Ref symbols_owner_id_fkey: symbols.owner_id > auth.users.id [delete: cascade]
 Ref timeline_events_owner_id_fkey: timeline_events.owner_id > auth.users.id [delete: cascade]
 Ref visit_artworks_artwork_id_owner_id_fkey: visit_artworks.(artwork_id, owner_id) > artworks.(id, owner_id) [delete: cascade]
