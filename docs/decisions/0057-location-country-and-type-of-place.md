@@ -1,6 +1,6 @@
 # 0057. Give a location a country from a searchable list and a type of place as tiles
 
-- Status: accepted
+- Status: accepted; the country of a place with a city is superseded by [0282](0282-give-a-place-its-city-and-group-the-places-of-kartoteka-by-country-and-city.md)
 - Date: 2026-10-15
 
 ## Context and problem statement
