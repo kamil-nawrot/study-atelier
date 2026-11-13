@@ -87,7 +87,6 @@
 		display: inline-flex;
 		align-items: center;
 		gap: var(--spacing-2);
-		margin-top: var(--spacing-2);
 		padding-top: var(--spacing-3);
 		border-top: var(--border-width-base) solid var(--color-line);
 		color: var(--color-fg);

@@ -3,11 +3,7 @@ import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import type { SymbolMeaning } from '#lib/symbols/types/symbol-meaning.ts';
 import type { SymbolPin } from '#lib/symbols/types/symbol-pin.ts';
-import {
-	detailsWithoutMeaning,
-	meaningSections,
-	symbolDetails
-} from './symbol-page.ts';
+import { detailsWithoutMeaning, meaningSections, symbolDetails } from './symbol-page.ts';
 
 const holbein = testArtwork(1, 'The Ambassadors', {
 	authors: ['Hans Holbein'],

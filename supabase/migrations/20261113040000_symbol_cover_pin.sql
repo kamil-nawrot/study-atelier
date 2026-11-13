@@ -50,7 +50,7 @@ as $$
   order by lower(symbol.name), symbol.id;
 $$;
 
-create function public.set_symbol_cover(symbol_id uuid, pin_id uuid)
+create function public.set_symbol_cover(symbol_id uuid, pin_id uuid default null)
 returns void
 language plpgsql
 security invoker

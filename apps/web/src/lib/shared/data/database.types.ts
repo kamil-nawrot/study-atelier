@@ -2011,7 +2011,7 @@ export type Database = {
         Returns: undefined;
       };
       set_symbol_cover: {
-        Args: { pin_id: string; symbol_id: string };
+        Args: { pin_id?: string; symbol_id: string };
         Returns: undefined;
       };
       storage_has_room: { Args: { adding: number }; Returns: boolean };

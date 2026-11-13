@@ -233,7 +233,10 @@ export async function searchArtworkContexts(
 		}));
 }
 
-export async function setSymbolCover(symbolId: string, pinId: string | null): Promise<DeleteResult> {
+export async function setSymbolCover(
+	symbolId: string,
+	pinId: string | null
+): Promise<DeleteResult> {
 	const { error } = await supabase.rpc('set_symbol_cover', {
 		symbol_id: symbolId,
 		...(pinId ? { pin_id: pinId } : {})

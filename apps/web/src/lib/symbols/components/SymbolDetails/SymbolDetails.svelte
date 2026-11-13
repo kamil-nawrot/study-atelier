@@ -65,7 +65,6 @@
 
 	.star {
 		display: inline-flex;
-		margin-inline-end: var(--spacing-1);
 	}
 
 	li.plain {
