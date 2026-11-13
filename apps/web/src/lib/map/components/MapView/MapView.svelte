@@ -119,8 +119,13 @@
 
 <style>
 	.map-view {
-		display: grid;
+		display: flex;
+		flex-direction: column;
 		gap: var(--spacing-6);
+		height: calc(
+			100dvh - var(--bar-height) - var(--spacing-6) - var(--spacing-12) - var(--bottom-inset)
+		);
+		min-height: calc(var(--size-control) * 10);
 	}
 
 	.missing {
@@ -140,23 +145,45 @@
 	}
 
 	.split {
-		display: grid;
-		gap: var(--spacing-8);
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		gap: var(--spacing-6);
+		min-height: 0;
 	}
 
 	.stage {
-		display: grid;
+		display: flex;
+		flex: 1;
+		flex-direction: column;
 		gap: var(--spacing-3);
 		min-width: 0;
+		min-height: 0;
 	}
 
 	.note {
 		color: var(--color-fg-muted);
 	}
 
+	aside {
+		flex: none;
+		max-height: 50%;
+		overflow-y: auto;
+	}
+
 	@media (min-width: 768px) {
-		.split:has(aside) {
-			grid-template-columns: minmax(0, 1fr) 320px;
+		.map-view {
+			height: calc(100dvh - var(--bar-height) - var(--spacing-8) - var(--spacing-12));
+		}
+
+		.split {
+			flex-direction: row;
+			gap: var(--spacing-8);
+		}
+
+		aside {
+			width: 320px;
+			max-height: none;
 		}
 	}
 </style>
