@@ -59,15 +59,3 @@ export function symbolDraftChanged(current: SymbolDraft, saved: SymbolDraft): bo
 export function meaningsToSave(meanings: readonly MeaningDraft[]): MeaningDraft[] {
 	return filled(meanings);
 }
-
-export function moveMeaning(
-	meanings: readonly MeaningDraft[],
-	index: number,
-	step: -1 | 1
-): MeaningDraft[] {
-	const target = index + step;
-	if (target < 0 || target >= meanings.length) return [...meanings];
-	const next = [...meanings];
-	[next[index], next[target]] = [next[target], next[index]];
-	return next;
-}

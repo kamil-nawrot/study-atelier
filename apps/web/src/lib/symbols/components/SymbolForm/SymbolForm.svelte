@@ -1,7 +1,6 @@
 <script lang="ts">
-	import Plus from '@lucide/svelte/icons/plus';
 	import { untrack } from 'svelte';
-	import { Button, Form, FormActions, Icon, TextField } from '@study-atelier/ui';
+	import { Button, Form, FormActions, TextField } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -9,13 +8,10 @@
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { LiveErrors } from '#lib/shared/forms/live-errors/live-errors.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
-	import MeaningFields from '#lib/symbols/components/MeaningFields/MeaningFields.svelte';
+	import MeaningInputs from '#lib/symbols/components/MeaningInputs/MeaningInputs.svelte';
 	import {
 		emptySymbolDraft,
-		MAX_MEANINGS,
 		meaningsToSave,
-		moveMeaning,
-		newMeaning,
 		SYMBOL_NAME_MAX_LENGTH,
 		symbolDraftChanged,
 		symbolDraftOf
@@ -63,11 +59,6 @@
 		)
 	}));
 
-	function remove(index: number): void {
-		const rest = form.meanings.filter((_, position) => position !== index);
-		form.meanings = rest.length > 0 ? rest : [newMeaning()];
-	}
-
 	function submit(): Promise<void> {
 		return formState.run(async () => {
 			const name = form.name.trim();
@@ -105,27 +96,14 @@
 				bind:value={form.name}
 			/>
 
-			<div class="meanings" aria-label={m.symbols.form.meaningsLabel} role="group">
-				{#each form.meanings as meaning, index (meaning.key)}
-					<MeaningFields
-						{candidates}
-						count={form.meanings.length}
-						error={errors.current[meaning.key]}
-						number={index + 1}
-						onmove={(step) => (form.meanings = moveMeaning(form.meanings, index, step))}
-						onremove={() => remove(index)}
-						bind:meaning={form.meanings[index]}
-					/>
-				{/each}
-				{#if form.meanings.length < MAX_MEANINGS}
-					<div class="add">
-						<Button onclick={() => (form.meanings = [...form.meanings, newMeaning()])}>
-							<Icon icon={Plus} />
-							{m.symbols.form.addMeaning}
-						</Button>
-					</div>
-				{/if}
-			</div>
+			{#if !existing}
+				<MeaningInputs
+					{candidates}
+					error={errors.current[form.meanings[0].key]}
+					bind:contexts={form.meanings[0].contexts}
+					bind:text={form.meanings[0].text}
+				/>
+			{/if}
 		</div>
 
 		<FormActions>
@@ -152,18 +130,13 @@
 		flex-direction: column;
 	}
 
-	.fields,
-	.meanings {
+	.fields {
 		display: grid;
 		align-content: start;
 		gap: var(--spacing-6);
 		width: 100%;
 		min-width: 0;
 		max-width: var(--size-content-default);
-	}
-
-	.add {
-		display: flex;
 	}
 
 	@media (min-width: 768px) {

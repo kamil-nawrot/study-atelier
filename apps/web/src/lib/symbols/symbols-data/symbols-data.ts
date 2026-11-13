@@ -1,3 +1,4 @@
+import { m } from '#lib/i18n/i18n.ts';
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
 import { IMAGE_COLUMNS, imageOf } from '#lib/images/image-record/image-record.ts';
 import type { ImageRow } from '#lib/images/types/image-row.ts';
@@ -242,4 +243,13 @@ export async function setSymbolCover(
 		...(pinId ? { pin_id: pinId } : {})
 	});
 	return error ? { error: await failureMessage(error, symbolErrorMessage) } : {};
+}
+
+export async function createSymbolOption(
+	name: string
+): Promise<{ symbol?: SymbolOption; error?: string }> {
+	const result = await saveSymbol({ name, meanings: [] });
+	if (result.nameTaken) return { error: m.symbols.form.nameTaken(name) };
+	if (result.error || !result.id) return { error: result.error ?? m.common.unexpectedError };
+	return { symbol: { id: result.id, name: name.trim(), meanings: [] } };
 }

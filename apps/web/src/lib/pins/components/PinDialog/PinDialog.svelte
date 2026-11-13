@@ -29,6 +29,7 @@
 		image?: ArtworkImageInput | null;
 		view?: number;
 		shownWidth?: number;
+		oncreatesymbol?: (name: string) => Promise<{ symbol?: SymbolOption; error?: string }>;
 		onsaved: (pin: Pin) => void;
 		ondeleted: (pin: Pin) => void;
 	};
@@ -40,6 +41,7 @@
 		spot,
 		entries,
 		symbols = [],
+		oncreatesymbol,
 		image,
 		view,
 		shownWidth,
@@ -80,6 +82,17 @@
 		failure = undefined;
 		busy = undefined;
 	});
+
+	async function createSymbol(name: string): Promise<void> {
+		const result = await oncreatesymbol?.(name);
+		if (result?.symbol) {
+			symbolId = result.symbol.id;
+			failure = undefined;
+		} else if (result?.error) {
+			failureTitle = m.pins.errorTitle;
+			failure = result.error;
+		}
+	}
 
 	async function submit(): Promise<void> {
 		if (busy) return;
@@ -146,8 +159,11 @@
 			placeholder={m.pins.termPlaceholder}
 			bind:value={entryId}
 		/>
-		{#if symbols.length > 0}
+		{#if symbols.length > 0 || oncreatesymbol}
 			<SearchSelect
+				create={oncreatesymbol
+					? { label: m.symbols.pin.create, onselect: createSymbol }
+					: undefined}
 				label={m.pins.symbol}
 				options={symbolOptions}
 				placeholder={m.symbols.search}

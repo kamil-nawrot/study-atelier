@@ -50,7 +50,6 @@ describe('SymbolForm', () => {
 		await page.getByRole('button', { name: m.symbols.form.addContext }).click();
 		await userEvent.fill(page.getByRole('combobox', { name: m.symbols.form.context }), 'peter');
 		await page.getByRole('option', { name: contextLabel(peter) }).click();
-		await page.getByRole('button', { name: m.symbols.form.addMeaning }).click();
 		await save();
 
 		expect(saveSymbol).toHaveBeenCalledWith(
@@ -79,16 +78,22 @@ describe('SymbolForm', () => {
 		expect(saveSymbol).not.toHaveBeenCalled();
 	});
 
-	it('reorders and removes the meanings of a saved symbol', async () => {
+	it('edits only the name of a saved symbol and keeps its meanings', async () => {
 		vi.mocked(saveSymbol).mockResolvedValue({ id: 'skull' });
 		renderForm(testSymbol);
 
-		await page.getByRole('button', { name: m.symbols.form.moveUp(2) }).click();
-		await page.getByRole('button', { name: m.symbols.form.removeMeaning(2) }).click();
+		await expect.element(meaningFields()).not.toBeInTheDocument();
+		await page.getByLabelText(m.common.name).fill('Skulls');
 		await save();
 
 		expect(saveSymbol).toHaveBeenCalledWith(
-			{ name: 'Skull', meanings: [expect.objectContaining({ id: 'penance' })] },
+			{
+				name: 'Skulls',
+				meanings: [
+					expect.objectContaining({ id: 'transience' }),
+					expect.objectContaining({ id: 'penance' })
+				]
+			},
 			'skull'
 		);
 	});
@@ -105,13 +110,5 @@ describe('SymbolForm', () => {
 		await page.getByLabelText(m.common.name).fill('Skulls');
 		await save();
 		await expect.element(page.getByText('Offline.')).toBeVisible();
-	});
-
-	it('keeps one meaning field when the last one is removed', async () => {
-		renderForm();
-
-		await page.getByRole('button', { name: m.symbols.form.removeMeaning(1) }).click();
-
-		await expect.element(meaningFields()).toBeVisible();
 	});
 });

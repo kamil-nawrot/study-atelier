@@ -34,6 +34,7 @@
 	import { refreshCareerOnFullImage } from '#lib/pins/full-image/full-image.ts';
 	import { pinsOfImage } from '#lib/pins/pin-layout/pin-layout.ts';
 	import type { Pin as PinRecord } from '#lib/pins/types/pin.ts';
+	import { createSymbolOption } from '#lib/symbols/symbols-data/symbols-data.ts';
 	import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
 	import { swipe } from '#lib/wall/flip/flip.ts';
 	import type { FlipDirection } from '#lib/wall/types/flip-direction.ts';
@@ -64,6 +65,18 @@
 		flipLinks,
 		onflip
 	}: Props = $props();
+
+	let createdSymbols = $state.raw<SymbolOption[]>([]);
+	const allSymbols = $derived([
+		...(symbols ?? []),
+		...createdSymbols.filter((created) => !symbols?.some((own) => own.id === created.id))
+	]);
+
+	async function createSymbol(name: string): Promise<{ symbol?: SymbolOption; error?: string }> {
+		const result = await createSymbolOption(name);
+		if (result.symbol) createdSymbols = [...createdSymbols, result.symbol];
+		return result;
+	}
 
 	const STAGE_WIDTH = 960;
 	const VIEWER_WIDTH = 1920;
@@ -241,7 +254,8 @@
 		onsaved={pinSaved}
 		shownWidth={frameWidth}
 		spot={newPin}
-		symbols={symbols ?? []}
+		oncreatesymbol={createSymbol}
+		symbols={allSymbols}
 		view={newPin.viewWidth}
 		bind:open={newPinOpen}
 	/>
@@ -252,7 +266,7 @@
 		image={current}
 		{pin}
 		shownWidth={frameWidth}
-		symbol={symbols?.find((symbol) => symbol.id === pin.symbolId)}
+		symbol={allSymbols.find((symbol) => symbol.id === pin.symbolId)}
 	/>
 {/snippet}
 

@@ -30,6 +30,7 @@
 		error?: string;
 		disabled?: boolean;
 		id?: string;
+		create?: { label: (query: string) => string; onselect: (query: string) => void };
 	};
 
 	let {
@@ -40,8 +41,11 @@
 		hint,
 		error,
 		disabled = false,
-		id
+		id,
+		create
 	}: Props = $props();
+
+	const CREATE = '\u0000create';
 
 	const texts = uiMessages().searchSelect;
 
@@ -59,10 +63,21 @@
 	let active = $state(0);
 
 	const selected = $derived(options.find((option) => option.value === value));
-	const shown = $derived(
+	const filtered = $derived(
 		typed && searchKey(query) !== ''
 			? options.filter((option) => searchKey(option.label).includes(searchKey(query)))
 			: options
+	);
+	const creatable = $derived(
+		create !== undefined &&
+			typed &&
+			searchKey(query) !== '' &&
+			!options.some((option) => searchKey(option.label) === searchKey(query))
+	);
+	const shown = $derived<readonly SearchSelectOption[]>(
+		creatable && create
+			? [...filtered, { value: CREATE, label: create.label(query.trim()) }]
+			: filtered
 	);
 	const expanded = $derived(open && !disabled);
 	const activeIndex = $derived(Math.min(active, shown.length - 1));
@@ -94,6 +109,14 @@
 	}
 
 	function pick(option: SearchSelectOption): void {
+		if (option.value === CREATE && create) {
+			const name = query.trim();
+			open = false;
+			typed = false;
+			query = selected?.label ?? '';
+			create.onselect(name);
+			return;
+		}
 		value = option.value;
 		open = false;
 		typed = false;

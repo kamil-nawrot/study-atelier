@@ -1530,6 +1530,25 @@ export const pl = {
 			person: 'postać'
 		},
 		attributes: 'Atrybuty postaci',
+		pin: {
+			create: (name: string): string => `Dodaj symbol „${name}”`
+		},
+		meaningDialog: {
+			newTitle: 'Nowe znaczenie',
+			editTitle: 'Edytuj znaczenie',
+			remove: 'Usuń znaczenie',
+			removeTitle: 'Usunąć znaczenie?',
+			removeDescription:
+				'Pinezki, które je wskazywały, zostaną przy symbolu bez wskazanego znaczenia.',
+			saved: 'Zapisano znaczenie.',
+			removed: 'Usunięto znaczenie.',
+			add: 'Dodaj znaczenie',
+			noMeanings: 'Ten symbol nie ma jeszcze znaczeń.',
+			actions: 'Więcej działań',
+			edit: 'Edytuj znaczenie',
+			moveUp: 'Przesuń wyżej',
+			moveDown: 'Przesuń niżej'
+		},
 		card: {
 			open: 'Otwórz w atlasie symboli',
 			edit: 'Edytuj symbol'
@@ -1561,19 +1580,13 @@ export const pl = {
 			newTitle: 'Nowy symbol',
 			editTitle: 'Edycja symbolu',
 			nameTaken: (name: string): string => `Masz już w atlasie symbol „${name}”.`,
-			meaningsLabel: 'Znaczenia',
-			meaningHeading: (number: number): string => `Znaczenie ${number}`,
 			meaning: 'Co oznacza?',
 			meaningRequired: 'Wpisz, co oznacza ten symbol, albo usuń to znaczenie.',
 			meaningTooLong: (max: number): string => `Znaczenie może mieć najwyżej ${max} znaków.`,
 			context: 'W jakim kontekście?',
 			contextHint:
 				'Wybierz wartość z Kartoteki, postać ze Słowniczka, lub wpisz własny opis. Puste pole będzie traktowane jako znaczenie ogólne.',
-			addMeaning: 'Dodaj znaczenie',
 			addContext: 'Dodaj kontekst',
-			removeMeaning: (number: number): string => `Usuń znaczenie ${number}`,
-			moveUp: (number: number): string => `Przesuń znaczenie ${number} wyżej`,
-			moveDown: (number: number): string => `Przesuń znaczenie ${number} niżej`,
 			errorTitle: 'Nie udało się zapisać symbolu'
 		},
 		errors: {
