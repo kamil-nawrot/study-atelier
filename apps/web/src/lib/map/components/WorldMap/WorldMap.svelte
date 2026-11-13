@@ -5,17 +5,17 @@
 	import { geoPath } from 'd3-geo';
 	import { untrack } from 'svelte';
 	import { m } from '#lib/i18n/i18n.ts';
+	import CityFan from '#lib/map/components/CityFan/CityFan.svelte';
 	import CityMarker from '#lib/map/components/CityMarker/CityMarker.svelte';
 	import {
 		type CityGroup,
 		type CitySpot,
+		fanOut,
 		groupCities,
-		labelledCities,
-		splitFactor,
-		splitScale
+		labelledCities
 	} from '#lib/map/map-groups/map-groups.ts';
 	import { MapPointer } from '#lib/map/map-pointer/map-pointer.ts';
-	import { MapZoom, MAX_ZOOM, ZOOM_STEP } from '#lib/map/map-zoom/map-zoom.svelte.ts';
+	import { MapZoom, ZOOM_STEP } from '#lib/map/map-zoom/map-zoom.svelte.ts';
 	import { mapProjection } from '#lib/map/projection/projection.ts';
 	import type { Geography } from '#lib/map/types/geography.ts';
 	import type { MapCity } from '#lib/map/types/map-city.ts';
@@ -64,7 +64,9 @@
 	let borders = $derived(width > 0 && height > 0 ? (path(geography.borders) ?? '') : '');
 
 	const zoom = new MapZoom();
-	const pointer = new MapPointer(zoom, pick);
+	const pointer = new MapPointer(zoom, tap, fold);
+
+	let fanned = $state<string>();
 
 	let spots = $derived(
 		cities.flatMap((city): CitySpot[] => {
@@ -73,16 +75,6 @@
 		})
 	);
 	let groups = $derived(groupCities(spots, radius));
-	let mapSpots = $derived(
-		cities.flatMap((city): CitySpot[] => {
-			const spot = projection([city.point.longitude, city.point.latitude]);
-			return spot ? [{ city, x: spot[0], y: spot[1] }] : [];
-		})
-	);
-
-	$effect(() => {
-		zoom.max = Math.max(MAX_ZOOM, splitScale(mapSpots, radius));
-	});
 	let labelled = $derived(labelledCities(groups, labelSize, selected));
 
 	$effect(() => {
@@ -129,13 +121,17 @@
 	}
 
 	function open(group: CityGroup): void {
-		const largest = group.cities[0];
-		if (group.cities.length === 1 || zoom.scale >= zoom.max) {
-			onselect?.(largest);
-			return;
-		}
-		zoom.zoomAt(group.x, group.y, Math.max(ZOOM_STEP, splitFactor(group, spots, radius)));
-		zoom.panBy(width / 2 - group.x, height / 2 - group.y);
+		if (group.cities.length === 1) onselect?.(group.cities[0]);
+		else fanned = group.key;
+	}
+
+	function fold(): void {
+		fanned = undefined;
+	}
+
+	function tap(x: number, y: number): void {
+		fold();
+		pick(x, y);
 	}
 
 	function pick(x: number, y: number): void {
@@ -154,6 +150,7 @@
 	}
 
 	function zoomBy(factor: number): void {
+		fold();
 		zoom.zoomAt(width / 2, height / 2, factor);
 	}
 </script>
@@ -180,13 +177,22 @@
 		</g>
 	</svg>
 	{#each groups as group (group.key)}
-		<CityMarker
-			{group}
-			labelled={labelled.has(group.key)}
-			{narrow}
-			onclick={() => open(group)}
-			selected={group.cities.some((city) => city.key === selected)}
-		/>
+		{#if group.key === fanned}
+			<CityFan
+				cities={fanOut(group, spots, radius, (city) => labelSize(city).width)}
+				{narrow}
+				onselect={(city) => onselect?.(city)}
+				{selected}
+			/>
+		{:else}
+			<CityMarker
+				{group}
+				labelled={labelled.has(group.key)}
+				{narrow}
+				onclick={() => open(group)}
+				selected={group.cities.some((city) => city.key === selected)}
+			/>
+		{/if}
 	{/each}
 	{#if marker}
 		{@const spot = place(marker)}

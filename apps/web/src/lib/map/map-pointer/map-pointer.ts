@@ -8,13 +8,15 @@ type Spot = { x: number; y: number };
 export class MapPointer {
 	#zoom: MapZoom;
 	#ontap: (x: number, y: number) => void;
+	#onmove: () => void;
 	#spots = new Map<number, Spot>();
 	#start: Spot | null = null;
 	#moved = false;
 
-	constructor(zoom: MapZoom, ontap: (x: number, y: number) => void) {
+	constructor(zoom: MapZoom, ontap: (x: number, y: number) => void, onmove: () => void = () => {}) {
 		this.#zoom = zoom;
 		this.#ontap = ontap;
+		this.#onmove = onmove;
 	}
 
 	#spotOf(event: PointerEvent | WheelEvent): Spot {
@@ -43,6 +45,7 @@ export class MapPointer {
 			if (other) this.#pinch(previous, spot, other);
 		} else {
 			this.#zoom.panBy(spot.x - previous.x, spot.y - previous.y);
+			if (spot.x !== previous.x || spot.y !== previous.y) this.#onmove();
 		}
 		this.#spots.set(event.pointerId, spot);
 		if (this.#start && Math.hypot(spot.x - this.#start.x, spot.y - this.#start.y) > TAP_DISTANCE) {
@@ -55,6 +58,7 @@ export class MapPointer {
 		const after = Math.hypot(spot.x - other.x, spot.y - other.y);
 		if (before === 0) return;
 		this.#zoom.zoomAt((spot.x + other.x) / 2, (spot.y + other.y) / 2, after / before);
+		this.#onmove();
 	}
 
 	up(event: PointerEvent): void {
@@ -74,5 +78,6 @@ export class MapPointer {
 		event.preventDefault();
 		const spot = this.#spotOf(event);
 		this.#zoom.zoomAt(spot.x, spot.y, WHEEL_STEP ** -event.deltaY);
+		this.#onmove();
 	}
 }

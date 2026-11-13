@@ -1,12 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { MapCity } from '#lib/map/types/map-city.ts';
-import {
-	type CitySpot,
-	groupCities,
-	labelledCities,
-	splitFactor,
-	splitScale
-} from './map-groups.ts';
+import { type CitySpot, fanOut, groupCities, labelledCities } from './map-groups.ts';
 
 function city(key: string, count: number, seen = 0): MapCity {
 	return {
@@ -52,28 +46,23 @@ describe('groupCities', () => {
 	});
 });
 
-describe('splitFactor', () => {
-	it('zooms far enough for the closest pair to stand apart', () => {
+describe('fanOut', () => {
+	it('spreads the cities of a group around it, keeping their own places as the start of a line', () => {
 		const spots: CitySpot[] = [
 			{ city: rome, x: 100, y: 100 },
-			{ city: vatican, x: 103, y: 100 }
+			{ city: vatican, x: 101, y: 100 }
 		];
 		const [group] = groupCities(spots, radius);
 
-		expect(splitFactor(group, spots, radius)).toBeCloseTo(((15 + 12 + 4) / 3) * 1.2);
-	});
-});
+		const fanned = fanOut(group, spots, radius, () => 60);
 
-describe('splitScale', () => {
-	it('zooms far enough for every pair of cities to stand apart, skipping cities on one point', () => {
-		const spots: CitySpot[] = [
-			{ city: rome, x: 100, y: 100 },
-			{ city: vatican, x: 101, y: 100 },
-			{ city: paris, x: 300, y: 100 },
-			{ city: city('Paryż 2', 3), x: 300, y: 100 }
-		];
-
-		expect(splitScale(spots, radius)).toBeCloseTo((15 + 12 + 4) * 1.2);
+		expect(fanned.map((city) => city.key)).toEqual(['Rzym', 'Watykan']);
+		expect(fanned[0]).toMatchObject({ count: 5, radius: 15, from: { x: 100, y: 100 } });
+		expect(fanned[0].x).toBeCloseTo(100);
+		expect(fanned[0].y).toBeCloseTo(100 - 32);
+		expect(fanned[1].x).toBeCloseTo(100);
+		expect(fanned[1].y).toBeCloseTo(100 + 32);
+		expect(fanned[1].from).toEqual({ x: 101, y: 100 });
 	});
 });
 

@@ -2,7 +2,6 @@ import type { MapCity } from '#lib/map/types/map-city.ts';
 
 export const CITY_GAP = 4;
 export const LABEL_GAP = 4;
-export const SPLIT_MARGIN = 1.2;
 
 export type CitySpot = { city: MapCity; x: number; y: number };
 
@@ -17,6 +16,8 @@ export type CityGroup = {
 };
 
 export type LabelSize = { width: number; height: number };
+
+export type FannedCity = CityGroup & { from: { x: number; y: number } };
 
 type Box = { left: number; top: number; right: number; bottom: number };
 
@@ -63,30 +64,6 @@ export function groupCities(
 		}));
 	while (mergeOnce(groups, radius));
 	return groups;
-}
-
-export function splitScale(spots: readonly CitySpot[], radius: (count: number) => number): number {
-	let factor = 1;
-	for (const [index, first] of spots.entries()) {
-		for (const second of spots.slice(index + 1)) {
-			const distance = Math.hypot(first.x - second.x, first.y - second.y);
-			if (distance === 0) continue;
-			const needed = radius(first.city.count) + radius(second.city.count) + CITY_GAP;
-			factor = Math.max(factor, needed / distance);
-		}
-	}
-	return factor * SPLIT_MARGIN;
-}
-
-export function splitFactor(
-	group: CityGroup,
-	spots: readonly CitySpot[],
-	radius: (count: number) => number
-): number {
-	return splitScale(
-		spots.filter((spot) => group.cities.includes(spot.city)),
-		radius
-	);
 }
 
 function labelBox(group: CityGroup, size: LabelSize): Box {
@@ -141,4 +118,30 @@ export function labelledCities(
 		labelled.add(group.key);
 	}
 	return labelled;
+}
+
+export function fanOut(
+	group: CityGroup,
+	spots: readonly CitySpot[],
+	radius: (count: number) => number,
+	labelWidth: (city: MapCity) => number
+): FannedCity[] {
+	const members = group.cities.flatMap((city) => spots.filter((spot) => spot.city === city));
+	const step = Math.max(
+		...members.map((spot) => Math.max(radius(spot.city.count) * 2, labelWidth(spot.city)))
+	);
+	const ring = (step + CITY_GAP) / (2 * Math.sin(Math.PI / members.length));
+	return members.map((spot, index) => {
+		const angle = (2 * Math.PI * index) / members.length - Math.PI / 2;
+		return {
+			key: spot.city.key,
+			cities: [spot.city],
+			x: group.x + ring * Math.cos(angle),
+			y: group.y + ring * Math.sin(angle),
+			radius: radius(spot.city.count),
+			count: spot.city.count,
+			seen: spot.city.seen,
+			from: { x: spot.x, y: spot.y }
+		};
+	});
 }
