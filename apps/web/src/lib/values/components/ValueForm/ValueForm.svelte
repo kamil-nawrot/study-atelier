@@ -51,6 +51,7 @@
 	import type { EraBoundsErrors } from '#lib/values/types/era-bounds-errors.ts';
 	import AuthorSortField from '#lib/values/components/AuthorSortField/AuthorSortField.svelte';
 	import AuthorLifeFields from '#lib/values/components/AuthorLifeFields/AuthorLifeFields.svelte';
+	import AuthorRelationsField from '#lib/author-relations/components/AuthorRelationsField/AuthorRelationsField.svelte';
 	import PeriodErasField from '#lib/values/components/PeriodErasField/PeriodErasField.svelte';
 	import StylePeriodsField from '#lib/values/components/StylePeriodsField/StylePeriodsField.svelte';
 
@@ -264,6 +265,12 @@
 						label={m.valueForm.authorCountry}
 						maxlength={AUTHOR_COUNTRY_MAX_LENGTH}
 						bind:value={form.author.country}
+					/>
+					<AuthorRelationsField
+						authorId={record?.id}
+						authors={index.values.filter((value) => value.category === 'author')}
+						error={errors.current.author?.relations}
+						bind:rows={form.author.relations}
 					/>
 				{/if}
 

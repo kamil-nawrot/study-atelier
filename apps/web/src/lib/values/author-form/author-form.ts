@@ -2,6 +2,11 @@ import { m } from '#lib/i18n/i18n.ts';
 import { parseYear } from '#lib/artworks/artwork-form/artwork-form.ts';
 import { yearError } from '#lib/artworks/artwork-record/artwork-record.ts';
 import { signedYear } from '#lib/catalogue/years/years.ts';
+import {
+	authorRelationError,
+	authorRelationRowsOf,
+	authorRelationsOfRows
+} from '#lib/author-relations/author-relation-types/author-relation-types.ts';
 import type { AuthorDetails } from '#lib/values/types/author-details.ts';
 import type { AuthorFieldErrors } from '#lib/values/types/author-field-errors.ts';
 import type { AuthorFormState } from '#lib/values/types/author-form-state.ts';
@@ -15,7 +20,8 @@ export function emptyAuthorDetails(): AuthorDetails {
 		deathYear: null,
 		yearsApproximate: false,
 		sortName: null,
-		country: null
+		country: null,
+		relations: []
 	};
 }
 
@@ -29,7 +35,8 @@ export function authorFormFromDetails(details: AuthorDetails): AuthorFormState {
 		yearsApproximate: details.yearsApproximate,
 		sortByOther: details.sortName !== null,
 		sortName: details.sortName ?? '',
-		country: details.country ?? ''
+		country: details.country ?? '',
+		relations: authorRelationRowsOf(details.relations)
 	};
 }
 
@@ -37,6 +44,8 @@ export function validateAuthorForm(form: AuthorFormState): AuthorFieldErrors {
 	const birth = parseYear(form.birthYear);
 	const death = parseYear(form.deathYear);
 	const errors: AuthorFieldErrors = {};
+	const relationsError = authorRelationError(form.relations);
+	if (relationsError) errors.relations = relationsError;
 	const birthError = birth === null ? undefined : yearError(birth, form.birthBeforeCommonEra);
 	const deathError = death === null ? undefined : yearError(death, form.deathBeforeCommonEra);
 	if (birthError) errors.birthYear = birthError;
@@ -58,6 +67,7 @@ export function authorDetailsFromForm(form: AuthorFormState): AuthorDetails {
 		deathYear,
 		yearsApproximate: form.yearsApproximate && (birthYear !== null || deathYear !== null),
 		sortName: form.sortByOther && sortName !== '' ? sortName : null,
-		country: form.country.trim() === '' ? null : form.country.trim()
+		country: form.country.trim() === '' ? null : form.country.trim(),
+		relations: authorRelationsOfRows(form.relations)
 	};
 }

@@ -76,6 +76,28 @@ describe('RelationsBand', () => {
 		await expect.element(page.getByText(m.relations.otherEvents)).toBeVisible();
 	});
 
+	it('lists other artists by type with links to their pages, even with nothing else', async () => {
+		render(RelationsBand, {
+			relations: {
+				kind: 'author',
+				years: [],
+				groups: [],
+				types: [],
+				total: 0,
+				authors: [
+					{ type: 'influenceTo', author: { id: 'raphael', name: 'Raphael' } },
+					{ type: 'pupilFrom', author: { id: 'verrocchio', name: 'Verrocchio' } }
+				]
+			}
+		});
+
+		await expect.element(page.getByText(m.authorRelations.band)).toBeVisible();
+		await expect.element(page.getByText(m.authorRelations.types.pupilFrom)).toBeVisible();
+		await expect
+			.element(page.getByRole('link', { name: 'Raphael' }))
+			.toHaveAttribute('href', '/atelier/values/author/raphael');
+	});
+
 	it('renders nothing when there is nothing to relate', async () => {
 		render(RelationsBand, {
 			relations: { kind: 'material', years: [], groups: [], types: [], total: 0 }

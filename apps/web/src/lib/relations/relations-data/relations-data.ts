@@ -7,6 +7,7 @@ import {
 	relatedGroups,
 	typeCounts
 } from '#lib/relations/relations/relations.ts';
+import type { AuthorRelation } from '#lib/author-relations/types/author-relation.ts';
 import type { RelatedEvent } from '#lib/relations/types/related-event.ts';
 import type { Relations } from '#lib/relations/types/relations.ts';
 import type { RelationsKind } from '#lib/relations/types/relations-kind.ts';
@@ -18,6 +19,7 @@ export type RelationsInput = {
 	index: CardIndexData;
 	bounds?: YearSpan;
 	eventId?: string;
+	authors?: AuthorRelation[];
 };
 
 export async function loadEventsDuring(
@@ -66,6 +68,7 @@ export async function loadRelations(input: RelationsInput): Promise<Relations> {
 		types: typeCounts(input.artworks),
 		total: input.artworks.length,
 		mastered,
-		events
+		events,
+		authors: input.authors
 	};
 }
