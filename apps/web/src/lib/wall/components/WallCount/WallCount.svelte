@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ChartColumn from '@lucide/svelte/icons/chart-column';
+	import MapIcon from '@lucide/svelte/icons/map';
 	import { Icon, Tooltip } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -21,6 +22,18 @@
 		>
 			{count}
 			<Icon icon={ChartColumn} size="sm" />
+		</a>
+	{/snippet}
+</Tooltip>
+<Tooltip align="end" placement="bottom" text={m.map.wallLink}>
+	{#snippet children(id)}
+		<a
+			class="caption"
+			aria-describedby={id}
+			aria-label={m.map.wallLink}
+			href={resolve('/(app)/atelier/map')}
+		>
+			<Icon icon={MapIcon} size="sm" />
 		</a>
 	{/snippet}
 </Tooltip>

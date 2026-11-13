@@ -435,7 +435,7 @@ alternatives:
 
   - id: M9
     name: Give a place a point, a starter museum its point and an artwork a want-to-see mark
-    status: 'accepted 2026-11-12, ADR-0260; schema built in 0.23 (ATL-684), the map in ATL-685'
+    status: 'built in 0.23: schema in ATL-684, the map, the place position and the fill-in mode in ATL-685'
     kind: schema
     tables: [location_details, catalogue_museums, artworks]
     serves: [R33, W27, W28]

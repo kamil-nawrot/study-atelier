@@ -32,6 +32,7 @@
 	import MentionedIn from '#lib/notes/components/MentionedIn/MentionedIn.svelte';
 	import NotesSection from '#lib/notes/components/NotesSection/NotesSection.svelte';
 	import EraOutsideNote from '#lib/values/components/EraOutsideNote/EraOutsideNote.svelte';
+	import PlacePosition from '#lib/map/components/PlacePosition/PlacePosition.svelte';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 	type Props = {
@@ -138,6 +139,14 @@
 				</p>
 			{/if}
 		</header>
+
+		{#if subject.kind === 'location' && details.location}
+			<PlacePosition
+				name={subject.record.name}
+				placeId={subject.record.id}
+				point={details.location.point ?? null}
+			/>
+		{/if}
 
 		<VisitsDisclosure
 			stub={(visit) =>
