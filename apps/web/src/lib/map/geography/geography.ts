@@ -10,6 +10,7 @@ type World = Topology<{ countries: GeometryCollection; land: GeometryCollection 
 type TownRow = [number, number, string, string];
 
 let loading: Promise<Geography> | undefined;
+let loadingTowns: Promise<Town[]> | undefined;
 
 async function json<T>(path: string): Promise<T> {
 	const response = await fetch(path);
@@ -45,4 +46,14 @@ export function loadGeography(): Promise<Geography> {
 			throw error;
 		});
 	return loading;
+}
+
+export function loadTowns(): Promise<Town[]> {
+	loadingTowns ??= (loading ? loading.then((geography) => geography.towns) : json<TownRow[]>(asset('map/towns.json')).then(townsOf)).catch(
+		(error: unknown) => {
+			loadingTowns = undefined;
+			throw error;
+		}
+	);
+	return loadingTowns;
 }

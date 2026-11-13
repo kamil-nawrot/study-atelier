@@ -41,7 +41,11 @@
 		{#snippet aside()}
 			{#if !data.error && data.visits.length > 0}
 				<span class="caption">
-					{m.chronicle.count(data.visits.length, seenCount(data.visits, artworks))}
+					{m.chronicle.count(
+						data.visits.filter((visit) => visit.kind === 'visit').length,
+						data.visits.filter((visit) => visit.kind === 'trip').length,
+						seenCount(data.visits, artworks)
+					)}
 				</span>
 			{/if}
 		{/snippet}

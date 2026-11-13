@@ -2,13 +2,28 @@ import { valueKey } from '#lib/card-index/value-suggestions/value-suggestions.ts
 import { m } from '#lib/i18n/i18n.ts';
 import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 import { dateFromParts, dateParts, isVisitDate } from '#lib/chronicle/visit-date/visit-date.ts';
+import {
+	isTripEnd,
+	tripEndFromParts,
+	tripEndParts
+} from '#lib/chronicle/trip-date/trip-date.ts';
+import { tripArtworks, tripPlaceOf } from '#lib/chronicle/trip-artworks/trip-artworks.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
+import type { TripPlace } from '#lib/chronicle/types/trip-place.ts';
+import type { VisitKind } from '#lib/chronicle/types/visit-kind.ts';
+import type { Town } from '#lib/map/types/town.ts';
 import type { Visit } from '#lib/chronicle/types/visit.ts';
 import type { VisitDraft } from '#lib/chronicle/types/visit-draft.ts';
 import type { VisitFormErrors } from '#lib/chronicle/types/visit-form-errors.ts';
 import type { VisitFormState } from '#lib/chronicle/types/visit-form-state.ts';
 
 export const SEARCH_RESULTS = 8;
+
+export type SuggestionSource = {
+	artworks: readonly WallArtwork[];
+	tripPlaces: readonly TripPlace[];
+	towns: readonly Town[];
+};
 
 export function placeOf(form: VisitFormState): string {
 	return form.place[0]?.trim() ?? '';
@@ -20,26 +35,46 @@ export function placeArtworks(artworks: readonly WallArtwork[], place: string): 
 	return artworks.filter((artwork) => artwork.location && valueKey(artwork.location) === key);
 }
 
-export function emptyVisitForm(): VisitFormState {
+export function suggestedArtworks(form: VisitFormState, source: SuggestionSource): WallArtwork[] {
+	const place = placeOf(form);
+	return form.kind === 'trip'
+		? tripArtworks(source.artworks, place, source.tripPlaces, source.towns)
+		: placeArtworks(source.artworks, place);
+}
+
+export function emptyVisitForm(kind: VisitKind = 'visit'): VisitFormState {
 	return {
+		kind,
 		place: [],
 		placeQuery: '',
 		day: '',
 		month: '',
 		year: '',
+		endDay: '',
+		endMonth: '',
+		endYear: '',
 		notes: '',
 		chosen: [],
 		extra: []
 	};
 }
 
-export function visitFormOf(visit: Visit, artworks: readonly WallArtwork[]): VisitFormState {
-	const atPlace = new Set(placeArtworks(artworks, visit.place).map((artwork) => artwork.id));
+export function visitFormOf(
+	visit: Visit,
+	artworks: readonly WallArtwork[],
+	suggested: readonly WallArtwork[]
+): VisitFormState {
+	const atPlace = new Set(suggested.map((artwork) => artwork.id));
 	const known = new Set(artworks.map((artwork) => artwork.id));
+	const end = tripEndParts(visit);
 	return {
+		kind: visit.kind,
 		place: [visit.place],
 		placeQuery: '',
 		...dateParts(visit.date),
+		endDay: end.day,
+		endMonth: end.month,
+		endYear: end.year,
 		notes: visit.notes,
 		chosen: visit.artworkIds.filter((id) => known.has(id)),
 		extra: visit.artworkIds.filter((id) => known.has(id) && !atPlace.has(id))
@@ -48,12 +83,13 @@ export function visitFormOf(visit: Visit, artworks: readonly WallArtwork[]): Vis
 
 export function withPlaceArtworks(
 	form: VisitFormState,
-	artworks: readonly WallArtwork[],
+	suggested: readonly WallArtwork[],
 	saved?: VisitFormState
 ): VisitFormState {
 	const extra = new Set(form.extra);
-	const atPlace = new Set(placeArtworks(artworks, placeOf(form)).map((artwork) => artwork.id));
-	const savedPlace = saved && valueKey(placeOf(saved)) === valueKey(placeOf(form));
+	const atPlace = new Set(suggested.map((artwork) => artwork.id));
+	const savedPlace =
+		saved && saved.kind === form.kind && valueKey(placeOf(saved)) === valueKey(placeOf(form));
 	const ticked = savedPlace ? saved.chosen.filter((id) => atPlace.has(id)) : [...atPlace];
 	const kept = form.chosen.filter((id) => extra.has(id) && !atPlace.has(id));
 	return {
@@ -90,23 +126,53 @@ export function searchArtworks(
 		.slice(0, SEARCH_RESULTS);
 }
 
-export function validateVisitForm(form: VisitFormState): VisitFormErrors {
+function placeError(form: VisitFormState, tripPlaces: readonly TripPlace[]): string | undefined {
+	const place = placeOf(form);
+	if (form.kind === 'visit') return place === '' ? m.chronicle.form.placeRequired : undefined;
+	if (place === '') return m.chronicle.trip.form.placeRequired;
+	const known = tripPlaceOf(tripPlaces, place);
+	return known && known.placeType !== 'city' ? m.chronicle.trip.form.notCity : undefined;
+}
+
+function endErrors(form: VisitFormState): VisitFormErrors {
+	const start = dateFromParts(form);
+	if (form.kind !== 'trip' || !isVisitDate(start)) return {};
+	const end = tripEndFromParts(start, { day: form.endDay, month: form.endMonth, year: form.endYear });
+	if (end === 'endApproximate') return { endDay: m.chronicle.trip.form.endApproximate };
+	if (end === 'endBeforeStart') return { endDay: m.chronicle.trip.form.endBeforeStart };
+	if (end === 'yearInvalid') return { endYear: m.chronicle.form.yearInvalid };
+	if (end === 'dayInvalid') return { endDay: m.chronicle.form.dayInvalid };
+	return {};
+}
+
+export function validateVisitForm(
+	form: VisitFormState,
+	tripPlaces: readonly TripPlace[] = []
+): VisitFormErrors {
 	const errors: VisitFormErrors = {};
-	if (placeOf(form) === '') errors.place = m.chronicle.form.placeRequired;
+	const place = placeError(form, tripPlaces);
+	if (place) errors.place = place;
 	const date = dateFromParts(form);
 	if (date === 'yearMissing') errors.year = m.chronicle.form.yearRequired;
 	if (date === 'yearInvalid') errors.year = m.chronicle.form.yearInvalid;
 	if (date === 'monthMissing') errors.month = m.chronicle.form.monthRequired;
 	if (date === 'dayInvalid') errors.day = m.chronicle.form.dayInvalid;
-	return errors;
+	return { ...errors, ...endErrors(form) };
 }
 
 export function draftOfVisitForm(form: VisitFormState, kept: readonly string[] = []): VisitDraft {
 	const date = dateFromParts(form);
 	if (!isVisitDate(date)) throw new Error('the visit form was not validated');
+	const end =
+		form.kind === 'trip'
+			? tripEndFromParts(date, { day: form.endDay, month: form.endMonth, year: form.endYear })
+			: null;
+	if (!isTripEnd(end)) throw new Error('the visit form was not validated');
 	return {
+		kind: form.kind,
 		place: placeOf(form),
 		date,
+		endsOn: end,
 		notes: form.notes,
 		artworkIds: [...new Set([...form.chosen, ...kept])]
 	};
@@ -115,11 +181,17 @@ export function draftOfVisitForm(form: VisitFormState, kept: readonly string[] =
 export function visitFormChanged(current: VisitFormState, saved: VisitFormState): boolean {
 	const sameSet = (a: string[], b: string[]): boolean =>
 		a.length === b.length && a.every((id) => b.includes(id));
+	const sameText = (key: 'day' | 'year' | 'endDay' | 'endYear'): boolean =>
+		current[key].trim() === saved[key].trim();
 	return (
+		current.kind !== saved.kind ||
 		placeOf(current) !== placeOf(saved) ||
-		current.day.trim() !== saved.day.trim() ||
+		!sameText('day') ||
 		current.month !== saved.month ||
-		current.year.trim() !== saved.year.trim() ||
+		!sameText('year') ||
+		!sameText('endDay') ||
+		current.endMonth !== saved.endMonth ||
+		!sameText('endYear') ||
 		current.notes !== saved.notes ||
 		!sameSet(current.chosen, saved.chosen) ||
 		!sameSet(current.extra, saved.extra)

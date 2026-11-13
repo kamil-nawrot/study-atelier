@@ -3,4 +3,7 @@ export type VisitFormErrors = {
 	day?: string;
 	month?: string;
 	year?: string;
+	endDay?: string;
+	endMonth?: string;
+	endYear?: string;
 };

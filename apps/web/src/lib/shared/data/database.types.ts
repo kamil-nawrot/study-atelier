@@ -1743,10 +1743,13 @@ export type Database = {
           category_code: string;
           created_at: string;
           date_precision: string;
+          ends_on: string | null;
           id: string;
+          kind: string;
           notes: string | null;
           owner_id: string;
           place_id: string;
+          trip_id: string | null;
           updated_at: string;
           visited_on: string;
         };
@@ -1755,10 +1758,13 @@ export type Database = {
           category_code?: string;
           created_at?: string;
           date_precision: string;
+          ends_on?: string | null;
           id?: string;
+          kind?: string;
           notes?: string | null;
           owner_id?: string;
           place_id: string;
+          trip_id?: string | null;
           updated_at?: string;
           visited_on: string;
         };
@@ -1766,10 +1772,13 @@ export type Database = {
           category_code?: string;
           created_at?: string;
           date_precision?: string;
+          ends_on?: string | null;
           id?: string;
+          kind?: string;
           notes?: string | null;
           owner_id?: string;
           place_id?: string;
+          trip_id?: string | null;
           updated_at?: string;
           visited_on?: string;
         };
@@ -1780,6 +1789,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "category_values";
             referencedColumns: ["id", "owner_id", "category_code"];
+          },
+          {
+            foreignKeyName: "visits_trip_id_owner_id_fkey";
+            columns: ["trip_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "visits";
+            referencedColumns: ["id", "owner_id"];
           },
         ];
       };

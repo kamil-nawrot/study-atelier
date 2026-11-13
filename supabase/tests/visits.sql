@@ -186,4 +186,86 @@ begin
 end;
 $$;
 
+do $$
+declare
+  paris uuid;
+  portal uuid;
+  trip uuid;
+  museum_visit uuid;
+  rejected boolean;
+begin
+  select id into portal from public.save_artwork(
+    '{"title": "Portal of the Virgin", "author_unknown": true}', '{"author": [], "location": ["Notre-Dame"]}');
+  update public.artworks set want_to_see = true where id = portal;
+
+  trip := public.save_visit(
+    '{"kind": "trip", "visited_on": "2026-10-10", "date_precision": "day", "ends_on": "2026-10-14"}',
+    'Paris', array[portal]);
+  select id into paris from public.category_values where category_code = 'location' and name = 'Paris';
+  assert (select kind from public.visits where id = trip) = 'trip', 'save_visit does not save a trip';
+  assert (select ends_on from public.visits where id = trip) = '2026-10-14', 'save_visit drops the end of a trip';
+  assert (select place_type from public.location_details where value_id = paris) = 'city',
+    'a new place of a trip is not a city';
+  assert exists (select 1 from public.visit_artworks where visit_id = trip and artwork_id = portal),
+    'a trip drops its artworks';
+  assert not (select want_to_see from public.artworks where id = portal),
+    'a trip does not clear the want-to-see mark';
+
+  perform public.save_visit(
+    '{"kind": "visit", "visited_on": "2026-10-11", "date_precision": "day", "ends_on": "2026-10-11"}',
+    'Paris', array[portal], trip);
+  assert (select kind from public.visits where id = trip) = 'trip', 'editing a trip turns it into a visit';
+  assert (select ends_on from public.visits where id = trip) is null, 'a one-day trip keeps an end on its start';
+
+  museum_visit := public.save_visit(
+    '{"visited_on": "2026-10-12", "date_precision": "day", "ends_on": "2026-10-13"}', 'Louvre', '{}');
+  assert (select ends_on from public.visits where id = museum_visit) is null, 'a visit keeps an end date';
+
+  rejected := false;
+  begin
+    perform public.save_visit('{"kind": "trip", "visited_on": "2026-10-10", "date_precision": "day"}', 'Louvre', '{}');
+  exception when invalid_parameter_value then rejected := true;
+  end;
+  assert rejected, 'a trip is saved at a place that is not a city';
+
+  rejected := false;
+  begin
+    perform public.save_visit(
+      '{"kind": "trip", "visited_on": "2026-10-10", "date_precision": "day", "ends_on": "2026-10-09"}', 'Paris', '{}');
+  exception when check_violation then rejected := true;
+  end;
+  assert rejected, 'a trip ends before it starts';
+
+  rejected := false;
+  begin
+    perform public.save_visit(
+      '{"kind": "trip", "visited_on": "2026-10-01", "date_precision": "month", "ends_on": "2026-10-20"}', 'Paris', '{}');
+  exception when check_violation then rejected := true;
+  end;
+  assert rejected, 'a trip known to the month has an end';
+
+  update public.visits set trip_id = trip where id = museum_visit;
+  rejected := false;
+  begin
+    update public.visits set trip_id = museum_visit where id = trip;
+  exception when check_violation then rejected := true;
+  end;
+  assert rejected, 'a trip is part of a trip';
+
+  rejected := false;
+  begin
+    perform public.save_visit('{"visited_on": "2026-10-12", "date_precision": "day"}', 'Orsay', '{}');
+    update public.visits set trip_id = museum_visit where place_id = (
+      select id from public.category_values where category_code = 'location' and name = 'Orsay');
+  exception when foreign_key_violation then rejected := true;
+  end;
+  assert rejected, 'a visit is part of another visit';
+
+  delete from public.visits where id = trip;
+  assert (select trip_id from public.visits where id = museum_visit) is null,
+    'deleting a trip does not free its visits';
+  assert exists (select 1 from public.visits where id = museum_visit), 'deleting a trip deletes its visits';
+end;
+$$;
+
 rollback;

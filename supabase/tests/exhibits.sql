@@ -332,6 +332,11 @@ begin
   assert not exists (select 1 from public.exhibit_tiers where exhibit = 'seven_league_boots'),
     'two places of one day unlock the seven-league boots';
 
+  insert into public.visits (kind, place_id, visited_on, date_precision) values ('trip', third_place, '2026-05-14', 'day');
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'seven_league_boots') = 2,
+    'the seven-league boots count a trip';
+  delete from public.visits where kind = 'trip';
+
   insert into public.visit_artworks (visit_id, artwork_id)
     select later, artwork.id from public.artworks as artwork where artwork.title = 'Authored 1';
   insert into public.visits (place_id, visited_on, date_precision) values (third_place, '2026-05-14', 'day');

@@ -1,12 +1,13 @@
 <script lang="ts">
 	import Footprints from '@lucide/svelte/icons/footprints';
+	import Tickets from '@lucide/svelte/icons/tickets';
 	import { Icon, MetaLine } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { countryName } from '#lib/catalogue/countries/countries.ts';
 	import { placeTypeIcon, placeTypeName } from '#lib/catalogue/place-types/place-types.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { noteExcerpt } from '#lib/chronicle/note-excerpt/note-excerpt.ts';
-	import { ticketDate } from '#lib/chronicle/visit-date/visit-date.ts';
+	import { tripOverline, tripTicketDate } from '#lib/chronicle/trip-date/trip-date.ts';
 	import TicketStub from '#lib/chronicle/components/TicketStub/TicketStub.svelte';
 	import VisitBackdrop from '#lib/chronicle/components/VisitBackdrop/VisitBackdrop.svelte';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -15,16 +16,26 @@
 	type Props = {
 		visit: Visit;
 		count: number;
+		visitCount?: number;
 		linked?: boolean;
 		backdrop?: WallArtwork;
 		onnearscreen?: (artwork: WallArtwork) => void;
 		onimagefailed?: (artwork: WallArtwork) => void;
 	};
 
-	let { visit, count, linked = false, backdrop, onnearscreen, onimagefailed }: Props = $props();
+	let {
+		visit,
+		count,
+		visitCount = 0,
+		linked = false,
+		backdrop,
+		onnearscreen,
+		onimagefailed
+	}: Props = $props();
 
 	let header = $derived(!linked);
-	let date = $derived(ticketDate(visit.date, header));
+	let trip = $derived(visit.kind === 'trip');
+	let date = $derived(tripTicketDate(visit, header));
 	let place = $derived([
 		visit.placeType ? placeTypeName(visit.placeType) : null,
 		visit.countryCode ? countryName(visit.countryCode) : null
@@ -32,7 +43,7 @@
 	let excerpt = $derived(header ? '' : noteExcerpt(visit.notes));
 </script>
 
-<article class="ticket" class:header>
+<article class="ticket" class:header class:trip>
 	<div class="main">
 		<time class="date" class:year={visit.date.precision === 'year'} datetime={visit.date.on}>
 			<span class="day" aria-hidden="true">{date.main}</span>
@@ -42,8 +53,12 @@
 			<span class="visually-hidden">{date.label}</span>
 		</time>
 		<div class="body">
-			{#if header}
+			{#if trip}
+				<p class="overline kind">{tripOverline(visit)}</p>
+			{:else if header}
 				<p class="overline">{m.chronicle.kind}</p>
+			{/if}
+			{#if header}
 				<h1 class="place">{visit.place}</h1>
 			{:else}
 				<h3 class="place">
@@ -64,6 +79,12 @@
 						<Icon icon={Footprints} size="sm" />
 						{m.chronicle.seen(count)}
 					</span>
+					{#if visitCount > 0}
+						<span class="part">
+							<Icon icon={Tickets} size="sm" />
+							{m.chronicle.trip.visits(visitCount)}
+						</span>
+					{/if}
 				{/if}
 			</p>
 			{#if excerpt}
@@ -116,6 +137,19 @@
 	.day {
 		font-size: var(--font-size-2xl);
 		line-height: var(--line-height-2xl);
+	}
+
+	.trip .main {
+		grid-template-columns: minmax(var(--spacing-12), max-content) minmax(0, 1fr);
+	}
+
+	.trip .day {
+		font-size: var(--font-size-lg);
+		white-space: nowrap;
+	}
+
+	.kind {
+		color: var(--color-highlight);
 	}
 
 	.year .day {
@@ -199,6 +233,14 @@
 			grid-template-columns: var(--spacing-16) minmax(0, 1fr);
 			gap: var(--spacing-6);
 			padding: var(--spacing-8);
+		}
+
+		.trip .main {
+			grid-template-columns: minmax(var(--spacing-16), max-content) minmax(0, 1fr);
+		}
+
+		.trip .day {
+			font-size: var(--font-size-xl);
 		}
 
 		.header {

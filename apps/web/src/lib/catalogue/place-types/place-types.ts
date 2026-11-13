@@ -1,3 +1,4 @@
+import Building2 from '@lucide/svelte/icons/building-2';
 import Frame from '@lucide/svelte/icons/frame';
 import House from '@lucide/svelte/icons/house';
 import MapPin from '@lucide/svelte/icons/map-pin';
@@ -10,14 +11,16 @@ export const PLACE_TYPES: readonly PlaceType[] = [
 	'museum',
 	'gallery',
 	'private_collection',
-	'on_site'
+	'on_site',
+	'city'
 ];
 
 const PLACE_ICONS = {
 	museum: Ticket,
 	gallery: Frame,
 	private_collection: House,
-	on_site: MapPin
+	on_site: MapPin,
+	city: Building2
 };
 
 export function isPlaceType(value: unknown): value is PlaceType {

@@ -8,7 +8,9 @@
 
 	let { data }: PageProps = $props();
 
-	const title = m.chronicle.form.editTitle;
+	let title = $derived(
+		data.visit?.kind === 'trip' ? m.chronicle.trip.form.editTitle : m.chronicle.form.editTitle
+	);
 
 	let backPath = $derived(
 		data.visit
