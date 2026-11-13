@@ -5,6 +5,9 @@ import { m } from '#lib/i18n/i18n.ts';
 import { searchWikidataPlaces } from '#lib/images/wikidata-places/wikidata-places.ts';
 import PlaceSuggestions from './PlaceSuggestions.svelte';
 
+vi.mock('#lib/map/museum-places-data/museum-places-data.ts', () => ({
+	loadMuseumPlaces: vi.fn().mockResolvedValue([])
+}));
 vi.mock('#lib/images/wikidata-places/wikidata-places.ts', () => ({
 	searchWikidataPlaces: vi.fn()
 }));

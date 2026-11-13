@@ -21,6 +21,7 @@ declare
   firenze uuid;
   visit uuid;
   rejected boolean;
+  aliased record;
 begin
   assert (select count(*) from public.catalogue_museums where latitude is null or longitude is null) = 0,
     'a starter museum has no point';
@@ -33,6 +34,26 @@ begin
   assert (select (latitude, longitude, wikidata_id) from public.location_details where value_id = louvre)
     = (48.86111::double precision, 2.33583::double precision, 'Q19675'::text),
     'a starter museum does not give its point to a new place';
+
+  select museum.alias, museum.wikidata_id, museum.latitude into aliased
+    from public.catalogue_museums as museum
+    where museum.alias is not null
+      and not exists (
+        select 1 from public.catalogue_museums as other
+          where other.wikidata_id <> museum.wikidata_id
+            and (lower(other.alias) = lower(museum.alias) or lower(other.name) = lower(museum.alias))
+      )
+    limit 1;
+  perform public.save_artwork(
+    jsonb_build_object('title', 'Alias', 'author_unknown', true),
+    jsonb_build_object('location', jsonb_build_array(aliased.alias)), null, '[]');
+  assert (
+    select (details.catalogue_wikidata_id, details.latitude, details.place_type)
+      from public.location_details as details
+      join public.category_values as place on place.id = details.value_id
+      where place.name = aliased.alias
+  ) = (aliased.wikidata_id, aliased.latitude, 'museum'::text),
+    'a place named by the alias of a starter museum does not get its point';
 
   select id into sculpture from public.save_artwork(
     '{"title": "Pieta", "author_unknown": true}', '{"location": ["Rzym"]}', null, '[]');

@@ -10,6 +10,9 @@ import { testGeography, testPlace } from '#lib/testing/map/map.ts';
 import type { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
 import MapView from './MapView.svelte';
 
+vi.mock('#lib/map/museum-places-data/museum-places-data.ts', () => ({
+	loadMuseumPlaces: vi.fn().mockResolvedValue([])
+}));
 vi.mock('#lib/images/wikidata-places/wikidata-places.ts', () => ({
 	searchWikidataPlaces: vi.fn()
 }));

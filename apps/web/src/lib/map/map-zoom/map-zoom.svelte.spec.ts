@@ -21,6 +21,15 @@ describe('MapZoom', () => {
 		expect(zoom.scale).toBe(MAX_ZOOM);
 	});
 
+	it('zooms out to the whole world when the map allows it', () => {
+		const zoom = new MapZoom();
+		zoom.limit({ left: 0, top: 0, right: 1000, bottom: 800 }, 200, 200, true);
+
+		zoom.zoomAt(100, 100, 0.01);
+
+		expect(zoom.scale).toBeCloseTo(0.25);
+	});
+
 	it('moves the map and returns to the start', () => {
 		const zoom = new MapZoom();
 

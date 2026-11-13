@@ -78,7 +78,7 @@
 	);
 </script>
 
-<article class:with-portrait={portrait}>
+<article class:with-portrait={portrait} class:with-position={subject.kind === 'location'}>
 	{#if portrait}
 		<figure class="portrait">
 			<div class="mat">
@@ -140,14 +140,6 @@
 			{/if}
 		</header>
 
-		{#if subject.kind === 'location' && details.location}
-			<PlacePosition
-				name={subject.record.name}
-				placeId={subject.record.id}
-				point={details.location.point ?? null}
-			/>
-		{/if}
-
 		<VisitsDisclosure
 			stub={(visit) =>
 				visit.artworkIds.length > 0 ? m.chronicle.seen(visit.artworkIds.length) : ''}
@@ -172,6 +164,11 @@
 
 		<MentionedIn {mentions} />
 	</div>
+	{#if subject.kind === 'location' && details.location}
+		<aside class="position">
+			<PlacePosition point={details.location.point ?? null} />
+		</aside>
+	{/if}
 </article>
 
 <style>
@@ -282,6 +279,11 @@
 	@media (min-width: 768px) {
 		article.with-portrait {
 			grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+			gap: var(--spacing-12);
+		}
+
+		article.with-position {
+			grid-template-columns: minmax(0, 1fr) minmax(0, 480px);
 			gap: var(--spacing-12);
 		}
 	}
