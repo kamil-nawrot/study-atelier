@@ -341,6 +341,16 @@ export function valueId(category, name) {
 	return `${category}-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 }
 
+export const AUTHOR_RELATIONS = [
+	{ from: 'Gustav Klimt', to: 'Leonardo da Vinci', kind: 'influence' },
+	{ from: 'Vincent van Gogh', to: 'Johannes Vermeer', kind: 'influence' },
+	{ from: 'Johannes Vermeer', to: 'Leonardo da Vinci', kind: 'related' }
+].map(({ from, to, kind }) => ({
+	kind,
+	from: { id: valueId('author', from), name: from },
+	to: { id: valueId('author', to), name: to }
+}));
+
 export const VALUE_USAGE = [
 	...new Map(
 		ARTWORKS.flatMap((row) =>

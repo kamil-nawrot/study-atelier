@@ -7,6 +7,7 @@ import { chromium } from 'playwright';
 import {
 	ARTWORK_PINS,
 	ARTWORKS,
+	AUTHOR_RELATIONS,
 	CATALOGUE_MUSEUMS,
 	GLOSSARY_ENTRIES,
 	OWN_FIELD_USAGE,
@@ -834,6 +835,14 @@ async function mockSupabase(context) {
 			return json(route, wantsObject ? counts : [counts]);
 		}
 		if (url.pathname === '/rest/v1/rpc/atelier_empty') return json(route, false);
+		if (url.pathname === '/rest/v1/author_relations') {
+			const ids = (url.searchParams.get('or') ?? '').match(/eq\.([^,)]+)/g) ?? [];
+			const id = ids[0]?.slice(3);
+			return json(
+				route,
+				AUTHOR_RELATIONS.filter((relation) => relation.from.id === id || relation.to.id === id)
+			);
+		}
 		if (url.pathname === '/rest/v1/rpc/note_gap_artwork') {
 			const excluded = request.postDataJSON()?.excluded ?? [];
 			const row = ARTWORKS.find((artwork) => hasImage(artwork) && !excluded.includes(artwork.id));

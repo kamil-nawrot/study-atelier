@@ -8,6 +8,7 @@ import {
 import { forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { emptyAuthorDetails } from '#lib/values/author-form/author-form.ts';
+import { loadAuthorRelations } from '#lib/author-relations/author-relations-data/author-relations-data.ts';
 import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
 import { loadValueDetails, saveValueDetails } from './value-details-data.ts';
 
@@ -17,6 +18,9 @@ vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 vi.mock('#lib/shared/data/data-cache/data-cache.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/shared/data/data-cache/data-cache.ts')>()),
 	forgetCached: vi.fn()
+}));
+vi.mock('#lib/author-relations/author-relations-data/author-relations-data.ts', () => ({
+	loadAuthorRelations: vi.fn()
 }));
 vi.mock('#lib/images/own-image-data/own-image-data.ts', () => ({
 	uploadOwnImage: vi.fn(),
@@ -138,6 +142,9 @@ describe('author details', () => {
 
 	it('reads the portrait, the years of life and the sort name', async () => {
 		vi.mocked(ownImageUrl).mockResolvedValue('https://signed.example/portrait.jpg');
+		vi.mocked(loadAuthorRelations).mockResolvedValue({
+			relations: [{ type: 'pupilFrom', author: { id: 'a2', name: 'Verrocchio' } }]
+		});
 		detailsTable({
 			summary: null,
 			notes: null,
@@ -166,11 +173,21 @@ describe('author details', () => {
 			deathYear: 1519,
 			yearsApproximate: false,
 			sortName: 'Vinci, Leonardo da',
-			country: 'Italia'
+			country: 'Italia',
+			relations: [{ type: 'pupilFrom', author: { id: 'a2', name: 'Verrocchio' } }]
 		});
+		expect(loadAuthorRelations).toHaveBeenCalledWith('a1');
+	});
+
+	it('fails the author page when its relations cannot be read', async () => {
+		detailsTable(null);
+		vi.mocked(loadAuthorRelations).mockResolvedValue({ relations: [], error: 'Brak sieci.' });
+
+		await expect(loadValueDetails(author)).resolves.toMatchObject({ error: 'Brak sieci.' });
 	});
 
 	it('gives an author without a row empty details', async () => {
+		vi.mocked(loadAuthorRelations).mockResolvedValue({ relations: [] });
 		detailsTable(null);
 
 		const { details } = await loadValueDetails(author);
@@ -211,7 +228,8 @@ describe('author details', () => {
 				country: null,
 				own_image_path: 'owner/new.jpg',
 				source_image_file: null,
-				image_width: 4
+				image_width: 4,
+				relations: []
 			})
 		});
 		expect(removeOwnImage).toHaveBeenCalledWith('owner/old.jpg');

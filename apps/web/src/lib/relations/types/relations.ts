@@ -1,3 +1,4 @@
+import type { AuthorRelation } from '#lib/author-relations/types/author-relation.ts';
 import type { RelatedEvent } from './related-event.ts';
 import type { RelatedGroup } from './related-group.ts';
 import type { RelationsKind } from './relations-kind.ts';
@@ -13,4 +14,5 @@ export type Relations = {
 	total: number;
 	mastered?: number;
 	events?: RelatedEvent[];
+	authors?: AuthorRelation[];
 };

@@ -4,6 +4,7 @@
 	import { artworkTypeIcon } from '#lib/catalogue/artwork-types/artwork-types.ts';
 	import { formatDate } from '#lib/catalogue/years/years.ts';
 	import { m } from '#lib/i18n/i18n.ts';
+	import { groupAuthorRelations } from '#lib/author-relations/author-relation-types/author-relation-types.ts';
 	import TimeSpan from '#lib/relations/components/TimeSpan/TimeSpan.svelte';
 	import type { Relations } from '#lib/relations/types/relations.ts';
 
@@ -20,8 +21,13 @@
 	let timed = $derived(relations.years.length > 0 || relations.bounds !== undefined);
 	let events = $derived(relations.events ?? []);
 	let progress = $derived(relations.total > 0 && relations.mastered !== undefined);
+	let authors = $derived(groupAuthorRelations(relations.authors ?? []));
 	let shown = $derived(
-		timed || relations.groups.length > 0 || relations.types.length > 0 || events.length > 0
+		timed ||
+			authors.length > 0 ||
+			relations.groups.length > 0 ||
+			relations.types.length > 0 ||
+			events.length > 0
 	);
 </script>
 
@@ -36,6 +42,28 @@
 						kind={relations.kind}
 						years={relations.years}
 					/>
+				{/if}
+				{#if authors.length > 0}
+					<section class="part" aria-labelledby="relations-authors">
+						<h3 id="relations-authors" class="overline">{m.authorRelations.band}</h3>
+						{#each authors as group (group.type)}
+							<div class="group">
+								<span class="caption">{group.label}</span>
+								<ul class="authors">
+									{#each group.authors as author (author.id)}
+										<li>
+											<a
+												href={resolve('/(app)/atelier/values/[kind]/[id]', {
+													kind: 'author',
+													id: author.id
+												})}>{author.name}</a
+											>
+										</li>
+									{/each}
+								</ul>
+							</div>
+						{/each}
+					</section>
 				{/if}
 				{#if relations.groups.length > 0}
 					<section class="part" aria-labelledby="relations-together">
@@ -166,6 +194,16 @@
 
 	.value:hover {
 		text-decoration: underline;
+	}
+
+	.authors {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--spacing-1) var(--spacing-4);
+	}
+
+	.authors a {
+		color: var(--color-fg);
 	}
 
 	.types {

@@ -15,7 +15,8 @@ function author(sortName = ''): AuthorFormState {
 		yearsApproximate: false,
 		sortByOther: sortName !== '',
 		sortName,
-		country: ''
+		country: '',
+		relations: []
 	};
 }
 
