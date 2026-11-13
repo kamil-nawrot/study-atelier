@@ -31,6 +31,17 @@ describe('mapProjection', () => {
 		expect(back?.[1]).toBeCloseTo(48.857, 3);
 	});
 
+	it('keeps north up along every meridian', () => {
+		const projection = mapProjection([{ latitude: 41.9, longitude: 12.5 }], 600, 400);
+
+		for (const longitude of [-20, 12.5, 40]) {
+			const south = projection([longitude, 30]);
+			const north = projection([longitude, 60]);
+			expect(north?.[0]).toBeCloseTo(south?.[0] ?? Number.NaN, 6);
+			expect(north?.[1]).toBeLessThan(south?.[1] ?? Number.NaN);
+		}
+	});
+
 	it('falls back to Europe without points', () => {
 		const projection = mapProjection([], 600, 400);
 

@@ -33,6 +33,9 @@ export class MapState {
 			? mapCities(this.places, this.#artworks(), this.geography.towns, this.filter)
 			: []
 	);
+	#allCities = $derived.by((): MapCity[] =>
+		this.geography ? mapCities(this.places, this.#artworks(), this.geography.towns, 'all') : []
+	);
 	counts = $derived(filterCounts(this.places, this.#artworks()));
 	missing = $derived(placesToFill(this.places, this.#artworks()));
 	queue = $derived(this.missing.filter(({ place }) => !this.skipped.includes(place.id)));
@@ -40,7 +43,7 @@ export class MapState {
 	selected = $derived(this.cities.find((city) => city.key === this.selectedKey));
 	fit = $derived.by((): PlacePoint[] => {
 		if (this.focus) return [this.focus];
-		return this.cities.map((city) => city.point);
+		return this.#allCities.map((city) => city.point);
 	});
 
 	async load(): Promise<void> {

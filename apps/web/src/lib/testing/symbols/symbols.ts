@@ -52,11 +52,7 @@ export function testSymbolPage(extra: Partial<SymbolPageResult> = {}): SymbolPag
 		symbol: testSymbol,
 		sections: [
 			{ meaning: testSymbol.meanings[0], details: [] },
-			{
-				meaning: testSymbol.meanings[1],
-				details: [jerome],
-				summary: 'Na Twoich dziełach: nowożytność 1 · Caravaggio'
-			}
+			{ meaning: testSymbol.meanings[1], details: [jerome] }
 		],
 		withoutMeaning: [holbein],
 		details: [jerome, holbein],

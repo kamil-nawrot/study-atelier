@@ -31,7 +31,14 @@
 			<h2 id="city-name">{city.name}</h2>
 			<p class="caption">{m.map.city.summary(city.places.length, city.count, city.seen)}</p>
 		</div>
-		<IconButton icon={X} label={m.map.city.close} onclick={onclose} />
+		<IconButton
+			icon={X}
+			label={m.map.city.close}
+			onclick={onclose}
+			tooltipAlign="end"
+			tooltipPlacement="bottom"
+			variant="plain"
+		/>
 	</header>
 	<ul>
 		{#each city.places as { place, artworks } (place.id)}

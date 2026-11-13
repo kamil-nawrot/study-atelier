@@ -430,7 +430,7 @@ reads:
       {
         requests: 1,
         whole: [],
-        note: 'ATL-677: one RPC symbol_atlas returning name, created_at, first meaning, counts and the cover pin with its crop path; pins of artworks in the trash are left out; crops signed in one batch'
+        note: 'ATL-677, ATL-703: the chosen main detail (symbols.cover_pin_id) comes first; one RPC symbol_atlas returning name, created_at, first meaning, counts and the cover pin with its crop path; pins of artworks in the trash are left out; crops signed in one batch'
       }
 
   - id: R27
@@ -739,6 +739,12 @@ writes:
     changes: [visits.trip_id]
     side_effects: [Kronika list, trip view]
     frequency: 'write, with the visit form (save_visit); deleting a trip sets trip_id of its visits to null'
+
+  - id: W31
+    name: Choose the main detail of a symbol
+    changes: [symbols.cover_pin_id]
+    side_effects: [Symbol atlas cover]
+    frequency: 'write, from the symbol page (set_symbol_cover); a pin that stops carrying the symbol falls back to the newest pin with a crop'
 
 relations:
   # Every relation the app shows, whether stored or computed today.

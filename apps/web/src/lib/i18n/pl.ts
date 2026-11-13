@@ -1530,11 +1530,15 @@ export const pl = {
 			person: 'postać'
 		},
 		attributes: 'Atrybuty postaci',
+		card: {
+			open: 'Otwórz w atlasie symboli'
+		},
 		view: {
 			overline: 'Symbol',
 			general: 'znaczenie ogólne',
-			summary: (text: string): string => `Na Twoich dziełach: ${text}`,
 			noDetails: 'Żaden detal nie ma jeszcze tego znaczenia.',
+			mainDetail: 'Główny detal',
+			setMainDetail: 'Ustaw jako główny',
 			detailsBack: 'Przewiń detale wstecz',
 			detailsForward: 'Przewiń detale dalej',
 			withoutMeaning: 'Bez wskazanego znaczenia',
@@ -1564,6 +1568,7 @@ export const pl = {
 			contextHint:
 				'Wybierz wartość z Kartoteki, postać ze Słowniczka, lub wpisz własny opis. Puste pole będzie traktowane jako znaczenie ogólne.',
 			addMeaning: 'Dodaj znaczenie',
+			addContext: 'Dodaj kontekst',
 			removeMeaning: (number: number): string => `Usuń znaczenie ${number}`,
 			moveUp: (number: number): string => `Przesuń znaczenie ${number} wyżej`,
 			moveDown: (number: number): string => `Przesuń znaczenie ${number} niżej`,
@@ -2109,6 +2114,8 @@ export const pl = {
 		wallLink: 'Mapa wizyt',
 		zoomIn: 'Przybliż',
 		zoomOut: 'Oddal',
+		group: (cities: string[], artworks: number): string =>
+			`${cities.join(', ')}, ${workCount(artworks)}. Pokaż miasta osobno`,
 		filtersLabel: 'Które dzieła pokazać',
 		filters: {
 			all: 'Wszystkie',

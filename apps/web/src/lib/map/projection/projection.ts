@@ -1,4 +1,4 @@
-import { geoConicConformal, type GeoProjection } from 'd3-geo';
+import { geoMercator, type GeoProjection } from 'd3-geo';
 import type { PlacePoint } from '#lib/map/types/place-point.ts';
 
 const PADDING = 48;
@@ -31,11 +31,9 @@ export function mapProjection(
 ): GeoProjection {
 	const [southWest, northEast] = spanOf(points);
 	const centre = (southWest.longitude + northEast.longitude) / 2;
-	const middle = (southWest.latitude + northEast.latitude) / 2;
 	const padding = Math.min(PADDING, width / 6, height / 6);
-	return geoConicConformal()
+	return geoMercator()
 		.rotate([-centre, 0])
-		.parallels([middle - 10, middle + 10])
 		.fitExtent(
 			[
 				[padding, padding],

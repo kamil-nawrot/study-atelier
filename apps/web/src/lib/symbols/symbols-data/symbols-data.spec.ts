@@ -9,7 +9,8 @@ import {
 	loadSymbolOptions,
 	loadSymbolPins,
 	saveSymbol,
-	searchArtworkContexts
+	searchArtworkContexts,
+	setSymbolCover
 } from './symbols-data.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
@@ -256,6 +257,29 @@ describe('symbols data', () => {
 
 		await expect(deleteSymbol(SKULL)).resolves.toEqual({});
 		expect(query.delete).toHaveBeenCalled();
+	});
+
+	it('sets and clears the main detail of a symbol', async () => {
+		vi.mocked(supabase.rpc).mockResolvedValue({ data: null, error: null } as never);
+
+		await expect(setSymbolCover(SKULL, 'pin-1')).resolves.toEqual({});
+		expect(supabase.rpc).toHaveBeenLastCalledWith('set_symbol_cover', {
+			symbol_id: SKULL,
+			pin_id: 'pin-1'
+		});
+		await setSymbolCover(SKULL, null);
+		expect(supabase.rpc).toHaveBeenLastCalledWith('set_symbol_cover', { symbol_id: SKULL });
+	});
+
+	it('says when the main detail could not be set', async () => {
+		vi.mocked(supabase.rpc).mockResolvedValue({
+			data: null,
+			error: { message: 'Failed to fetch' }
+		} as never);
+
+		await expect(setSymbolCover(SKULL, 'pin-1')).resolves.toEqual({
+			error: m.common.network
+		});
 	});
 
 	it('finds artworks to label a meaning with', async () => {

@@ -48,7 +48,6 @@ describe('symbol page data', () => {
 
 		expect(fragmentLenses).toHaveBeenCalledWith([fragment]);
 		expect(result.sections[1].details.map((detail) => detail.pinId)).toEqual(['pin-1']);
-		expect(result.sections[1].summary).toBeDefined();
 		expect(result.withoutMeaning.map((detail) => detail.pinId)).toEqual(['pin-2']);
 		expect(result.details).toHaveLength(2);
 	});

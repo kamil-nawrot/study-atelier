@@ -1,4 +1,8 @@
 <script lang="ts">
+	import ArrowRight from '@lucide/svelte/icons/arrow-right';
+	import KeyRound from '@lucide/svelte/icons/key-round';
+	import { Icon } from '@study-atelier/ui';
+	import { m } from '#lib/i18n/i18n.ts';
 	import GlossaryTermCard from '#lib/glossary/components/GlossaryTermCard/GlossaryTermCard.svelte';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
@@ -9,12 +13,14 @@
 	type Props = {
 		pin: Pin;
 		entry?: GlossaryTerm;
-		symbol?: { id: string; name: string };
+		symbol?: { id: string; name: string; meanings?: { id: string; text: string }[] };
 		image?: ArtworkImageInput | null;
 		shownWidth?: number;
 	};
 
 	let { pin, entry, symbol, image, shownWidth }: Props = $props();
+
+	const meaning = $derived(symbol?.meanings?.find((own) => own.id === pin.symbolMeaningId));
 </script>
 
 <div class="card">
@@ -27,9 +33,20 @@
 		</div>
 	{/if}
 	{#if symbol}
-		<a class="symbol" href={resolve('/(app)/atelier/glossary/symbols/[id]', { id: symbol.id })}
-			>{symbol.name}</a
-		>
+		<div class="entry">
+			<span class="kind overline">
+				<Icon icon={KeyRound} size="sm" />
+				{m.symbols.view.overline}
+			</span>
+			<span class="name">{symbol.name}</span>
+			{#if meaning}
+				<span class="meaning">{meaning.text}</span>
+			{/if}
+			<a class="open" href={resolve('/(app)/atelier/glossary/symbols/[id]', { id: symbol.id })}>
+				{m.symbols.card.open}
+				<Icon icon={ArrowRight} size="sm" />
+			</a>
+		</div>
 	{/if}
 	{#if pin.text}
 		<p class="text">{pin.text}</p>
@@ -48,10 +65,39 @@
 		gap: var(--spacing-2);
 	}
 
-	.symbol {
-		justify-self: start;
-		color: var(--color-fg);
+	.kind {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--spacing-2);
+	}
+
+	.name {
+		font-family: var(--font-family-title), Georgia, serif;
+		font-size: var(--font-size-xl);
 		font-style: italic;
+		line-height: var(--line-height-xl);
+	}
+
+	.meaning {
+		font-size: var(--font-size-sm);
+		line-height: var(--line-height-sm);
+	}
+
+	.open {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--spacing-2);
+		padding-top: var(--spacing-3);
+		border-top: var(--border-width-base) solid var(--color-line);
+		color: var(--color-fg);
+		font-size: var(--font-size-sm);
+		font-weight: var(--font-weight-medium);
+		line-height: var(--line-height-sm);
+		text-decoration: none;
+	}
+
+	.open:hover {
+		text-decoration: underline;
 	}
 
 	.text {

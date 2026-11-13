@@ -2,7 +2,7 @@
 	import ArrowDown from '@lucide/svelte/icons/arrow-down';
 	import ArrowUp from '@lucide/svelte/icons/arrow-up';
 	import Trash from '@lucide/svelte/icons/trash-2';
-	import { IconButton, TextField } from '@study-atelier/ui';
+	import { Button, IconButton, TextField } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import ContextField from '#lib/symbols/components/ContextField/ContextField.svelte';
 	import { MEANING_TEXT_MAX_LENGTH } from '#lib/symbols/symbol-draft/symbol-draft.ts';
@@ -28,6 +28,8 @@
 		onremove,
 		onmove
 	}: Props = $props();
+
+	let contextsOpen = $state(false);
 </script>
 
 <fieldset class="meaning">
@@ -58,7 +60,13 @@
 		maxlength={MEANING_TEXT_MAX_LENGTH}
 		bind:value={meaning.text}
 	/>
-	<ContextField {candidates} bind:contexts={meaning.contexts} />
+	{#if contextsOpen || meaning.contexts.length > 0}
+		<ContextField {candidates} bind:contexts={meaning.contexts} />
+	{:else}
+		<div class="add-context">
+			<Button onclick={() => (contextsOpen = true)}>{m.symbols.form.addContext}</Button>
+		</div>
+	{/if}
 </fieldset>
 
 <style>
@@ -85,6 +93,10 @@
 		font-size: var(--font-size-lg);
 		font-style: italic;
 		line-height: var(--line-height-lg);
+	}
+
+	.add-context {
+		justify-self: start;
 	}
 
 	.actions {

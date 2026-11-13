@@ -42,7 +42,12 @@ type MeaningRow = {
 	symbol_meaning_contexts: ContextRow[];
 };
 
-type SymbolRow = { id: string; name: string; symbol_meanings: MeaningRow[] };
+type SymbolRow = {
+	id: string;
+	name: string;
+	cover_pin_id: string | null;
+	symbol_meanings: MeaningRow[];
+};
 
 type PinRow = {
 	id: string;
@@ -58,7 +63,7 @@ type PinRow = {
 const CONTEXT_COLUMNS =
 	'position, value_id, era_code, artwork_id, glossary_entry_id, text, category_values(category_code, name), artworks(record_number, title), glossary_entries(name)';
 
-const SYMBOL_COLUMNS = `id, name, symbol_meanings(id, position, text, symbol_meaning_contexts(${CONTEXT_COLUMNS}))`;
+const SYMBOL_COLUMNS = `id, name, cover_pin_id, symbol_meanings(id, position, text, symbol_meaning_contexts(${CONTEXT_COLUMNS}))`;
 
 const PIN_COLUMNS = `id, x, y, text, view_width, crop_path, symbol_meaning_id, artwork_images!inner(id, artwork_id, ${IMAGE_COLUMNS.join(', ')})`;
 
@@ -105,6 +110,7 @@ function entryOf(row: SymbolRow): SymbolEntry {
 	return {
 		id: row.id,
 		name: row.name,
+		...(row.cover_pin_id ? { coverPinId: row.cover_pin_id } : {}),
 		meanings: [...row.symbol_meanings]
 			.sort((a, b) => a.position - b.position)
 			.map((meaning) => ({
@@ -225,4 +231,15 @@ export async function searchArtworkContexts(
 			number: row.record_number,
 			name: row.title
 		}));
+}
+
+export async function setSymbolCover(
+	symbolId: string,
+	pinId: string | null
+): Promise<DeleteResult> {
+	const { error } = await supabase.rpc('set_symbol_cover', {
+		symbol_id: symbolId,
+		...(pinId ? { pin_id: pinId } : {})
+	});
+	return error ? { error: await failureMessage(error, symbolErrorMessage) } : {};
 }

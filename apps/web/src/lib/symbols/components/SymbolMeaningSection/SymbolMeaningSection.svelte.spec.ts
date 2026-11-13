@@ -6,7 +6,7 @@ import { testSymbolPage } from '#lib/testing/symbols/symbols.ts';
 import SymbolMeaningSection from './SymbolMeaningSection.svelte';
 
 describe('SymbolMeaningSection', () => {
-	it('shows the number, the meaning, its labels, the summary and its details', async () => {
+	it('shows the number, the meaning, its labels and its details', async () => {
 		render(SymbolMeaningSection, {
 			section: testSymbolPage().sections[1],
 			number: 2,
@@ -17,7 +17,6 @@ describe('SymbolMeaningSection', () => {
 		await expect
 			.element(page.getByRole('link', { name: /Baroque/ }))
 			.toHaveTextContent(`Baroque · ${m.symbols.contextKinds.period}`);
-		await expect.element(page.getByText(/^Na Twoich dziełach/)).toBeVisible();
 		await expect.element(page.getByRole('link', { name: /Saint Jerome Writing/ })).toBeVisible();
 	});
 

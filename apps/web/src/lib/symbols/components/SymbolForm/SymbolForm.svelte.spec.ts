@@ -47,6 +47,7 @@ describe('SymbolForm', () => {
 
 		await page.getByLabelText(m.common.name).fill('Keys');
 		await meaningFields().fill('power of the Church');
+		await page.getByRole('button', { name: m.symbols.form.addContext }).click();
 		await userEvent.fill(page.getByRole('combobox', { name: m.symbols.form.context }), 'peter');
 		await page.getByRole('option', { name: contextLabel(peter) }).click();
 		await page.getByRole('button', { name: m.symbols.form.addMeaning }).click();
@@ -68,6 +69,7 @@ describe('SymbolForm', () => {
 	it('asks for a name and for the text of a labelled meaning', async () => {
 		renderForm();
 
+		await page.getByRole('button', { name: m.symbols.form.addContext }).click();
 		await userEvent.fill(page.getByRole('combobox', { name: m.symbols.form.context }), 'peter');
 		await page.getByRole('option', { name: contextLabel(peter) }).click();
 		await save();

@@ -1,9 +1,17 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/i18n.ts';
 import { testSymbol, testSymbolPage } from '#lib/testing/symbols/symbols.ts';
 import SymbolView from './SymbolView.svelte';
+
+const { setSymbolCover } = vi.hoisted(() => ({ setSymbolCover: vi.fn() }));
+
+vi.mock('#lib/symbols/symbols-data/symbols-data.ts', () => ({ setSymbolCover }));
+
+beforeEach(() => {
+	setSymbolCover.mockReset().mockResolvedValue({});
+});
 
 describe('SymbolView', () => {
 	it('shows the name, every meaning, the details without a meaning and the axis', async () => {
@@ -28,6 +36,28 @@ describe('SymbolView', () => {
 		await expect.element(page.getByText('Offline.')).toBeVisible();
 		await expect
 			.element(page.getByRole('heading', { name: m.symbols.view.withoutMeaning }))
+			.not.toBeInTheDocument();
+	});
+
+	it('marks a detail as the main one and takes the mark off again', async () => {
+		render(SymbolView, { symbol: testSymbol, page: testSymbolPage() });
+
+		await page.getByRole('button', { name: m.symbols.view.setMainDetail }).first().click();
+
+		expect(setSymbolCover).toHaveBeenCalledWith('skull', expect.any(String));
+		await page.getByRole('button', { name: m.symbols.view.mainDetail }).click();
+		expect(setSymbolCover).toHaveBeenLastCalledWith('skull', null);
+	});
+
+	it('says when the main detail could not be saved', async () => {
+		setSymbolCover.mockResolvedValue({ error: 'Offline.' });
+		render(SymbolView, { symbol: testSymbol, page: testSymbolPage() });
+
+		await page.getByRole('button', { name: m.symbols.view.setMainDetail }).first().click();
+
+		await expect.element(page.getByText('Offline.')).toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.symbols.view.mainDetail }))
 			.not.toBeInTheDocument();
 	});
 });
