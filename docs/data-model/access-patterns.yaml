@@ -510,7 +510,7 @@ reads:
       {
         requests: 0,
         whole: [],
-        note: 'new in 0.23 (ADR-0260); target 1 request for the places with their details, the rest from the wall cache'
+        note: 'new in 0.23 (ADR-0260, built in ATL-685): 1 request for the places with their details, the rest from the wall cache'
       }
 
 writes:

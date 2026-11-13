@@ -39,12 +39,17 @@ type AuthorRow = ImageRow & {
 	country: string | null;
 };
 
-type LocationRow = { country_code: string | null; place_type: string | null };
+type LocationRow = {
+	country_code: string | null;
+	place_type: string | null;
+	latitude: number | null;
+	longitude: number | null;
+};
 
 type DetailsRow = { summary: string | null; notes: string | null } & Partial<AuthorRow> &
 	Partial<LocationRow>;
 
-const LOCATION_COLUMNS = 'summary, notes, country_code, place_type';
+const LOCATION_COLUMNS = 'summary, notes, country_code, place_type, latitude, longitude';
 
 const AUTHOR_COLUMNS = [
 	'summary',
@@ -121,7 +126,11 @@ function locationOf(row: DetailsRow | null): LocationDetails {
 	const placeType = row?.place_type;
 	return {
 		countryCode: isCountryCode(row?.country_code) ? row.country_code : null,
-		placeType: isPlaceType(placeType) ? placeType : null
+		placeType: isPlaceType(placeType) ? placeType : null,
+		point:
+			row?.latitude != null && row.longitude != null
+				? { latitude: row.latitude, longitude: row.longitude }
+				: null
 	};
 }
 

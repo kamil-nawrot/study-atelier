@@ -8,6 +8,8 @@ import {
 	ARTWORK_PINS,
 	ARTWORKS,
 	CATALOGUE_MUSEUMS,
+	MAP_PLACES,
+	PLACE_SEARCH,
 	GLOSSARY_ENTRIES,
 	OWN_FIELD_USAGE,
 	OWN_FIELDS,
@@ -925,6 +927,13 @@ async function mockSupabase(context) {
 		if (url.pathname === '/rest/v1/rpc/save_visit') return json(route, VISITS[0].id);
 		if (url.pathname === '/rest/v1/catalogue_museums') return json(route, CATALOGUE_MUSEUMS);
 		if (
+			url.pathname === '/rest/v1/category_values' &&
+			url.searchParams.get('select')?.includes('latitude')
+		) {
+			return json(route, MAP_PLACES);
+		}
+		if (url.pathname === '/rest/v1/rpc/set_place_point') return json(route, null);
+		if (
 			url.pathname === '/rest/v1/location_details' &&
 			url.searchParams.get('country_code') === 'not.is.null' &&
 			url.searchParams.get('select') !== 'value_id,country_code'
@@ -1140,6 +1149,12 @@ async function mockImages(context) {
 			return json(route, { entities });
 		}
 		const query = params.get('query') ?? '';
+		if (query.includes('wdt:P625')) {
+			const bindings = PLACE_SEARCH.map((row) =>
+				Object.fromEntries(Object.entries(row).map(([key, value]) => [key, { value }]))
+			);
+			return json(route, { results: { bindings } });
+		}
 		const rows = query.includes('wd:Q5;')
 			? PEOPLE
 			: ARTWORK_SEARCH.filter((artwork) => query.includes(`"${artwork.title}"`));

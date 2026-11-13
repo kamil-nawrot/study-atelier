@@ -202,6 +202,63 @@ export const ARTWORKS = [
 	artwork(10, 'Untitled study', ['Learner Example'], null, null, {})
 ];
 
+const ARTWORK_PLACES = [
+	[2, 'MoMA, New York'],
+	[3, 'Mauritshuis'],
+	[5, 'Neues Museum'],
+	[6, 'Notre-Dame de Paris'],
+	[7, 'Belvedere'],
+	[9, 'Uffizi']
+];
+
+for (const [number, place] of ARTWORK_PLACES) {
+	withValues(
+		ARTWORKS.find((row) => row.record_number === number),
+		'location',
+		[place]
+	);
+}
+
+function mapPlace(name, placeType, countryCode, point) {
+	return {
+		id: valueId('location', name),
+		name,
+		location_details: [
+			{
+				place_type: placeType,
+				country_code: countryCode,
+				latitude: point?.[0] ?? null,
+				longitude: point?.[1] ?? null
+			}
+		]
+	};
+}
+
+export const MAP_PLACES = [
+	mapPlace('Belvedere', 'museum', 'AT', null),
+	mapPlace('Louvre', 'museum', 'FR', [48.86111, 2.33583]),
+	mapPlace('Mauritshuis', 'museum', 'NL', [52.08056, 4.31444]),
+	mapPlace('MoMA, New York', 'museum', 'US', null),
+	mapPlace('Neues Museum', 'museum', 'DE', [52.52, 13.39778]),
+	mapPlace('Notre-Dame de Paris', 'on_site', 'FR', [48.853, 2.3498]),
+	mapPlace('Uffizi', 'museum', 'IT', [43.76778, 11.25528])
+];
+
+export const PLACE_SEARCH = [
+	{
+		item: 'http://www.wikidata.org/entity/Q188740',
+		label: 'Museum of Modern Art',
+		description: 'muzeum sztuki nowoczesnej w Nowym Jorku',
+		coord: 'Point(-73.97778 40.76139)'
+	},
+	{
+		item: 'http://www.wikidata.org/entity/Q1135626',
+		label: 'MoMA PS1',
+		description: 'muzeum sztuki współczesnej w Queens',
+		coord: 'Point(-73.94694 40.74556)'
+	}
+];
+
 const STUDY_SET = [
 	[12, 'The Night Watch', 'Rembrandt', 1642, 'Baroque', 'Dutch Golden Age', [5, 4]],
 	[13, 'Las Meninas', 'Diego Velázquez', 1656, 'Baroque', 'Spanish Golden Age', [6, 7]],
@@ -395,7 +452,9 @@ export const VALUE_DETAILS = {
 			summary: 'A former royal palace in Paris, a museum since 1793.',
 			notes: null,
 			country_code: 'FR',
-			place_type: 'museum'
+			place_type: 'museum',
+			latitude: 48.86111,
+			longitude: 2.33583
 		}
 	],
 	period_details: [

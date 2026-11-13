@@ -14,4 +14,12 @@ describe('WallCount', () => {
 		await expect.element(link).toHaveAttribute('href', '/atelier/statistics');
 		await expect.element(link).toHaveTextContent(m.atelier.filteredCount(63, 292));
 	});
+
+	it('leads to the map right after the statistics', async () => {
+		render(WallCount, { count: m.atelier.count(5) });
+
+		await expect
+			.element(page.getByRole('link', { name: m.map.wallLink }))
+			.toHaveAttribute('href', '/atelier/map');
+	});
 });

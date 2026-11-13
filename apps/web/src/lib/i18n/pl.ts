@@ -2043,6 +2043,70 @@ export const pl = {
 			}
 		}
 	},
+	map: {
+		title: 'Mapa',
+		lead: 'Miasta, w których są Twoje dzieła. Zobacz, co już udało Ci się zobaczyć na żywo, a co jeszcze przed Tobą.',
+		back: 'Atelier',
+		wallLink: 'Mapa wizyt',
+		label: 'Mapa miast z Twoimi dziełami',
+		zoomIn: 'Przybliż',
+		zoomOut: 'Oddal',
+		filtersLabel: 'Które dzieła pokazać',
+		filters: {
+			all: 'Wszystkie',
+			wantToSee: 'Chcę zobaczyć',
+			seen: 'Widziane na żywo'
+		},
+		emptyTitle: 'Mapa zapełni się wraz z miejscami',
+		empty: 'Gdy przy dziele wpiszesz miejsce i uzupełnisz jego położenie, zobaczysz je na mapie.',
+		emptyWantToSee:
+			'Żadne dzieło nie jest jeszcze zaznaczone do zobaczenia. Zrobisz to lornetką przy dziele.',
+		emptySeen: 'Tu zobaczysz miasta Twoich wizyt. Zapisz pierwszą wizytę w Kronice.',
+		missing: (count: number): string =>
+			`${count} ${plural(count, { one: 'miejsca', few: 'miejsc', many: 'miejsc' })} nie ma jeszcze na mapie`,
+		fillStart: 'Uzupełnij położenie',
+		loadError: 'Nie udało się wczytać mapy. Sprawdź internet i spróbuj jeszcze raz.',
+		saveFailed: 'Nie udało się zapisać położenia. Spróbuj jeszcze raz.',
+		city: {
+			summary: (places: number, artworks: number, seen: number): string =>
+				[
+					`${places} ${plural(places, { one: 'miejsce', few: 'miejsca', many: 'miejsc' })}`,
+					' · ',
+					workCount(artworks),
+					seen > 0
+						? `, ${seen} ${plural(seen, { one: 'widziane', few: 'widziane', many: 'widzianych' })} na żywo`
+						: ''
+				].join(''),
+			seen: 'Widziane na żywo',
+			showOnWall: 'Pokaż na ścianie',
+			close: 'Zamknij panel miasta',
+			artworks: workCount
+		},
+		fill: {
+			title: 'Uzupełnij położenie',
+			lead: (place: string): string =>
+				`Gdzie jest ${place}? Wybierz z podpowiedzi albo kliknij na mapie.`,
+			left: (count: number): string =>
+				`Jeszcze ${count} ${plural(count, { one: 'miejsce', few: 'miejsca', many: 'miejsc' })}`,
+			save: 'Zapisz położenie',
+			skip: 'Pomiń to miejsce',
+			done: 'Wszystkie miejsca są już na mapie.',
+			close: 'Zakończ'
+		},
+		suggestions: {
+			title: 'Czy chodzi o jedno z tych?',
+			searching: 'Szukanie podpowiedzi…',
+			none: 'Nie udało się znaleźć tego miejsca. Kliknij na mapie, gdzie jest.',
+			failed: 'Nie udało się pobrać podpowiedzi. Możesz kliknąć na mapie albo spróbować później.'
+		},
+		position: {
+			title: 'Położenie',
+			empty: 'To miejsce nie ma jeszcze położenia.',
+			set: 'Ustaw położenie',
+			change: 'Zmień położenie',
+			remove: 'Usuń położenie'
+		}
+	},
 	statistics: {
 		title: 'Statystyki',
 		lead: 'Twoja kolekcja w liczbach. Możesz tutaj ocenić, jak rozkłada się w poszczególnych kategoriach, a także poznać ciekawe fakty na temat obecnego stanu atelier.',
