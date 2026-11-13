@@ -2097,7 +2097,6 @@ export const pl = {
 		lead: 'Miasta, w których są Twoje dzieła. Zobacz, co już udało Ci się zobaczyć na żywo, a co jeszcze przed Tobą.',
 		back: 'Atelier',
 		wallLink: 'Mapa wizyt',
-		label: 'Mapa miast z Twoimi dziełami',
 		zoomIn: 'Przybliż',
 		zoomOut: 'Oddal',
 		filtersLabel: 'Które dzieła pokazać',
