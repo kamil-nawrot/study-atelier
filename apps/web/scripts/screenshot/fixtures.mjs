@@ -219,7 +219,7 @@ for (const [number, place] of ARTWORK_PLACES) {
 	);
 }
 
-function mapPlace(name, placeType, countryCode, point) {
+function mapPlace(name, placeType, countryCode, point, city = null) {
 	return {
 		id: valueId('location', name),
 		name,
@@ -228,21 +228,24 @@ function mapPlace(name, placeType, countryCode, point) {
 				place_type: placeType,
 				country_code: countryCode,
 				latitude: point?.[0] ?? null,
-				longitude: point?.[1] ?? null
+				longitude: point?.[1] ?? null,
+				city_id: city ? valueId('location', city) : null
 			}
 		]
 	};
 }
 
 export const MAP_PLACES = [
-	mapPlace('Belvedere', 'museum', 'AT', null),
-	mapPlace('Louvre', 'museum', 'FR', [48.86111, 2.33583]),
-	mapPlace('Mauritshuis', 'museum', 'NL', [52.08056, 4.31444]),
+	mapPlace('Belvedere', 'museum', 'AT', [48.19139, 16.38083]),
+	mapPlace('Florencja', 'city', 'IT', [43.7696, 11.2558]),
+	mapPlace('Haga', 'city', 'NL', [52.07667, 4.29861]),
+	mapPlace('Louvre', 'museum', 'FR', null, 'Paryż'),
+	mapPlace('Mauritshuis', 'museum', 'NL', null, 'Haga'),
 	mapPlace('MoMA, New York', 'museum', 'US', null),
 	mapPlace('Neues Museum', 'museum', 'DE', [52.52, 13.39778]),
-	mapPlace('Notre-Dame de Paris', 'on_site', 'FR', [48.853, 2.3498]),
+	mapPlace('Notre-Dame de Paris', 'on_site', 'FR', null, 'Paryż'),
 	mapPlace('Paryż', 'city', 'FR', [48.85661, 2.35222]),
-	mapPlace('Uffizi', 'museum', 'IT', [43.76778, 11.25528])
+	mapPlace('Uffizi', 'museum', 'IT', null, 'Florencja')
 ];
 
 export const PLACE_SEARCH = [

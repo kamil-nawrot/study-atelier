@@ -7,4 +7,5 @@ export type MapPlace = {
 	placeType: PlaceType | null;
 	countryCode: string | null;
 	point: PlacePoint | null;
+	cityId: string | null;
 };

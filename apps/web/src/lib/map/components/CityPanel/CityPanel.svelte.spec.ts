@@ -11,7 +11,8 @@ import CityPanel from './CityPanel.svelte';
 const images = { request: vi.fn(), failed: vi.fn() } as unknown as WallImages;
 
 const city: MapCity = {
-	key: 'FR:Paryż',
+	key: 'city:place-paryz',
+	cityId: 'place-paryz',
 	name: 'Paryż',
 	countryCode: 'FR',
 	point: { latitude: 48.857, longitude: 2.35 },
@@ -61,5 +62,30 @@ describe('CityPanel', () => {
 		expect(params.get('seen')).toBe('1');
 		await page.getByRole('button', { name: m.map.city.close }).click();
 		expect(onclose).toHaveBeenCalled();
+	});
+
+	it('leads to the page of the city in Kartoteka from its name and a link', async () => {
+		render(CityPanel, { city, filter: 'all', images, onclose: vi.fn() });
+
+		const path = '/atelier/values/location/place-paryz';
+		await expect
+			.element(page.getByRole('link', { name: m.map.city.showInCardIndex }))
+			.toHaveAttribute('href', path);
+		await expect.element(page.getByRole('link', { name: 'Paryż' })).toHaveAttribute('href', path);
+	});
+
+	it('leads to the page of a place without a city', async () => {
+		const lonely: MapCity = {
+			...city,
+			key: 'place:place-lascaux',
+			cityId: null,
+			name: 'Lascaux',
+			places: [{ place: testPlace('Lascaux'), artworks: [testArtwork(4, 'Bull')] }]
+		};
+		render(CityPanel, { city: lonely, filter: 'all', images, onclose: vi.fn() });
+
+		await expect
+			.element(page.getByRole('link', { name: m.map.city.showInCardIndex }))
+			.toHaveAttribute('href', '/atelier/values/location/place-lascaux');
 	});
 });

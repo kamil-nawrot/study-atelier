@@ -1,8 +1,10 @@
 <script lang="ts">
+	import ArrowRight from '@lucide/svelte/icons/arrow-right';
 	import X from '@lucide/svelte/icons/x';
-	import { Button, IconButton, MetaLine } from '@study-atelier/ui';
+	import { Icon, IconButton, MetaLine } from '@study-atelier/ui';
 	import { countryName, isCountryCode } from '#lib/catalogue/countries/countries.ts';
 	import { placeTypeName } from '#lib/catalogue/place-types/place-types.ts';
+	import { valuePath } from '#lib/card-index/value-pages/value-pages.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import CityThumb from '#lib/map/components/CityThumb/CityThumb.svelte';
 	import { cityWallHref } from '#lib/map/city-wall/city-wall.ts';
@@ -19,6 +21,7 @@
 
 	let { city, filter, images, onclose }: Props = $props();
 
+	let pageHref = $derived(valuePath('location', city.cityId ?? city.places[0]?.place.id ?? ''));
 	let country = $derived(isCountryCode(city.countryCode) ? countryName(city.countryCode) : null);
 </script>
 
@@ -28,8 +31,12 @@
 			{#if country}
 				<p class="overline">{country}</p>
 			{/if}
-			<h2 id="city-name">{city.name}</h2>
+			<h2 id="city-name"><a href={pageHref}>{city.name}</a></h2>
 			<p class="caption">{m.map.city.summary(city.places.length, city.count, city.seen)}</p>
+			<a class="link" href={pageHref}>
+				{m.map.city.showInCardIndex}
+				<Icon icon={ArrowRight} size="sm" />
+			</a>
 		</div>
 		<IconButton
 			icon={X}
@@ -60,9 +67,10 @@
 			</li>
 		{/each}
 	</ul>
-	<Button href={cityWallHref(city, filter)}>
+	<a class="link" href={cityWallHref(city, filter)}>
 		{m.map.city.showOnWall}
-	</Button>
+		<Icon icon={ArrowRight} size="sm" />
+	</a>
 </section>
 
 <style>
@@ -90,6 +98,30 @@
 		font-style: italic;
 		font-weight: var(--font-weight-regular);
 		line-height: var(--line-height-2xl);
+	}
+
+	h2 a {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	h2 a:hover,
+	.link:hover {
+		text-decoration: underline;
+		text-decoration-thickness: var(--border-width-hairline);
+		text-underline-offset: 0.2em;
+	}
+
+	.link {
+		display: inline-flex;
+		align-items: center;
+		justify-self: start;
+		gap: var(--spacing-2);
+		color: var(--color-fg);
+		font-size: var(--font-size-sm);
+		font-weight: var(--font-weight-medium);
+		line-height: var(--line-height-sm);
+		text-decoration: none;
 	}
 
 	.caption {

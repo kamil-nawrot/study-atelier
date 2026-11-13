@@ -5,7 +5,6 @@ import { testTrip } from '#lib/testing/chronicle/chronicle.ts';
 import { linkedTrip, sameCityTrip, tripOptions, tripsCovering } from './visit-trip.ts';
 import type { TripPlace } from '#lib/chronicle/types/trip-place.ts';
 import type { VisitFormState } from '#lib/chronicle/types/visit-form-state.ts';
-import type { Town } from '#lib/map/types/town.ts';
 
 const paris = testTrip({ id: 'paris' });
 const vienna = testTrip({
@@ -23,14 +22,24 @@ const lyon = testTrip({
 const trips = [paris, vienna, lyon];
 
 const tripPlaces: TripPlace[] = [
-	{ name: 'Paris', placeType: 'city', point: { latitude: 48.857, longitude: 2.352 } },
-	{ name: 'Vienna', placeType: 'city', point: { latitude: 48.208, longitude: 16.373 } },
-	{ name: 'Louvre', placeType: 'museum', point: { latitude: 48.861, longitude: 2.336 } },
-	{ name: 'Belvedere', placeType: 'museum', point: { latitude: 48.191, longitude: 16.381 } }
-];
-const towns: Town[] = [
-	{ name: 'Paris', countryCode: 'FR', latitude: 48.857, longitude: 2.352 },
-	{ name: 'Vienna', countryCode: 'AT', latitude: 48.208, longitude: 16.373 }
+	{ id: 'paris', name: 'Paris', placeType: 'city', countryCode: 'FR', point: null, cityId: null },
+	{ id: 'vienna', name: 'Vienna', placeType: 'city', countryCode: 'AT', point: null, cityId: null },
+	{
+		id: 'louvre',
+		name: 'Louvre',
+		placeType: 'museum',
+		countryCode: 'FR',
+		point: null,
+		cityId: 'paris'
+	},
+	{
+		id: 'belvedere',
+		name: 'Belvedere',
+		placeType: 'museum',
+		countryCode: 'AT',
+		point: null,
+		cityId: 'vienna'
+	}
 ];
 
 function form(overrides: Partial<VisitFormState> = {}): VisitFormState {
@@ -52,19 +61,19 @@ describe('tripsCovering', () => {
 
 describe('sameCityTrip', () => {
 	it('finds the trip to the city of the place of a visit', () => {
-		expect(sameCityTrip(trips, 'Belvedere', tripPlaces, towns)).toBe(vienna);
-		expect(sameCityTrip(trips, 'louvre', tripPlaces, towns)).toBe(paris);
+		expect(sameCityTrip(trips, 'Belvedere', tripPlaces)).toBe(vienna);
+		expect(sameCityTrip(trips, 'louvre', tripPlaces)).toBe(paris);
 	});
 
-	it('finds the trip by the name of its city and nothing for a place without a point', () => {
-		expect(sameCityTrip(trips, 'paris', [], [])).toBe(paris);
-		expect(sameCityTrip(trips, 'Kraków', tripPlaces, towns)).toBeUndefined();
-		expect(sameCityTrip(trips, ' ', tripPlaces, towns)).toBeUndefined();
+	it('finds the trip by the name of its city and nothing for a place without a city', () => {
+		expect(sameCityTrip(trips, 'paris', [])).toBe(paris);
+		expect(sameCityTrip(trips, 'Kraków', tripPlaces)).toBeUndefined();
+		expect(sameCityTrip(trips, ' ', tripPlaces)).toBeUndefined();
 	});
 });
 
 describe('linkedTrip', () => {
-	const source = { tripPlaces, towns };
+	const source = { tripPlaces };
 
 	it('picks the trip of the same city until the learner chooses', () => {
 		expect(linkedTrip(form({ place: ['Belvedere'] }), trips, source, false)).toEqual({

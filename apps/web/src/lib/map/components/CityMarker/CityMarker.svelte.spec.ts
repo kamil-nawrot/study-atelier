@@ -9,6 +9,7 @@ import CityMarker from './CityMarker.svelte';
 function city(name: string, count: number): MapCity {
 	return {
 		key: name,
+		cityId: null,
 		name,
 		countryCode: 'IT',
 		point: { latitude: 0, longitude: 0 },

@@ -5,6 +5,7 @@ import { type CitySpot, fanOut, groupCities, labelledCities } from './map-groups
 function city(key: string, count: number, seen = 0): MapCity {
 	return {
 		key,
+		cityId: null,
 		name: key,
 		countryCode: null,
 		point: { latitude: 0, longitude: 0 },

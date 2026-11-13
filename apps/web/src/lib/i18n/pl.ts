@@ -2157,9 +2157,6 @@ export const pl = {
 		},
 		emptyTitle: 'Mapa zapełni się wraz z miejscami',
 		empty: 'Gdy przy dziele wpiszesz miejsce i uzupełnisz jego położenie, zobaczysz je na mapie.',
-		missing: (count: number): string =>
-			`${count} ${plural(count, { one: 'miejsca', few: 'miejsc', many: 'miejsc' })} nie ma jeszcze na mapie`,
-		fillStart: 'Uzupełnij położenie',
 		loadError: 'Nie udało się wczytać mapy. Sprawdź internet i spróbuj jeszcze raz.',
 		saveFailed: 'Nie udało się zapisać położenia. Spróbuj jeszcze raz.',
 		city: {
@@ -2174,19 +2171,9 @@ export const pl = {
 				].join(''),
 			seen: 'Widziane na żywo',
 			showOnWall: 'Pokaż na ścianie',
+			showInCardIndex: 'Pokaż w Kartotece',
 			close: 'Zamknij panel miasta',
 			artworks: workCount
-		},
-		fill: {
-			title: 'Uzupełnij położenie',
-			lead: (place: string): string =>
-				`Gdzie jest ${place}? Wybierz z podpowiedzi albo kliknij na mapie.`,
-			left: (count: number): string =>
-				`Jeszcze ${count} ${plural(count, { one: 'miejsce', few: 'miejsca', many: 'miejsc' })}`,
-			save: 'Zapisz położenie',
-			skip: 'Pomiń to miejsce',
-			done: 'Wszystkie miejsca są już na mapie.',
-			close: 'Zakończ'
 		},
 		suggestions: {
 			title: 'Czy chodzi o jedno z tych?',

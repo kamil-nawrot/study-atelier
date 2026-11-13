@@ -48,6 +48,7 @@ export function testPlace(name: string, overrides: Partial<MapPlace> = {}): MapP
 		placeType: 'museum',
 		countryCode: null,
 		point: null,
+		cityId: null,
 		...overrides
 	};
 }

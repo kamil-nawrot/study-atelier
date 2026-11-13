@@ -8,6 +8,7 @@ import WorldMap from './WorldMap.svelte';
 
 const paris: MapCity = {
 	key: 'FR:Paryż',
+	cityId: null,
 	name: 'Paryż',
 	countryCode: 'FR',
 	point: { latitude: 48.857, longitude: 2.35 },
@@ -18,6 +19,7 @@ const paris: MapCity = {
 const florence: MapCity = {
 	...paris,
 	key: 'IT:Florencja',
+	cityId: null,
 	name: 'Florencja',
 	point: { latitude: 43.78, longitude: 11.25 },
 	count: 1,
@@ -110,6 +112,7 @@ describe('WorldMap', () => {
 		const rome: MapCity = {
 			...florence,
 			key: 'IT:Rzym',
+			cityId: null,
 			name: 'Rzym',
 			point: { latitude: 41.893, longitude: 12.483 },
 			count: 5
@@ -117,6 +120,7 @@ describe('WorldMap', () => {
 		const vatican: MapCity = {
 			...florence,
 			key: 'VA:Watykan',
+			cityId: null,
 			name: 'Watykan',
 			point: { latitude: 41.903, longitude: 12.453 },
 			count: 2
@@ -124,6 +128,7 @@ describe('WorldMap', () => {
 		const tokyo: MapCity = {
 			...florence,
 			key: 'JP:Tokio',
+			cityId: null,
 			name: 'Tokio',
 			point: { latitude: 35.68, longitude: 139.69 },
 			count: 1

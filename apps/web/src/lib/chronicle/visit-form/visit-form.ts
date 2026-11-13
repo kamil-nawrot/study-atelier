@@ -28,7 +28,7 @@ export function placeArtworks(artworks: readonly WallArtwork[], place: string): 
 export function suggestedArtworks(form: VisitFormState, source: SuggestionSource): WallArtwork[] {
 	const place = placeOf(form);
 	return form.kind === 'trip'
-		? tripArtworks(source.artworks, place, source.tripPlaces, source.towns)
+		? tripArtworks(source.artworks, place, source.tripPlaces)
 		: placeArtworks(source.artworks, place);
 }
 

@@ -5,6 +5,7 @@ import { cityWallHref } from './city-wall.ts';
 
 const city: MapCity = {
 	key: 'FR:Paryż',
+	cityId: null,
 	name: 'Paryż',
 	countryCode: 'FR',
 	point: { latitude: 48.857, longitude: 2.35 },

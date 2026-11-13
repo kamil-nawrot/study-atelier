@@ -17,7 +17,6 @@ import {
 } from './visit-form.ts';
 import { testTrip, testVisit } from '#lib/testing/chronicle/chronicle.ts';
 import type { TripPlace } from '#lib/chronicle/types/trip-place.ts';
-import type { Town } from '#lib/map/types/town.ts';
 import type { VisitFormState } from '#lib/chronicle/types/visit-form-state.ts';
 
 const lilies = testArtwork(1, 'Water Lilies', { location: 'Musée d’Orsay' });
@@ -44,20 +43,33 @@ const visit = testVisit({
 const portal = testArtwork(5, 'Portal of the Virgin', { location: 'Notre-Dame' });
 const street = testArtwork(6, 'Street lamp', { location: 'Paris' });
 const tripPlaces: TripPlace[] = [
-	{ name: 'Paris', placeType: 'city', point: { latitude: 48.857, longitude: 2.352 } },
-	{ name: 'Notre-Dame', placeType: 'on_site', point: { latitude: 48.853, longitude: 2.35 } },
-	{ name: 'Musée d’Orsay', placeType: 'museum', point: { latitude: 48.86, longitude: 2.326 } },
+	{ id: 'paris', name: 'Paris', placeType: 'city', countryCode: 'FR', point: null, cityId: null },
 	{
+		id: 'notre-dame',
+		name: 'Notre-Dame',
+		placeType: 'on_site',
+		countryCode: 'FR',
+		point: null,
+		cityId: 'paris'
+	},
+	{
+		id: 'orsay',
+		name: 'Musée d’Orsay',
+		placeType: 'museum',
+		countryCode: 'FR',
+		point: null,
+		cityId: 'paris'
+	},
+	{
+		id: 'chartres-cathedral',
 		name: 'Chartres Cathedral',
 		placeType: 'on_site',
-		point: { latitude: 48.447, longitude: 1.488 }
+		countryCode: 'FR',
+		point: null,
+		cityId: 'chartres'
 	}
 ];
-const towns: Town[] = [
-	{ name: 'Paris', countryCode: 'FR', latitude: 48.857, longitude: 2.352 },
-	{ name: 'Chartres', countryCode: 'FR', latitude: 48.447, longitude: 1.489 }
-];
-const source = { artworks: [...artworks, portal, street], tripPlaces, towns };
+const source = { artworks: [...artworks, portal, street], tripPlaces };
 
 describe('suggestedArtworks', () => {
 	it('suggests the artworks of the place of a visit', () => {

@@ -44,7 +44,8 @@ beforeEach(() => {
 				name: 'Paryż',
 				placeType: 'city',
 				countryCode: 'FR',
-				point: { latitude: 48.857, longitude: 2.352 }
+				point: { latitude: 48.857, longitude: 2.352 },
+				cityId: null
 			}
 		]
 	});
@@ -57,7 +58,14 @@ describe('loadVisitForm', () => {
 		const data = await loadVisitForm();
 
 		expect(data.tripPlaces).toEqual([
-			{ name: 'Paryż', placeType: 'city', point: { latitude: 48.857, longitude: 2.352 } }
+			{
+				id: 'paris',
+				name: 'Paryż',
+				placeType: 'city',
+				countryCode: 'FR',
+				point: { latitude: 48.857, longitude: 2.352 },
+				cityId: null
+			}
 		]);
 		expect(data.towns).toEqual([paris]);
 	});

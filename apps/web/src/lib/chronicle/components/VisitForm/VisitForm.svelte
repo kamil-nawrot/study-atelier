@@ -11,7 +11,8 @@
 		NotesEditor,
 		Select,
 		ValueField,
-		type NoteLinks
+		type NoteLinks,
+		type ValueOption
 	} from '@study-atelier/ui';
 	import { VALUE_NAME_MAX_LENGTH } from '#lib/card-index/category-values/category-values.ts';
 	import { suggestValues, valueKey } from '#lib/card-index/value-suggestions/value-suggestions.ts';
@@ -21,6 +22,10 @@
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { saveVisit } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
+	import { cityOptions } from '#lib/values/city-options/city-options.ts';
+	import { ensureCityPlace } from '#lib/values/value-details-data/value-details-data.ts';
+	import type { PlaceCity } from '#lib/values/types/place-city.ts';
+	import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
 	import {
 		draftOfVisitForm,
 		emptyVisitForm,
@@ -78,7 +83,7 @@
 	const existing = untrack(() => visit);
 	const known = untrack(() => new Set(artworks.map((artwork) => artwork.id)));
 	const kept = existing?.artworkIds.filter((id) => !known.has(id)) ?? [];
-	const source = (): SuggestionSource => ({ artworks, tripPlaces, towns });
+	const source = (): SuggestionSource => ({ artworks, tripPlaces });
 	const initial = (): VisitFormState => {
 		if (!existing) return emptyVisitForm();
 		const start = emptyVisitForm(existing.kind);
@@ -118,12 +123,28 @@
 	let shownPlace = untrack(() => `${form.kind}:${placeKey}`);
 	let suggested = $derived(suggestedArtworks(form, source()));
 	let cities = $derived(
-		tripPlaces.filter((place) => place.placeType === 'city').map((place) => place.name)
+		tripPlaces
+			.filter((place) => place.placeType === 'city')
+			.map((place): CardIndexRecord => ({
+				id: place.id,
+				category: 'location',
+				name: place.name,
+				count: 0,
+				placeType: 'city',
+				countryCode: place.countryCode ?? undefined
+			}))
 	);
+	let tripCities = $derived(cityOptions(form.placeQuery, cities, towns));
+	let tripTown = $state<PlaceCity | null>(null);
+
+	function pickTripCity(option: ValueOption): void {
+		const chosen = option.id ? tripCities.choices.get(option.id) : undefined;
+		tripTown = chosen && !chosen.id ? chosen : null;
+	}
 
 	let placeOptions = $derived(
 		trip
-			? suggestValues({ query: form.placeQuery, existing: cities, selected: form.place })
+			? tripCities.options
 			: suggestValues({
 					query: form.placeQuery,
 					existing: places,
@@ -145,7 +166,7 @@
 	});
 
 	let tripChosen = $state(untrack(() => existing !== undefined));
-	let link = $derived(linkedTrip(form, trips, { tripPlaces, towns }, tripChosen));
+	let link = $derived(linkedTrip(form, trips, { tripPlaces }, tripChosen));
 
 	$effect(() => {
 		const next = link.tripId;
@@ -164,6 +185,13 @@
 		return formState.run(async () => {
 			if (!errors.check()) return;
 			const snapshot = $state.snapshot(form);
+			if (trip && tripTown && valueKey(tripTown.name) === valueKey(placeOf(snapshot))) {
+				const city = await ensureCityPlace(tripTown);
+				if (city.error) {
+					formState.error = city.error;
+					return;
+				}
+			}
 			const draft = draftOfVisitForm(snapshot, kept);
 			const result = await saveVisit(draft, existing?.id);
 			if (result.error || !result.id) {
@@ -195,6 +223,7 @@
 					hint={existing ? undefined : texts.placeHint}
 					label={texts.place}
 					maxlength={VALUE_NAME_MAX_LENGTH}
+					onpick={trip ? pickTripCity : undefined}
 					options={placeOptions}
 					single
 					bind:query={form.placeQuery}
