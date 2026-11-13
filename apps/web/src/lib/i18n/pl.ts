@@ -1531,13 +1531,15 @@ export const pl = {
 		},
 		attributes: 'Atrybuty postaci',
 		card: {
-			open: 'Otwórz w atlasie symboli'
+			open: 'Otwórz w atlasie symboli',
+			edit: 'Edytuj symbol'
 		},
 		view: {
 			overline: 'Symbol',
 			general: 'znaczenie ogólne',
 			noDetails: 'Żaden detal nie ma jeszcze tego znaczenia.',
 			mainDetail: 'Główny detal',
+			mainDetailSaved: 'Zapisano główny detal.',
 			setMainDetail: 'Ustaw jako główny',
 			detailsBack: 'Przewiń detale wstecz',
 			detailsForward: 'Przewiń detale dalej',

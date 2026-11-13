@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ArrowRight from '@lucide/svelte/icons/arrow-right';
+	import Pencil from '@lucide/svelte/icons/pencil';
 	import KeyRound from '@lucide/svelte/icons/key-round';
 	import { Icon } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -42,10 +43,19 @@
 			{#if meaning}
 				<span class="meaning">{meaning.text}</span>
 			{/if}
-			<a class="open" href={resolve('/(app)/atelier/glossary/symbols/[id]', { id: symbol.id })}>
-				{m.symbols.card.open}
-				<Icon icon={ArrowRight} size="sm" />
-			</a>
+			<div class="links">
+				<a class="open" href={resolve('/(app)/atelier/glossary/symbols/[id]', { id: symbol.id })}>
+					{m.symbols.card.open}
+					<Icon icon={ArrowRight} size="sm" />
+				</a>
+				<a
+					class="open"
+					href={resolve('/(app)/atelier/glossary/symbols/[id]/edit', { id: symbol.id })}
+				>
+					{m.symbols.card.edit}
+					<Icon icon={Pencil} size="sm" />
+				</a>
+			</div>
 		</div>
 	{/if}
 	{#if pin.text}
@@ -83,12 +93,18 @@
 		line-height: var(--line-height-sm);
 	}
 
+	.links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--spacing-2) var(--spacing-6);
+		padding-top: var(--spacing-3);
+		border-top: var(--border-width-base) solid var(--color-line);
+	}
+
 	.open {
 		display: inline-flex;
 		align-items: center;
 		gap: var(--spacing-2);
-		padding-top: var(--spacing-3);
-		border-top: var(--border-width-base) solid var(--color-line);
 		color: var(--color-fg);
 		font-size: var(--font-size-sm);
 		font-weight: var(--font-weight-medium);

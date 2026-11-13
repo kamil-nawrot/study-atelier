@@ -39,14 +39,15 @@ describe('SymbolView', () => {
 			.not.toBeInTheDocument();
 	});
 
-	it('marks a detail as the main one and takes the mark off again', async () => {
+	it('marks a detail as the main one with a toast and leaves the mark alone on a second click', async () => {
 		render(SymbolView, { symbol: testSymbol, page: testSymbolPage() });
 
 		await page.getByRole('button', { name: m.symbols.view.setMainDetail }).first().click();
 
 		expect(setSymbolCover).toHaveBeenCalledWith('skull', expect.any(String));
+		await expect.element(page.getByText(m.symbols.view.mainDetailSaved)).toBeVisible();
 		await page.getByRole('button', { name: m.symbols.view.mainDetail }).click();
-		expect(setSymbolCover).toHaveBeenLastCalledWith('skull', null);
+		expect(setSymbolCover).toHaveBeenCalledTimes(1);
 	});
 
 	it('says when the main detail could not be saved', async () => {

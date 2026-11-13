@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Alert } from '@study-atelier/ui';
+	import { Alert, Toast } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { setSymbolCover } from '#lib/symbols/symbols-data/symbols-data.ts';
 	import SymbolDetails from '#lib/symbols/components/SymbolDetails/SymbolDetails.svelte';
@@ -15,6 +15,7 @@
 
 	let { symbol, page }: Props = $props();
 
+	let toast: Toast;
 	let chosen = $state<{ pinId: string | null }>();
 	let coverError = $state<string>();
 	const coverPinId = $derived(chosen ? (chosen.pinId ?? undefined) : symbol.coverPinId);
@@ -23,7 +24,10 @@
 		coverError = undefined;
 		const { error } = await setSymbolCover(symbol.id, pinId);
 		if (error) coverError = error;
-		else chosen = { pinId };
+		else {
+			chosen = { pinId };
+			toast.show(m.symbols.view.mainDetailSaved);
+		}
 	}
 </script>
 
@@ -58,6 +62,8 @@
 {/if}
 
 <SymbolTimeline details={page.details} />
+
+<Toast bind:this={toast} />
 
 <style>
 	.head {
