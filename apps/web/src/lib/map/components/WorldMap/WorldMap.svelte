@@ -16,7 +16,7 @@
 	} from '#lib/map/map-groups/map-groups.ts';
 	import { MapPointer } from '#lib/map/map-pointer/map-pointer.ts';
 	import { MapZoom, ZOOM_STEP } from '#lib/map/map-zoom/map-zoom.svelte.ts';
-	import { mapProjection } from '#lib/map/projection/projection.ts';
+	import { mapBounds, mapProjection } from '#lib/map/projection/projection.ts';
 	import type { Geography } from '#lib/map/types/geography.ts';
 	import type { MapCity } from '#lib/map/types/map-city.ts';
 	import type { PlacePoint } from '#lib/map/types/place-point.ts';
@@ -64,7 +64,7 @@
 	let borders = $derived(width > 0 && height > 0 ? (path(geography.borders) ?? '') : '');
 
 	const zoom = new MapZoom();
-	const pointer = new MapPointer(zoom, tap, fold);
+	const pointer = new MapPointer(zoom, tap, foldOnZoom);
 
 	let fanned = $state<string>();
 
@@ -84,7 +84,11 @@
 
 	$effect(() => {
 		void projection;
-		zoom.reset();
+		untrack(() => zoom.reset());
+	});
+
+	$effect(() => {
+		zoom.limit(mapBounds(projection), width, height);
 	});
 
 	$effect(() => {
@@ -127,6 +131,10 @@
 
 	function fold(): void {
 		fanned = undefined;
+	}
+
+	function foldOnZoom(zoomed: boolean): void {
+		if (zoomed) fold();
 	}
 
 	function tap(x: number, y: number): void {
@@ -177,14 +185,7 @@
 		</g>
 	</svg>
 	{#each groups as group (group.key)}
-		{#if group.key === fanned}
-			<CityFan
-				cities={fanOut(group, spots, radius, (city) => labelSize(city).width)}
-				{narrow}
-				onselect={(city) => onselect?.(city)}
-				{selected}
-			/>
-		{:else}
+		{#if group.key !== fanned}
 			<CityMarker
 				{group}
 				labelled={labelled.has(group.key)}
@@ -193,6 +194,16 @@
 				selected={group.cities.some((city) => city.key === selected)}
 			/>
 		{/if}
+	{/each}
+	{#each groups.filter((group) => group.key === fanned) as group (group.key)}
+		<div class="fan">
+			<CityFan
+				cities={fanOut(group, spots, radius, (city) => labelSize(city).width)}
+				{narrow}
+				onselect={(city) => onselect?.(city)}
+				{selected}
+			/>
+		</div>
 	{/each}
 	{#if marker}
 		{@const spot = place(marker)}
@@ -209,8 +220,20 @@
 		{/if}
 	{/if}
 	<div class="zoom">
-		<IconButton icon={Plus} label={m.map.zoomIn} onclick={() => zoomBy(ZOOM_STEP)} />
-		<IconButton icon={Minus} label={m.map.zoomOut} onclick={() => zoomBy(1 / ZOOM_STEP)} />
+		<IconButton
+			icon={Plus}
+			label={m.map.zoomIn}
+			onclick={() => zoomBy(ZOOM_STEP)}
+			tooltipPlacement="left"
+			variant="plain"
+		/>
+		<IconButton
+			icon={Minus}
+			label={m.map.zoomOut}
+			onclick={() => zoomBy(1 / ZOOM_STEP)}
+			tooltipPlacement="left"
+			variant="plain"
+		/>
 	</div>
 </div>
 
@@ -268,11 +291,28 @@
 		stroke-width: 0.3;
 	}
 
+	.fan {
+		position: absolute;
+		inset: 0;
+		z-index: 2;
+		pointer-events: none;
+	}
+
+	.fan :global(button) {
+		pointer-events: auto;
+	}
+
 	.zoom {
 		position: absolute;
-		right: var(--spacing-3);
-		bottom: var(--spacing-3);
+		z-index: 3;
+		right: var(--spacing-2);
+		bottom: var(--spacing-2);
 		display: grid;
-		gap: var(--spacing-1);
+		background: color-mix(in srgb, var(--color-bg) 80%, transparent);
+	}
+
+	.zoom :global(.icon-button) {
+		width: var(--spacing-8);
+		height: var(--spacing-8);
 	}
 </style>

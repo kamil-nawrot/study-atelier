@@ -36,7 +36,7 @@ describe('MapPointer', () => {
 		expect(ontap).not.toHaveBeenCalled();
 	});
 
-	it('reports every move of the map, by a drag or the wheel', () => {
+	it('reports every move of the map and whether it zoomed', () => {
 		const onmove = vi.fn();
 		const gestures = new MapPointer(new MapZoom(), vi.fn(), onmove);
 
@@ -53,7 +53,7 @@ describe('MapPointer', () => {
 			preventDefault: vi.fn()
 		} as unknown as WheelEvent);
 
-		expect(onmove).toHaveBeenCalledTimes(2);
+		expect(onmove.mock.calls).toEqual([[false], [true]]);
 	});
 
 	it('zooms with two fingers apart and with the wheel', () => {

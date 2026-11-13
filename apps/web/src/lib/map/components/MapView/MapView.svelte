@@ -3,9 +3,10 @@
 	import { onMount, untrack } from 'svelte';
 	import {
 		Alert,
-		Button,
 		EmptyState,
+		Icon,
 		PageHeader,
+		TextButton,
 		ToggleTag,
 		overlayScrollbar
 	} from '@study-atelier/ui';
@@ -14,7 +15,7 @@
 	import CityPanel from '#lib/map/components/CityPanel/CityPanel.svelte';
 	import FillPanel from '#lib/map/components/FillPanel/FillPanel.svelte';
 	import WorldMap from '#lib/map/components/WorldMap/WorldMap.svelte';
-	import { MAP_FILTERS } from '#lib/map/map-cities/map-cities.ts';
+	import { MAP_FILTER_ICONS, MAP_FILTERS } from '#lib/map/map-cities/map-cities.ts';
 	import { MapState } from '#lib/map/map-state/map-state.svelte.ts';
 	import type { MapPlace } from '#lib/map/types/map-place.ts';
 	import type { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
@@ -55,28 +56,35 @@
 		</Alert>
 	{/if}
 
-	{#if view.missing.length > 0 && !view.filling}
-		<div class="missing">
-			<p>{m.map.missing(view.missing.length)}</p>
-			<Button onclick={() => view.startFilling()}>
-				{m.map.fillStart}
-			</Button>
-		</div>
-	{/if}
+	{#snippet missing()}
+		{#if view.missing.length > 0}
+			<p class="missing">
+				{m.map.missing(view.missing.length)}
+				<TextButton onclick={() => view.startFilling()}>
+					{m.map.fillStart}
+				</TextButton>
+			</p>
+		{/if}
+	{/snippet}
 
 	{#if !placed && !view.filling}
+		{@render missing()}
 		<EmptyState icon={MapIcon} text={m.map.empty} title={m.map.emptyTitle} />
 	{:else}
 		{#if !view.filling}
-			<div class="filters" aria-label={m.map.filtersLabel} role="group">
-				{#each MAP_FILTERS as key (key)}
-					<ToggleTag
-						count={view.counts[key]}
-						bind:pressed={() => view.filter === key, (pressed) => pressed && view.setFilter(key)}
-					>
-						{m.map.filters[key]}
-					</ToggleTag>
-				{/each}
+			<div class="tools">
+				<div class="filters" aria-label={m.map.filtersLabel} role="group">
+					{#each MAP_FILTERS as key (key)}
+						<ToggleTag
+							count={view.counts[key]}
+							bind:pressed={() => view.filter === key, (pressed) => pressed && view.setFilter(key)}
+						>
+							<Icon icon={MAP_FILTER_ICONS[key]} size="sm" />
+							{m.map.filters[key]}
+						</ToggleTag>
+					{/each}
+				</div>
+				{@render missing()}
 			</div>
 		{/if}
 		<div class="split">
@@ -135,14 +143,21 @@
 		min-height: calc(var(--size-control) * 10);
 	}
 
-	.missing {
+	.tools {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
 		justify-content: space-between;
 		gap: var(--spacing-3) var(--spacing-6);
-		padding: var(--spacing-3) var(--spacing-4);
-		background: var(--color-tag);
+	}
+
+	.missing {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: var(--spacing-1) var(--spacing-3);
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-sm);
 	}
 
 	.filters {

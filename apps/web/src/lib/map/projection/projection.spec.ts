@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mapProjection } from './projection.ts';
+import { mapBounds, mapProjection } from './projection.ts';
 
 function inside([x, y]: [number, number], width: number, height: number): boolean {
 	return x >= 0 && x <= width && y >= 0 && y <= height;
@@ -46,5 +46,17 @@ describe('mapProjection', () => {
 		const projection = mapProjection([], 600, 400);
 
 		expect(inside(projection([2.35, 48.857]) ?? [-1, -1], 600, 400)).toBe(true);
+	});
+
+	it('bounds the map short of the poles and inside its clip', () => {
+		const projection = mapProjection([{ latitude: 48.857, longitude: 2.35 }], 600, 400);
+		const bounds = mapBounds(projection);
+		const north = projection([2.35, 80]);
+		const south = projection([2.35, -60]);
+
+		expect(bounds?.top).toBeCloseTo(Math.max(north?.[1] ?? 0, -800), 3);
+		expect(bounds?.bottom).toBeCloseTo(Math.min(south?.[1] ?? 0, 1200), 3);
+		expect(bounds?.left).toBeGreaterThanOrEqual(-1200);
+		expect(bounds?.right).toBeLessThanOrEqual(1800);
 	});
 });

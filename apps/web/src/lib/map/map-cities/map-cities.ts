@@ -1,3 +1,7 @@
+import Binoculars from '@lucide/svelte/icons/binoculars';
+import Globe from '@lucide/svelte/icons/globe';
+import Footprints from '@lucide/svelte/icons/footprints';
+import type { LucideIcon } from '@lucide/svelte';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { nearestTown } from '#lib/map/towns/towns.ts';
 import type { MapCity } from '#lib/map/types/map-city.ts';
@@ -8,6 +12,12 @@ import type { PlaceToFill } from '#lib/map/types/place-to-fill.ts';
 import type { Town } from '#lib/map/types/town.ts';
 
 export const MAP_FILTERS: readonly MapFilter[] = ['all', 'wantToSee', 'seen'];
+
+export const MAP_FILTER_ICONS: Record<MapFilter, LucideIcon> = {
+	all: Globe,
+	wantToSee: Binoculars,
+	seen: Footprints
+};
 
 export function matchesMapFilter(artwork: WallArtwork, filter: MapFilter): boolean {
 	if (filter === 'wantToSee') return artwork.wantToSee === true;

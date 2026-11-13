@@ -2111,7 +2111,7 @@ export const pl = {
 		title: 'Mapa',
 		lead: 'Miasta, w których są Twoje dzieła. Zobacz, co już udało Ci się zobaczyć na żywo, a co jeszcze przed Tobą.',
 		back: 'Atelier',
-		wallLink: 'Mapa wizyt',
+		wallLink: 'Mapa dzieł',
 		zoomIn: 'Przybliż',
 		zoomOut: 'Oddal',
 		group: (cities: string[], artworks: number): string =>
