@@ -492,8 +492,18 @@ export const VALUE_DETAILS = {
 			notes: null,
 			country_code: 'FR',
 			place_type: 'museum',
-			latitude: 48.86111,
-			longitude: 2.33583
+			latitude: null,
+			longitude: null,
+			city_id: valueId('location', 'Paryż')
+		},
+		{
+			value_id: valueId('location', 'Paryż'),
+			summary: null,
+			notes: null,
+			country_code: 'FR',
+			place_type: 'city',
+			latitude: 48.85661,
+			longitude: 2.35222
 		}
 	],
 	period_details: [
@@ -705,6 +715,16 @@ export const VISITS = [
 		[9]
 	)
 ];
+
+if (!VALUE_USAGE.some((row) => row.id === valueId('location', 'Paryż'))) {
+	VALUE_USAGE.push({
+		id: valueId('location', 'Paryż'),
+		category_code: 'location',
+		name: 'Paryż',
+		artwork_count: 0,
+		visit_count: 0
+	});
+}
 
 for (const visit of VISITS) {
 	const name = visit.category_values.name;

@@ -21,10 +21,12 @@ describe('PlacePosition', () => {
 		expect(loadGeography).not.toHaveBeenCalled();
 	});
 
-	it('shows the map and the town of a point without any way to change it', async () => {
+	it('shows the map of a point without a caption or any way to change it', async () => {
 		render(PlacePosition, { point: { latitude: 48.86111, longitude: 2.33583 } });
 
-		await expect.element(page.getByText('Paryż, Francja')).toBeVisible();
+		await vi.waitFor(() => expect(loadGeography).toHaveBeenCalled());
+		await expect.element(page.getByRole('heading', { name: m.map.position.title })).toBeVisible();
+		expect(page.getByText('Paryż, Francja').query()).toBeNull();
 		expect(page.getByRole('button', { name: m.map.position.change }).query()).toBeNull();
 		expect(page.getByRole('button', { name: m.map.position.remove }).query()).toBeNull();
 	});

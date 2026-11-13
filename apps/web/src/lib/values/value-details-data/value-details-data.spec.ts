@@ -10,7 +10,7 @@ import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { emptyAuthorDetails } from '#lib/values/author-form/author-form.ts';
 import { loadAuthorRelations } from '#lib/author-relations/author-relations-data/author-relations-data.ts';
 import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
-import { loadValueDetails, saveValueDetails } from './value-details-data.ts';
+import { ensureCityPlace, loadValueDetails, saveValueDetails } from './value-details-data.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { rpc: vi.fn(), from: vi.fn() }
@@ -325,7 +325,107 @@ describe('location details', () => {
 
 		expect(supabase.rpc).toHaveBeenCalledWith('save_value_details', {
 			target_value: 'l1',
-			details: { summary: 'Pałac.', notes: '', country_code: 'FR', place_type: 'museum' }
+			details: {
+				summary: 'Pałac.',
+				notes: '',
+				country_code: 'FR',
+				place_type: 'museum',
+				city_id: null
+			}
+		});
+	});
+
+	it('saves the city of a place and never a city for a city', async () => {
+		await saveValueDetails(location, {
+			summary: '',
+			notes: '',
+			location: { countryCode: 'FR', placeType: 'museum', city: { id: 'paris', name: 'Paryż' } }
+		});
+		await saveValueDetails(location, {
+			summary: '',
+			notes: '',
+			location: { countryCode: 'FR', placeType: 'city', city: { id: 'paris', name: 'Paryż' } }
+		});
+
+		expect(
+			vi
+				.mocked(supabase.rpc)
+				.mock.calls.map((call) => (call[1] as { details: { city_id: unknown } }).details.city_id)
+		).toEqual(['paris', null]);
+	});
+
+	it('reads the city of a place with its country and point', async () => {
+		const query = {
+			select: vi.fn(),
+			eq: vi.fn(),
+			maybeSingle: vi
+				.fn()
+				.mockResolvedValueOnce({
+					data: {
+						summary: null,
+						notes: null,
+						place_type: 'museum',
+						country_code: 'FR',
+						city_id: 'paris'
+					},
+					error: null
+				})
+				.mockResolvedValueOnce({
+					data: {
+						name: 'Paryż',
+						location_details: { country_code: 'FR', latitude: 48.857, longitude: 2.35 }
+					},
+					error: null
+				})
+		};
+		query.select.mockReturnValue(query);
+		query.eq.mockReturnValue(query);
+		vi.mocked(supabase.from).mockReturnValue(query as never);
+
+		const { details } = await loadValueDetails(location);
+
+		expect(supabase.from).toHaveBeenLastCalledWith('category_values');
+		expect(details.location?.city).toEqual({
+			id: 'paris',
+			name: 'Paryż',
+			countryCode: 'FR',
+			point: { latitude: 48.857, longitude: 2.35 }
+		});
+	});
+});
+
+describe('ensureCityPlace', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	it('keeps a city of the atelier and creates a catalogue town with its details', async () => {
+		vi.mocked(supabase.rpc).mockResolvedValue({ data: 'new-city', error: null } as never);
+
+		expect(await ensureCityPlace({ id: 'paris', name: 'Paryż' })).toEqual({ id: 'paris' });
+		expect(supabase.rpc).not.toHaveBeenCalled();
+		expect(
+			await ensureCityPlace({
+				name: 'Toledo',
+				countryCode: 'ES',
+				point: { latitude: 39.86, longitude: -4.03 },
+				wikidataId: 'Q5836'
+			})
+		).toEqual({ id: 'new-city' });
+		expect(supabase.rpc).toHaveBeenCalledWith('ensure_city_place', {
+			city_name: 'Toledo',
+			wikidata_id: 'Q5836',
+			country_code: 'ES',
+			latitude: 39.86,
+			longitude: -4.03
+		});
+	});
+
+	it('says when the name belongs to a place of another type', async () => {
+		vi.mocked(supabase.rpc).mockResolvedValue({ data: null, error: { code: 'SC003' } } as never);
+
+		expect(await ensureCityPlace({ name: 'Wiedeń' })).toEqual({
+			error: m.cardIndex.errors.cityName
 		});
 	});
 });

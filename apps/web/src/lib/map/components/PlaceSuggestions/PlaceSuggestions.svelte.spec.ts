@@ -34,7 +34,36 @@ describe('PlaceSuggestions', () => {
 		expect(searchWikidataPlaces).toHaveBeenCalledWith('Luwr, Paryż');
 		expect(onchoose).toHaveBeenCalledWith({
 			point: { latitude: 48.86111, longitude: 2.33583 },
-			wikidataId: 'Q19675'
+			wikidataId: 'Q19675',
+			suggested: true
+		});
+	});
+
+	it('suggests the towns of the catalogue for a city, with their country', async () => {
+		vi.mocked(searchWikidataPlaces).mockResolvedValue([]);
+		const onchoose = vi.fn();
+		render(PlaceSuggestions, {
+			name: 'Toledo',
+			choice: null,
+			towns: [
+				{
+					name: 'Toledo',
+					countryCode: 'ES',
+					latitude: 39.86,
+					longitude: -4.03,
+					wikidataId: 'Q5836'
+				}
+			],
+			onchoose
+		});
+
+		await page.getByRole('button', { name: /Toledo/ }).click();
+
+		expect(onchoose).toHaveBeenCalledWith({
+			point: { latitude: 39.86, longitude: -4.03 },
+			wikidataId: 'Q5836',
+			suggested: true,
+			countryCode: 'ES'
 		});
 	});
 

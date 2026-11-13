@@ -4,4 +4,5 @@ export type WikidataPlace = {
 	description: string;
 	latitude: number;
 	longitude: number;
+	countryCode?: string;
 };

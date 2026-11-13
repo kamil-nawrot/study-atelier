@@ -216,6 +216,11 @@ Table catalogue_museums {
   country_code text [not null]
   latitude "double precision" [not null, note: 'M9']
   longitude "double precision" [not null, note: 'M9']
+  city_name text [note: 'M11']
+  city_wikidata_id text [note: 'M11']
+  city_country_code text [note: 'M11']
+  city_latitude "double precision" [note: 'M11']
+  city_longitude "double precision" [note: 'M11']
 
   indexes {
     `lower(name)` [name: 'catalogue_museums_name_key', unique]

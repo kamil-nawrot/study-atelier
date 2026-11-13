@@ -2,12 +2,10 @@
 	import { untrack } from 'svelte';
 	import {
 		Button,
-		ChoiceTiles,
 		Dialog,
 		Form,
 		FormActions,
 		NotesEditor,
-		SearchSelect,
 		type NoteLinks,
 		Select,
 		TextArea,
@@ -22,9 +20,8 @@
 		validateAuthorForm
 	} from '#lib/values/author-form/author-form.ts';
 	import { VALUE_NAME_MAX_LENGTH } from '#lib/card-index/category-values/category-values.ts';
-	import { countryOptions } from '#lib/catalogue/countries/countries.ts';
 	import { eraName } from '#lib/catalogue/eras/eras.ts';
-	import { isPlaceType, placeTiles } from '#lib/catalogue/place-types/place-types.ts';
+	import { cityOfTown, ownCities } from '#lib/values/city-options/city-options.ts';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { LiveErrors } from '#lib/shared/forms/live-errors/live-errors.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
@@ -43,8 +40,10 @@
 	import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
 	import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
+	import type { Town } from '#lib/map/types/town.ts';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import PlaceField from '#lib/map/components/PlaceField/PlaceField.svelte';
+	import PlaceFields from '#lib/values/components/PlaceFields/PlaceFields.svelte';
 	import ImageField from '#lib/images/components/ImageField/ImageField.svelte';
 	import EraBoundsField from '#lib/values/components/EraBoundsField/EraBoundsField.svelte';
 	import { validateEraBounds } from '#lib/values/era-bounds-form/era-bounds-form.ts';
@@ -68,8 +67,6 @@
 
 	let { subject, index, details, noteLinks, cancelHref, oncancel, onsaved }: Props = $props();
 
-	const countries = countryOptions();
-	const placeOptions = placeTiles();
 	const record = untrack(() => (subject.kind === 'era' ? undefined : subject.record));
 	const era = untrack(() => (subject.kind === 'era' ? subject.code : undefined));
 	const initialForm = (): ValueFormFields =>
@@ -94,11 +91,18 @@
 	let creating = $derived(record?.id === '');
 	let change = $derived(record ? planNameChange(record, form.name, index) : undefined);
 	let existing = $derived(change?.kind === 'merge' ? change.target : undefined);
+	let cities = $derived(ownCities(index.values, record?.id));
+	let hasPlaces = $derived(
+		record?.category === 'location' && index.values.some((value) => value.cityId === record.id)
+	);
 	const errors = new LiveErrors<{
+		placeType?: string;
 		name?: string;
 		author?: AuthorFieldErrors;
 		eraBounds?: EraBoundsErrors;
 	}>(() => ({
+		placeType:
+			hasPlaces && form.location?.placeType !== 'city' ? m.cardIndex.errors.cityType : undefined,
 		name:
 			change?.kind === 'empty'
 				? m.valueForm.nameRequired
@@ -127,8 +131,10 @@
 			: ''
 	);
 
-	function choosePlaceType(value: string | null): void {
-		if (form.location) form.location.placeType = isPlaceType(value) ? value : null;
+	function chooseTown(town: Town): void {
+		if (!form.location) return;
+		const city = cityOfTown(town);
+		form.location = { ...form.location, city, point: null, countryCode: city.countryCode ?? null };
 	}
 
 	export function confirmLeave(): Promise<boolean> {
@@ -242,19 +248,10 @@
 				{/if}
 
 				{#if form.location}
-					<SearchSelect
-						hint={m.valueForm.countryHint}
-						label={m.valueForm.country}
-						options={countries}
-						placeholder={m.valueForm.countryPlaceholder}
-						bind:value={form.location.countryCode}
-					/>
-					<ChoiceTiles
-						clearable
-						label={m.valueForm.placeType}
-						onchange={choosePlaceType}
-						options={placeOptions}
-						value={form.location.placeType}
+					<PlaceFields
+						{cities}
+						typeError={errors.current.placeType}
+						bind:location={form.location}
 					/>
 				{/if}
 
@@ -310,9 +307,12 @@
 					/>
 				{/if}
 			</div>
-			{#if form.location && !creating}
+			{#if form.location && !creating && !form.location.city}
 				<PlaceField
 					name={form.name}
+					city={form.location.placeType === 'city'}
+					oncountry={(code) => form.location && (form.location.countryCode = code)}
+					ontown={form.location.placeType === 'city' ? undefined : chooseTown}
 					bind:point={
 						() => form.location?.point ?? null,
 						(point) => form.location && (form.location.point = point)
