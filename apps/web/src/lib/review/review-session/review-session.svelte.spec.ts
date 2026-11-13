@@ -134,6 +134,7 @@ describe('ReviewSession', () => {
 			expect.objectContaining({ artworkId: 'artwork-1' }),
 			expect.objectContaining({ mode: 'quiz_title', rating: 2, correct: true })
 		);
+		expect(vi.mocked(recordReview).mock.calls[0][1]).not.toHaveProperty('wrongAnswer');
 		expect(review.chosen).toBe(1);
 		expect(review.position).toBe(0);
 
@@ -158,7 +159,7 @@ describe('ReviewSession', () => {
 
 		expect(recordReview).toHaveBeenCalledWith(
 			expect.anything(),
-			expect.objectContaining({ rating: 1, correct: false })
+			expect.objectContaining({ rating: 1, correct: false, wrongAnswer: 'Other A' })
 		);
 		const retry = artworkSteps(review)[4];
 		expect(retry.artwork.number).toBe(1);

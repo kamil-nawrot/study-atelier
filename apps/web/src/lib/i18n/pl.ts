@@ -520,6 +520,7 @@ export const pl = {
 				missing: 'Do uzupełnienia',
 				favourites: 'Ulubione',
 				seen: 'Widziane na żywo',
+				wantToSee: 'Chcę zobaczyć',
 				ticked: 'Zaznaczone'
 			},
 			ownField: 'Własne pole',
@@ -534,7 +535,8 @@ export const pl = {
 				locations: 'Miejsce',
 				missing: 'Do uzupełnienia',
 				favourites: 'Ulubione',
-				seen: 'Widziane na żywo'
+				seen: 'Widziane na żywo',
+				wantToSee: 'Chcę zobaczyć'
 			},
 			tag: (field: string, value: string): string => `${field} ${value}`,
 			unknownAuthor: 'Autor nieznany',
@@ -714,6 +716,12 @@ export const pl = {
 		added: 'Dodano do ulubionych.',
 		removed: 'Usunięto z ulubionych.',
 		failed: 'Nie udało się zapisać zmiany. Spróbuj jeszcze raz.'
+	},
+	wantToSee: {
+		add: 'Chcę zobaczyć na żywo',
+		remove: 'Usuń z „Chcę zobaczyć”',
+		added: 'Dodano do dzieł, które chcesz zobaczyć.',
+		removed: 'Usunięto z dzieł, które chcesz zobaczyć.'
 	},
 	review: {
 		title: 'Powtórki',
@@ -1680,6 +1688,14 @@ export const pl = {
 				'Groteska, rodzaj ornamentu, wzięła nazwę od włoskiego „grottesco”. Jej wzory podpatrzono w starożytnych dekoracjach odkrytych pod koniec XV wieku w podziemnych salach, czyli grotach, Złotego Domu Nerona w Rzymie. Pod kierunkiem Rafaela ozdobiono nią potem loggie Pałacu Watykańskiego.',
 				'Secesję Włosi nazywali między innymi „Stile Liberty”, od londyńskiego domu towarowego Liberty & Co. Niemcy mówili „Jugendstil”, od monachijskiego pisma „Die Jugend”.'
 			],
+			laurel_skull: [
+				'„Homo bulla”, czyli „człowiek jest bańką”, to starożytne powiedzenie, które w XVI wieku przywrócił Erazm z Rotterdamu w zbiorze przysłów „Adagia”. Bańka jest krucha i piękna tylko przez chwilę, zanim pęknie, dlatego malarze przedstawiali dzieci puszczające bańki, by mówić o kruchości ludzkiego życia.',
+				'Pierwszą drukowaną książką uznaną za księgę symboli był „Emblematum liber” Andrei Alciata, wydany w Augsburgu 28 lutego 1531 roku. Miał 104 emblematy, z czego 97 z drzeworytami, które zamówił humanista Conrad Peutinger. Sam Alciato najpewniej nie miał z tym wydaniem nic wspólnego.',
+				'„Iconologia” Cesarego Ripy, podręcznik symboli dla artystów, opisuje Malarstwo jako kobietę o rozwichrzonych czarnych włosach, z ustami przewiązanymi chustą, bo malarstwo jest nieme, i z maską na złotym łańcuchu. Artemisia Gentileschi namalowała się jako ta alegoria, pomijając knebel. Jej koledzy mężczyźni nie mogli tak utożsamić się z kobiecą personifikacją Malarstwa.',
+				'W XVII wieku jezuitę Athanasiusa Kirchera, jednego z pierwszych badaczy starożytnego Egiptu, uważano za tego, który odczytał hieroglify. W 1650 roku wydał w Rzymie przekład napisów z obelisku, który do dziś stoi na Fontannie Czterech Rzek Berniniego. Przekład był błędny, a hieroglify odczytano naprawdę dopiero 150 lat później.',
+				'Grecki autor Horapollon z Aleksandrii objaśniał w V wieku znaczenia hieroglifów, a według jego dzieła czytano je potem jak szyfr-rebus dla wtajemniczonych, który nie zapisuje mowy. Dopiero w 1822 roku Jean-François Champollion pokazał na imionach Ptolemeusza i Kleopatry, że Egipcjanie zapisywali obce imiona znakami oddającymi dźwięki.',
+				'Niemiecki historyk sztuki Erwin Panofsky w 1934 roku wyemigrował na stałe do Stanów Zjednoczonych. W książce „Studies in Iconology” z 1939 roku oddzielił ikonologię od ikonografii, czyli odczytywania tematów dzieł przez symbole znane z literatury i innych dzieł sztuki.'
+			],
 			own_eye: [
 				'Camera lucida, przyrząd optyczny opatentowany w 1807 roku przez Williama Hyde’a Wollastona, pozwalała rysownikowi widzieć jednocześnie widok i kartkę. Widok nakładał się na papier, więc wystarczyło go obrysować.',
 				'Canaletto długo uchodził za malarza, który rysował Wenecję w plenerze z camera obscura. Badanie jego dopracowanych rysunków w podczerwieni wskazuje jednak, że powstawały w pracowni na podstawie szkiców z natury.',
@@ -1762,6 +1778,18 @@ export const pl = {
 				'Po Wielkiej Wystawie w 1851 roku za 5000 funtów rządowej dotacji kupiono wybór wystawionych przedmiotów. Stały się zaczątkiem otwartego w 1852 roku Muzeum Wyrobów, które miało uczyć projektantów, producentów i publiczność sztuki i wzornictwa. W 1899 roku dostało nazwę Muzeum Wiktorii i Alberta.',
 				'W 1852 roku V&A jako jedno z pierwszych muzeów zaczęło kupować do zbiorów fotografie, a w 1858 urządziło swoją pierwszą wystawę fotografii. Dziś ma około 800 000 zdjęć, jedną z najważniejszych kolekcji na świecie.'
 			],
+			vault_cobweb: [
+				'„Chrzest Chrystusa” z Uffizi powstał około 1470–1475 roku w pracowni Andrei del Verrocchia. Według Giorgia Vasariego pomagał mu młody uczeń, Leonardo, który anioła po lewej namalował tak zręcznie, że zdenerwował starszego mistrza. Dziś badacze przypisują Leonardowi także pejzaż, złote światło i postać Chrystusa.',
+				'Peter Paul Rubens dostawał o wiele za dużo zamówień, by wykonać je sam, więc zbudował dużą pracownię dla uczniów i pomocników. Jego warsztat wytworzył oszałamiającą liczbę dzieł: w latach 30. XVII wieku sam król Hiszpanii Filip IV zamówił u niego ponad 80 obrazów.',
+				'W 1634 roku Rembrandt namalował dla świeżo poślubionych Martena Soolmansa i Oopjen Coppit parę portretów, jedyne pendanty w tak monumentalnym formacie w swoim dorobku. W 2016 roku Holandia i Francja kupiły je wspólnie, a muzea umówiły się, że obrazy zawsze będą pokazywane razem, na zmianę w Rijksmuseum i w Luwrze.',
+				'Luwr jest ostatnim muzeum, które ma biuro kopistów; działa ono od otwarcia muzeum w 1793 roku. Kopiowanie dzieł innych było szkołą wielu mistrzów, od Matisse’a po Picassa.',
+				'Leonardo namalował „Madonnę w grocie” dwa razy: pierwsza wersja jest w Luwrze, druga w National Gallery. Nie wiadomo na pewno dlaczego. Być może sprzedał pierwszy obraz komuś innemu, gdy mediolańskie bractwo, które go zamówiło, nie chciało dopłacić za droższe materiały.',
+				'Vincent van Gogh zebrał razem z bratem Theo setki japońskich drzeworytów. W 1887 roku skopiował z jednego z nich kwitnący sad śliwowy Hiroshigego, ale czarny i szary pień drzewa zamienił na czerwony i niebieski, a pomarańczowe ramki z japońskimi znakami dodał tylko dla ozdoby.',
+				'Jan Brueghel starszy i Peter Paul Rubens przyjaźnili się i malowali razem na jednym obrazie: Brueghel pejzaże i dworskie sceny, Rubens postacie. Tak powstał cykl „Pięć zmysłów” w Prado, jedna z ich najbardziej udanych współprac: w dworskie sceny Brueghla Rubens wstawił alegorie zmysłów.'
+			],
+			van_eyck_easel: [
+				'Rycina pokazuje wyidealizowaną pracownię Jana van Eycka, któremu Stradanus za Giorgiem Vasarim przypisał wynalezienie farby olejnej. To nieprawda: Vasari nazwał van Eycka człowiekiem, który „lubował się w alchemii”, i liczył, że taki wynalazek sprowadzi sztukę niderlandzką do poziomu rzemiosła.'
+			],
 			hortus_cliffortianus: [
 				'Muzeum Ennigaldi, córki babilońskiego króla Nabonida i arcykapłanki boga księżyca, powstało w Ur około 530 roku p.n.e. i uchodzi za najstarsze na świecie. W 1925 roku Leonard Woolley rozpoznał je po etykietach: przy każdym przedmiocie leżał gliniany cylinder z napisami w czterech językach, objaśniającymi przedmiot i jego historię.',
 				'Portret matki Jamesa Whistlera, amerykańskiego malarza dzielącego karierę między Londyn i Paryż, ma podwójny tytuł: „Aranżacja w szarości i czerni nr 1” i „Portret matki artysty”. Wkrótce potem Whistler dawał swoim obrazom już tylko muzyczne podtytuły, bo ważniejsza była dla niego harmonia niż temat.',
@@ -1775,6 +1803,9 @@ export const pl = {
 			],
 			seven_league_boots: [
 				'W baśni Charles’a Perraulta buty olbrzyma były zaczarowane: rosły i malały, dopasowując się do nóg tego, kto je włożył. Według jednego z dwóch zakończeń Tomcio został w nich królewskim gońcem i jeszcze tego samego wieczoru przyniósł królowi wieści od armii oddalonej o dwieście mil.'
+			],
+			pilgrim_shell: [
+				'Pielgrzymi kupowali w sanktuarium w Composteli prawdziwe muszle przegrzebków i przypinali je do toreb. Gdy chętnych przybyło więcej, niż było muszli, zaczęto sprzedawać metalowe odznaki, a w XIII wieku w Composteli pracowało 100 wytwórców z licencją. Nikt nie wie na pewno, dlaczego muszla stała się znakiem świętego Jakuba.'
 			],
 			crystal_palace: [
 				'Na Wielką Wystawę w 1851 roku 5000 robotników w pięć miesięcy zbudowało w londyńskim Hyde Parku szklany Kryształowy Pałac. Gmach był tak duży, że w środku znalazły się drzewa parku. 14 000 wystawców pokazało w nim 100 000 przedmiotów z całego świata, które obejrzało sześć milionów ludzi.',
@@ -1943,6 +1974,12 @@ export const pl = {
 					'Rycina z 1610 roku pokazuje bibliotekę uniwersytetu w Lejdzie, w której księgi przykuwano łańcuchami do pulpitów.',
 				count: counter('pojęć w Słowniczku')
 			},
+			laurel_skull: {
+				name: 'Czaszka zwycięzcy',
+				about:
+					'Na mezzotincie wydanej przez Gerarda Valcka czaszka w laurowym wieńcu leży na nutach obok zgaszonej świecy, a wiersz pod nią przypomina, że przed Śmiercią ustąpi każdy zwycięzca.',
+				count: counter('symboli wskazanych na dziełach')
+			},
 			own_eye: {
 				name: 'Camera obscura z Encyklopedii',
 				about:
@@ -2002,6 +2039,19 @@ export const pl = {
 					'Cornelis Cort wyrył w 1578 roku w Rzymie pracownię, w której obok siebie pracują rzeźbiarze, malarze, rysownicy, architekci i rytownicy.',
 				count: counter('typów dzieł w atelier')
 			},
+			vault_cobweb: {
+				name: 'Sieć Arachne',
+				about:
+					'Na drzeworycie według Hansa Weiditza do niemieckiego wydania Cycerona pajęczyna rozpięta pod sklepieniem łowi muchy i większe owady.',
+				count: counter('powiązań między dziełami i autorami')
+			},
+			van_eyck_easel: {
+				name: 'Sztaluga van Eycka',
+				about:
+					'Na miedziorycie z warsztatu Philipsa Galle’a według Stradanusa Jan van Eyck maluje farbą olejną świętego Jerzego, a uczniowie wokół ucierają farby i ćwiczą rysunek.',
+				hint: 'Każdy mistrz był kiedyś czyimś uczniem.',
+				awarded: 'Za mistrza, jego ucznia i ucznia jego ucznia w atelier.'
+			},
 			hortus_cliffortianus: {
 				name: 'Ogród Clifforta',
 				about:
@@ -2021,6 +2071,13 @@ export const pl = {
 					'Na drzeworycie według Gustave’a Doré z 1862 roku Tomcio Paluch ściąga śpiącemu olbrzymowi siedmiomilowe buty.',
 				hint: 'Olbrzymowi wystarczy jeden krok, sprytnemu – jeden dzień.',
 				awarded: 'Za trzy muzea odwiedzone jednego dnia.'
+			},
+			pilgrim_shell: {
+				name: 'Muszla pielgrzyma',
+				about:
+					'Na kopii akwaforty Jacques’a Callota dwoje pielgrzymów w kapeluszach z muszlą świętego Jakuba stoi w środku rymowanego przewodnika z Paryża do Santiago de Compostela.',
+				hint: 'Marzenie, które ma adres, łatwiej spełnić.',
+				awarded: 'Za dzieło zobaczone na żywo po tym, jak trafiło na listę do zobaczenia.'
 			},
 			figure_alphabet: {
 				name: 'Alfabet Mistrza E.S.',
@@ -2395,6 +2452,30 @@ export const pl = {
 		allEvents: (count: number): string => `Pokaż wszystkie (${count})`,
 		otherEvents: 'Inne wydarzenia w tym czasie'
 	},
+	artworkRelations: {
+		title: 'Powiązania',
+		types: {
+			studyFrom: 'Studium lub projekt do',
+			studyTo: 'Ma studium lub projekt',
+			copyFrom: 'Kopia lub reprodukcja',
+			copyTo: 'Ma kopię lub reprodukcję',
+			version: 'Inna wersja',
+			partFrom: 'Część',
+			partTo: 'Składa się z',
+			referenceFrom: 'Nawiązuje do',
+			referenceTo: 'Jest punktem odniesienia dla',
+			related: 'Powiązane z'
+		},
+		add: 'Dodaj powiązanie',
+		type: 'Rodzaj powiązania',
+		choose: 'Wybierz rodzaj',
+		search: 'Szukaj dzieła',
+		remove: (title: string): string => `Usuń powiązanie z „${title}”`,
+		removeEmpty: 'Usuń powiązanie',
+		typeRequired: 'Wybierz, jak te dzieła są powiązane.',
+		artworkRequired: 'Wybierz dzieło albo usuń ten wiersz.',
+		noMatch: 'Nie ma takiego dzieła w Twoim atelier.'
+	},
 	valuePage: {
 		back: 'Kartoteka',
 		deleteBlocked: (demonstrative: string, count: string, other: string): string =>
@@ -2522,6 +2603,12 @@ export const pl = {
 		add: 'Dodaj wystawę',
 		adding: 'Dodawanie…',
 		search: 'Szukaj wystawy',
+		sortLabel: 'Sortuj',
+		sorts: {
+			changed: 'Ostatnio zmienione',
+			name: 'Alfabetycznie',
+			count: 'Najwięcej dzieł'
+		},
 		noResults: (query: string): string =>
 			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment tytułu.`,
 		newTitle: 'Nowa wystawa',

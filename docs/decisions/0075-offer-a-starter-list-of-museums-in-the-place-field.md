@@ -1,6 +1,6 @@
 # 0075. Offer a starter list of museums in the place field
 
-- Status: accepted
+- Status: accepted; the list and its names are superseded by [0267](0267-keep-the-starter-list-of-museums-to-art-collections-under-one-naming-rule.md)
 - Date: 2026-10-17
 
 ## Context and problem statement

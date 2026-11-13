@@ -105,6 +105,7 @@ function artwork(number, title, authors, year, era, extra = {}) {
 		type_code: 'painting',
 		notes: null,
 		favourite: false,
+		want_to_see: false,
 		deleted_at: null,
 		artwork_values: authors.map((name, position) => ({
 			position,
@@ -298,12 +299,43 @@ export const REVIEW_CARDS = [
 for (const number of [1, 3, 4, 7])
 	ARTWORKS.find((row) => row.record_number === number).favourite = true;
 
+for (const number of [2, 5])
+	ARTWORKS.find((row) => row.record_number === number).want_to_see = true;
+
 export const TRASHED = [
 	artwork(11, 'Discarded sketch', ['Learner Example'], 2020, 'contemporary', {
 		...ownImage(11, 4, 5),
 		deleted_at: '2026-01-01T10:00:00Z'
 	})
 ];
+
+const RELATIONS = [
+	{ from: 1, to: 9, kind: 'reference' },
+	{ from: 10, to: 1, kind: 'study' },
+	{ from: 7, to: 1, kind: 'reference' },
+	{ from: 8, to: 1, kind: 'reference' },
+	{ from: 11, to: 1, kind: 'study' }
+];
+
+function relatedRow(number) {
+	const row = [...ARTWORKS, ...TRASHED].find((candidate) => candidate.record_number === number);
+	return {
+		id: row.id,
+		record_number: row.record_number,
+		title: row.title,
+		deleted_at: row.deleted_at
+	};
+}
+
+for (const row of [...ARTWORKS, ...TRASHED]) {
+	const number = row.record_number;
+	row.outgoing_relations = RELATIONS.filter((relation) => relation.from === number).map(
+		(relation) => ({ kind: relation.kind, artwork: relatedRow(relation.to) })
+	);
+	row.incoming_relations = RELATIONS.filter((relation) => relation.to === number).map(
+		(relation) => ({ kind: relation.kind, artwork: relatedRow(relation.from) })
+	);
+}
 
 export function valueId(category, name) {
 	return `${category}-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
@@ -405,17 +437,17 @@ export const VALUE_DETAILS = {
 };
 
 export const CATALOGUE_MUSEUMS = [
-	{ name: 'Luwr', english_name: 'Louvre Museum', country_code: 'FR' },
-	{ name: 'Prado', english_name: 'Museo del Prado', country_code: 'ES' },
-	{ name: 'Galeria Uffizi', english_name: 'Uffizi Gallery', country_code: 'IT' },
-	{ name: 'Muzeum Brytyjskie', english_name: 'British Museum', country_code: 'GB' },
-	{ name: 'Rijksmuseum', english_name: null, country_code: 'NL' },
+	{ name: 'Luwr', alias: 'Louvre Museum', country_code: 'FR' },
+	{ name: 'Prado', alias: 'Museo del Prado', country_code: 'ES' },
+	{ name: 'Galeria Uffizi', alias: 'Uffizi Gallery', country_code: 'IT' },
+	{ name: 'Muzeum Brytyjskie', alias: 'British Museum', country_code: 'GB' },
+	{ name: 'Rijksmuseum', alias: null, country_code: 'NL' },
 	{
 		name: 'Muzeum Narodowe w Warszawie',
-		english_name: 'National Museum in Warsaw',
+		alias: 'National Museum in Warsaw',
 		country_code: 'PL'
 	},
-	{ name: 'Pradla Museum', english_name: null, country_code: 'PL' }
+	{ name: 'Pradla Museum', alias: null, country_code: 'PL' }
 ];
 
 export const ARTWORK_SEARCH = [
@@ -1345,6 +1377,14 @@ export const EXHIBITS = [
 		thresholds: [2, 3, 4, 5, 6, 7]
 	},
 	{
+		exhibit: 'vault_cobweb',
+		room: 'main_hall',
+		hidden: false,
+		value: 12,
+		thresholds: [1, 5, 10, 25, 50, 100, 250]
+	},
+	{ exhibit: 'van_eyck_easel', room: 'main_hall', hidden: true, value: 0, thresholds: [1] },
+	{
 		exhibit: 'own_eye',
 		room: 'main_hall',
 		hidden: false,
@@ -1428,6 +1468,13 @@ export const EXHIBITS = [
 		thresholds: [1, 10, 25, 50, 100, 250, 500]
 	},
 	{
+		exhibit: 'laurel_skull',
+		room: 'scriptorium',
+		hidden: false,
+		value: 6,
+		thresholds: [1, 5, 10, 25, 50, 100]
+	},
+	{
 		exhibit: 'timeline',
 		room: 'scriptorium',
 		hidden: false,
@@ -1465,6 +1512,7 @@ export const EXHIBITS = [
 	},
 	{ exhibit: 'trevi_fountain', room: 'map_room', hidden: true, value: 2, thresholds: [2] },
 	{ exhibit: 'seven_league_boots', room: 'map_room', hidden: true, value: 1, thresholds: [3] },
+	{ exhibit: 'pilgrim_shell', room: 'map_room', hidden: true, value: 0, thresholds: [1] },
 	{
 		exhibit: 'crystal_palace',
 		room: 'pavilion',

@@ -1,8 +1,7 @@
 <script lang="ts">
-	import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
 	import KeyRound from '@lucide/svelte/icons/key-round';
 	import Plus from '@lucide/svelte/icons/plus';
-	import { Alert, Button, EmptyState, Icon, SearchField, Select } from '@study-atelier/ui';
+	import { Alert, Button, EmptyState, Icon } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
 	import {
@@ -13,6 +12,7 @@
 		type SymbolSort
 	} from '#lib/symbols/atlas/atlas.ts';
 	import SymbolTile from '#lib/symbols/components/SymbolTile/SymbolTile.svelte';
+	import ListTools from '#lib/shared/lists/ListTools/ListTools.svelte';
 	import type { AtlasSymbol } from '#lib/symbols/types/atlas-symbol.ts';
 
 	type Props = {
@@ -25,7 +25,7 @@
 
 	let sort = $state<SymbolSort>(rememberedSymbolSort());
 
-	const sorts = SYMBOL_SORTS.map((value) => ({ value, label: m.symbols.sorts[value] }));
+	const options = SYMBOL_SORTS.map((value) => ({ value, label: m.symbols.sorts[value] }));
 
 	let shown = $derived(shownSymbols(symbols, query, sort));
 
@@ -47,42 +47,42 @@
 		</Button>
 	</EmptyState>
 {:else}
-	<div class="tools">
-		<SearchField
-			compact
-			label={m.symbols.search}
-			placeholder={m.symbols.search}
-			bind:value={query}
-		/>
-		<Select
-			compact
-			hideLabel
-			icon={ArrowUpDown}
-			iconOnPhone
-			label={m.symbols.sortLabel}
-			options={sorts}
-			bind:value={() => sort, choose}
-		/>
+	<div class="atlas">
+		<ListTools
+			{options}
+			searchLabel={m.symbols.search}
+			sortLabel={m.symbols.sortLabel}
+			bind:query
+			bind:sort={() => sort, choose}
+		>
+			{#snippet actions()}
+				<Button
+					aria-label={m.symbols.add}
+					compact
+					href={resolve('/(app)/atelier/glossary/symbols/new')}
+					icon={Plus}
+					variant="primary"
+				>
+					{m.symbols.add}
+				</Button>
+			{/snippet}
+		</ListTools>
+		{#if shown.length === 0}
+			<p class="lead">{m.symbols.noResults(query.trim())}</p>
+		{:else}
+			<ul class="grid">
+				{#each shown as symbol (symbol.id)}
+					<li><SymbolTile {symbol} /></li>
+				{/each}
+			</ul>
+		{/if}
 	</div>
-
-	{#if shown.length === 0}
-		<p class="lead">{m.symbols.noResults(query.trim())}</p>
-	{:else}
-		<ul class="grid">
-			{#each shown as symbol (symbol.id)}
-				<li><SymbolTile {symbol} /></li>
-			{/each}
-		</ul>
-	{/if}
 {/if}
 
 <style>
-	.tools {
+	.atlas {
 		display: grid;
-		grid-template-columns: minmax(0, 1fr) auto;
-		gap: var(--spacing-2);
-		padding-bottom: var(--spacing-4);
-		border-bottom: var(--border-width-hairline) solid var(--color-line);
+		gap: var(--spacing-6);
 	}
 
 	.grid {
@@ -91,25 +91,17 @@
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		gap: var(--spacing-12) var(--spacing-6);
-		padding: var(--spacing-8) 0 0;
+		padding: 0;
 		list-style: none;
 	}
 
 	@media (min-width: 768px) {
-		.tools {
-			grid-template-columns: minmax(0, var(--size-content-default)) auto;
-			justify-content: start;
-			gap: var(--spacing-4);
-			padding-bottom: var(--spacing-6);
-		}
-
 		.grid {
 			--detail-lens: 200px;
 
 			grid-template-columns: repeat(4, minmax(0, 1fr));
 			gap: var(--spacing-16);
 			max-width: var(--size-content-wide);
-			padding-top: var(--spacing-12);
 		}
 	}
 </style>

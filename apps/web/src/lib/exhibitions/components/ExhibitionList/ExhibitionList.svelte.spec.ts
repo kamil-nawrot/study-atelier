@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/i18n.ts';
@@ -6,15 +6,17 @@ import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import type { ExhibitionSummary } from '#lib/exhibitions/types/exhibition-summary.ts';
 import ExhibitionList from './ExhibitionList.svelte';
 
-function summary(id: string, title: string, coverId: string | null = null): ExhibitionSummary {
-	return { id, title, updatedAt: '2020-03-04T10:00:00Z', artworkCount: 1, coverId };
+function summary(id: string, title: string, artworkCount = 1): ExhibitionSummary {
+	return { id, title, updatedAt: '2020-03-04T10:00:00Z', artworkCount, coverId: null };
 }
 
 describe('ExhibitionList', () => {
+	afterEach(() => localStorage.clear());
+
 	it('lists the exhibitions in the order given, each with its cover', async () => {
 		const cover = testArtwork(1, 'Judith');
 		render(ExhibitionList, {
-			exhibitions: [summary('b', 'Light', cover.id), summary('a', 'Shadow')],
+			exhibitions: [{ ...summary('b', 'Light'), coverId: cover.id }, summary('a', 'Shadow')],
 			covers: new Map([[cover.id, cover]])
 		});
 
@@ -24,17 +26,31 @@ describe('ExhibitionList', () => {
 		await expect.element(page.getByRole('link', { name: /Shadow/ })).toBeInTheDocument();
 	});
 
-	it('offers no search below five exhibitions', async () => {
+	it('offers the search and the order however few exhibitions there are', async () => {
+		render(ExhibitionList, { exhibitions: [summary('a', 'Show a')], covers: new Map() });
+
+		await expect.element(page.getByRole('searchbox', { name: m.exhibitions.search })).toBeVisible();
+		await expect
+			.element(page.getByRole('combobox', { name: m.exhibitions.sortLabel }))
+			.toHaveValue('changed');
+	});
+
+	it('orders the exhibitions by the most artworks and keeps the choice', async () => {
 		render(ExhibitionList, {
-			exhibitions: ['a', 'b', 'c', 'd'].map((id) => summary(id, `Show ${id}`)),
+			exhibitions: [summary('a', 'Few', 1), summary('b', 'Many', 4)],
 			covers: new Map()
 		});
 
-		await expect.element(page.getByRole('link', { name: /Show a/ })).toBeInTheDocument();
-		expect(page.getByRole('searchbox').elements()).toHaveLength(0);
+		await page
+			.getByRole('combobox', { name: m.exhibitions.sortLabel })
+			.selectOptions(m.exhibitions.sorts.count);
+
+		const items = page.getByRole('listitem').elements();
+		expect(items.map((item) => item.textContent?.includes('Many'))).toEqual([true, false]);
+		expect(localStorage.getItem('study-atelier:exhibition-sort')).toBe('count');
 	});
 
-	it('filters five or more exhibitions by a fragment of the title', async () => {
+	it('filters the exhibitions by a fragment of the title', async () => {
 		render(ExhibitionList, {
 			exhibitions: [
 				summary('a', 'Światło u Caravaggia'),

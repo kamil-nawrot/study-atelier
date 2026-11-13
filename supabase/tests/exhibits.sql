@@ -36,21 +36,23 @@ begin
   assert (select array_agg(room || ':' || exhibit order by position)
       from public.unlock_exhibits('UTC') with ordinality as listed (exhibit, room, hidden, value, thresholds, position))
     = array[
-    'main_hall:collection', 'main_hall:vasari_lives', 'main_hall:boncompagni_academy', 'main_hall:own_eye',
+    'main_hall:collection', 'main_hall:vasari_lives', 'main_hall:boncompagni_academy', 'main_hall:vault_cobweb',
+    'main_hall:van_eyck_easel', 'main_hall:own_eye',
     'main_hall:pinacotheca',
     'era_enfilade:eras', 'era_enfilade:prehistory', 'era_enfilade:antiquity', 'era_enfilade:middle_ages',
     'era_enfilade:early_modern', 'era_enfilade:modern', 'era_enfilade:contemporary',
     'reading_room:memory', 'reading_room:bullseye', 'reading_room:regular', 'reading_room:back_from_storage',
     'reading_room:night_watch', 'reading_room:marathon', 'reading_room:amateur_magnifier',
-    'scriptorium:glossary', 'scriptorium:timeline', 'scriptorium:hortus_cliffortianus', 'scriptorium:figure_alphabet',
+    'scriptorium:glossary', 'scriptorium:laurel_skull', 'scriptorium:timeline', 'scriptorium:hortus_cliffortianus', 'scriptorium:figure_alphabet',
     'map_room:chronicle', 'map_room:grand_tour', 'map_room:seen_live', 'map_room:trevi_fountain',
-    'map_room:seven_league_boots', 'pavilion:crystal_palace', 'pavilion:lenoir_chapel', 'crypt:mouth_of_truth',
+    'map_room:seven_league_boots', 'map_room:pilgrim_shell', 'pavilion:crystal_palace', 'pavilion:lenoir_chapel', 'crypt:mouth_of_truth',
     'crypt:candle_moths'
-  ], 'the exhibits are not the agreed thirty-two in their rooms and order';
+  ], 'the exhibits are not the agreed thirty-six in their rooms and order';
   assert (select array_agg(exhibit order by exhibit) from public.unlock_exhibits('UTC') where hidden) = array[
     'amateur_magnifier', 'back_from_storage', 'candle_moths', 'figure_alphabet', 'lenoir_chapel', 'marathon',
-    'mouth_of_truth', 'night_watch', 'pinacotheca', 'seven_league_boots', 'trevi_fountain'
-  ], 'the hidden exhibits are not the agreed eleven';
+    'mouth_of_truth', 'night_watch', 'pilgrim_shell', 'pinacotheca', 'seven_league_boots', 'trevi_fountain',
+    'van_eyck_easel'
+  ], 'the hidden exhibits are not the agreed thirteen';
   assert (select value from public.unlock_exhibits('UTC') where exhibit = 'early_modern') = 5,
     'an era exhibit does not count the artworks of its era';
   assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'modern') = array[1]::smallint[],
@@ -688,6 +690,169 @@ begin
 
   assert (select value from public.unlock_exhibits('UTC') where exhibit = 'trevi_fountain') = 2,
     'the Trevi fountain counts "maj 2026" and "1 maja 2026" as one visit';
+end;
+$$;
+
+reset role;
+
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000015', 'owner-l@example.test');
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-000000000015", "role": "authenticated"}', true);
+
+do $$
+declare
+  shown uuid;
+  trashed uuid;
+  skull uuid;
+  lily uuid;
+  dog uuid;
+begin
+  perform public.save_artwork(
+    jsonb_build_object('title', 'Shown', 'author_unknown', true),
+    '{}', null, '[{"source_wikidata_id": "Q201", "source_image_file": "Shown.jpg"}]');
+  perform public.save_artwork(
+    jsonb_build_object('title', 'Thrown away', 'author_unknown', true),
+    '{}', null, '[{"source_wikidata_id": "Q202", "source_image_file": "Thrown.jpg"}]');
+  select image.id into shown from public.artwork_images as image
+    join public.artworks as artwork on artwork.id = image.artwork_id where artwork.title = 'Shown';
+  select image.id into trashed from public.artwork_images as image
+    join public.artworks as artwork on artwork.id = image.artwork_id where artwork.title = 'Thrown away';
+  skull := public.save_symbol('Skull', '[{"text": "transience", "contexts": []}]');
+  lily := public.save_symbol('Lily', '[{"text": "purity", "contexts": []}]');
+  dog := public.save_symbol('Dog', '[{"text": "fidelity", "contexts": []}]');
+  perform public.save_symbol('Unpinned', '[{"text": "nothing", "contexts": []}]');
+
+  insert into public.artwork_pins (image_id, x, y, symbol_id) values
+    (shown, 0.2, 0.2, skull), (shown, 0.4, 0.4, skull), (shown, 0.6, 0.6, lily), (trashed, 0.5, 0.5, dog);
+  update public.artworks set deleted_at = now() where title = 'Thrown away';
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'laurel_skull') = 2,
+    'the victor''s skull counts a symbol twice, a symbol without a pin or a pin on an artwork in the trash';
+  assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'laurel_skull') = array[1]::smallint[],
+    'two symbols on artworks do not reach the first tier of the victor''s skull';
+
+  update public.artworks set deleted_at = null where title = 'Thrown away';
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'laurel_skull') = 3,
+    'the victor''s skull does not count the symbol of an artwork back from the trash';
+
+  delete from public.artwork_pins where symbol_id = lily;
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'laurel_skull') = 2,
+    'the victor''s skull counts a symbol whose pin is gone';
+  assert (select count(*) from public.exhibit_tiers where exhibit = 'laurel_skull') = 1,
+    'the victor''s skull takes back a reached tier';
+end;
+$$;
+
+reset role;
+
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000016', 'owner-m@example.test');
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-000000000016", "role": "authenticated"}', true);
+
+do $$
+declare
+  wished uuid;
+  unplanned uuid;
+begin
+  wished := (select id from public.save_artwork(
+    jsonb_build_object('title', 'Wished', 'author_unknown', true), '{"author": [], "location": []}'));
+  unplanned := (select id from public.save_artwork(
+    jsonb_build_object('title', 'Unplanned', 'author_unknown', true), '{"author": [], "location": []}'));
+
+  perform public.save_visit('{"visited_on": "2026-10-12", "date_precision": "day"}', 'Luwr', array[unplanned]);
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'pilgrim_shell') = 0,
+    'an artwork seen without the mark finds the pilgrim''s shell';
+
+  update public.artworks set want_to_see = true where id = wished;
+  perform public.save_visit('{"visited_on": "2026-10-13", "date_precision": "day"}', 'Luwr', array[wished]);
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'pilgrim_shell') = 1,
+    'an artwork seen after the mark does not find the pilgrim''s shell';
+  assert exists (select 1 from public.point_events where kind = 'easter_egg' and code = 'pilgrim_shell'),
+    'the hidden pilgrim''s shell gives no bonus';
+
+  update public.artworks set deleted_at = now() where id = wished;
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'pilgrim_shell') = 1,
+    'the pilgrim''s shell forgets an artwork moved to the trash';
+end;
+$$;
+
+reset role;
+
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000017', 'owner-n@example.test');
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-000000000017", "role": "authenticated"}', true);
+
+do $$
+declare
+  sketch uuid;
+  painting uuid;
+  copy uuid;
+  master uuid;
+  pupil uuid;
+begin
+  sketch := (select id from public.save_artwork(
+    jsonb_build_object('title', 'Sketch', 'author_unknown', false), '{"author": ["Master"], "location": []}'));
+  painting := (select id from public.save_artwork(
+    jsonb_build_object('title', 'Painting', 'author_unknown', false), '{"author": ["Pupil"], "location": []}'));
+  copy := (select id from public.save_artwork(
+    jsonb_build_object('title', 'Copy', 'author_unknown', true), '{"author": [], "location": []}'));
+  select id into master from public.category_values where category_code = 'author' and name = 'Master';
+  select id into pupil from public.category_values where category_code = 'author' and name = 'Pupil';
+
+  insert into public.artwork_relations (from_id, to_id, kind) values
+    (sketch, painting, 'study'), (copy, painting, 'copy');
+  insert into public.author_relations (from_id, to_id, kind) values (pupil, master, 'pupil');
+  update public.artworks set deleted_at = now() where id = copy;
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'vault_cobweb') = 2,
+    'Arachne''s web leaves out an author relation or counts a relation of an artwork in the trash';
+  assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'vault_cobweb') = array[1]::smallint[],
+    'two relations do not reach the first tier of Arachne''s web';
+
+  update public.artworks set deleted_at = null where id = copy;
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'vault_cobweb') = 3,
+    'Arachne''s web does not count the relation of an artwork back from the trash';
+end;
+$$;
+
+reset role;
+
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000018', 'owner-o@example.test');
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-000000000018", "role": "authenticated"}', true);
+
+do $$
+declare
+  verrocchio uuid;
+  leonardo uuid;
+  boltraffio uuid;
+begin
+  perform public.save_artwork(
+    jsonb_build_object('title', 'Workshop', 'author_unknown', false),
+    '{"author": ["Verrocchio", "Leonardo", "Boltraffio"], "location": []}');
+  select id into verrocchio from public.category_values where category_code = 'author' and name = 'Verrocchio';
+  select id into leonardo from public.category_values where category_code = 'author' and name = 'Leonardo';
+  select id into boltraffio from public.category_values where category_code = 'author' and name = 'Boltraffio';
+
+  insert into public.author_relations (from_id, to_id, kind) values (leonardo, verrocchio, 'pupil');
+  insert into public.author_relations (from_id, to_id, kind) values (boltraffio, verrocchio, 'influence');
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'van_eyck_easel') = 0,
+    'a master and one pupil, or a relation of another kind, find van Eyck''s easel';
+
+  delete from public.author_relations where from_id = boltraffio;
+  insert into public.author_relations (from_id, to_id, kind) values (boltraffio, leonardo, 'pupil');
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'van_eyck_easel') = 1,
+    'a master, his pupil and the pupil''s pupil do not find van Eyck''s easel';
+  assert exists (select 1 from public.point_events where kind = 'easter_egg' and code = 'van_eyck_easel'),
+    'the hidden easel of van Eyck gives no bonus';
 end;
 $$;
 

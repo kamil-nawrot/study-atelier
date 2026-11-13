@@ -1,8 +1,7 @@
 <script lang="ts">
-	import ArrowUpDown from '@lucide/svelte/icons/arrow-up-down';
 	import BookA from '@lucide/svelte/icons/book-a';
 	import Plus from '@lucide/svelte/icons/plus';
-	import { Button, EmptyState, Icon, SearchField, Select, ToggleTag } from '@study-atelier/ui';
+	import { Button, EmptyState, Icon, ToggleTag } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
 	import {
@@ -13,7 +12,7 @@
 	import {
 		countByCategory,
 		filterEntries,
-		GLOSSARY_SEARCH_MIN_ENTRIES,
+		GLOSSARY_INDEX_MIN_ENTRIES,
 		groupByLetter
 	} from '#lib/glossary/glossary/glossary.ts';
 	import {
@@ -25,6 +24,7 @@
 	} from '#lib/glossary/glossary-sort/glossary-sort.ts';
 	import GlossaryRow from '#lib/glossary/components/GlossaryRow/GlossaryRow.svelte';
 	import LetterIndex from '#lib/glossary/components/LetterIndex/LetterIndex.svelte';
+	import ListTools from '#lib/shared/lists/ListTools/ListTools.svelte';
 	import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
 	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 
@@ -45,7 +45,7 @@
 	let recent = $derived(sort === 'recent');
 	let groups = $derived(recent ? [] : groupByLetter(matching));
 	let newest = $derived(recent ? newestFirst(matching) : []);
-	let indexed = $derived(entries.length >= GLOSSARY_SEARCH_MIN_ENTRIES && groups.length > 1);
+	let indexed = $derived(entries.length >= GLOSSARY_INDEX_MIN_ENTRIES && groups.length > 1);
 
 	function toggle(category: GlossaryCategory): void {
 		chosen = chosen.includes(category)
@@ -68,27 +68,25 @@
 	</EmptyState>
 {:else}
 	<div class="filter">
-		{#if entries.length > 1}
-			<div class="tools">
-				{#if entries.length >= GLOSSARY_SEARCH_MIN_ENTRIES}
-					<SearchField
-						compact
-						label={m.glossary.search}
-						placeholder={m.glossary.search}
-						bind:value={query}
-					/>
-				{/if}
-				<Select
+		<ListTools
+			options={sorts}
+			searchLabel={m.glossary.search}
+			sortLabel={m.glossary.sortLabel}
+			bind:query
+			bind:sort={() => sort, choose}
+		>
+			{#snippet actions()}
+				<Button
+					aria-label={m.glossary.add}
 					compact
-					hideLabel
-					icon={ArrowUpDown}
-					iconOnPhone
-					label={m.glossary.sortLabel}
-					options={sorts}
-					bind:value={() => sort, choose}
-				/>
-			</div>
-		{/if}
+					href={resolve('/(app)/atelier/glossary/new')}
+					icon={Plus}
+					variant="primary"
+				>
+					{m.glossary.add}
+				</Button>
+			{/snippet}
+		</ListTools>
 
 		<ul class="categories" aria-label={m.glossary.categories}>
 			{#each GLOSSARY_CATEGORIES as category (category)}
@@ -146,14 +144,7 @@
 	.filter {
 		display: grid;
 		gap: var(--spacing-4);
-		margin: var(--spacing-4) 0;
-		padding-bottom: var(--spacing-6);
-		border-bottom: var(--border-width-hairline) solid var(--color-line);
-	}
-
-	.tools {
-		display: grid;
-		gap: var(--spacing-4);
+		margin-bottom: var(--spacing-6);
 	}
 
 	.categories {
@@ -199,13 +190,6 @@
 	@media (max-width: 767.98px) {
 		.filter {
 			gap: var(--spacing-3);
-			margin-top: 0;
-			padding-bottom: var(--spacing-4);
-		}
-
-		.tools {
-			grid-template-columns: minmax(0, 1fr) auto;
-			gap: var(--spacing-2);
 		}
 
 		.categories {
@@ -240,11 +224,6 @@
 	}
 
 	@media (min-width: 768px) {
-		.tools {
-			grid-template-columns: minmax(0, var(--size-content-default)) auto;
-			justify-content: start;
-		}
-
 		.group {
 			grid-template-columns: 80px minmax(0, 1fr);
 			gap: 0;

@@ -1,6 +1,6 @@
 # 0074. Keep a glossary of terms with definitions from Wikipedia, highlighted in notes
 
-- Status: accepted
+- Status: accepted; the search from 20 entries is superseded by [0269](0269-always-show-the-search-of-the-glossary-and-the-exhibitions.md)
 - Date: 2026-10-17
 
 ## Context and problem statement

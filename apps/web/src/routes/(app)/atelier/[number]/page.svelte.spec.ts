@@ -6,6 +6,7 @@ import { goto } from '$app/navigation';
 import { preloadArtwork } from '#lib/artworks/artwork-preload/artwork-preload.ts';
 import { setBackPlace } from '#lib/shared/navigation/back/back.svelte.ts';
 import { setFavourite } from '#lib/wall/favourite-data/favourite-data.ts';
+import { setWantToSee } from '#lib/wall/want-to-see-data/want-to-see-data.ts';
 import { moveToTrash } from '#lib/artworks/trash-data/trash-data.ts';
 import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
 import type { LoadArtworkResult } from '#lib/artworks/types/load-artwork-result.ts';
@@ -47,6 +48,7 @@ vi.mock('#lib/wall/favourite-data/favourite-data.ts', async (importOriginal) => 
 	...(await importOriginal<typeof import('#lib/wall/favourite-data/favourite-data.ts')>()),
 	setFavourite: vi.fn()
 }));
+vi.mock('#lib/wall/want-to-see-data/want-to-see-data.ts', () => ({ setWantToSee: vi.fn() }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
@@ -679,14 +681,18 @@ describe('artwork page', () => {
 			.toBeVisible();
 	});
 
-	it('shows a favourite artwork with a filled heart and clears it', async () => {
+	it('clears the favourite and want-to-see marks of an artwork', async () => {
 		vi.mocked(setFavourite).mockResolvedValue({});
-		renderPage({ artwork: artwork({ favourite: true }) });
+		vi.mocked(setWantToSee).mockResolvedValue({});
+		renderPage({ artwork: artwork({ favourite: true, wantToSee: true }) });
 
 		await page.getByRole('button', { name: m.favourite.remove }).click();
 
 		expect(setFavourite).toHaveBeenCalledWith('artwork-42', false);
 		await expect.element(page.getByText(m.favourite.removed)).toBeVisible();
+		await page.getByRole('button', { name: m.wantToSee.remove }).click();
+		expect(setWantToSee).toHaveBeenCalledWith('artwork-42', false);
+		await expect.element(page.getByText(m.wantToSee.removed)).toBeVisible();
 	});
 
 	it('puts the heart back and says so when the save fails', async () => {

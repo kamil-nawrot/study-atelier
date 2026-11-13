@@ -136,6 +136,7 @@ Table artworks {
   era_code text
   year_from integer
   favourite boolean [not null, default: `false`]
+  want_to_see boolean [not null, default: `false`]
 
   indexes {
     (id, owner_id) [unique]
@@ -173,8 +174,10 @@ Table author_details {
 Table catalogue_museums {
   wikidata_id text [pk]
   name text [not null]
-  english_name text
+  alias text
   country_code text [not null]
+  latitude "double precision" [not null]
+  longitude "double precision" [not null]
 
   indexes {
     `lower(name)` [name: 'catalogue_museums_name_key', unique]
@@ -363,6 +366,9 @@ Table location_details {
   place_type text
   updated_at "timestamp with time zone" [not null, default: `now()`]
   catalogue_wikidata_id text
+  latitude "double precision"
+  longitude "double precision"
+  wikidata_id text
   Note: 'RLS on'
 }
 
@@ -485,6 +491,7 @@ Table review_log {
   due_before "timestamp with time zone"
   guessed_year integer
   year_miss integer
+  wrong_answer text
 
   indexes {
     (artwork_id, reviewed_at) [name: 'review_log_artwork_id_reviewed_at_idx']

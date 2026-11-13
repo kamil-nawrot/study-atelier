@@ -252,6 +252,46 @@ export type Database = {
           },
         ];
       };
+      artwork_relations: {
+        Row: {
+          created_at: string;
+          from_id: string;
+          kind: string;
+          owner_id: string;
+          to_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          from_id: string;
+          kind: string;
+          owner_id?: string;
+          to_id: string;
+        };
+        Update: {
+          created_at?: string;
+          from_id?: string;
+          kind?: string;
+          owner_id?: string;
+          to_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "artwork_relations_from_id_owner_id_fkey";
+            columns: ["from_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "artwork_relations_to_id_owner_id_fkey";
+            columns: ["to_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
+      };
       artwork_types: {
         Row: {
           code: string;
@@ -319,6 +359,7 @@ export type Database = {
           title: string;
           type_code: string | null;
           updated_at: string;
+          want_to_see: boolean;
           year_approximate: boolean;
           year_from: number | null;
           year_to: number | null;
@@ -337,6 +378,7 @@ export type Database = {
           title: string;
           type_code?: string | null;
           updated_at?: string;
+          want_to_see?: boolean;
           year_approximate?: boolean;
           year_from?: number | null;
           year_to?: number | null;
@@ -354,6 +396,7 @@ export type Database = {
           title?: string;
           type_code?: string | null;
           updated_at?: string;
+          want_to_see?: boolean;
           year_approximate?: boolean;
           year_from?: number | null;
           year_to?: number | null;
@@ -453,23 +496,72 @@ export type Database = {
           },
         ];
       };
+      author_relations: {
+        Row: {
+          category_code: string;
+          created_at: string;
+          from_id: string;
+          kind: string;
+          owner_id: string;
+          to_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          category_code?: string;
+          created_at?: string;
+          from_id: string;
+          kind: string;
+          owner_id?: string;
+          to_id: string;
+        };
+        Update: {
+          category_code?: string;
+          created_at?: string;
+          from_id?: string;
+          kind?: string;
+          owner_id?: string;
+          to_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "author_relations_from_id_owner_id_category_code_fkey";
+            columns: ["from_id", "owner_id", "category_code"];
+            isOneToOne: false;
+            referencedRelation: "category_values";
+            referencedColumns: ["id", "owner_id", "category_code"];
+          },
+          {
+            foreignKeyName: "author_relations_to_id_owner_id_category_code_fkey";
+            columns: ["to_id", "owner_id", "category_code"];
+            isOneToOne: false;
+            referencedRelation: "category_values";
+            referencedColumns: ["id", "owner_id", "category_code"];
+          },
+        ];
+      };
       catalogue_museums: {
         Row: {
+          alias: string | null;
           country_code: string;
-          english_name: string | null;
+          latitude: number;
+          longitude: number;
           name: string;
           wikidata_id: string;
         };
         ComputedFields: never;
         Insert: {
+          alias?: string | null;
           country_code: string;
-          english_name?: string | null;
+          latitude: number;
+          longitude: number;
           name: string;
           wikidata_id: string;
         };
         Update: {
+          alias?: string | null;
           country_code?: string;
-          english_name?: string | null;
+          latitude?: number;
+          longitude?: number;
           name?: string;
           wikidata_id?: string;
         };
@@ -862,35 +954,44 @@ export type Database = {
           catalogue_wikidata_id: string | null;
           category_code: string;
           country_code: string | null;
+          latitude: number | null;
+          longitude: number | null;
           notes: string | null;
           owner_id: string;
           place_type: string | null;
           summary: string | null;
           updated_at: string;
           value_id: string;
+          wikidata_id: string | null;
         };
         ComputedFields: never;
         Insert: {
           catalogue_wikidata_id?: string | null;
           category_code?: string;
           country_code?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
           notes?: string | null;
           owner_id?: string;
           place_type?: string | null;
           summary?: string | null;
           updated_at?: string;
           value_id: string;
+          wikidata_id?: string | null;
         };
         Update: {
           catalogue_wikidata_id?: string | null;
           category_code?: string;
           country_code?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
           notes?: string | null;
           owner_id?: string;
           place_type?: string | null;
           summary?: string | null;
           updated_at?: string;
           value_id?: string;
+          wikidata_id?: string | null;
         };
         Relationships: [
           {
@@ -1309,6 +1410,7 @@ export type Database = {
           owner_id: string;
           rating: number;
           reviewed_at: string;
+          wrong_answer: string | null;
           year_miss: number | null;
         };
         ComputedFields: never;
@@ -1324,6 +1426,7 @@ export type Database = {
           owner_id?: string;
           rating: number;
           reviewed_at?: string;
+          wrong_answer?: string | null;
           year_miss?: number | null;
         };
         Update: {
@@ -1338,6 +1441,7 @@ export type Database = {
           owner_id?: string;
           rating?: number;
           reviewed_at?: string;
+          wrong_answer?: string | null;
           year_miss?: number | null;
         };
         Relationships: [
@@ -1839,6 +1943,7 @@ export type Database = {
           existing_id?: string;
           field_entries?: Json;
           images?: Json;
+          relations?: Json;
           values_by_category: Json;
         };
         Returns: {
@@ -1880,6 +1985,15 @@ export type Database = {
       set_period_eras: {
         Args: { era_codes: string[]; move_to?: string; target_period: string };
         Returns: number;
+      };
+      set_place_point: {
+        Args: {
+          latitude: number;
+          longitude: number;
+          place: string;
+          wikidata_id?: string;
+        };
+        Returns: undefined;
       };
       set_style_periods: {
         Args: { period_ids: string[]; target_style: string };

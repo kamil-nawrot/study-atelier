@@ -1,1 +1,1 @@
-export type FlagField = 'favourites' | 'seen';
+export type FlagField = 'favourites' | 'seen' | 'wantToSee';

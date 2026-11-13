@@ -1,3 +1,4 @@
+import type { ArtworkRelationEntry } from '#lib/artwork-relations/types/artwork-relation-entry.ts';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts';
 import type { EraCode } from '#lib/catalogue/types/era-code.ts';
@@ -22,4 +23,5 @@ export type ArtworkInput = {
 	image: ArtworkImageInput | null;
 	images: ArtworkImageInput[];
 	own?: OwnEntries;
+	relations?: ArtworkRelationEntry[];
 };

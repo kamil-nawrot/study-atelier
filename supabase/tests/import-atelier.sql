@@ -27,6 +27,7 @@ begin
   insert into public.artwork_fields (name, kind) values ('Wykład', 'list') returning id into lecture;
   insert into public.artwork_fields (name, kind) values ('Widziane', 'flag');
   insert into public.category_values (category_code, name) values (lecture::text, 'Lecture 1');
+  insert into public.category_values (category_code, name) values ('author', 'Fabritius');
 
   select id into first_artwork from public.save_artwork(
     '{"title": "Girl", "author_unknown": false, "era_code": "early_modern"}',
@@ -44,6 +45,11 @@ begin
   select id into second_artwork from public.save_artwork('{"title": "Milkmaid", "author_unknown": true}', '{}', null, null);
   select id into third_artwork from public.save_artwork('{"title": "Trashed", "author_unknown": true}', '{}', null, null);
   update public.artworks set deleted_at = now() where id = third_artwork;
+  insert into public.artwork_relations (from_id, to_id, kind) values (first_artwork, second_artwork, 'study');
+  insert into public.artwork_relations (from_id, to_id, kind)
+    values (least(second_artwork, third_artwork), greatest(second_artwork, third_artwork), 'related');
+  insert into public.author_relations (from_id, to_id, kind)
+    select vermeer, id, 'influence' from public.category_values where name = 'Fabritius';
 
   insert into public.artwork_field_entries (artwork_id, field_id, field_kind)
     select first_artwork, id, 'flag' from public.artwork_fields where name = 'Widziane';
@@ -93,6 +99,7 @@ declare
     'artworks', 'artwork_images', 'glossary_entries', 'symbols', 'symbol_meanings', 'artwork_pins', 'artwork_fields',
     'category_values', 'artwork_values', 'period_eras', 'style_periods', 'author_details',
     'period_details', 'style_details', 'material_details', 'location_details', 'era_details',
+    'artwork_relations', 'author_relations',
     'artwork_field_entries', 'symbol_meaning_contexts', 'timeline_events', 'visits', 'visit_artworks', 'exhibitions', 'review_cards', 'review_log'
   ];
   table_name text;
@@ -204,6 +211,22 @@ begin
   assert (select meaning.text from public.artwork_pins as pin
       join public.symbol_meanings as meaning on meaning.id = pin.symbol_meaning_id) = 'vanity',
     'a pin does not follow the new symbol and meaning';
+
+  assert (select count(*) from public.artwork_relations) = 2,
+    'the relations of the artworks do not come back';
+  assert (select bool_and(from_id < to_id) from public.artwork_relations where kind = 'related'),
+    'a symmetric relation does not keep the order of its new ids';
+  assert (select target.title from public.artwork_relations as relation
+      join public.artworks as source on source.id = relation.from_id
+      join public.artworks as target on target.id = relation.to_id
+      where relation.kind = 'study') = 'Milkmaid' and (select source.title from public.artwork_relations as relation
+      join public.artworks as source on source.id = relation.from_id where relation.kind = 'study') = 'Girl',
+    'a relation does not follow the new ids of its artworks';
+  assert (select target.name from public.author_relations as relation
+      join public.category_values as source on source.id = relation.from_id
+      join public.category_values as target on target.id = relation.to_id
+      where source.name = 'Vermeer' and relation.kind = 'influence') = 'Fabritius',
+    'a relation of authors does not follow the new ids of its authors';
 
   select * into saved from public.save_artwork('{"title": "New", "author_unknown": true}', '{}', null, null);
   assert saved.record_number = 4, 'the next record number does not follow the imported ones';

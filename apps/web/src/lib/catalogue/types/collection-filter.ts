@@ -5,6 +5,7 @@ import type { MissingData } from './missing-data.ts';
 export type CollectionFilter = {
 	favourites: boolean;
 	seen: boolean;
+	wantToSee: boolean;
 	eras: EraCode[];
 	types: ArtworkTypeCode[];
 	yearFrom: number | null;

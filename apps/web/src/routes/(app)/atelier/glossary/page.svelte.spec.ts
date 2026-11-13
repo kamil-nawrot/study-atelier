@@ -3,7 +3,7 @@ import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
 import { m } from '#lib/i18n/i18n.ts';
-import { GLOSSARY_SEARCH_MIN_ENTRIES } from '#lib/glossary/glossary/glossary.ts';
+import { GLOSSARY_INDEX_MIN_ENTRIES } from '#lib/glossary/glossary/glossary.ts';
 import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 import type { AtlasSymbol } from '#lib/symbols/types/atlas-symbol.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
@@ -54,7 +54,7 @@ describe('glossary page', () => {
 
 	it('lists the newest entries first without letters when sorted by the date of adding', async () => {
 		renderGlossary([
-			...manyEntries(GLOSSARY_SEARCH_MIN_ENTRIES),
+			...manyEntries(GLOSSARY_INDEX_MIN_ENTRIES),
 			testEntry('apse', 'Apsyda', { createdAt: '2026-11-05T10:00:00Z' })
 		]);
 
@@ -112,7 +112,7 @@ describe('glossary page', () => {
 			.toBeGreaterThan(search.bottom);
 	});
 
-	it('shows the title, the lead and the add button as the one primary action', async () => {
+	it('shows the title, the lead and the add button in the tab', async () => {
 		renderGlossary();
 
 		await expect
@@ -120,8 +120,11 @@ describe('glossary page', () => {
 			.toHaveTextContent(m.glossary.title);
 		await expect.element(page.getByText(m.glossary.lead)).toBeVisible();
 		await expect
-			.element(page.getByRole('link', { name: m.glossary.add }))
+			.element(page.getByRole('tabpanel').getByRole('link', { name: m.glossary.add }))
 			.toHaveAttribute('href', '/atelier/glossary/new');
+		await expect
+			.element(page.getByRole('banner').getByRole('link', { name: m.glossary.add }))
+			.not.toBeInTheDocument();
 	});
 
 	it('counts every entry next to the title, whatever the filter shows', async () => {
@@ -135,7 +138,7 @@ describe('glossary page', () => {
 	});
 
 	it('puts the search field before the categories', async () => {
-		renderGlossary(manyEntries(GLOSSARY_SEARCH_MIN_ENTRIES));
+		renderGlossary(manyEntries(GLOSSARY_INDEX_MIN_ENTRIES));
 
 		const search = page.getByRole('searchbox', { name: m.glossary.search }).element();
 		const categories = page.getByRole('list', { name: m.glossary.categories }).element();
@@ -201,13 +204,17 @@ describe('glossary page', () => {
 			.toBeDisabled();
 	});
 
-	it('shows a search field only from twenty entries and filters by name', async () => {
-		renderGlossary(manyEntries(GLOSSARY_SEARCH_MIN_ENTRIES - 1));
-		expect(page.getByRole('searchbox').elements()).toHaveLength(0);
+	it('shows the search field and the order however few entries there are', async () => {
+		renderGlossary([testEntry('apse', 'Apsyda')]);
+
+		await expect.element(page.getByRole('searchbox', { name: m.glossary.search })).toBeVisible();
+		await expect
+			.element(page.getByRole('combobox', { name: m.glossary.sortLabel }))
+			.toBeInTheDocument();
 	});
 
-	it('searches by part of a name once there are twenty entries', async () => {
-		renderGlossary(manyEntries(GLOSSARY_SEARCH_MIN_ENTRIES));
+	it('searches by part of a name', async () => {
+		renderGlossary(manyEntries(GLOSSARY_INDEX_MIN_ENTRIES));
 
 		await userEvent.fill(page.getByRole('searchbox', { name: m.glossary.search }), 'tymp');
 
@@ -240,7 +247,7 @@ describe('glossary page', () => {
 	});
 
 	it('offers no index of letters below twenty entries', async () => {
-		renderGlossary(manyEntries(GLOSSARY_SEARCH_MIN_ENTRIES - 1));
+		renderGlossary(manyEntries(GLOSSARY_INDEX_MIN_ENTRIES - 1));
 
 		await expect.element(entryLink('Tympanum')).toBeInTheDocument();
 		await expect
@@ -249,7 +256,7 @@ describe('glossary page', () => {
 	});
 
 	it('keeps in the index only the letters the search leaves', async () => {
-		renderGlossary([...manyEntries(GLOSSARY_SEARCH_MIN_ENTRIES), testEntry('apse', 'Apsyda')]);
+		renderGlossary([...manyEntries(GLOSSARY_INDEX_MIN_ENTRIES), testEntry('apse', 'Apsyda')]);
 
 		await page.getByRole('searchbox').fill('a');
 		const index = page.getByRole('navigation', { name: m.glossary.letters });
@@ -299,7 +306,7 @@ describe('glossary page', () => {
 				session: testSession(),
 				symbols: [],
 				symbolsError: undefined,
-				entries: manyEntries(GLOSSARY_SEARCH_MIN_ENTRIES)
+				entries: manyEntries(GLOSSARY_INDEX_MIN_ENTRIES)
 			},
 			params: {}
 		});
@@ -312,7 +319,7 @@ describe('glossary page', () => {
 				session: testSession(),
 				symbols: [],
 				symbolsError: undefined,
-				entries: manyEntries(GLOSSARY_SEARCH_MIN_ENTRIES)
+				entries: manyEntries(GLOSSARY_INDEX_MIN_ENTRIES)
 			},
 			params: {}
 		});
@@ -403,8 +410,11 @@ describe('glossary page', () => {
 				.toHaveTextContent(`${m.symbols.details(3)} · ${m.symbols.meanings(2)}`);
 			await expect.element(page.getByText(m.symbols.count(2))).toBeVisible();
 			await expect
-				.element(page.getByRole('link', { name: m.symbols.add }))
+				.element(page.getByRole('tabpanel').getByRole('link', { name: m.symbols.add }))
 				.toHaveAttribute('href', '/atelier/glossary/symbols/new');
+			await expect
+				.element(page.getByRole('link', { name: m.glossary.add }))
+				.not.toBeInTheDocument();
 		});
 
 		it('finds a symbol by name and sorts by the number of details', async () => {

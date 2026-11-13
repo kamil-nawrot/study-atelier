@@ -105,7 +105,8 @@ declare
     'duplicate_candidates', 'used_category_values', 'learner_points', 'unlock_exhibits', 'record_free_answers',
     'career_standing', 'note_link_mentions', 'note_link_labels', 'note_link_suggestions', 'atelier_empty',
     'collection_statistics', 'record_right_answer', 'note_gap_artwork', 'artwork_field_type_impact',
-    'mastered_artworks', 'save_exhibition', 'record_night_light', 'record_long_look', 'save_symbol', 'symbol_atlas'
+    'mastered_artworks', 'save_exhibition', 'record_night_light', 'record_long_look', 'save_symbol', 'symbol_atlas',
+    'set_place_point'
   ];
   table_name text;
   routine record;
@@ -268,6 +269,13 @@ insert into public.style_details (value_id, summary)
 insert into public.location_details (value_id, place_type)
   select id, 'museum' from public.category_values where name = 'Visited museum';
 insert into public.feedback (kind, title) values ('idea', 'Owner A idea');
+select public.save_artwork('{"title": "Owner A study", "author_unknown": true}', '{}', null, null, null,
+  jsonb_build_array(jsonb_build_object('kind', 'study', 'side', 'from', 'artwork_id',
+    (select id from public.artworks where title = 'Owner A work'))));
+insert into public.author_relations (from_id, to_id, kind)
+  select pupil.id, teacher.id, 'pupil'
+    from public.category_values as pupil, public.category_values as teacher
+    where pupil.name = 'Sculptor' and teacher.name = 'Painter';
 
 reset role;
 
@@ -305,7 +313,7 @@ declare
   table_name text;
   writable_column text;
 begin
-  select id into a_artwork from public.artworks where owner_id = a;
+  select id into a_artwork from public.artworks where owner_id = a and title = 'Owner A work';
   select id into a_image from public.artwork_images where owner_id = a limit 1;
   select id into a_value from public.category_values where owner_id = a and category_code = 'period';
   select id into a_unlinked from public.category_values where owner_id = a and name = 'Unlinked';
@@ -344,6 +352,8 @@ begin
   assert (select count(*) from public.artwork_values) = 0, 'B reads artwork values of A';
   assert (select count(*) from public.artwork_images) = 0, 'B reads artwork images of A';
   assert (select count(*) from public.artwork_pins) = 0, 'B reads pins of A';
+  assert (select count(*) from public.artwork_relations) = 0, 'B reads relations of artworks of A';
+  assert (select count(*) from public.author_relations) = 0, 'B reads relations of authors of A';
   assert (select count(*) from public.period_eras) = 0, 'B reads period eras of A';
   assert (select count(*) from public.style_periods) = 0, 'B reads style periods of A';
   assert (select count(*) from public.period_details) = 0, 'B reads period details of A';
@@ -381,7 +391,7 @@ begin
   assert not (select has_content from public.value_page_content(a_value)),
     'B sees the page content of a value of A';
   assert (select count(*) from public.eras) = 6, 'B cannot read the shared eras';
-  assert (select count(*) from public.exhibit_rooms) = 7 and (select count(*) from public.exhibits) = 32,
+  assert (select count(*) from public.exhibit_rooms) = 7 and (select count(*) from public.exhibits) = 36,
     'B cannot read the shared exhibit catalogue';
   assert (select count(*) from public.review_cards) = 0, 'B reads review cards of A';
   assert (select count(*) from public.review_log) = 0, 'B reads the review log of A';
@@ -547,6 +557,7 @@ begin
     'select public.save_symbol(''Mine'', ''[]'', %L)', a_symbol)),
     'B renames a symbol of A through save_symbol';
   assert (select count(*) from public.symbol_atlas()) = 0, 'B sees the symbol atlas of A';
+  perform public.set_place_point(a_place, 48.86, 2.34, 'Q19675');
   assert security_test.denied(format(
     'insert into public.exhibitions (owner_id, title) values (%L, ''Forged'')', a)),
     'B inserts an exhibition owned by A';
@@ -800,6 +811,10 @@ begin
   assert not exists (select 1 from public.location_details as details
       join public.category_values as value on value.id = details.value_id where value.name = 'Cellar'),
     'a place missing from the catalogue gets details';
+  assert not exists (select 1 from public.location_details as details
+      join public.category_values as value on value.id = details.value_id
+      where value.name = 'Visited museum' and details.latitude is not null),
+    'B sets the point of a place of A through set_place_point';
   assert (select count(*) from public.catalogue_museums) > 100, 'A does not read the museum catalogue';
   assert security_test.denied('insert into public.announcements (body) values (''Forged'')'),
     'A adds an announcement';
@@ -970,6 +985,8 @@ begin
   assert security_test.denied('select public.record_free_answers(now(), 1)'), 'anon executes record_free_answers';
   assert security_test.denied('select public.record_night_light(''UTC'')'), 'anon executes record_night_light';
   assert security_test.denied('select public.record_long_look()'), 'anon executes record_long_look';
+  assert security_test.denied(format('select public.set_place_point(%L, 0, 0)', gen_random_uuid())),
+    'anon executes set_place_point';
   assert security_test.denied('select public.record_right_answer(now())'), 'anon executes record_right_answer';
   assert security_test.denied('select public.save_era_details(''antiquity'', ''{}'')'),
     'anon executes save_era_details';
