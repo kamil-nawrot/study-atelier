@@ -34,12 +34,15 @@ describe('AuthorRelationsField', () => {
 			page.getByRole('combobox', { name: m.authorRelations.type }),
 			m.authorRelations.types.pupilFrom
 		);
-		await userEvent.fill(page.getByRole('searchbox', { name: m.authorRelations.search }), 'verr');
-		await userEvent.click(page.getByRole('button', { name: verrocchio.name }));
+		await userEvent.fill(page.getByRole('combobox', { name: m.authorRelations.search }), 'verr');
+		await userEvent.click(page.getByRole('option', { name: verrocchio.name }));
 
 		await expect
 			.element(page.getByRole('button', { name: m.authorRelations.remove(verrocchio.name) }))
-			.toHaveFocus();
+			.toBeVisible();
+		expect(
+			page.getByRole('option', { name: m.authorRelations.choose, includeHidden: true }).element()
+		).toBeDisabled();
 		expect(rows()).toEqual([{ key: expect.any(String), type: 'pupilFrom', author: verrocchio }]);
 	});
 
@@ -47,39 +50,42 @@ describe('AuthorRelationsField', () => {
 		field([{ key: 'raphael', type: 'influenceTo', author: raphael }]);
 
 		await userEvent.click(page.getByRole('button', { name: m.authorRelations.add }));
-		await userEvent.fill(page.getByRole('searchbox', { name: m.authorRelations.search }), 'a');
+		await userEvent.fill(page.getByRole('combobox', { name: m.authorRelations.search }), 'a');
 
-		await expect.element(page.getByRole('button', { name: verrocchio.name })).toBeVisible();
-		expect(page.getByRole('button', { name: 'Leonardo da Vinci' }).query()).toBeNull();
-		expect(page.getByRole('button', { name: 'Raphael', exact: true }).query()).toBeNull();
+		await expect.element(page.getByRole('option', { name: verrocchio.name })).toBeVisible();
+		expect(page.getByRole('option', { name: 'Leonardo da Vinci' }).query()).toBeNull();
+		expect(page.getByRole('option', { name: 'Raphael', exact: true }).query()).toBeNull();
 	});
 
 	it('says when no author matches', async () => {
 		field([]);
 
 		await userEvent.click(page.getByRole('button', { name: m.authorRelations.add }));
-		await userEvent.fill(page.getByRole('searchbox', { name: m.authorRelations.search }), 'zz');
+		await userEvent.fill(page.getByRole('combobox', { name: m.authorRelations.search }), 'zz');
 
 		await expect.element(page.getByText(m.authorRelations.noMatch)).toBeVisible();
 	});
 
-	it('removes a row and shows the error of the section', async () => {
+	it('marks only the missing part of a row and removes a row', async () => {
 		const { rows } = field(
 			[
-				{ key: 'raphael', type: 'influenceTo', author: raphael },
-				{ key: 'new', type: '', author: null }
+				{ key: 'raphael', type: '', author: raphael },
+				{ key: 'new', type: 'family', author: null }
 			],
 			m.authorRelations.authorRequired
 		);
 
 		await expect.element(page.getByText(m.authorRelations.authorRequired)).toBeVisible();
+		const [first, second] = page.getByRole('combobox', { name: m.authorRelations.type }).all();
+		await expect.element(first).toHaveAttribute('aria-invalid', 'true');
+		await expect.element(second).not.toHaveAttribute('aria-invalid');
 		await expect
-			.element(page.getByRole('searchbox', { name: m.authorRelations.search }))
+			.element(page.getByRole('combobox', { name: m.authorRelations.search }))
 			.toHaveAttribute('aria-invalid', 'true');
 		await userEvent.click(
 			page.getByRole('button', { name: m.authorRelations.removeEmpty, exact: true })
 		);
 
-		expect(rows()).toEqual([{ key: 'raphael', type: 'influenceTo', author: raphael }]);
+		expect(rows()).toEqual([{ key: 'raphael', type: '', author: raphael }]);
 	});
 });

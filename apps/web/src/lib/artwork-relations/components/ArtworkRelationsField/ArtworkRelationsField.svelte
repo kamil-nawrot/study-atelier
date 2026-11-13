@@ -11,7 +11,6 @@
 	import { emptyRelationRow } from '#lib/artwork-relations/relation-rows/relation-rows.ts';
 	import RelatedArtworkSearch from '#lib/artwork-relations/components/RelatedArtworkSearch/RelatedArtworkSearch.svelte';
 	import type { ArtworkRelationRow } from '#lib/artwork-relations/types/artwork-relation-row.ts';
-	import type { RelatedArtwork } from '#lib/artwork-relations/types/related-artwork.ts';
 
 	type Props = {
 		artworkId?: string;
@@ -45,12 +44,6 @@
 	function choose(row: ArtworkRelationRow, value: string): void {
 		row.type = isArtworkRelationType(value) ? value : '';
 	}
-
-	async function pick(row: ArtworkRelationRow, artwork: RelatedArtwork): Promise<void> {
-		row.artwork = artwork;
-		await tick();
-		document.getElementById(`${fieldId}-${row.key}-remove`)?.focus();
-	}
 </script>
 
 {#snippet addButton()}
@@ -72,31 +65,29 @@
 				<li class="row">
 					<Select
 						id="{fieldId}-{row.key}-type"
-						aria-invalid={error && row.type === '' ? true : undefined}
+						aria-invalid={error && row.type === '' && row.artwork ? true : undefined}
 						compact
 						hideLabel
 						label={m.artworkRelations.type}
 						onchange={(event) => choose(row, event.currentTarget.value)}
 						{options}
 						placeholder={m.artworkRelations.choose}
+						placeholderUntilChosen
 						value={row.type}
 					/>
-					{#if row.artwork}
-						<cite class="artwork-title">{row.artwork.title}</cite>
-					{:else}
-						<RelatedArtworkSearch
-							{excluded}
-							invalid={!!error}
-							onpick={(artwork) => pick(row, artwork)}
-						/>
-					{/if}
+					<RelatedArtworkSearch
+						{excluded}
+						invalid={!!error && row.artwork === null && row.type !== ''}
+						bind:artwork={row.artwork}
+					/>
 					<IconButton
-						id="{fieldId}-{row.key}-remove"
 						icon={X}
 						label={row.artwork
 							? m.artworkRelations.remove(row.artwork.title)
 							: m.artworkRelations.removeEmpty}
 						onclick={() => remove(row.key)}
+						tone="danger"
+						variant="plain"
 					/>
 				</li>
 			{/each}
@@ -148,12 +139,6 @@
 		grid-template-columns: 17rem minmax(0, 1fr) auto;
 		gap: var(--spacing-3);
 		align-items: start;
-	}
-
-	.row > cite {
-		align-self: center;
-		min-width: 0;
-		overflow-wrap: anywhere;
 	}
 
 	@media (max-width: 767.98px) {

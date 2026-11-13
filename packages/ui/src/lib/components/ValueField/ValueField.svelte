@@ -26,8 +26,10 @@
 		filling?: boolean;
 		hint?: string;
 		error?: string;
+		invalid?: boolean;
 		placeholder?: string;
 		id?: string;
+		onpick?: (option: ValueOption) => void;
 	};
 
 	let {
@@ -44,12 +46,14 @@
 		filling = false,
 		hint,
 		error,
+		invalid = false,
 		placeholder,
-		id
+		id,
+		onpick
 	}: Props = $props();
 
 	const texts = uiMessages().valueField;
-	const kinds: ValueOption['kind'][] = ['similar', 'existing', 'starter', 'new'];
+	const kinds: ValueOption['kind'][] = ['found', 'similar', 'existing', 'starter', 'new'];
 
 	const generatedId = $props.id();
 	const inputId = $derived(id ?? generatedId);
@@ -87,6 +91,7 @@
 
 	async function pick(option: ValueOption, keyboard = false): Promise<void> {
 		values = single ? [option.name] : [...values, option.name];
+		onpick?.(option);
 		query = '';
 		if (single) {
 			open = false;
@@ -170,6 +175,19 @@
 	</li>
 {/snippet}
 
+{#snippet group(members: ValueOption[], name: string, title: string)}
+	{#if members.length > 0}
+		<li role="presentation">
+			<ul aria-labelledby={`${listId}-${name}`} role="group">
+				<li id={`${listId}-${name}`} class="group" role="presentation">{title}</li>
+				{#each members as option (option.id ?? option.name)}
+					{@render item(option, option.name, option.note)}
+				{/each}
+			</ul>
+		</li>
+	{/if}
+{/snippet}
+
 <div class="field">
 	<label class:visually-hidden={labelHidden} for={inputId}>{label}</label>
 	<div
@@ -177,7 +195,7 @@
 		class="control"
 		class:disabled={inactive}
 		class:filling
-		class:invalid={!!error}
+		class:invalid={!!error || invalid}
 		aria-busy={filling || undefined}
 		onpointerdown={onfieldpointerdown}
 		role="presentation"
@@ -206,7 +224,7 @@
 			aria-controls={listId}
 			aria-describedby={message ? messageId : undefined}
 			aria-expanded={expanded}
-			aria-invalid={error ? true : undefined}
+			aria-invalid={error || invalid ? true : undefined}
 			autocomplete="off"
 			disabled={inactive}
 			hidden={full}
@@ -230,29 +248,14 @@
 			hidden={!expanded}
 			role="listbox"
 		>
+			{#each ordered.filter((option) => option.kind === 'found') as option (option.id ?? option.name)}
+				{@render item(option, option.name, option.note)}
+			{/each}
 			{#if similar}
 				{@render item(similar, texts.similar(similar.name), texts.useSimilar)}
 			{/if}
-			{#if existing.length > 0}
-				<li role="presentation">
-					<ul aria-labelledby={`${listId}-existing`} role="group">
-						<li id={`${listId}-existing`} class="group" role="presentation">{texts.existing}</li>
-						{#each existing as option (option.name)}
-							{@render item(option, option.name, option.note)}
-						{/each}
-					</ul>
-				</li>
-			{/if}
-			{#if starter.length > 0}
-				<li role="presentation">
-					<ul aria-labelledby={`${listId}-starter`} role="group">
-						<li id={`${listId}-starter`} class="group" role="presentation">{texts.starter}</li>
-						{#each starter as option (option.name)}
-							{@render item(option, option.name, option.note)}
-						{/each}
-					</ul>
-				</li>
-			{/if}
+			{@render group(existing, 'existing', texts.existing)}
+			{@render group(starter, 'starter', texts.starter)}
 			{#if added}
 				{@render item(added, similar ? texts.addAnyway(added.name) : texts.add(added.name))}
 			{/if}

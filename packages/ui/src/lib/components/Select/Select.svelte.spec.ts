@@ -131,4 +131,25 @@ describe('Select', () => {
 		await page.viewport(1280, 800);
 		await expect.poll(() => control.getBoundingClientRect().width).toBeGreaterThan(controlHeight());
 	});
+
+	it('drops the placeholder once a value is chosen when asked to', async () => {
+		render(Select, {
+			label: 'Type',
+			options: types,
+			placeholder: 'Choose a type',
+			placeholderUntilChosen: true,
+			value: 'painting'
+		});
+
+		const placeholder = page.getByRole('option', { name: 'Choose a type', includeHidden: true });
+		expect(placeholder.element()).toBeDisabled();
+	});
+
+	it('marks the control as invalid through aria-invalid without a message', async () => {
+		render(Select, { label: 'Type', options: types, 'aria-invalid': true });
+
+		const select = page.getByRole('combobox', { name: 'Type' });
+		await expect.element(select).toHaveAttribute('aria-invalid', 'true');
+		expect(select.element().closest('.control')?.classList.contains('invalid')).toBe(true);
+	});
 });

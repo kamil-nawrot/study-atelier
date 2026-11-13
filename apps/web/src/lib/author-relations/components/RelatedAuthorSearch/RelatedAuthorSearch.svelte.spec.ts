@@ -1,37 +1,47 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/i18n.ts';
+import type { RelatedAuthor } from '#lib/author-relations/types/related-author.ts';
 import RelatedAuthorSearch from './RelatedAuthorSearch.svelte';
 
 const authors = Array.from({ length: 10 }, (_, index) => ({
 	id: `author-${index}`,
-	name: `Łukasz ${index}`
+	name: `Łukasz ${index}`,
+	count: 3
 }));
 
+function search(author: RelatedAuthor | null = null): { author: () => RelatedAuthor | null } {
+	const props = $state({ author, authors, excluded: new Set(['author-0']) });
+	render(RelatedAuthorSearch, props);
+	return { author: () => props.author };
+}
+
 describe('RelatedAuthorSearch', () => {
-	it('shows nothing before a phrase is typed', async () => {
-		render(RelatedAuthorSearch, { authors, excluded: new Set<string>(), onpick: vi.fn() });
+	it('shows eight matches without diacritics and keeps only the id and name of the picked one', async () => {
+		const { author } = search();
+
+		await userEvent.fill(page.getByRole('combobox', { name: m.authorRelations.search }), 'lukasz');
+
+		await expect.element(page.getByRole('option', { name: 'Łukasz 1' })).toBeVisible();
+		expect(page.getByRole('option').elements()).toHaveLength(8);
+		await userEvent.fill(
+			page.getByRole('combobox', { name: m.authorRelations.search }),
+			'lukasz 1'
+		);
+		await userEvent.click(page.getByRole('option', { name: 'Łukasz 1' }));
 
 		await expect
-			.element(page.getByRole('searchbox', { name: m.authorRelations.search }))
+			.element(page.getByRole('button', { name: m.ui.valueField.remove('Łukasz 1') }))
 			.toBeVisible();
-		expect(page.getByRole('listitem').elements()).toHaveLength(0);
+		expect(author()).toEqual({ id: 'author-1', name: 'Łukasz 1' });
 	});
 
-	it('shows eight matches and passes on only the id and name of the picked one', async () => {
-		const onpick = vi.fn();
-		render(RelatedAuthorSearch, {
-			authors: authors.map((author) => ({ ...author, count: 3 })),
-			excluded: new Set(['author-0']),
-			onpick
-		});
+	it('says when no author matches', async () => {
+		search();
 
-		await userEvent.fill(page.getByRole('searchbox', { name: m.authorRelations.search }), 'lukasz');
+		await userEvent.fill(page.getByRole('combobox', { name: m.authorRelations.search }), 'zz');
 
-		await expect.element(page.getByRole('button', { name: 'Łukasz 1' })).toBeVisible();
-		expect(page.getByRole('listitem').elements()).toHaveLength(8);
-		await userEvent.click(page.getByRole('button', { name: 'Łukasz 1' }));
-		expect(onpick).toHaveBeenCalledWith({ id: 'author-1', name: 'Łukasz 1' });
+		await expect.element(page.getByText(m.authorRelations.noMatch)).toBeVisible();
 	});
 });
