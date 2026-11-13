@@ -147,7 +147,7 @@ reads:
       {
         requests: 0,
         whole: [],
-        note: 'new in 0.24 (ADR-0282); as R07, with the artworks and visits gathered through the places of the city'
+        note: 'new in 0.23 (ADR-0282); as R07, with the artworks and visits gathered through the places of the city'
       }
 
   - id: R08
@@ -546,12 +546,12 @@ reads:
   - id: R33
     name: Map
     route: /atelier/map
-    shows: 'every city with artworks at places with a point, as a circle with a count, gold when seen; a city panel with its places and thumbnails; the places without a point for "Uzupełnij położenie"'
+    shows: 'every city with artworks at places with a point, as a circle with a count, gold when seen; a read-only city panel with its places and thumbnails, leading to the city page; from 0.23 no fill-in mode and no places without a point (ADR-0282)'
     needs:
       - 'places: all location values with their point (value id, name, latitude, longitude, place type, country)'
       - 'visit_artworks: artwork ids seen in person (as for the wall filter "Widziane na żywo")'
       - 'artworks: tile columns, want_to_see and their place, from the cached collection of the wall'
-      - 'cities: derived in the browser from the bundled Natural Earth populated places, never read; from 0.24 the stored city of a place (location_details.city_id), the nearest town only for a place without a city (ADR-0282)'
+      - 'cities: derived in the browser from the bundled Natural Earth populated places, never read; from 0.23 the stored city of a place (location_details.city_id) with the point of that city, and a place without a city at its own point (ADR-0282)'
     scope: all
     frequency: view
     today:
@@ -735,8 +735,8 @@ writes:
   - id: W28
     name: Set the position of a place
     changes: [location_details.latitude, location_details.longitude, location_details.wikidata_id]
-    side_effects: [map, the count of places without a point]
-    frequency: 'write, from the place page or the fill-in mode of the map; a new place from the starter list takes its point by a trigger'
+    side_effects: [map]
+    frequency: 'write, from the place form; from 0.23 only for a city place or a place without a city, and a new place from the starter list takes its city instead of the point (ADR-0282)'
     note: 'set_place_point(place, latitude, longitude, wikidata_id) upserts the point; a trigger on visit_artworks clears want_to_see of the artworks a visit holds (ADR-0260)'
 
   - id: W29
@@ -785,7 +785,7 @@ relations:
       from: place,
       to: city,
       kind: lies_in,
-      stored: 'location_details.city_id from 0.24 (ADR-0282); before, the nearest Natural Earth town to the point'
+      stored: 'location_details.city_id from 0.23 (ADR-0282); before, the nearest Natural Earth town to the point'
     }
   - {
       from: exhibition,

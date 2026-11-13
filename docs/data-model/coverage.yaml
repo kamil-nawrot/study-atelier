@@ -492,7 +492,7 @@ alternatives:
 
   - id: M11
     name: Give a place its city
-    status: 'designed in 0.24 (ATL-711), built after ATL-709'
+    status: 'designed in 0.23 (ATL-711), built after ATL-709'
     kind: schema
     tables: [location_details]
     serves: [R08, R33, R35, W03, W32]
