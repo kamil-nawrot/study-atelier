@@ -5,15 +5,19 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import DetailLens from '#lib/pins/components/DetailLens/DetailLens.svelte';
 	import LensStrip from '#lib/pins/components/LensStrip/LensStrip.svelte';
+	import DetailMeaningMenu from '#lib/symbols/components/DetailMeaningMenu/DetailMeaningMenu.svelte';
 	import type { SymbolDetail } from '#lib/symbols/types/symbol-detail.ts';
+	import type { SymbolMeaning } from '#lib/symbols/types/symbol-meaning.ts';
 
 	type Props = {
 		details: readonly SymbolDetail[];
 		coverPinId?: string;
 		onsetcover?: (pinId: string | null) => void;
+		meanings?: readonly SymbolMeaning[];
+		onsetmeaning?: (pinId: string, meaningId: string | null) => void;
 	};
 
-	let { details, coverPinId, onsetcover }: Props = $props();
+	let { details, coverPinId, onsetcover, meanings, onsetmeaning }: Props = $props();
 </script>
 
 <div class="details">
@@ -35,20 +39,31 @@
 					<span class="title">{detail.title}</span>
 					<span class="byline">{detail.byline}</span>
 				</a>
+				{#if meanings && onsetmeaning}
+					<span class="menu" class:plain={!detail.lens}>
+						<DetailMeaningMenu
+							current={detail.meaningId}
+							{meanings}
+							onchoose={(meaningId) => onsetmeaning(detail.pinId, meaningId)}
+						/>
+					</span>
+				{/if}
 				{#if onsetcover && detail.lens}
 					{@const main = detail.pinId === coverPinId}
-					<button
-						class="star"
-						class:main
-						aria-label={main ? m.symbols.view.mainDetail : m.symbols.view.setMainDetail}
-						aria-pressed={main}
-						onclick={() => {
-							if (!main) onsetcover(detail.pinId);
-						}}
-						type="button"
-					>
-						<Icon icon={Star} size="sm" />
-					</button>
+					<span class="cut">
+						<button
+							class="star"
+							class:main
+							aria-label={main ? m.symbols.view.mainDetail : m.symbols.view.setMainDetail}
+							aria-pressed={main}
+							onclick={() => {
+								if (!main) onsetcover(detail.pinId);
+							}}
+							type="button"
+						>
+							<Icon icon={Star} size="sm" />
+						</button>
+					</span>
 				{/if}
 			</li>
 		{/each}
@@ -68,27 +83,46 @@
 		gap: var(--spacing-2);
 	}
 
+	.menu {
+		position: absolute;
+		top: calc(-1 * var(--spacing-2));
+		right: calc(50% - var(--detail-lens) / 2 - var(--spacing-2));
+	}
+
+	.menu.plain {
+		right: 0;
+	}
+
+	.cut {
+		position: absolute;
+		top: 0;
+		left: 50%;
+		width: var(--detail-lens);
+		height: var(--detail-lens);
+		clip-path: circle(50%);
+		pointer-events: none;
+		transform: translateX(-50%);
+	}
+
 	.star {
 		position: absolute;
-		top: calc(var(--detail-lens) - var(--spacing-8));
-		left: 50%;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		width: var(--spacing-8);
-		height: var(--spacing-8);
-		padding: 0;
-		border: var(--border-width-hairline) solid var(--color-line);
-		background: var(--color-bg);
-		color: var(--color-fg-muted);
+		right: 0;
+		bottom: 0;
+		left: 0;
+		display: grid;
+		place-items: center;
+		padding: var(--spacing-1) 0 var(--spacing-2);
+		border: 0;
+		background: color-mix(in srgb, var(--color-stage-bg) 60%, transparent);
+		color: color-mix(in srgb, var(--color-stage-fg) 70%, transparent);
 		cursor: pointer;
-		transform: translateX(-50%);
+		pointer-events: auto;
 	}
 
 	.star:hover,
 	.star:focus-visible,
 	.star.main {
-		color: var(--color-fg);
+		color: var(--color-stage-fg);
 	}
 
 	.star.main {
@@ -96,7 +130,7 @@
 	}
 
 	.star.main :global(svg) {
-		fill: var(--color-fg);
+		fill: currentColor;
 	}
 
 	li.plain {

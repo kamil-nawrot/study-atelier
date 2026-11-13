@@ -1634,6 +1634,7 @@ export type Database = {
         Row: {
           cover_pin_id: string | null;
           created_at: string;
+          description: string | null;
           id: string;
           name: string;
           owner_id: string;
@@ -1643,6 +1644,7 @@ export type Database = {
         Insert: {
           cover_pin_id?: string | null;
           created_at?: string;
+          description?: string | null;
           id?: string;
           name: string;
           owner_id?: string;
@@ -1651,6 +1653,7 @@ export type Database = {
         Update: {
           cover_pin_id?: string | null;
           created_at?: string;
+          description?: string | null;
           id?: string;
           name?: string;
           owner_id?: string;
@@ -1992,7 +1995,12 @@ export type Database = {
         Returns: number;
       };
       save_symbol: {
-        Args: { new_meanings: Json; new_name: string; symbol_id?: string };
+        Args: {
+          new_description?: string;
+          new_meanings: Json;
+          new_name: string;
+          symbol_id?: string;
+        };
         Returns: string;
       };
       save_value_details: {
@@ -2051,7 +2059,6 @@ export type Database = {
         Returns: {
           cover: Json;
           created_at: string;
-          first_meaning: string;
           id: string;
           meaning_count: number;
           name: string;

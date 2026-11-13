@@ -28,10 +28,11 @@ vi.mock('#lib/symbols/symbols-data/symbols-data.ts', () => ({
 	deleteSymbol: vi.fn(),
 	saveSymbol: vi.fn(),
 	searchArtworkContexts: vi.fn(),
+	setPinMeaning: vi.fn(),
 	setSymbolCover: vi.fn()
 }));
 vi.mock('#lib/symbols/symbol-page-data/symbol-page-data.ts', () => ({
-	loadSymbolForm: vi.fn()
+	loadSymbolForm: vi.fn().mockResolvedValue({ candidates: [] })
 }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
@@ -55,6 +56,16 @@ describe('symbol page', () => {
 		await expect
 			.element(page.getByRole('link', { name: m.common.edit }))
 			.toHaveAttribute('href', '/atelier/glossary/symbols/skull/edit');
+	});
+
+	it('adds a meaning from the top bar', async () => {
+		renderSymbol();
+
+		await page.getByRole('button', { name: m.symbols.meaningDialog.add }).click();
+
+		await expect
+			.element(page.getByRole('heading', { name: m.symbols.meaningDialog.newTitle }))
+			.toBeVisible();
 	});
 
 	it('asks before deleting the symbol', async () => {

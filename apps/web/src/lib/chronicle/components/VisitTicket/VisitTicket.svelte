@@ -44,6 +44,7 @@
 </script>
 
 <article class="ticket" class:header class:trip>
+	<span class="paper" aria-hidden="true"></span>
 	<div class="main">
 		<time class="date" class:year={visit.date.precision === 'year'} datetime={visit.date.on}>
 			<span class="day" aria-hidden="true">{date.main}</span>
@@ -110,14 +111,31 @@
 	.ticket {
 		position: relative;
 		display: grid;
+		isolation: isolate;
+	}
+
+	.paper {
+		--period: 32px;
+		--depth: 14px;
+		--teeth-across: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 14' preserveAspectRatio='none'%3E%3Cpolygon points='0,0 32,0 32,14 16,0 0,14'/%3E%3C/svg%3E");
+		--teeth-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 32' preserveAspectRatio='none'%3E%3Cpolygon points='0,0 14,0 0,16 14,32 0,32'/%3E%3C/svg%3E");
+
+		position: relative;
+		z-index: -1;
+		grid-area: 1 / 1;
+		background: var(--color-surface);
+		mask:
+			var(--teeth-across) left bottom / var(--period) var(--depth) repeat-x,
+			linear-gradient(currentColor, currentColor) left top / 100% calc(100% - var(--depth))
+				no-repeat;
 	}
 
 	.main {
 		display: grid;
+		grid-area: 1 / 1;
 		grid-template-columns: var(--spacing-12) minmax(0, 1fr);
 		gap: var(--spacing-4);
-		padding: var(--spacing-6);
-		background: var(--color-surface);
+		padding: var(--spacing-6) var(--spacing-6) calc(var(--spacing-6) + 14px);
 	}
 
 	.date {
@@ -232,7 +250,14 @@
 		.main {
 			grid-template-columns: var(--spacing-16) minmax(0, 1fr);
 			gap: var(--spacing-6);
-			padding: var(--spacing-8);
+			padding: var(--spacing-8) calc(var(--spacing-8) + 14px) var(--spacing-8) var(--spacing-8);
+		}
+
+		.paper {
+			mask:
+				var(--teeth-down) right top / var(--depth) var(--period) repeat-y,
+				linear-gradient(currentColor, currentColor) left top / calc(100% - var(--depth)) 100%
+					no-repeat;
 		}
 
 		.trip .main {

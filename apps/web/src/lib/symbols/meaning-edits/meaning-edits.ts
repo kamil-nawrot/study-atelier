@@ -29,11 +29,15 @@ export function withMeaning(
 	} else {
 		meanings.push({ ...newMeaning(), text: meaning.text, contexts: [...meaning.contexts] });
 	}
-	return { name: symbol.name, meanings };
+	return { name: symbol.name, description: symbol.description ?? '', meanings };
 }
 
 export function withoutMeaning(symbol: SymbolEntry, id: string): SymbolDraft {
-	return { name: symbol.name, meanings: draftsOf(symbol).filter((meaning) => meaning.id !== id) };
+	return {
+		name: symbol.name,
+		description: symbol.description ?? '',
+		meanings: draftsOf(symbol).filter((meaning) => meaning.id !== id)
+	};
 }
 
 export function withMovedMeaning(symbol: SymbolEntry, id: string, step: -1 | 1): SymbolDraft {
@@ -43,5 +47,5 @@ export function withMovedMeaning(symbol: SymbolEntry, id: string, step: -1 | 1):
 	if (index >= 0 && target >= 0 && target < meanings.length) {
 		[meanings[index], meanings[target]] = [meanings[target], meanings[index]];
 	}
-	return { name: symbol.name, meanings };
+	return { name: symbol.name, description: symbol.description ?? '', meanings };
 }

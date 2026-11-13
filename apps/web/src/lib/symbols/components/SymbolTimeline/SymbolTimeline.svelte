@@ -24,13 +24,9 @@
 						<span class="year">{tick.year}</span>
 					</li>
 				{/each}
-				{#each timeline.segments as segment (segment.from)}
-					<li
-						style:left="{segment.from}%"
-						style:width="{segment.to - segment.from}%"
-						class="segment"
-						aria-hidden="true"
-					></li>
+				<li class="line" aria-hidden="true"></li>
+				{#each timeline.breaks as left (left)}
+					<li style:left="{left}%" class="break" aria-hidden="true"></li>
 				{/each}
 				{#each timeline.placed as { detail, left } (detail.pinId)}
 					<li style:left="{left}%" class="placed">
@@ -90,10 +86,38 @@
 		border-left: var(--border-width-hairline) solid var(--color-line);
 	}
 
-	.segment {
+	.line {
 		position: absolute;
+		right: 0;
 		bottom: 0;
+		left: 0;
 		border-bottom: var(--border-width-hairline) solid var(--color-line);
+	}
+
+	.break {
+		position: absolute;
+		bottom: calc(-1 * var(--spacing-2));
+		width: var(--spacing-3);
+		height: var(--spacing-4);
+		background:
+			linear-gradient(
+					-60deg,
+					transparent calc(50% - var(--border-width-hairline)),
+					var(--color-fg-muted) calc(50% - var(--border-width-hairline)),
+					var(--color-fg-muted) calc(50% + var(--border-width-hairline)),
+					transparent calc(50% + var(--border-width-hairline))
+				)
+				left / 50% 100% no-repeat,
+			linear-gradient(
+					-60deg,
+					transparent calc(50% - var(--border-width-hairline)),
+					var(--color-fg-muted) calc(50% - var(--border-width-hairline)),
+					var(--color-fg-muted) calc(50% + var(--border-width-hairline)),
+					transparent calc(50% + var(--border-width-hairline))
+				)
+				right / 50% 100% no-repeat,
+			var(--color-bg);
+		transform: translateX(-50%);
 	}
 
 	.year {

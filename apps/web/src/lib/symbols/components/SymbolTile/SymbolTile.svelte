@@ -16,9 +16,6 @@
 <a href={resolve('/(app)/atelier/glossary/symbols/[id]', { id: symbol.id })}>
 	<span class="cover"><DetailLens lens={symbol.cover ?? emptyLens} /></span>
 	<span class="name">{symbol.name}</span>
-	{#if symbol.firstMeaning}
-		<span class="meaning">{symbol.firstMeaning}</span>
-	{/if}
 	<span class="counts">
 		{m.symbols.details(symbol.pinCount)} · {m.symbols.meanings(symbol.meaningCount)}
 	</span>
@@ -48,11 +45,6 @@
 		font-size: var(--font-size-xl);
 		font-style: italic;
 		line-height: var(--line-height-xl);
-	}
-
-	.meaning {
-		font-size: var(--font-size-sm);
-		line-height: var(--line-height-sm);
 	}
 
 	.counts {

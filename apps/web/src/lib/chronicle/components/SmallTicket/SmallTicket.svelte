@@ -53,11 +53,20 @@
 	}
 
 	.date {
+		--period: 20px;
+		--depth: 10px;
+		--teeth-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 32' preserveAspectRatio='none'%3E%3Cpolygon points='0,0 14,0 0,16 14,32 0,32'/%3E%3C/svg%3E");
+
 		display: grid;
 		align-content: center;
 		gap: var(--spacing-1);
-		padding: var(--spacing-3);
+		padding: var(--spacing-3) calc(var(--spacing-3) + var(--depth)) var(--spacing-3)
+			var(--spacing-3);
 		background: var(--color-surface);
+		mask:
+			var(--teeth-down) right top / var(--depth) var(--period) repeat-y,
+			linear-gradient(currentColor, currentColor) left top / calc(100% - var(--depth)) 100%
+				no-repeat;
 	}
 
 	.day,

@@ -76,6 +76,20 @@ begin
     'a pin keeps a removed meaning';
   assert (select symbol_id from public.artwork_pins where id = viewed_pin) = skull, 'a pin loses its symbol';
 
+  perform public.save_symbol('Skull', jsonb_build_array(jsonb_build_object('id', vanitas, 'text', 'transience')), skull,
+    '  A reminder of death.  ');
+  assert (select description from public.symbols where id = skull) = 'A reminder of death.',
+    'a symbol keeps no trimmed description';
+  perform public.save_symbol('Skull', jsonb_build_array(jsonb_build_object('id', vanitas, 'text', 'transience')), skull, ' ');
+  assert (select description from public.symbols where id = skull) is null, 'a blank description is kept';
+  rejected := false;
+  begin
+    perform public.save_symbol('Skull', jsonb_build_array(jsonb_build_object('id', vanitas, 'text', 'transience')), skull,
+      repeat('a', 2001));
+  exception when check_violation then rejected := true;
+  end;
+  assert rejected, 'a description over 2000 characters is saved';
+
   lily := public.save_symbol('Lily', jsonb_build_array(jsonb_build_object('text', 'purity')));
   select id into purity from public.symbol_meanings where symbol_id = lily;
   rejected := false;
@@ -150,7 +164,6 @@ begin
     'a deleted value keeps its labels';
 
   select * into atlas from public.symbol_atlas() where id = skull;
-  assert atlas.first_meaning = 'transience', 'the atlas misses the first meaning';
   assert atlas.meaning_count = 1 and atlas.pin_count = 2, 'the atlas counts wrong';
   assert (atlas.cover ->> 'pin_id')::uuid = viewed_pin, 'the atlas cover is not the pin with a view';
   assert (atlas.cover ->> 'own_image_url') = 'https://example.com/jerome.jpg', 'the atlas cover has no image';

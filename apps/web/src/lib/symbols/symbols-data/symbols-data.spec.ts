@@ -11,6 +11,7 @@ import {
 	loadSymbolPins,
 	saveSymbol,
 	searchArtworkContexts,
+	setPinMeaning,
 	setSymbolCover
 } from './symbols-data.ts';
 
@@ -24,6 +25,7 @@ const SKULL = '00000000-0000-4000-8000-000000000001';
 const query = {
 	select: vi.fn(),
 	delete: vi.fn(),
+	update: vi.fn(),
 	eq: vi.fn(),
 	order: vi.fn(),
 	maybeSingle: vi.fn(),
@@ -43,7 +45,8 @@ const image = {
 };
 
 function chain(result: unknown): void {
-	for (const method of ['select', 'delete', 'eq'] as const) query[method].mockReturnValue(query);
+	for (const method of ['select', 'delete', 'update', 'eq'] as const)
+		query[method].mockReturnValue(query);
 	let orders = 0;
 	query.order.mockImplementation(() => (++orders === 2 ? Promise.resolve(result) : query));
 	query.maybeSingle.mockResolvedValue(result);
@@ -65,7 +68,6 @@ describe('symbols data', () => {
 					id: SKULL,
 					name: 'Skull',
 					created_at: '2026-11-01T10:00:00Z',
-					first_meaning: 'transience',
 					meaning_count: 2,
 					pin_count: 3,
 					cover: {
@@ -83,7 +85,6 @@ describe('symbols data', () => {
 					id: 'lily',
 					name: 'Lily',
 					created_at: '2026-11-02T10:00:00Z',
-					first_meaning: null,
 					meaning_count: 0,
 					pin_count: 0,
 					cover: null
@@ -97,13 +98,11 @@ describe('symbols data', () => {
 		expect(supabase.rpc).toHaveBeenCalledWith('symbol_atlas');
 		expect(symbols[0]).toMatchObject({
 			id: SKULL,
-			firstMeaning: 'transience',
 			meaningCount: 2,
 			pinCount: 3,
 			cover: { crop: 'https://storage.test/crop' }
 		});
 		expect(symbols[1].cover).toBeUndefined();
-		expect(symbols[1].firstMeaning).toBeUndefined();
 	});
 
 	it('reports an atlas that did not load', async () => {
@@ -216,6 +215,7 @@ describe('symbols data', () => {
 		const result = await saveSymbol(
 			{
 				name: ' Skull ',
+				description: ' A reminder. ',
 				meanings: [
 					{
 						key: 'm1',
@@ -232,24 +232,37 @@ describe('symbols data', () => {
 		expect(supabase.rpc).toHaveBeenCalledWith('save_symbol', {
 			new_name: 'Skull',
 			new_meanings: [{ id: 'm1', text: 'transience', contexts: [{ glossary_entry_id: 't1' }] }],
+			new_description: 'A reminder.',
 			symbol_id: SKULL
 		});
 	});
 
 	it('tells a taken name apart from other failures', async () => {
 		vi.mocked(supabase.rpc).mockResolvedValue({ data: null, error: { code: '23505' } } as never);
-		await expect(saveSymbol({ name: 'Skull', meanings: [] })).resolves.toEqual({
+		await expect(saveSymbol({ name: 'Skull', description: '', meanings: [] })).resolves.toEqual({
 			nameTaken: true
 		});
 
 		vi.mocked(supabase.rpc).mockResolvedValue({ data: null, error: { code: '23514' } } as never);
-		await expect(saveSymbol({ name: 'Skull', meanings: [] })).resolves.toEqual({
+		await expect(saveSymbol({ name: 'Skull', description: '', meanings: [] })).resolves.toEqual({
 			error: m.symbols.errors.invalid
 		});
 		expect(supabase.rpc).toHaveBeenLastCalledWith('save_symbol', {
 			new_name: 'Skull',
 			new_meanings: []
 		});
+	});
+
+	it('moves a pin to another meaning or to none', async () => {
+		chain({ error: null });
+		query.eq.mockResolvedValue({ error: null });
+
+		await expect(setPinMeaning('pin-1', 'm2')).resolves.toEqual({});
+		expect(supabase.from).toHaveBeenCalledWith('artwork_pins');
+		expect(query.update).toHaveBeenLastCalledWith({ symbol_meaning_id: 'm2' });
+		expect(query.eq).toHaveBeenLastCalledWith('id', 'pin-1');
+		await setPinMeaning('pin-1', null);
+		expect(query.update).toHaveBeenLastCalledWith({ symbol_meaning_id: null });
 	});
 
 	it('deletes a symbol', async () => {

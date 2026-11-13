@@ -4,6 +4,7 @@ import type { SymbolDraft } from '#lib/symbols/types/symbol-draft.ts';
 import type { SymbolEntry } from '#lib/symbols/types/symbol-entry.ts';
 
 export const SYMBOL_NAME_MAX_LENGTH = 120;
+export const SYMBOL_DESCRIPTION_MAX_LENGTH = 2000;
 export const MEANING_TEXT_MAX_LENGTH = 200;
 export const MAX_MEANINGS = 10;
 export const MAX_CONTEXTS = 10;
@@ -16,12 +17,13 @@ export function newMeaning(): MeaningDraft {
 }
 
 export function emptySymbolDraft(): SymbolDraft {
-	return { name: '', meanings: [newMeaning()] };
+	return { name: '', description: '', meanings: [newMeaning()] };
 }
 
 export function symbolDraftOf(entry: SymbolEntry): SymbolDraft {
 	return {
 		name: entry.name,
+		description: entry.description ?? '',
 		meanings:
 			entry.meanings.length > 0
 				? entry.meanings.map((meaning) => ({
@@ -51,6 +53,7 @@ export function symbolDraftChanged(current: SymbolDraft, saved: SymbolDraft): bo
 	const before = filled(saved.meanings);
 	return (
 		current.name.trim() !== saved.name.trim() ||
+		current.description.trim() !== saved.description.trim() ||
 		now.length !== before.length ||
 		now.some((meaning, index) => !sameMeaning(meaning, before[index]))
 	);

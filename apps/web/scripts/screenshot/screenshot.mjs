@@ -549,7 +549,6 @@ function symbolAtlas() {
 			id: symbol.id,
 			name: symbol.name,
 			created_at: symbol.created_at,
-			first_meaning: symbol.symbol_meanings[0]?.text ?? null,
 			meaning_count: symbol.symbol_meanings.length,
 			pin_count: pins.length,
 			cover: cover

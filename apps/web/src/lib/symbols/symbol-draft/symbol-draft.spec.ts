@@ -22,6 +22,7 @@ describe('symbol draft', () => {
 		const draft = emptySymbolDraft();
 
 		expect(draft.name).toBe('');
+		expect(draft.description).toBe('');
 		expect(draft.meanings).toHaveLength(1);
 		expect(draft.meanings[0].text).toBe('');
 	});
@@ -45,6 +46,8 @@ describe('symbol draft', () => {
 		).toBe(false);
 		expect(symbolDraftChanged({ ...saved, name: ' Czaszka ' }, saved)).toBe(false);
 		expect(symbolDraftChanged({ ...saved, name: 'Czaszki' }, saved)).toBe(true);
+		expect(symbolDraftChanged({ ...saved, description: 'memento mori' }, saved)).toBe(true);
+		expect(symbolDraftChanged({ ...saved, description: ' ' }, saved)).toBe(false);
 		expect(symbolDraftChanged({ ...saved, meanings: [...saved.meanings].reverse() }, saved)).toBe(
 			true
 		);
