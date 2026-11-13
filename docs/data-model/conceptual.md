@@ -25,6 +25,7 @@ erDiagram
   OWN_FIELD ||--o{ OWN_FIELD_ENTRY : "defines"
   VISIT }o--|| VALUE : "at place"
   VISIT }o--o{ ARTWORK : "saw"
+  VISIT }o--o| VISIT : "part of trip"
   NOTE }o--|| SUBJECT : "is written about"
   NOTE }o--o{ SUBJECT : "links to"
   NOTE }o--o{ TERM : "mentions"
@@ -51,7 +52,7 @@ erDiagram
 | VALUE          | an author, period, style, material or place the learner named, with page details     | `category_values` + one `*_details` table per kind                                                                |
 | ERA            | one of the fixed eras, with the learner's summary and notes                          | `eras` + `era_details`                                                                                            |
 | OWN_FIELD      | a field the learner added to the artwork card                                        | `artwork_fields`, `categories` (own value lists)                                                                  |
-| VISIT          | a dated visit to a place, with the artworks seen                                     | `visits`, `visit_artworks`                                                                                        |
+| VISIT          | a dated visit to a place, or a trip to a city over days, with the artworks seen      | `visits`, `visit_artworks`                                                                                        |
 | TERM           | a glossary entry with name, synonyms, word forms, category, definition and source    | `glossary_entries`                                                                                                |
 | SYMBOL         | a recurring motif with a name unique for the learner and an ordered list of meanings | `symbols` (0.23, [ADR-0257](../decisions/0257-keep-symbols-with-meanings-in-context-as-a-tab-of-the-glossary.md)) |
 | MEANING        | one meaning of a symbol, a short text; general when it has no context label          | `symbol_meanings`                                                                                                 |

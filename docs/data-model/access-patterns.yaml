@@ -216,6 +216,25 @@ reads:
     frequency: view
     today: { requests: 9, whole: [artworks, card index, glossary_entries] }
 
+  - id: R34
+    name: Trip page
+    route: /atelier/chronicle/[id]
+    shows: one trip, its own artworks, its visits as small tickets, its notes with links and marked terms
+    needs:
+      - 'trip: one visits row of kind trip, with its city'
+      - 'visits: of the trip (trip_id), with place and date'
+      - 'artworks: of the trip, tile columns'
+      - 'note link labels'
+      - 'term index'
+    scope: one
+    frequency: view
+    today:
+      {
+        requests: 0,
+        whole: [],
+        note: 'new in 0.23 (ADR-0275); as R13 plus one select of the visits of the trip'
+      }
+
   - id: R14
     name: Review session
     route: /atelier/review
@@ -700,12 +719,34 @@ writes:
     frequency: 'write, from the place page or the fill-in mode of the map; a new place from the starter list takes its point by a trigger'
     note: 'set_place_point(place, latitude, longitude, wikidata_id) upserts the point; a trigger on visit_artworks clears want_to_see of the artworks a visit holds (ADR-0260)'
 
+  - id: W29
+    name: Save a trip
+    changes: [visits, visit_artworks]
+    side_effects:
+      [
+        Kronika list,
+        trip view,
+        'artworks seen in person',
+        'want_to_see cleared',
+        exhibits of places,
+        countries and seen artworks
+      ]
+    frequency: write
+    note: 'save_visit with kind trip and ends_on; refused unless the place type is city (ADR-0275)'
+
+  - id: W30
+    name: Link a visit to a trip
+    changes: [visits.trip_id]
+    side_effects: [Kronika list, trip view]
+    frequency: 'write, with the visit form (save_visit); deleting a trip sets trip_id of its visits to null'
+
 relations:
   # Every relation the app shows, whether stored or computed today.
   - { from: artwork, to: value, kind: has_value, stored: artwork_values }
   - { from: period, to: era, kind: in_era, stored: period_eras }
   - { from: style, to: period, kind: in_period, stored: style_periods }
   - { from: visit, to: place, kind: at_place, stored: visits.place_id }
+  - { from: visit, to: trip, kind: part_of_trip, stored: visits.trip_id }
   - { from: visit, to: artwork, kind: saw, stored: visit_artworks }
   - {
       from: place,
