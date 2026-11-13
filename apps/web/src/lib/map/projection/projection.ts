@@ -1,7 +1,11 @@
 import { geoMercator, type GeoProjection } from 'd3-geo';
+import type { MapBounds } from '#lib/map/types/map-bounds.ts';
 import type { PlacePoint } from '#lib/map/types/place-point.ts';
 
 const PADDING = 48;
+const NORTH_EDGE = 80;
+const SOUTH_EDGE = -60;
+const HALF_TURN = 179.9;
 const SINGLE_POINT_SPAN = 4;
 const DEFAULT_VIEW: PlacePoint[] = [
 	{ latitude: 35, longitude: -10 },
@@ -55,4 +59,21 @@ export function mapProjection(
 			[-width * 2, -height * 2],
 			[width * 3, height * 3]
 		]);
+}
+
+export function mapBounds(projection: GeoProjection): MapBounds | null {
+	const centre = -projection.rotate()[0];
+	const northWest = projection([centre - HALF_TURN, NORTH_EDGE]);
+	const southEast = projection([centre + HALF_TURN, SOUTH_EDGE]);
+	if (!northWest || !southEast) return null;
+	const [[clipLeft, clipTop], [clipRight, clipBottom]] = projection.clipExtent() ?? [
+		[-Infinity, -Infinity],
+		[Infinity, Infinity]
+	];
+	return {
+		left: Math.max(northWest[0], clipLeft),
+		top: Math.max(northWest[1], clipTop),
+		right: Math.min(southEast[0], clipRight),
+		bottom: Math.min(southEast[1], clipBottom)
+	};
 }

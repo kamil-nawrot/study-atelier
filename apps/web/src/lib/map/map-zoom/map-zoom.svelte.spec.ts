@@ -29,4 +29,25 @@ describe('MapZoom', () => {
 		zoom.reset();
 		expect(zoom.toScreen(0, 0)).toEqual([0, 0]);
 	});
+
+	it('keeps the view inside the bounds of the map', () => {
+		const zoom = new MapZoom();
+		zoom.limit({ left: -100, top: -50, right: 300, bottom: 250 }, 200, 200);
+
+		zoom.panBy(0, 500);
+		expect(zoom.y).toBe(50);
+		zoom.panBy(-1000, -1000);
+		expect([zoom.x, zoom.y]).toEqual([-100, -50]);
+		zoom.zoomAt(0, 0, 2);
+		zoom.panBy(1000, 0);
+		expect(zoom.x).toBe(200);
+	});
+
+	it('centres bounds smaller than the view', () => {
+		const zoom = new MapZoom();
+		zoom.limit({ left: 0, top: 0, right: 100, bottom: 100 }, 300, 200);
+
+		zoom.panBy(500, 500);
+		expect([zoom.x, zoom.y]).toEqual([100, 50]);
+	});
 });

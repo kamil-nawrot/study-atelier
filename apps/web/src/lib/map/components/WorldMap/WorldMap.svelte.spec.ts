@@ -142,6 +142,16 @@ describe('WorldMap', () => {
 		expect(onselect).not.toHaveBeenCalled();
 		expect(tokyoButton.style.left).toBe(before);
 		await expect.element(page.getByRole('button', { name: /^Rzym/ })).toBeInTheDocument();
+		const surface = document.querySelector('.map > svg') as SVGSVGElement;
+		const drag = (type: string, x: number): void => {
+			surface.dispatchEvent(
+				new PointerEvent(type, { bubbles: true, pointerId: 1, clientX: x, clientY: 300 })
+			);
+		};
+		drag('pointerdown', 300);
+		drag('pointermove', 340);
+		drag('pointerup', 340);
+		await expect.element(page.getByRole('button', { name: /^Watykan/ })).toBeInTheDocument();
 		await page.getByRole('button', { name: /^Watykan/ }).click();
 		expect(onselect).toHaveBeenCalledWith(vatican);
 
