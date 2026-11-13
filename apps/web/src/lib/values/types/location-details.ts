@@ -5,4 +5,5 @@ export type LocationDetails = {
 	countryCode: string | null;
 	placeType: PlaceType | null;
 	point?: PlacePoint | null;
+	wikidataId?: string | null;
 };
