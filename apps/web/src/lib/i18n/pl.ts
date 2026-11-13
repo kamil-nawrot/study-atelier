@@ -2124,9 +2124,6 @@ export const pl = {
 		},
 		emptyTitle: 'Mapa zapełni się wraz z miejscami',
 		empty: 'Gdy przy dziele wpiszesz miejsce i uzupełnisz jego położenie, zobaczysz je na mapie.',
-		emptyWantToSee:
-			'Żadne dzieło nie jest jeszcze zaznaczone do zobaczenia. Zrobisz to lornetką przy dziele.',
-		emptySeen: 'Tu zobaczysz miasta Twoich wizyt. Zapisz pierwszą wizytę w Kronice.',
 		missing: (count: number): string =>
 			`${count} ${plural(count, { one: 'miejsca', few: 'miejsc', many: 'miejsc' })} nie ma jeszcze na mapie`,
 		fillStart: 'Uzupełnij położenie',

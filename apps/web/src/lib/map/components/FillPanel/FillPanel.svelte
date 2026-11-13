@@ -23,15 +23,24 @@
 
 <section class="panel" aria-labelledby="fill-title">
 	<header>
-		<p id="fill-title" class="overline">{m.map.fill.title}</p>
-		<IconButton icon={X} label={m.map.fill.close} onclick={onclose} />
+		<div class="heading">
+			<p id="fill-title" class="overline">{m.map.fill.title}</p>
+			{#if current}
+				<h2>{current.place.name}</h2>
+				<p class="caption">{m.map.city.artworks(current.count)} · {m.map.fill.left(left)}</p>
+			{/if}
+		</div>
+		<IconButton
+			icon={X}
+			label={m.map.fill.close}
+			onclick={onclose}
+			tooltipAlign="end"
+			tooltipPlacement="bottom"
+			variant="plain"
+		/>
 	</header>
 	{#if current}
 		{#key current.place.id}
-			<div class="place">
-				<h2>{current.place.name}</h2>
-				<p class="caption">{m.map.city.artworks(current.count)} · {m.map.fill.left(left)}</p>
-			</div>
 			<p>{m.map.fill.lead(current.place.name)}</p>
 			<PlaceSuggestions name={current.place.name} {choice} {onchoose} />
 		{/key}
@@ -62,12 +71,12 @@
 
 	header {
 		display: flex;
-		align-items: center;
+		align-items: start;
 		justify-content: space-between;
 		gap: var(--spacing-4);
 	}
 
-	.place {
+	.heading {
 		display: grid;
 		gap: var(--spacing-1);
 	}
