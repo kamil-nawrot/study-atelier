@@ -1,5 +1,8 @@
 alter table public.symbols
-  add column cover_pin_id uuid references public.artwork_pins (id) on delete set null;
+  add column cover_pin_id uuid references public.artwork_pins (id) on delete set null
+    deferrable initially deferred;
+
+grant update (cover_pin_id) on public.symbols to authenticated;
 
 create index symbols_cover_pin_id_idx on public.symbols (cover_pin_id)
   where cover_pin_id is not null;

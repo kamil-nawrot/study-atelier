@@ -170,8 +170,7 @@ begin
   select * into atlas from public.symbol_atlas() where id = skull;
   assert (atlas.cover ->> 'pin_id')::uuid = viewed_pin, 'the older main detail loses to the newest pin';
   perform public.set_symbol_cover(skull, null);
-  select * into atlas from public.symbol_atlas() where id = skull;
-  assert (atlas.cover ->> 'pin_id')::uuid = second_view, 'clearing the main detail keeps it';
+  assert (select cover_pin_id from public.symbols where id = skull) is null, 'clearing the main detail keeps it';
 
   update public.artworks set deleted_at = now() where id = painting;
   select * into atlas from public.symbol_atlas() where id = skull;

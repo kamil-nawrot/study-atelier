@@ -1,4 +1,4 @@
-# 0276. Let the learner choose the main detail of a symbol and keep its contexts optional
+# 0277. Let the learner choose the main detail of a symbol and keep its contexts optional
 
 - Status: accepted
 - Date: 2026-11-13
@@ -16,7 +16,7 @@ The owner reviewed the atlas of symbols ([ADR-0257](0257-keep-symbols-with-meani
 
 ## Decision outcome
 
-- **Main detail:** a symbol has an optional `cover_pin_id`, set from the symbol's page with "Ustaw jako główny" on a detail with a crop and taken off by the same button ("Główny detal"). The atlas shows the chosen detail; without a choice, or when the chosen pin no longer belongs to the symbol, it keeps showing the newest pin with a crop. The function `set_symbol_cover` checks that the pin has the symbol and a crop.
+- **Main detail:** a symbol has an optional `cover_pin_id`, set from the symbol's page with "Ustaw jako główny" on a detail with a crop and taken off by the same button ("Główny detal"). The atlas shows the chosen detail; without a choice, or when the chosen pin no longer belongs to the symbol, it keeps showing the newest pin with a crop. The function `set_symbol_cover` checks that the pin has the symbol and a crop. The reference to the pin is checked at the end of a transaction, because the import adds symbols before their pins.
 - **Summary dropped:** the line "Na Twoich dziełach" and its counting are removed.
 - **Axis with breaks:** details whose years lie more than 500 years apart form separate groups; each group spans whole centuries, groups are joined by a dashed break of a fixed width, and the tick step grows (100, 500, 1000, … years) so that a group has at most 12 ticks.
 - **Pin card:** a symbol is shown like a glossary term: the overline "Symbol" with its icon, the name in italics, the chosen meaning and a link "Otwórz w atlasie symboli".
