@@ -66,4 +66,19 @@ describe('VisitList', () => {
 		const nested = document.querySelector('.nested');
 		expect(nested?.textContent).toContain('Louvre');
 	});
+
+	it('shows an image only on the ticket of a single visit, not of a trip', async () => {
+		render(VisitList, {
+			visits: [
+				testVisit({ id: 'louvre', place: 'Louvre', tripId: TRIP_ID, artworkIds: [lilies.id] }),
+				testTrip({ artworkIds: [lilies.id] })
+			],
+			artworks: new Map([[lilies.id, lilies]])
+		});
+
+		await expect.element(page.getByText(m.chronicle.trip.visits(1))).toBeInTheDocument();
+		const images = document.querySelectorAll('.visits img');
+		expect(images).toHaveLength(1);
+		expect(images[0].closest('.nested')).not.toBeNull();
+	});
 });

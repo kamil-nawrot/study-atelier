@@ -32,12 +32,21 @@ describe('symbolTimeline', () => {
 	it('shortens a long gap into a break so a distant detail does not stretch the axis', () => {
 		const timeline = symbolTimeline([detail('a', -30000), detail('b', 1500), detail('c', 1650)]);
 
-		expect(timeline?.segments).toHaveLength(2);
-		expect(timeline?.segments[1].from).toBeGreaterThan(timeline?.segments[0].to ?? 100);
+		const gap = timeline?.breaks[0] ?? 100;
+		expect(timeline?.breaks).toHaveLength(1);
 		expect(timeline?.ticks.length).toBeLessThan(20);
 		expect(timeline?.placed[0].left).toBe(0);
-		expect(timeline?.placed[1].left).toBeGreaterThan(timeline?.segments[0].to ?? 100);
+		expect(timeline?.placed[1].left).toBeCloseTo(gap + 2);
 		expect(timeline?.placed[2].left).toBeGreaterThan(timeline?.placed[1].left ?? 100);
+		expect(timeline?.ticks.at(-1)?.left).toBeCloseTo(100);
+	});
+
+	it('keeps a break as narrow however long the gap is', () => {
+		const near = symbolTimeline([detail('a', 1000), detail('b', 1600)]);
+		const far = symbolTimeline([detail('a', -30000), detail('b', 1600)]);
+
+		expect(near?.breaks).toEqual(far?.breaks);
+		expect(near?.breaks[0]).toBe(50);
 	});
 
 	it('uses wider tick steps for a long span', () => {

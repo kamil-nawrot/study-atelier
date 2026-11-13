@@ -9,6 +9,7 @@
 	import ContextTags from '#lib/symbols/components/ContextTags/ContextTags.svelte';
 	import SymbolDetails from '#lib/symbols/components/SymbolDetails/SymbolDetails.svelte';
 	import type { MeaningSection } from '#lib/symbols/types/meaning-section.ts';
+	import type { SymbolMeaning } from '#lib/symbols/types/symbol-meaning.ts';
 
 	type Props = {
 		section: MeaningSection;
@@ -16,6 +17,8 @@
 		pinsShown: boolean;
 		coverPinId?: string;
 		onsetcover?: (pinId: string | null) => void;
+		meanings?: readonly SymbolMeaning[];
+		onsetmeaning?: (pinId: string, meaningId: string | null) => void;
 		first?: boolean;
 		last?: boolean;
 		onedit?: () => void;
@@ -29,6 +32,8 @@
 		pinsShown,
 		coverPinId,
 		onsetcover,
+		meanings,
+		onsetmeaning,
 		first = false,
 		last = false,
 		onedit,
@@ -93,7 +98,13 @@
 			<ContextTags contexts={section.meaning.contexts} />
 		</div>
 		{#if section.details.length > 0}
-			<SymbolDetails {coverPinId} details={section.details} {onsetcover} />
+			<SymbolDetails
+				{coverPinId}
+				details={section.details}
+				{meanings}
+				{onsetcover}
+				{onsetmeaning}
+			/>
 		{:else if pinsShown}
 			<p class="empty">{m.symbols.view.noDetails}</p>
 		{/if}

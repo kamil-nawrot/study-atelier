@@ -239,6 +239,7 @@
 		type="button"
 	>
 		<span class="line"></span>
+		<span class="hit"></span>
 		<svg class="dot" aria-hidden="true" height={DOT_SIZE} viewBox="0 0 10 10" width={DOT_SIZE}>
 			<circle cx="5" cy="5" r="5" />
 		</svg>
@@ -278,12 +279,22 @@
 		border: 0;
 		background: none;
 		cursor: pointer;
+		pointer-events: none;
 	}
 
-	.mark::after {
+	.hit {
 		position: absolute;
-		inset: calc(-1 * var(--spacing-3));
-		content: '';
+		top: calc(-1 * var(--spacing-3));
+		right: calc(-1 * var(--spacing-3));
+		width: calc(10px + 2 * var(--spacing-3));
+		height: calc(10px + 2 * var(--spacing-3));
+		pointer-events: auto;
+	}
+
+	.vertical .hit {
+		top: auto;
+		bottom: calc(-1 * var(--spacing-3));
+		left: calc(-1 * var(--spacing-3));
 	}
 
 	.dot {

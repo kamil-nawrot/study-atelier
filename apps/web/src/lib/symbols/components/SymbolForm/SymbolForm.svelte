@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
-	import { Button, Form, FormActions, TextField } from '@study-atelier/ui';
+	import { Button, Form, FormActions, TextArea, TextField } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -12,6 +12,7 @@
 	import {
 		emptySymbolDraft,
 		meaningsToSave,
+		SYMBOL_DESCRIPTION_MAX_LENGTH,
 		SYMBOL_NAME_MAX_LENGTH,
 		symbolDraftChanged,
 		symbolDraftOf
@@ -65,7 +66,7 @@
 			if (!errors.check()) return;
 			const snapshot = $state.snapshot(form) as SymbolDraft;
 			const result = await saveSymbol(
-				{ name, meanings: meaningsToSave(snapshot.meanings) },
+				{ name, description: snapshot.description, meanings: meaningsToSave(snapshot.meanings) },
 				existing?.id
 			);
 			if (result.nameTaken) {
@@ -94,6 +95,15 @@
 				label={m.common.name}
 				maxlength={SYMBOL_NAME_MAX_LENGTH}
 				bind:value={form.name}
+			/>
+
+			<TextArea
+				counter
+				label={m.symbols.form.description}
+				maxRows={8}
+				maxlength={SYMBOL_DESCRIPTION_MAX_LENGTH}
+				rows={3}
+				bind:value={form.description}
 			/>
 
 			{#if !existing}

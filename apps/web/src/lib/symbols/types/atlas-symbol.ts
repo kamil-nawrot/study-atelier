@@ -4,7 +4,6 @@ export type AtlasSymbol = {
 	id: string;
 	name: string;
 	createdAt: string;
-	firstMeaning?: string;
 	meaningCount: number;
 	pinCount: number;
 	cover?: FragmentLens;

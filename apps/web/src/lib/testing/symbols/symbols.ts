@@ -65,7 +65,6 @@ export function testAtlasSymbol(extra: Partial<AtlasSymbol> = {}): AtlasSymbol {
 		id: 'skull',
 		name: 'Skull',
 		createdAt: '2026-11-01T10:00:00Z',
-		firstMeaning: 'transience, death',
 		meaningCount: 2,
 		pinCount: 3,
 		cover: testLens,

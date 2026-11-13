@@ -1364,10 +1364,11 @@ function symbolContext(position, target) {
 	return { ...empty, position, text: target.text };
 }
 
-function symbol(number, name, createdAt, meanings) {
+function symbol(number, name, createdAt, meanings, description = null) {
 	return {
 		id: symbolId(number),
 		name,
+		description,
 		created_at: createdAt,
 		symbol_meanings: meanings.map(([text, contexts], position) => ({
 			id: meaningId(number, position),
@@ -1379,10 +1380,16 @@ function symbol(number, name, createdAt, meanings) {
 }
 
 export const SYMBOLS = [
-	symbol(1, 'Czaszka', '2026-11-02T10:00:00Z', [
-		['przemijanie, śmierć', []],
-		['pokuta i życie pustelnicze', [{ text: 'św. Hieronim' }, { era: 'early_modern' }]]
-	]),
+	symbol(
+		1,
+		'Czaszka',
+		'2026-11-02T10:00:00Z',
+		[
+			['przemijanie, śmierć', []],
+			['pokuta i życie pustelnicze', [{ text: 'św. Hieronim' }, { era: 'early_modern' }]]
+		],
+		'Ludzka czaszka, najczęstszy rekwizyt martwych natur vanitas i portretów świętych pokutników.'
+	),
 	symbol(2, 'Lilia', '2026-11-05T10:00:00Z', [
 		['czystość, niewinność', [{ text: 'Zwiastowanie' }]],
 		['monarchia francuska', [{ text: 'heraldyka' }, { value: ['author', 'Maurice de Sully'] }]]

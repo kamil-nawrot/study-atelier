@@ -5,15 +5,19 @@ import { m } from '#lib/i18n/i18n.ts';
 import { testSymbol, testSymbolPage } from '#lib/testing/symbols/symbols.ts';
 import SymbolView from './SymbolView.svelte';
 
-const { setSymbolCover, saveSymbol, invalidateAll, loadSymbolForm } = vi.hoisted(() => ({
-	setSymbolCover: vi.fn(),
-	saveSymbol: vi.fn(),
-	invalidateAll: vi.fn(),
-	loadSymbolForm: vi.fn()
-}));
+const { setSymbolCover, setPinMeaning, saveSymbol, invalidateAll, loadSymbolForm } = vi.hoisted(
+	() => ({
+		setSymbolCover: vi.fn(),
+		setPinMeaning: vi.fn(),
+		saveSymbol: vi.fn(),
+		invalidateAll: vi.fn(),
+		loadSymbolForm: vi.fn()
+	})
+);
 
 vi.mock('#lib/symbols/symbols-data/symbols-data.ts', () => ({
 	setSymbolCover,
+	setPinMeaning,
 	saveSymbol,
 	searchArtworkContexts: vi.fn().mockResolvedValue([])
 }));
@@ -22,6 +26,7 @@ vi.mock('#lib/symbols/symbol-page-data/symbol-page-data.ts', () => ({ loadSymbol
 
 beforeEach(() => {
 	setSymbolCover.mockReset().mockResolvedValue({});
+	setPinMeaning.mockReset().mockResolvedValue({});
 	saveSymbol.mockReset().mockResolvedValue({ id: 'skull' });
 	invalidateAll.mockReset().mockResolvedValue(undefined);
 	loadSymbolForm.mockReset().mockResolvedValue({ candidates: [] });
@@ -39,6 +44,26 @@ describe('SymbolView', () => {
 			.element(page.getByRole('heading', { name: m.symbols.view.withoutMeaning }))
 			.toBeVisible();
 		await expect.element(page.getByRole('heading', { name: m.symbols.view.axis })).toBeVisible();
+	});
+
+	it('shows the description under the name', async () => {
+		render(SymbolView, {
+			symbol: { ...testSymbol, description: 'A reminder of death.' },
+			page: testSymbolPage()
+		});
+
+		await expect.element(page.getByText('A reminder of death.')).toBeVisible();
+	});
+
+	it('moves a detail to another meaning from its menu with a toast', async () => {
+		render(SymbolView, { symbol: testSymbol, page: testSymbolPage() });
+
+		await page.getByRole('button', { name: m.symbols.view.changeMeaning }).first().click();
+		await page.getByRole('button', { name: '1 transience, death' }).click();
+
+		expect(setPinMeaning).toHaveBeenCalledWith('pin-1', 'transience');
+		expect(invalidateAll).toHaveBeenCalled();
+		await expect.element(page.getByText(m.symbols.view.meaningChanged)).toBeVisible();
 	});
 
 	it('warns when the details did not load', async () => {
@@ -77,15 +102,16 @@ describe('SymbolView', () => {
 	});
 
 	it('adds a meaning from a dialog and says it was saved', async () => {
-		render(SymbolView, { symbol: testSymbol, page: testSymbolPage() });
+		const { component } = await render(SymbolView, { symbol: testSymbol, page: testSymbolPage() });
 
-		await page.getByRole('button', { name: m.symbols.meaningDialog.add }).click();
+		await component.addMeaning();
 		await page.getByRole('textbox', { name: m.symbols.form.meaning }).fill('danger');
 		await page.getByRole('button', { name: m.common.save }).click();
 
 		expect(saveSymbol).toHaveBeenCalledWith(
 			{
 				name: 'Skull',
+				description: '',
 				meanings: [
 					expect.objectContaining({ id: 'transience' }),
 					expect.objectContaining({ id: 'penance' }),
@@ -99,9 +125,9 @@ describe('SymbolView', () => {
 	});
 
 	it('asks for the text of a new meaning', async () => {
-		render(SymbolView, { symbol: testSymbol, page: testSymbolPage() });
+		const { component } = await render(SymbolView, { symbol: testSymbol, page: testSymbolPage() });
 
-		await page.getByRole('button', { name: m.symbols.meaningDialog.add }).click();
+		await component.addMeaning();
 		await page.getByRole('button', { name: m.common.save }).click();
 
 		await expect.element(page.getByText(m.symbols.form.meaningRequired)).toBeVisible();
@@ -163,9 +189,9 @@ describe('SymbolView', () => {
 
 	it('says why a meaning could not be saved and keeps the dialog open', async () => {
 		saveSymbol.mockResolvedValue({ error: 'Offline.' });
-		render(SymbolView, { symbol: testSymbol, page: testSymbolPage() });
+		const { component } = await render(SymbolView, { symbol: testSymbol, page: testSymbolPage() });
 
-		await page.getByRole('button', { name: m.symbols.meaningDialog.add }).click();
+		await component.addMeaning();
 		await page.getByRole('textbox', { name: m.symbols.form.meaning }).fill('danger');
 		await page.getByRole('button', { name: m.common.save }).click();
 

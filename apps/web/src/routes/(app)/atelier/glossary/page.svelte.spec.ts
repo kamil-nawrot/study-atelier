@@ -374,7 +374,6 @@ describe('glossary page', () => {
 				id: 'skull',
 				name: 'Czaszka',
 				createdAt: '2026-11-01T10:00:00Z',
-				firstMeaning: 'przemijanie, śmierć',
 				meaningCount: 2,
 				pinCount: 3
 			},
@@ -398,13 +397,12 @@ describe('glossary page', () => {
 			await page.getByRole('tab', { name: m.glossary.tabs.symbols }).click();
 		}
 
-		it('shows the atlas as lenses with the first meaning and the counts', async () => {
+		it('shows the atlas as lenses with the counts', async () => {
 			renderSymbols();
 			await openSymbols();
 
 			const skull = page.getByRole('link', { name: /Czaszka/ });
 			await expect.element(skull).toHaveAttribute('href', '/atelier/glossary/symbols/skull');
-			await expect.element(skull).toHaveTextContent('przemijanie, śmierć');
 			await expect
 				.element(skull)
 				.toHaveTextContent(`${m.symbols.details(3)} · ${m.symbols.meanings(2)}`);

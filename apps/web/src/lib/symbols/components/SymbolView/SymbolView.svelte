@@ -1,16 +1,18 @@
 <script lang="ts">
-	import { Alert, TextButton, Toast } from '@study-atelier/ui';
-	import Plus from '@lucide/svelte/icons/plus';
+	import { Alert, Toast } from '@study-atelier/ui';
 	import { invalidateAll } from '$app/navigation';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { loadSymbolForm } from '#lib/symbols/symbol-page-data/symbol-page-data.ts';
 	import {
-		canAddMeaning,
 		withMeaning,
 		withMovedMeaning,
 		withoutMeaning
 	} from '#lib/symbols/meaning-edits/meaning-edits.ts';
-	import { saveSymbol, setSymbolCover } from '#lib/symbols/symbols-data/symbols-data.ts';
+	import {
+		saveSymbol,
+		setPinMeaning,
+		setSymbolCover
+	} from '#lib/symbols/symbols-data/symbols-data.ts';
 	import MeaningDeleteDialog from '#lib/symbols/components/MeaningDeleteDialog/MeaningDeleteDialog.svelte';
 	import MeaningDialog from '#lib/symbols/components/MeaningDialog/MeaningDialog.svelte';
 	import type { SymbolContext } from '#lib/symbols/types/symbol-context.ts';
@@ -46,6 +48,10 @@
 		dialogError = undefined;
 		dialogOpen = true;
 		if (candidates.length === 0) candidates = (await loadSymbolForm()).candidates;
+	}
+
+	export function addMeaning(): Promise<void> {
+		return openDialog();
 	}
 
 	async function store(draft: SymbolDraft, message?: string): Promise<boolean> {
@@ -86,6 +92,16 @@
 		removeOpen = true;
 	}
 
+	async function setMeaning(pinId: string, meaningId: string | null): Promise<void> {
+		coverError = undefined;
+		const { error } = await setPinMeaning(pinId, meaningId);
+		if (error) coverError = error;
+		else {
+			await invalidateAll();
+			toast.show(m.symbols.view.meaningChanged);
+		}
+	}
+
 	async function setCover(pinId: string | null): Promise<void> {
 		coverError = undefined;
 		const { error } = await setSymbolCover(symbol.id, pinId);
@@ -100,6 +116,9 @@
 <header class="head">
 	<span class="overline">{m.symbols.view.overline}</span>
 	<h1>{symbol.name}</h1>
+	{#if symbol.description}
+		<p class="description">{symbol.description}</p>
+	{/if}
 </header>
 
 {#if page.detailsError}
@@ -115,11 +134,13 @@
 		{coverPinId}
 		first={index === 0}
 		last={index === page.sections.length - 1}
+		meanings={symbol.meanings}
 		number={index + 1}
 		onedit={() => openDialog(section.meaning)}
 		onmove={(step) => moveMeaning(section.meaning.id, step)}
 		onremove={() => askRemove(section.meaning)}
 		onsetcover={setCover}
+		onsetmeaning={setMeaning}
 		pinsShown={!page.detailsError}
 		{section}
 	/>
@@ -129,19 +150,16 @@
 	<p class="empty">{m.symbols.meaningDialog.noMeanings}</p>
 {/if}
 
-{#if canAddMeaning(symbol)}
-	<div class="add">
-		<TextButton inline onclick={() => openDialog()}>
-			<Plus size="14" />
-			{m.symbols.meaningDialog.add}
-		</TextButton>
-	</div>
-{/if}
-
 {#if page.withoutMeaning.length > 0}
 	<section class="rest" aria-labelledby="without-meaning">
 		<h2 id="without-meaning">{m.symbols.view.withoutMeaning}</h2>
-		<SymbolDetails {coverPinId} details={page.withoutMeaning} onsetcover={setCover} />
+		<SymbolDetails
+			{coverPinId}
+			details={page.withoutMeaning}
+			meanings={symbol.meanings}
+			onsetcover={setCover}
+			onsetmeaning={setMeaning}
+		/>
 	</section>
 {/if}
 
@@ -194,9 +212,10 @@
 		font-size: var(--font-size-sm);
 	}
 
-	.add {
-		display: flex;
-		padding: var(--spacing-4) 0;
+	.description {
+		max-width: var(--size-content-default);
+		color: var(--color-fg-muted);
+		white-space: pre-line;
 	}
 
 	.rest {

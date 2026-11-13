@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Pencil from '@lucide/svelte/icons/pencil';
+	import Plus from '@lucide/svelte/icons/plus';
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { onMount } from 'svelte';
 	import { Button, LoadFailure, Toast } from '@study-atelier/ui';
@@ -12,6 +13,7 @@
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import SymbolDeleteDialog from '#lib/symbols/components/SymbolDeleteDialog/SymbolDeleteDialog.svelte';
 	import SymbolView from '#lib/symbols/components/SymbolView/SymbolView.svelte';
+	import { canAddMeaning } from '#lib/symbols/meaning-edits/meaning-edits.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -19,6 +21,7 @@
 	const glossaryPath = resolve('/(app)/atelier/glossary');
 
 	let toast: Toast;
+	let view: ReturnType<typeof SymbolView> | undefined = $state();
 	let deleteOpen = $state(false);
 	let symbol = $derived(data.symbol);
 	let title = $derived(
@@ -45,6 +48,16 @@
 	{#snippet bar()}
 		<BackLink fallbackHref={glossaryPath} fallbackName={m.glossary.back} />
 		{#if symbol}
+			{#if canAddMeaning(symbol)}
+				<Button
+					aria-label={m.symbols.meaningDialog.add}
+					compact
+					icon={Plus}
+					onclick={() => view?.addMeaning()}
+				>
+					{m.symbols.meaningDialog.add}
+				</Button>
+			{/if}
 			<Button
 				aria-label={m.common.edit}
 				compact
@@ -72,7 +85,7 @@
 	{/snippet}
 
 	{#if symbol}
-		<SymbolView page={data} {symbol} />
+		<SymbolView bind:this={view} page={data} {symbol} />
 	{:else}
 		<LoadFailure
 			backHref={glossaryPath}

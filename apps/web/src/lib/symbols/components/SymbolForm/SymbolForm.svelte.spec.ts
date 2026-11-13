@@ -55,6 +55,7 @@ describe('SymbolForm', () => {
 		expect(saveSymbol).toHaveBeenCalledWith(
 			{
 				name: 'Keys',
+				description: '',
 				meanings: [expect.objectContaining({ text: 'power of the Church', contexts: [peter] })]
 			},
 			undefined
@@ -89,11 +90,27 @@ describe('SymbolForm', () => {
 		expect(saveSymbol).toHaveBeenCalledWith(
 			{
 				name: 'Skulls',
+				description: '',
 				meanings: [
 					expect.objectContaining({ id: 'transience' }),
 					expect.objectContaining({ id: 'penance' })
 				]
 			},
+			'skull'
+		);
+	});
+
+	it('saves the description of a symbol', async () => {
+		vi.mocked(saveSymbol).mockResolvedValue({ id: 'skull' });
+		renderForm({ ...testSymbol, description: 'A reminder.' });
+
+		const field = page.getByLabelText(m.symbols.form.description);
+		await expect.element(field).toHaveValue('A reminder.');
+		await field.fill('A reminder of death.');
+		await save();
+
+		expect(saveSymbol).toHaveBeenCalledWith(
+			expect.objectContaining({ name: 'Skull', description: 'A reminder of death.' }),
 			'skull'
 		);
 	});

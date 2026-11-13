@@ -46,6 +46,7 @@ type MeaningRow = {
 type SymbolRow = {
 	id: string;
 	name: string;
+	description: string | null;
 	cover_pin_id: string | null;
 	symbol_meanings: MeaningRow[];
 };
@@ -64,7 +65,7 @@ type PinRow = {
 const CONTEXT_COLUMNS =
 	'position, value_id, era_code, artwork_id, glossary_entry_id, text, category_values(category_code, name), artworks(record_number, title), glossary_entries(name)';
 
-const SYMBOL_COLUMNS = `id, name, cover_pin_id, symbol_meanings(id, position, text, symbol_meaning_contexts(${CONTEXT_COLUMNS}))`;
+const SYMBOL_COLUMNS = `id, name, description, cover_pin_id, symbol_meanings(id, position, text, symbol_meaning_contexts(${CONTEXT_COLUMNS}))`;
 
 const PIN_COLUMNS = `id, x, y, text, view_width, crop_path, symbol_meaning_id, artwork_images!inner(id, artwork_id, ${IMAGE_COLUMNS.join(', ')})`;
 
@@ -98,7 +99,6 @@ export async function loadSymbolAtlas(): Promise<AtlasResult> {
 				id: row.id,
 				name: row.name,
 				createdAt: row.created_at,
-				...(row.first_meaning ? { firstMeaning: row.first_meaning } : {}),
 				meaningCount: row.meaning_count,
 				pinCount: row.pin_count,
 				...(lens ? { cover: lens } : {})
@@ -111,6 +111,7 @@ function entryOf(row: SymbolRow): SymbolEntry {
 	return {
 		id: row.id,
 		name: row.name,
+		...(row.description ? { description: row.description } : {}),
 		...(row.cover_pin_id ? { coverPinId: row.cover_pin_id } : {}),
 		meanings: [...row.symbol_meanings]
 			.sort((a, b) => a.position - b.position)
@@ -201,6 +202,7 @@ export async function saveSymbol(draft: SymbolDraft, existingId?: string): Promi
 	const { data, error } = await supabase.rpc('save_symbol', {
 		new_name: draft.name.trim(),
 		new_meanings: meanings,
+		...(draft.description.trim() ? { new_description: draft.description.trim() } : {}),
 		...(existingId ? { symbol_id: existingId } : {})
 	});
 	if (error) {
@@ -245,10 +247,21 @@ export async function setSymbolCover(
 	return error ? { error: await failureMessage(error, symbolErrorMessage) } : {};
 }
 
+export async function setPinMeaning(
+	pinId: string,
+	meaningId: string | null
+): Promise<DeleteResult> {
+	const { error } = await supabase
+		.from('artwork_pins')
+		.update({ symbol_meaning_id: meaningId })
+		.eq('id', pinId);
+	return error ? { error: await failureMessage(error, symbolErrorMessage) } : {};
+}
+
 export async function createSymbolOption(
 	name: string
 ): Promise<{ symbol?: SymbolOption; error?: string }> {
-	const result = await saveSymbol({ name, meanings: [] });
+	const result = await saveSymbol({ name, description: '', meanings: [] });
 	if (result.nameTaken) return { error: m.symbols.form.nameTaken(name) };
 	if (result.error || !result.id) return { error: result.error ?? m.common.unexpectedError };
 	return { symbol: { id: result.id, name: name.trim(), meanings: [] } };
