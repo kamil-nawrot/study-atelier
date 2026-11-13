@@ -7,13 +7,22 @@
 	type Props = Omit<HTMLButtonAttributes, 'aria-label' | 'children'> & {
 		icon: LucideIcon;
 		label: string;
-		variant?: 'secondary' | 'danger';
+		variant?: 'secondary' | 'danger' | 'plain';
+		tooltipPlacement?: 'top' | 'bottom' | 'left';
+		tooltipAlign?: 'start' | 'end';
 	};
 
-	let { icon, label, variant = 'secondary', ...rest }: Props = $props();
+	let {
+		icon,
+		label,
+		variant = 'secondary',
+		tooltipPlacement,
+		tooltipAlign,
+		...rest
+	}: Props = $props();
 </script>
 
-<Tooltip text={label}>
+<Tooltip align={tooltipAlign} placement={tooltipPlacement} text={label}>
 	{#snippet children(describedby)}
 		<button
 			class="icon-button {variant}"
@@ -22,7 +31,7 @@
 			type="button"
 			{...rest}
 		>
-			<Icon {icon} size="sm" />
+			<Icon {icon} size={variant === 'plain' ? 'md' : 'sm'} />
 		</button>
 	{/snippet}
 </Tooltip>
@@ -49,7 +58,11 @@
 		color: var(--color-danger);
 	}
 
-	.icon-button:hover:not(:disabled) {
+	.plain {
+		border: none;
+	}
+
+	.icon-button:not(.plain):hover:not(:disabled) {
 		border-bottom-width: var(--border-width-heavy);
 		padding-top: calc(var(--border-width-heavy) - var(--border-width-button));
 	}

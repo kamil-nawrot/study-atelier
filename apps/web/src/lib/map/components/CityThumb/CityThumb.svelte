@@ -63,6 +63,11 @@
 		background: var(--color-mat-bg);
 	}
 
+	.thumb :global(.artwork-image) {
+		width: 100%;
+		height: 100%;
+	}
+
 	.thumb :global(img) {
 		display: block;
 		width: 100%;
