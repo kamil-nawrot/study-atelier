@@ -5,11 +5,12 @@ import { loadSymbolQuestionPins } from './symbol-questions-data.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({ supabase: { from: vi.fn() } }));
 
-const query = { select: vi.fn(), not: vi.fn() };
+const query = { select: vi.fn(), not: vi.fn(), is: vi.fn() };
 
 function answer(result: unknown): void {
 	query.select.mockReturnValue(query);
-	query.not.mockReturnValueOnce(query).mockReturnValueOnce(query).mockResolvedValueOnce(result);
+	query.not.mockReturnValue(query);
+	query.is.mockResolvedValueOnce(result);
 	vi.mocked(supabase.from).mockReturnValue(query as never);
 }
 
@@ -45,8 +46,10 @@ describe('symbol questions data', () => {
 						id: 'meaning-1',
 						text: 'Power of the Church',
 						symbol_meaning_contexts: [
-							{ glossary_entries: { name: 'Peter' } },
-							{ glossary_entries: null }
+							{ position: 2, glossary_entries: { name: 'Paul', category: 'person' } },
+							{ position: 0, glossary_entries: { name: 'Peter', category: 'person' } },
+							{ position: 1, glossary_entries: { name: 'Vanitas', category: 'general' } },
+							{ position: 3, glossary_entries: null }
 						]
 					},
 					artwork_images: image
@@ -71,11 +74,13 @@ describe('symbol questions data', () => {
 		expect(pins[0]).toMatchObject({
 			pinId: 'pin-1',
 			symbolName: 'Keys',
-			meaning: { id: 'meaning-1', text: 'Power of the Church', persons: ['Peter'] },
+			meaning: { id: 'meaning-1', text: 'Power of the Church', persons: ['Peter', 'Paul'] },
 			fragment: { artworkId: 'artwork-1', cropPath: 'owner/crop.jpg', viewWidth: 0.2 }
 		});
 		expect(pins[1].meaning).toBeUndefined();
 		expect(pins[1].fragment.text).toBe('Lily');
+		expect(query.is).toHaveBeenCalledWith('artwork_images.artworks.deleted_at', null);
+		expect(query.select.mock.calls[0][0]).toContain('artworks!inner(deleted_at)');
 	});
 
 	it('says so when the pins cannot be loaded', async () => {

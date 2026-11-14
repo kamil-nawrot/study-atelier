@@ -40,13 +40,15 @@
 
 	$effect(() => {
 		const text = phrase;
+		const leftOut = [...excluded];
 		if (text === '') {
 			found = undefined;
+			error = undefined;
 			return;
 		}
 		const controller = new AbortController();
 		const timer = setTimeout(async () => {
-			const result = await searchRelatedArtworks(text, controller.signal);
+			const result = await searchRelatedArtworks(text, leftOut, controller.signal);
 			if (controller.signal.aborted) return;
 			found = result.artworks;
 			error = result.error;

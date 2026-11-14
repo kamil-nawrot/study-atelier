@@ -50,8 +50,12 @@ export function possibleQuestions(
 	];
 	if (pin.meaning) {
 		candidates.push({ kind: 'meaning', right: pin.meaning.text, from: pool.meanings });
-		const person = pin.meaning.persons[0];
-		if (person) candidates.push({ kind: 'attribute', right: person, from: pool.persons });
+		const [person] = pin.meaning.persons;
+		if (person) {
+			const own = new Set(pin.meaning.persons.map(key));
+			const from = pool.persons.filter((name) => !own.has(key(name)));
+			candidates.push({ kind: 'attribute', right: person, from });
+		}
 	}
 	return candidates.flatMap(({ kind, right, from }) => {
 		const wrong = others(from, right, random);

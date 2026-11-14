@@ -13,6 +13,7 @@ export type GlossaryEntryResult = {
 	fragments?: TermFragment[];
 	pinnedError?: string;
 	symbolUses?: SymbolUse[];
+	symbolUsesError?: string;
 	error?: string;
 	notFound?: boolean;
 };

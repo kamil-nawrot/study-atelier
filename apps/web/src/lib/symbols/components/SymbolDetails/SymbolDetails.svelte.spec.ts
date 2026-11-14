@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/i18n.ts';
@@ -20,6 +20,20 @@ describe('SymbolDetails', () => {
 
 		await expect.element(page.getByRole('link', { name: /Saint Jerome Writing/ })).toBeVisible();
 		expect(document.querySelector('.lens')).toBeNull();
+	});
+
+	it('sets a detail as the main one and unsets the current main detail', async () => {
+		const onsetcover = vi.fn();
+		render(SymbolDetails, {
+			details: [testDetail('pin-1'), testDetail('pin-2')],
+			coverPinId: 'pin-1',
+			onsetcover
+		});
+
+		await page.getByRole('button', { name: m.symbols.view.unsetMainDetail }).click();
+		await page.getByRole('button', { name: m.symbols.view.setMainDetail }).click();
+
+		expect(onsetcover.mock.calls).toEqual([[null], ['pin-2']]);
 	});
 
 	it('keeps many details in one row that scrolls instead of wrapping', async () => {

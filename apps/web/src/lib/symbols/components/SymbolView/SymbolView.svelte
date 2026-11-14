@@ -122,7 +122,7 @@
 		if (error) pageError = error;
 		else {
 			chosen = { pinId };
-			toast.show(m.symbols.view.mainDetailSaved);
+			toast.show(pinId ? m.symbols.view.mainDetailSaved : m.symbols.view.mainDetailCleared);
 		}
 	}
 </script>

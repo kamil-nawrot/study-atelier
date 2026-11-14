@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
 import type { SymbolQuestionPin } from '#lib/symbols/types/symbol-question-pin.ts';
-import { drawnSymbolQuestions, symbolItems } from './symbol-questions.ts';
+import { drawnSymbolQuestions, possibleQuestions, symbolItems } from './symbol-questions.ts';
 
 const symbols: SymbolOption[] = ['Lily', 'Skull', 'Keys', 'Dove', 'Globe'].map((name, index) => ({
 	id: `symbol-${index}`,
@@ -52,6 +52,29 @@ describe('symbol questions', () => {
 		}
 
 		expect([...kinds].sort()).toEqual(['attribute', 'meaning', 'symbol']);
+	});
+
+	it('never offers another person of the same meaning as a wrong attribute', () => {
+		const pool = {
+			names: [],
+			meanings: [],
+			persons: ['Peter', 'Paul', 'Mary', 'John', 'Andrew']
+		};
+		const withTwo = pin('p1', {
+			meaning: { id: 'meaning-2', text: 'Meaning of Keys', persons: ['Peter', 'Paul'] }
+		});
+
+		const attribute = possibleQuestions(withTwo, pool, first).find(
+			(question) => question.kind === 'attribute'
+		);
+
+		expect(attribute?.right).toBe('Peter');
+		expect(attribute?.wrong.sort()).toEqual(['Andrew', 'John', 'Mary']);
+		expect(
+			possibleQuestions(withTwo, { ...pool, persons: pool.persons.slice(0, 4) }, first).some(
+				(question) => question.kind === 'attribute'
+			)
+		).toBe(false);
 	});
 
 	it('skips a question without four sensible answers', () => {

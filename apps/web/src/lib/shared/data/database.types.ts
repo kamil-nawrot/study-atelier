@@ -1686,11 +1686,11 @@ export type Database = {
         };
         Relationships: [
           {
-            foreignKeyName: "symbols_cover_pin_id_fkey";
-            columns: ["cover_pin_id"];
+            foreignKeyName: "symbols_cover_pin_id_owner_id_fkey";
+            columns: ["cover_pin_id", "owner_id"];
             isOneToOne: false;
             referencedRelation: "artwork_pins";
-            referencedColumns: ["id"];
+            referencedColumns: ["id", "owner_id"];
           },
         ];
       };
@@ -1944,7 +1944,7 @@ export type Database = {
         }[];
       };
       note_link_suggestions: {
-        Args: { link_trigger: string; phrase: string };
+        Args: { excluded?: string[]; link_trigger: string; phrase: string };
         Returns: {
           authors: string[];
           id: string;
