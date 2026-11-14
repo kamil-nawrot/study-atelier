@@ -53,13 +53,40 @@ export function screenBand(
 function clear(list: HTMLElement): void {
 	list.removeAttribute(DROP_UP);
 	list.removeAttribute(DROP_OVER);
-	for (const property of ['top', 'bottom', 'max-height']) list.style.removeProperty(property);
+	for (const property of ['position', 'top', 'bottom', 'left', 'right', 'width', 'max-height'])
+		list.style.removeProperty(property);
+}
+
+function placeInDialog(list: HTMLElement, parent: Element): void {
+	const anchor = parent.getBoundingClientRect();
+	const gap = parseFloat(getComputedStyle(parent).borderBottomWidth) || 0;
+	const band = screenBand(parent, anchor, false, list);
+	list.style.position = 'fixed';
+	list.style.left = `${anchor.left}px`;
+	list.style.right = 'auto';
+	list.style.width = `${anchor.width}px`;
+	list.style.top = `${anchor.bottom + gap}px`;
+	const own = list.getBoundingClientRect();
+	const below = band.bottom - anchor.bottom - gap;
+	const above = anchor.top - band.top - gap;
+	const up = own.height > below && above > below;
+	const room = Math.floor(Math.max(up ? above : below, 0));
+	const height = Math.min(own.height, room);
+	if (own.height > room) list.style.maxHeight = `${room}px`;
+	if (up) {
+		list.setAttribute(DROP_UP, '');
+		list.style.top = `${anchor.top - gap - height}px`;
+	}
 }
 
 export function placeDrop(list: HTMLElement): void {
 	clear(list);
 	const parent = list.offsetParent;
 	if (!parent) return;
+	if (parent.closest('dialog')) {
+		placeInDialog(list, parent);
+		return;
+	}
 	const anchor = parent.getBoundingClientRect();
 	const own = list.getBoundingClientRect();
 	const gap = own.top - anchor.bottom;

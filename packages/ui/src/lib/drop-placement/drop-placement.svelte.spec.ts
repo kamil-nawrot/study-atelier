@@ -211,6 +211,32 @@ describe('placeDrop', () => {
 		expect(list.hasAttribute(DROP_OVER)).toBe(false);
 	});
 
+	it('lays a list over a small dialog instead of fitting it into the scrolling body', async () => {
+		await page.viewport(800, 600);
+		const host = document.createElement('dialog');
+		Object.assign(host.style, {
+			position: 'fixed',
+			inset: '0',
+			margin: '0',
+			padding: '0',
+			border: '0',
+			width: '400px',
+			height: '200px',
+			maxHeight: 'none',
+			overflowY: 'auto'
+		});
+		host.setAttribute('open', '');
+		const list = field({ top: 20, list: 300, host });
+
+		placeDrop(list);
+
+		const rect = list.getBoundingClientRect();
+		expect(list.style.position).toBe('fixed');
+		expect(list.hasAttribute(DROP_OVER)).toBe(false);
+		expect(rect.height).toBe(300);
+		expect(rect.bottom).toBeGreaterThan(host.getBoundingClientRect().bottom);
+	});
+
 	it('measures the window when the browser has no visual viewport', async () => {
 		await page.viewport(800, 600);
 		const original = Object.getOwnPropertyDescriptor(window, 'visualViewport');
