@@ -16,12 +16,23 @@ type PinRow = {
 	symbol_meanings: {
 		id: string;
 		text: string;
-		symbol_meaning_contexts: { glossary_entries: { name: string } | null }[];
+		symbol_meaning_contexts: {
+			position: number;
+			glossary_entries: { name: string; category: string } | null;
+		}[];
 	} | null;
 	artwork_images: ImageRow & { id: string; artwork_id: string };
 };
 
-const COLUMNS = `id, x, y, text, view_width, crop_path, symbols!inner(name), symbol_meanings(id, text, symbol_meaning_contexts(glossary_entries(name))), artwork_images!inner(id, artwork_id, ${IMAGE_COLUMNS.join(', ')})`;
+const COLUMNS = `id, x, y, text, view_width, crop_path, symbols!inner(name), symbol_meanings(id, text, symbol_meaning_contexts(position, glossary_entries(name, category))), artwork_images!inner(id, artwork_id, ${IMAGE_COLUMNS.join(', ')}, artworks!inner(deleted_at))`;
+
+function personsOf(
+	contexts: NonNullable<PinRow['symbol_meanings']>['symbol_meaning_contexts']
+): string[] {
+	return [...contexts]
+		.sort((first, second) => first.position - second.position)
+		.flatMap(({ glossary_entries: entry }) => (entry?.category === 'person' ? [entry.name] : []));
+}
 
 export async function loadSymbolQuestionPins(): Promise<{
 	pins: SymbolQuestionPin[];
@@ -32,7 +43,8 @@ export async function loadSymbolQuestionPins(): Promise<{
 		.select(COLUMNS)
 		.not('symbol_id', 'is', null)
 		.not('crop_path', 'is', null)
-		.not('view_width', 'is', null);
+		.not('view_width', 'is', null)
+		.is('artwork_images.artworks.deleted_at', null);
 	if (error) return { pins: [], error: await failureMessage(error, symbolErrorMessage) };
 	return {
 		pins: (data as unknown as PinRow[]).map((row) => ({
@@ -43,9 +55,7 @@ export async function loadSymbolQuestionPins(): Promise<{
 						meaning: {
 							id: row.symbol_meanings.id,
 							text: row.symbol_meanings.text,
-							persons: row.symbol_meanings.symbol_meaning_contexts.flatMap((context) =>
-								context.glossary_entries ? [context.glossary_entries.name] : []
-							)
+							persons: personsOf(row.symbol_meanings.symbol_meaning_contexts)
 						}
 					}
 				: {}),

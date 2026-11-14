@@ -69,10 +69,6 @@
 	let meaningOptions = $derived(meanings.map(({ id, text }) => ({ value: id, label: text })));
 
 	$effect(() => {
-		if (!meanings.some((meaning) => meaning.id === meaningId)) meaningId = '';
-	});
-
-	$effect(() => {
 		if (!open) return;
 		entryId = pin?.glossaryEntryId ?? null;
 		symbolId = pin?.symbolId ?? null;
@@ -83,10 +79,15 @@
 		busy = undefined;
 	});
 
+	function chooseSymbol(value: string | null): void {
+		if (value !== symbolId) meaningId = '';
+		symbolId = value;
+	}
+
 	async function createSymbol(name: string): Promise<void> {
 		const result = await oncreatesymbol?.(name);
 		if (result?.symbol) {
-			symbolId = result.symbol.id;
+			chooseSymbol(result.symbol.id);
 			failure = undefined;
 		} else if (result?.error) {
 			failureTitle = m.pins.errorTitle;
@@ -167,7 +168,7 @@
 				label={m.pins.symbol}
 				options={symbolOptions}
 				placeholder={m.symbols.search}
-				bind:value={symbolId}
+				bind:value={() => symbolId, chooseSymbol}
 			/>
 			{#if meanings.length >= 2}
 				<Select

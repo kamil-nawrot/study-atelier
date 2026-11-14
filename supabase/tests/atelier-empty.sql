@@ -21,10 +21,14 @@ begin
     'insert into public.glossary_entries (name, category) values (''Sfumato'', ''general'')',
     'insert into public.timeline_events (name, year_to) values (''Fall of Constantinople'', 1453)',
     'insert into public.artwork_fields (name, kind) values (''Motifs'', ''text'')',
-    'select public.save_visit(''{"visited_on": "2026-10-12", "date_precision": "day"}'', ''Louvre'', ''{}'')'
+    'select public.save_visit(''{"visited_on": "2026-10-12", "date_precision": "day"}'', ''Louvre'', ''{}'')',
+    'insert into public.exhibitions (title) values (''Vanitas'')',
+    'insert into public.symbols (name) values (''Czaszka'')'
   ] loop
     execute statement;
     assert not public.atelier_empty(), format('the atelier is empty after: %s', statement);
+    delete from public.symbols;
+    delete from public.exhibitions;
     delete from public.visits;
     delete from public.artwork_fields;
     delete from public.timeline_events;

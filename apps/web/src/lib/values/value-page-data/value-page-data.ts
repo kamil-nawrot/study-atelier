@@ -49,6 +49,7 @@ type ValuePageResult = {
 	visits?: Visit[];
 	relations?: Relations;
 	symbolUses?: SymbolUse[];
+	symbolUsesError?: string;
 	cityPlaces?: CardIndexPlace[];
 	notFound?: boolean;
 	error?: string;
@@ -190,7 +191,8 @@ export async function loadValuePage(
 		mentions: extras.mentions,
 		visits: extras.visits,
 		relations,
-		symbolUses: uses?.error ? undefined : uses?.uses
+		symbolUses: uses?.error ? undefined : uses?.uses,
+		symbolUsesError: uses?.error
 	};
 }
 

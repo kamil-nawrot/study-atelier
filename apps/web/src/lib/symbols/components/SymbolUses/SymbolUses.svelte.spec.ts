@@ -16,6 +16,12 @@ describe('SymbolUses', () => {
 		await expect.element(page.getByText('Power of the Church')).toBeVisible();
 	});
 
+	it('says when the symbols could not be loaded', async () => {
+		render(SymbolUses, { title: 'Atrybuty postaci', uses: [], error: 'Offline.' });
+
+		await expect.element(page.getByText('Offline.')).toBeVisible();
+	});
+
 	it('shows nothing without symbols', async () => {
 		render(SymbolUses, { title: 'Atrybuty postaci', uses: [] });
 

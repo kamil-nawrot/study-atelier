@@ -146,32 +146,42 @@ function pointOf(row: Partial<LocationRow> | null | undefined): PlacePoint | nul
 		: null;
 }
 
-async function cityOf(cityId: string | null | undefined): Promise<PlaceCity | null> {
-	if (!cityId) return null;
-	const { data } = await supabase
+async function cityOf(
+	cityId: string | null | undefined
+): Promise<{ city: PlaceCity | null; error?: ErrorLike }> {
+	if (!cityId) return { city: null };
+	const { data, error } = await supabase
 		.from('category_values')
 		.select(CITY_COLUMNS)
 		.eq('id', cityId)
 		.maybeSingle();
+	if (error) return { city: null, error };
 	const row = data as CityRow | null;
-	if (!row) return null;
+	if (!row) return { city: null, error: {} };
 	const details = row.location_details;
 	return {
-		id: cityId,
-		name: row.name,
-		countryCode: isCountryCode(details?.country_code) ? details.country_code : null,
-		point: pointOf(details)
+		city: {
+			id: cityId,
+			name: row.name,
+			countryCode: isCountryCode(details?.country_code) ? details.country_code : null,
+			point: pointOf(details)
+		}
 	};
 }
 
-async function locationOf(row: DetailsRow | null): Promise<LocationDetails> {
+async function locationOf(
+	row: DetailsRow | null
+): Promise<{ location: LocationDetails; error?: ErrorLike }> {
 	const placeType = row?.place_type;
-	const city = await cityOf(row?.city_id);
+	const { city, error } = await cityOf(row?.city_id);
 	return {
-		countryCode: isCountryCode(row?.country_code) ? row.country_code : null,
-		placeType: isPlaceType(placeType) ? placeType : null,
-		point: pointOf(row),
-		...(city ? { city } : {})
+		location: {
+			countryCode: isCountryCode(row?.country_code) ? row.country_code : null,
+			placeType: isPlaceType(placeType) ? placeType : null,
+			point: pointOf(row),
+			...(city ? { city } : {})
+		},
+		error
 	};
 }
 
@@ -184,7 +194,13 @@ export async function loadValueDetails(subject: ValueSubject): Promise<ValueDeta
 	if (related?.error) return { details: emptyValueDetails(), error: related.error };
 	const details: ValueDetails = { summary: data?.summary ?? '', notes: data?.notes ?? '' };
 	if (subject.kind === 'author') details.author = await authorOf(data, related?.relations ?? []);
-	if (subject.kind === 'location') details.location = await locationOf(data);
+	if (subject.kind === 'location') {
+		const located = await locationOf(data);
+		if (located.error) {
+			return { details: emptyValueDetails(), error: collectionErrorMessage(located.error) };
+		}
+		details.location = located.location;
+	}
 	return { details };
 }
 
@@ -200,23 +216,32 @@ function authorColumns(author: AuthorDetails, image: ReturnType<typeof imageColu
 	};
 }
 
+function cityIdOf(location: LocationDetails | undefined): string | null {
+	return location?.placeType === 'city' ? null : (location?.city?.id ?? null);
+}
+
+function locationColumns(location: LocationDetails, previous: LocationDetails | undefined): object {
+	const columns: Record<string, string | null> = {};
+	if (location.countryCode !== (previous?.countryCode ?? null)) {
+		columns.country_code = location.countryCode;
+	}
+	if (location.placeType !== (previous?.placeType ?? null)) columns.place_type = location.placeType;
+	if (cityIdOf(location) !== cityIdOf(previous)) columns.city_id = cityIdOf(location);
+	return columns;
+}
+
 function detailsPayload(
 	text: { summary: string; notes: string },
 	details: ValueDetails,
-	image: StoredImage | null
+	image: StoredImage | null,
+	previous: ValueDetails | undefined
 ): Json {
 	const { author, location } = details;
 	return {
 		...text,
 		...(author ? authorColumns(author, imageColumns(image)) : {}),
-		...(location
-			? {
-					country_code: location.countryCode,
-					place_type: location.placeType,
-					city_id: location.placeType === 'city' ? null : (location.city?.id ?? null)
-				}
-			: {})
-	};
+		...(location ? locationColumns(location, previous?.location) : {})
+	} as Json;
 }
 
 async function removeReplacedUpload(
@@ -257,7 +282,7 @@ export async function saveValueDetails(
 
 	const { error } = await supabase.rpc('save_value_details', {
 		target_value: subject.record.id,
-		details: detailsPayload(text, details, stored.image)
+		details: detailsPayload(text, details, stored.image, previous)
 	});
 	forgetCached(DETAILS_KEYS[subject.kind] ?? []);
 	if (error) {
@@ -270,7 +295,8 @@ export async function saveValueDetails(
 }
 
 export async function ensureCityPlace(
-	city: PlaceCity
+	city: PlaceCity,
+	exclude?: string
 ): Promise<{ id: string; error?: undefined } | { id?: undefined; error: string }> {
 	if (city.id) return { id: city.id };
 	const { data, error } = await supabase.rpc('ensure_city_place', {
@@ -278,7 +304,8 @@ export async function ensureCityPlace(
 		wikidata_id: city.wikidataId ?? undefined,
 		country_code: city.countryCode ?? undefined,
 		latitude: city.point?.latitude,
-		longitude: city.point?.longitude
+		longitude: city.point?.longitude,
+		exclude: exclude || undefined
 	});
 	forgetCached([cacheKeys.cardIndex]);
 	if (error || !data) {

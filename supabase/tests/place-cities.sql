@@ -4,7 +4,8 @@ begin;
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-00000000000a', 'owner-a@example.test'),
-  ('00000000-0000-0000-0000-00000000000b', 'owner-b@example.test');
+  ('00000000-0000-0000-0000-00000000000b', 'owner-b@example.test'),
+  ('00000000-0000-0000-0000-00000000000c', 'owner-c@example.test');
 
 set local role authenticated;
 select set_config('request.jwt.claims',
@@ -158,6 +159,57 @@ begin
     'import_atelier drops the city of a place listed before its city';
   assert (select city_id from public.location_details where value_id = older) is null,
     'import_atelier gives a city to a place exported without one';
+end;
+$$;
+
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-00000000000c", "role": "authenticated"}', true);
+
+do $$
+declare
+  alias_name text;
+  place uuid := gen_random_uuid();
+  toledo uuid;
+  code text;
+begin
+  select museum.alias into alias_name
+    from public.catalogue_museums as museum
+    where museum.alias is not null
+      and not exists (select 1 from public.catalogue_museums as other where lower(other.name) = lower(museum.alias))
+      and (select count(*) from public.catalogue_museums as same where lower(same.alias) = lower(museum.alias)) = 1
+    order by museum.alias
+    limit 1;
+
+  perform public.import_atelier(jsonb_build_object(
+    'category_values', jsonb_build_array(
+      jsonb_build_object('id', place, 'category_code', 'location', 'name', alias_name)
+    ),
+    'location_details', jsonb_build_array(
+      jsonb_build_object('value_id', place, 'place_type', 'museum', 'country_code', 'PL')
+    )
+  ));
+  assert (select count(*) from public.location_details) = 1,
+    'import_atelier fails or doubles the details of a place named like a museum alias';
+
+  delete from public.location_details;
+  delete from public.category_values;
+  perform set_config('study_atelier.importing', '', true);
+  perform public.save_visit('{"kind": "trip", "visited_on": "2026-10-12", "date_precision": "day"}', alias_name, '{}');
+  assert (select details.place_type from public.location_details as details
+      join public.category_values as value on value.id = details.value_id
+      where value.name = alias_name) = 'city',
+    'a trip to a city named like a museum alias does not keep the type city';
+
+  insert into public.category_values (category_code, name) values ('location', 'Toledo') returning id into toledo;
+  begin
+    perform public.ensure_city_place('Toledo', null, 'ES', 39.86, -4.02, toledo);
+    code := null;
+  exception when others then
+    code := sqlstate;
+  end;
+  assert code = 'SC004', 'ensure_city_place makes the place being edited its own city';
+  assert (select place_type from public.location_details where value_id = toledo) is null,
+    'a refused ensure_city_place still turns the place into a city';
 end;
 $$;
 

@@ -300,7 +300,7 @@ begin
   exception when others then
     code := sqlstate;
   end;
-  assert code = 'SC004', 'a city with trips changes its type';
+  assert code = 'SC005', 'a city with trips changes its type';
 
   insert into public.category_values (category_code, name) values ('location', 'Vatican Museums') returning id into museum;
   perform public.save_value_details(museum, '{"place_type": "museum"}');
@@ -310,7 +310,7 @@ begin
   exception when others then
     code := sqlstate;
   end;
-  assert code = 'SC005', 'a city with trips is merged into a museum';
+  assert code = 'SC006', 'a city with trips is merged into a museum';
   assert (select place_id from public.visits where id = trip) = rome, 'a refused merge moves the trip';
 
   perform public.save_visit('{"kind": "trip", "visited_on": "2026-09-05", "date_precision": "day"}', 'Milan', '{}');

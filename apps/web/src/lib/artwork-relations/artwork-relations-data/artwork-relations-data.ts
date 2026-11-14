@@ -14,9 +14,14 @@ type SearchResult = { artworks: ArtworkRelationMatch[]; error?: string };
 
 export async function searchRelatedArtworks(
 	phrase: string,
+	excluded: readonly string[],
 	signal?: AbortSignal
 ): Promise<SearchResult> {
-	const request = supabase.rpc('note_link_suggestions', { link_trigger: '#', phrase });
+	const request = supabase.rpc('note_link_suggestions', {
+		link_trigger: '#',
+		phrase,
+		excluded: [...excluded]
+	});
 	const { data, error } = await (signal ? request.abortSignal(signal) : request);
 	if (error) return { artworks: [], error: collectionErrorMessage(error) };
 	return {

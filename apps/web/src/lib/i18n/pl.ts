@@ -908,6 +908,7 @@ export const pl = {
 			years: 'Trafiony rok powstania:',
 			orders: 'Poprawnie chronologicznie ułożone dzieła:',
 			definitions: 'Poprawnie odgadnięte pojęcia:',
+			symbols: 'Poprawnie rozpoznane symbole:',
 			notes: 'Poprawnie uzupełnione luki w notatkach:'
 		},
 		roundScore: (right: number, asked: number): string => `${right}/${asked}`,
@@ -1231,6 +1232,8 @@ export const pl = {
 				'To miasto ma swoje miejsca, więc musi zostać miastem. Najpierw zmień miasto tych miejsc.',
 			cityName:
 				'Masz już miejsce o tej nazwie, ale innego typu. Zmień jego typ na „Miasto” albo wybierz inne miasto.',
+			citySelf:
+				'To miejsce nie może być swoim własnym miastem. Wybierz inne miasto albo zmień typ tego miejsca na „Miasto”.',
 			cityTripsType: 'To miasto ma swoje podróże w Kronice, więc musi zostać miastem.',
 			cityTripsMerge:
 				'To miasto ma swoje podróże w Kronice. Możesz je połączyć tylko z innym miastem.'
@@ -1577,9 +1580,10 @@ export const pl = {
 			reorder: 'Zmień kolejność',
 			reorderDone: 'Gotowe',
 			noDetails: 'Żaden detal nie ma jeszcze tego znaczenia.',
-			mainDetail: 'Główny detal',
 			mainDetailSaved: 'Zapisano główny detal.',
+			mainDetailCleared: 'Usunięto główny detal. Okładką będzie najnowszy detal z wycinkiem.',
 			setMainDetail: 'Ustaw jako główny',
+			unsetMainDetail: 'Główny detal. Kliknij, żeby go odznaczyć',
 			detailsBack: 'Przewiń detale wstecz',
 			detailsForward: 'Przewiń detale dalej',
 			withoutMeaning: 'Bez wskazanego znaczenia',
@@ -2159,7 +2163,7 @@ export const pl = {
 			seen: 'Widziane na żywo'
 		},
 		emptyTitle: 'Mapa zapełni się wraz z miejscami',
-		empty: 'Gdy przy dziele wpiszesz miejsce i uzupełnisz jego położenie, zobaczysz je na mapie.',
+		empty: 'Gdy miejsce przy dziele dostanie miasto albo własne położenie, zobaczysz je na mapie.',
 		loadError: 'Nie udało się wczytać mapy. Sprawdź internet i spróbuj jeszcze raz.',
 		saveFailed: 'Nie udało się zapisać położenia. Spróbuj jeszcze raz.',
 		city: {
@@ -2187,8 +2191,6 @@ export const pl = {
 		position: {
 			title: 'Położenie',
 			empty: 'To miejsce nie ma jeszcze położenia.',
-			set: 'Ustaw położenie',
-			change: 'Zmień położenie',
 			remove: 'Usuń położenie'
 		}
 	},

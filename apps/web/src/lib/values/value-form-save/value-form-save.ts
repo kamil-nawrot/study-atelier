@@ -71,7 +71,10 @@ async function savedDetails(
 	const details = valueFormDetails(input.form);
 	const city = details.location?.placeType === 'city' ? null : details.location?.city;
 	if (details.location && city && !city.id) {
-		const ensured = await ensureCityPlace(city);
+		const ensured = await ensureCityPlace(
+			city,
+			subject.kind === 'location' ? subject.record.id : undefined
+		);
 		if (ensured.error !== undefined) return ensured.error;
 		details.location.city = { ...city, id: ensured.id };
 	}

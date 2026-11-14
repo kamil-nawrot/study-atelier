@@ -68,10 +68,10 @@ describe('cardIndexErrorMessage', () => {
 	});
 
 	it('explains why a city with trips cannot be merged into another place or change its type', () => {
-		expect(cardIndexErrorMessage({ code: 'SC004', message: 'type' })).toBe(
+		expect(cardIndexErrorMessage({ code: 'SC005', message: 'type' })).toBe(
 			m.cardIndex.errors.cityTripsType
 		);
-		expect(cardIndexErrorMessage({ code: 'SC005', message: 'merge' })).toBe(
+		expect(cardIndexErrorMessage({ code: 'SC006', message: 'merge' })).toBe(
 			m.cardIndex.errors.cityTripsMerge
 		);
 	});

@@ -161,7 +161,7 @@ begin
     and exists (select 1 from public.visits as trip where trip.place_id = new.value_id and trip.kind = 'trip')
   then
     raise exception 'a city with trips stays a city'
-      using errcode = 'SC004';
+      using errcode = 'SC005';
   end if;
   return new;
 end;
@@ -185,7 +185,7 @@ begin
       where details.value_id = new.place_id and details.place_type = 'city'
   ) then
     raise exception 'a city with trips can be merged only into another city'
-      using errcode = 'SC005';
+      using errcode = 'SC006';
   end if;
   return new;
 end;
