@@ -2,7 +2,7 @@ import type { PlacePoint } from '#lib/map/types/place-point.ts';
 import type { Town } from '#lib/map/types/town.ts';
 
 const EARTH_RADIUS_KM = 6371;
-export const TOWN_REACH_KM = 40;
+const TOWN_REACH_KM = 40;
 
 export function distanceKm(from: PlacePoint, to: PlacePoint): number {
 	const radians = Math.PI / 180;

@@ -200,7 +200,7 @@ describe('saveValueForm', () => {
 			linksChanged: false
 		});
 
-		expect(ensureCityPlace).toHaveBeenCalledWith(city);
+		expect(ensureCityPlace).toHaveBeenCalledWith(city, 'place-1');
 		expect(vi.mocked(saveValueDetails).mock.calls[0][1].location?.city).toEqual({
 			...city,
 			id: 'city-paris'

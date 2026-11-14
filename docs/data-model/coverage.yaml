@@ -503,8 +503,9 @@ alternatives:
       location_details gains city_id, a reference (city_id, owner_id, category_code) to category_values that
       is set to null only when the account goes; a trigger keeps it pointing at a place of the type city and never
       on a city, and copies the city's country to the place. A check keeps city_id apart from a point.
-      ensure_city_place finds or creates the city place of a catalogue town or a typed name, and save_value_details
-      takes its city_id. catalogue_museums keeps the nearest catalogue town of every museum (city_name, its
+      ensure_city_place finds or creates the city place of a catalogue town or a typed name, never the place
+      being edited (its exclude argument), and save_value_details takes its city_id; the form sends only the
+      location fields the learner changed, so a place the alias trigger filled keeps its type, country and city. catalogue_museums keeps the nearest catalogue town of every museum (city_name, its
       Wikidata id, country and point, computed from the bundled towns), and the trigger that copies a starter
       museum into a new place gives it that city through the same finding or creating of the city place, except
       during an import. The tab "Miejsca", the city page, the
