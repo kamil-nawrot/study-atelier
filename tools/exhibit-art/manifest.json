@@ -37,7 +37,8 @@
     "vault_cobweb": "weiditz-web",
     "van_eyck_easel": "galle-master-pupils-centre-right",
     "kircher_ark": "kircher-entry-noah",
-    "pelican_serpent": "bolswert-pelican-scene"
+    "pelican_serpent": "bolswert-pelican-scene",
+    "giotto_fly": "hooke-blue-fly-whole"
   },
   "variants": [
     {
@@ -1657,6 +1658,110 @@
         0.828,
         0.89
       ]
+    },
+    {
+      "exhibit": "giotto_fly",
+      "variant": "hooke-blue-fly-whole",
+      "status": "chosen",
+      "commons_file": "Hooke-bluefly.jpg",
+      "licence": "Public domain",
+      "credit": "Robert Hooke, Schem. XXVI, a blue fly, in Micrographia, London 1665",
+      "crop": [
+        0.0,
+        0.07,
+        1.0,
+        0.925
+      ]
+    },
+    {
+      "exhibit": "giotto_fly",
+      "variant": "hooke-blue-fly-wall",
+      "status": "alternative",
+      "commons_file": "Hooke-bluefly.jpg",
+      "licence": "Public domain",
+      "credit": "Robert Hooke, Schem. XXVI, a blue fly, in Micrographia, London 1665",
+      "crop": [
+        0.0,
+        0.07,
+        1.0,
+        0.925
+      ],
+      "background": "wall"
+    },
+    {
+      "exhibit": "giotto_fly",
+      "variant": "hooke-blue-fly-head",
+      "status": "alternative",
+      "commons_file": "Hooke-bluefly.jpg",
+      "licence": "Public domain",
+      "credit": "Robert Hooke, Schem. XXVI, a blue fly, in Micrographia, London 1665",
+      "crop": [
+        0.2,
+        0.12,
+        0.75,
+        0.59
+      ]
+    },
+    {
+      "exhibit": "giotto_fly",
+      "variant": "hooke-drone-fly-head",
+      "status": "alternative",
+      "commons_file": "Micrographia Schem 24.jpg",
+      "licence": "Public domain",
+      "credit": "Robert Hooke, Schem. XXIV, the eyes and head of a grey drone-fly, in Micrographia, London 1665",
+      "crop": [
+        0.1,
+        0.04,
+        0.93,
+        0.996
+      ]
+    },
+    {
+      "exhibit": "giotto_fly",
+      "licence": "Public Domain Mark 1.0",
+      "source_url": "https://d3dkjx001zrum8.cloudfront.net/a09b8f7b-3687-408b-af8d-4b68fd8f12d2/download_large/d741023f170a5fb8b22adcc9dc26977a.jpg",
+      "source_page": "https://digital.sciencehistory.org/works/w9505156z",
+      "credit": "Robert Hooke, Schem. XXVI, a blue fly, in Micrographia, London 1665, Science History Institute",
+      "variant": "shi-blue-fly-whole",
+      "status": "alternative",
+      "crop": [
+        0.1,
+        0.14,
+        0.94,
+        0.929
+      ]
+    },
+    {
+      "exhibit": "giotto_fly",
+      "licence": "Public Domain Mark 1.0",
+      "source_url": "https://d3dkjx001zrum8.cloudfront.net/a09b8f7b-3687-408b-af8d-4b68fd8f12d2/download_large/d741023f170a5fb8b22adcc9dc26977a.jpg",
+      "source_page": "https://digital.sciencehistory.org/works/w9505156z",
+      "credit": "Robert Hooke, Schem. XXVI, a blue fly, in Micrographia, London 1665, Science History Institute",
+      "variant": "shi-blue-fly-wide",
+      "status": "alternative",
+      "crop": [
+        0.06,
+        0.1,
+        0.98,
+        0.964
+      ]
+    },
+    {
+      "exhibit": "giotto_fly",
+      "licence": "Public Domain Mark 1.0",
+      "source_url": "https://d3dkjx001zrum8.cloudfront.net/a09b8f7b-3687-408b-af8d-4b68fd8f12d2/download_large/d741023f170a5fb8b22adcc9dc26977a.jpg",
+      "source_page": "https://digital.sciencehistory.org/works/w9505156z",
+      "credit": "Robert Hooke, Schem. XXVI, a blue fly, in Micrographia, London 1665, Science History Institute",
+      "variant": "shi-blue-fly-dark",
+      "status": "alternative",
+      "crop": [
+        0.1,
+        0.14,
+        0.94,
+        0.929
+      ],
+      "gamma": 1.6,
+      "cap": 0.9
     }
   ]
 }
