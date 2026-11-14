@@ -1056,4 +1056,26 @@ begin
 end;
 $$;
 
+reset role;
+
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000021', 'owner-r@example.test');
+
+insert into public.exhibit_tiers (owner_id, exhibit, tier, tiers)
+  select '00000000-0000-0000-0000-000000000021', exhibit.code, 1, cardinality(exhibit.thresholds)
+    from public.exhibits as exhibit
+    where exhibit.hidden;
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-000000000021", "role": "authenticated"}', true);
+
+do $$
+begin
+  assert not exists (
+      select 1 from public.unlock_exhibits('UTC') as listed
+        where listed.hidden and listed.value <> listed.thresholds[1]),
+    'a found hidden exhibit is counted again instead of keeping its threshold';
+end;
+$$;
+
 rollback;
