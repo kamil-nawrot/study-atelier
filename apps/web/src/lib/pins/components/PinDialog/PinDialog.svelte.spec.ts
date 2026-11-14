@@ -199,6 +199,49 @@ describe('PinDialog', () => {
 		);
 	});
 
+	it('keeps the meaning of a pin while the symbols are not loaded', async () => {
+		vi.mocked(updatePin).mockResolvedValue({ pin: SAVED });
+		open({
+			pin: { ...SAVED, symbolId: 'symbol-1', symbolMeaningId: 'meaning-2' },
+			symbols: []
+		});
+
+		await userEvent.fill(page.getByLabelText('Opis'), 'Another detail');
+		await page.getByRole('button', { name: 'Zapisz' }).click();
+
+		expect(updatePin).toHaveBeenCalledWith(
+			'pin-1',
+			expect.objectContaining({ symbolId: 'symbol-1', symbolMeaningId: 'meaning-2' })
+		);
+	});
+
+	it('drops the meaning when the learner picks another symbol', async () => {
+		vi.mocked(updatePin).mockResolvedValue({ pin: SAVED });
+		open({
+			pin: { ...SAVED, symbolId: 'symbol-1', symbolMeaningId: 'meaning-2' },
+			symbols: [
+				{
+					id: 'symbol-1',
+					name: 'Keys',
+					meanings: [
+						{ id: 'meaning-1', text: 'Power of the Church' },
+						{ id: 'meaning-2', text: 'Heaven' }
+					]
+				},
+				{ id: 'symbol-2', name: 'Lily', meanings: [] }
+			]
+		});
+
+		await userEvent.click(page.getByRole('combobox', { name: 'Symbol' }));
+		await page.getByRole('option', { name: 'Lily' }).click();
+		await page.getByRole('button', { name: 'Zapisz' }).click();
+
+		expect(updatePin).toHaveBeenCalledWith(
+			'pin-1',
+			expect.objectContaining({ symbolId: 'symbol-2', symbolMeaningId: null })
+		);
+	});
+
 	it('offers no meaning for a symbol with a single one', async () => {
 		open({
 			symbols: [{ id: 'symbol-1', name: 'Keys', meanings: [{ id: 'meaning-1', text: 'Heaven' }] }]

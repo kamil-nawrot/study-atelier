@@ -41,11 +41,9 @@
 						<button
 							class="star"
 							class:main
-							aria-label={main ? m.symbols.view.mainDetail : m.symbols.view.setMainDetail}
+							aria-label={main ? m.symbols.view.unsetMainDetail : m.symbols.view.setMainDetail}
 							aria-pressed={main}
-							onclick={() => {
-								if (!main) onsetcover(detail.pinId);
-							}}
+							onclick={() => onsetcover(main ? null : detail.pinId)}
 							type="button"
 						>
 							<Icon icon={Star} size="sm" />

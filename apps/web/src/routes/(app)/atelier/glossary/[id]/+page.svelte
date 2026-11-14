@@ -118,7 +118,11 @@
 
 	{#if entry}
 		<GlossaryView entries={data.glossary} {entry} mentions={data.mentions} />
-		<SymbolUses title={m.symbols.attributes} uses={data.symbolUses ?? []} />
+		<SymbolUses
+			error={data.symbolUsesError}
+			title={m.symbols.attributes}
+			uses={data.symbolUses ?? []}
+		/>
 		{#if data.pinnedError}
 			<Alert tone="danger">{m.pins.loadFailed}</Alert>
 		{/if}

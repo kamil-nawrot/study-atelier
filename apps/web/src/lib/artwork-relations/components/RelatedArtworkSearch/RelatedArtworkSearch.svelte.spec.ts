@@ -31,7 +31,7 @@ describe('RelatedArtworkSearch', () => {
 
 		await userEvent.fill(page.getByRole('combobox', { name: m.artworkRelations.search }), 'the');
 		await expect.element(page.getByRole('option', { name: /Auguste Rodin/ })).toBeVisible();
-		expect(searchRelatedArtworks).toHaveBeenCalledWith('the', expect.any(AbortSignal));
+		expect(searchRelatedArtworks).toHaveBeenCalledWith('the', ['self'], expect.any(AbortSignal));
 		expect(page.getByRole('option', { name: /The Self/ }).query()).toBeNull();
 		await userEvent.click(page.getByRole('option', { name: /Auguste Rodin/ }));
 
@@ -48,6 +48,18 @@ describe('RelatedArtworkSearch', () => {
 		await expect
 			.element(page.getByRole('combobox', { name: m.artworkRelations.search }))
 			.toBeVisible();
+	});
+
+	it('drops the error once the field is cleared', async () => {
+		vi.mocked(searchRelatedArtworks).mockResolvedValue({ artworks: [], error: 'Offline.' });
+		search();
+		const field = page.getByRole('combobox', { name: m.artworkRelations.search });
+
+		await userEvent.fill(field, 'the');
+		await expect.element(page.getByText('Offline.')).toBeInTheDocument();
+		await userEvent.clear(field);
+
+		await expect.element(page.getByText('Offline.')).not.toBeInTheDocument();
 	});
 
 	it('says when no artwork matches', async () => {

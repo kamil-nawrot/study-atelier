@@ -9,5 +9,6 @@ export type SessionSummary = {
 	years: { asked: number; hit: number };
 	orders: { asked: number; right: number };
 	definitions: { asked: number; right: number };
+	symbols: { asked: number; right: number };
 	notes: { asked: number; right: number };
 };

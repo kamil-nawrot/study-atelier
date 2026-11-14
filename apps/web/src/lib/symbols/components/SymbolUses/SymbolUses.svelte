@@ -1,17 +1,22 @@
 <script lang="ts">
-	import { Disclosure } from '@study-atelier/ui';
+	import { Alert, Disclosure } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import type { SymbolUse } from '#lib/symbols/types/symbol-use.ts';
 
 	type Props = {
 		title: string;
 		uses: readonly SymbolUse[];
+		error?: string;
 	};
 
-	let { title, uses }: Props = $props();
+	let { title, uses, error }: Props = $props();
 </script>
 
-{#if uses.length > 0}
+{#if error}
+	<section aria-label={title}>
+		<Alert tone="danger">{error}</Alert>
+	</section>
+{:else if uses.length > 0}
 	<section aria-label={title}>
 		<Disclosure count={uses.length} room {title}>
 			<ul class="uses">

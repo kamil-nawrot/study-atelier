@@ -131,6 +131,7 @@
 		orders={flow.summary.orders}
 		{rankForm}
 		starting={flow.starting}
+		symbols={flow.summary.symbols}
 		tomorrow={flow.summary.tomorrow}
 		years={flow.summary.years}
 	/>

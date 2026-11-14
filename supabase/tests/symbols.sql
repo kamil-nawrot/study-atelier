@@ -115,6 +115,11 @@ begin
   assert rejected, 'a meaning is assigned to a pin of another symbol';
   assert (select symbol_meaning_id from public.artwork_pins where id = symbol_pin) = vanitas,
     'a rejected assignment changes a pin';
+  update public.artworks set deleted_at = now() where id = painting;
+  perform public.assign_symbol_meaning(vanitas, '{}');
+  assert (select symbol_meaning_id from public.artwork_pins where id = symbol_pin) = vanitas,
+    'assigning a meaning clears it on a pin of an artwork in the trash';
+  update public.artworks set deleted_at = null where id = painting;
   perform public.assign_symbol_meaning(vanitas, '{}');
   assert not exists (select 1 from public.artwork_pins where symbol_meaning_id = vanitas),
     'an empty assignment keeps the meaning on pins';
@@ -210,7 +215,11 @@ begin
   assert atlas.pin_count = 0 and atlas.cover is null, 'the atlas counts pins of artworks in the trash';
   update public.artworks set deleted_at = null where id = painting;
 
+  perform public.set_symbol_cover(skull, second_view);
+  update public.artwork_pins set view_width = null, crop_path = null where id = second_view;
   delete from public.symbols where id = skull;
+  assert not exists (select 1 from public.artwork_pins where id = second_view),
+    'deleting a symbol whose main detail has nothing else keeps that pin';
   assert not exists (select 1 from public.artwork_pins where id = symbol_pin),
     'deleting a symbol keeps a pin with nothing else';
   assert (select symbol_id is null and symbol_meaning_id is null from public.artwork_pins where id = viewed_pin),
@@ -232,6 +241,8 @@ do $$
 declare
   lily uuid;
   foreign_value uuid;
+  foreign_pin uuid;
+  own uuid;
   rejected boolean;
 begin
   assert (select count(*) from public.symbols) = 0, 'B reads symbols of A';
@@ -264,6 +275,19 @@ begin
   delete from public.symbols where id = lily;
   set local role postgres;
   assert exists (select 1 from public.symbols where id = lily), 'B deletes a symbol of A';
+  select pin.id into foreign_pin from public.artwork_pins as pin
+    where pin.owner_id = '00000000-0000-0000-0000-00000000000a' limit 1;
+  set local role authenticated;
+
+  own := public.save_symbol('Dove', '[]');
+  rejected := false;
+  begin
+    set constraints symbols_cover_pin_id_owner_id_fkey immediate;
+    update public.symbols set cover_pin_id = foreign_pin where id = own;
+  exception when foreign_key_violation then rejected := true;
+  end;
+  set constraints symbols_cover_pin_id_owner_id_fkey deferred;
+  assert rejected, 'B points the main detail of a symbol at a pin of A';
 end;
 $$;
 

@@ -99,7 +99,11 @@
 				<RelationsBand relations={data.relations} />
 			{/if}
 
-			<SymbolUses title={m.valuePage.kinds[subject.kind].symbols} uses={data.symbolUses ?? []} />
+			<SymbolUses
+				error={data.symbolUsesError}
+				title={m.valuePage.kinds[subject.kind].symbols}
+				uses={data.symbolUses ?? []}
+			/>
 
 			<ArtworksSection {artworks} empty={texts.noArtworks} {images} title={texts.artworks} />
 		</div>

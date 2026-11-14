@@ -45,6 +45,7 @@ export const load: PageLoad = async ({ params }): Promise<GlossaryEntryResult> =
 		pinned: pinned.pinned,
 		fragments: pinned.fragments,
 		pinnedError: pinned.error,
-		symbolUses: uses.error ? undefined : uses.uses
+		symbolUses: uses.error ? undefined : uses.uses,
+		symbolUsesError: uses.error
 	};
 };

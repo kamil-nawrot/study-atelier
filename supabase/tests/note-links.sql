@@ -148,6 +148,9 @@ begin
     'note_link_suggestions does not find an artwork by its author';
   assert (select array_agg(record_number) from public.note_link_suggestions('#', '')) = array[3, 2, 1],
     'note_link_suggestions does not list the newest artworks first without a phrase';
+  assert (select array_agg(record_number) from public.note_link_suggestions('#', '',
+      array(select id from public.artworks where record_number = 3))) = array[2, 1],
+    'note_link_suggestions lists an excluded artwork';
   assert (select (array_agg(record_number))[1] from public.note_link_suggestions('#', '02')) = 2,
     'note_link_suggestions does not put the artwork with the record number first';
   assert (select count(*) from public.note_link_suggestions('#', '%')) = 0,
