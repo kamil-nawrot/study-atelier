@@ -11,7 +11,8 @@ import { testSession } from '#lib/testing/auth/auth.ts';
 import {
 	fillRequired,
 	saveButton,
-	answerNothingFromWikidata
+	answerNothingFromWikidata,
+	withoutAutoMatch
 } from '#lib/testing/add-artwork/add-artwork.ts';
 import AddArtworkPage from './+page.svelte';
 
@@ -52,6 +53,7 @@ function renderPage(): void {
 const ID = '3f2c1d4e-5a6b-4c7d-8e9f-0a1b2c3d4e5f';
 
 describe('adding an artwork on the way from an exhibition', () => {
+	withoutAutoMatch();
 	beforeEach(async () => {
 		vi.clearAllMocks();
 		answerNothingFromWikidata();

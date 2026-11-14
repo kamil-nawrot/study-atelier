@@ -33,7 +33,8 @@ import {
 	addValue,
 	selectFile,
 	fillRequired,
-	answerNothingFromWikidata
+	answerNothingFromWikidata,
+	withoutAutoMatch
 } from '#lib/testing/add-artwork/add-artwork.ts';
 import AddArtworkPage from './+page.svelte';
 import { expectImageCredit } from '#lib/testing/image-credit/image-credit.ts';
@@ -79,6 +80,7 @@ function renderPage(
 }
 
 describe('own images on the add artwork page', () => {
+	withoutAutoMatch();
 	beforeEach(async () => {
 		vi.clearAllMocks();
 		answerNothingFromWikidata();
@@ -614,6 +616,7 @@ describe('image search on the add artwork page', () => {
 });
 
 describe('pasting an own image on the add artwork page', () => {
+	withoutAutoMatch();
 	beforeEach(async () => {
 		answerNothingFromWikidata();
 		vi.clearAllMocks();
