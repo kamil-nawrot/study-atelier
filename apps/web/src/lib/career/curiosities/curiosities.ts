@@ -211,6 +211,7 @@ const SOURCES: Readonly<Record<string, readonly string[]>> = {
 	],
 	kircher_ark: ['https://exhibits.library.cornell.edu/AnimalLegends/feature/in-the-ark'],
 	figure_alphabet: ['https://www.metmuseum.org/art/collection/search/428829'],
+	pelican_serpent: ['https://www.rijksmuseum.nl/nl/collectie/RP-P-1878-A-2587'],
 	candle_moths: ['https://www.rijksmuseum.nl/en/collection/RP-P-OB-62.370'],
 	amateur_magnifier: ['https://www.clevelandart.org/art/1927.208']
 };

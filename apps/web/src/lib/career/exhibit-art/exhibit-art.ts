@@ -192,6 +192,12 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		licence: 'domena publiczna',
 		page: 'https://id.smb.museum/object/1543315'
 	},
+	pelican_serpent: {
+		credit: 'Boëtius Adamsz. Bolswert, „Pelikan i miedziany wąż”, 1639',
+		licence: 'CC0',
+		commonsFile:
+			'Pelikaan en de koperen slang, 12 Het Mirakel van Amsterdam, 1345 (serietitel) Amstelredams eer ende opcomen door de denckwaerdighe miraklen aldaer geschied aen ende door het H. Sacrament des Altaers Anno 1345 (serietit, RP-P-1878-A-2587.jpg'
+	},
 	candle_moths: {
 		credit: 'Vincent Laurensz. van der Vinne, „Muchy lecą do światła świecy”, 1714',
 		licence: 'domena publiczna',

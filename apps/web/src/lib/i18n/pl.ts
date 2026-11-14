@@ -1869,6 +1869,9 @@ export const pl = {
 			figure_alphabet: [
 				'O Mistrzu E.S. wiadomo niewiele, a przydomek zawdzięcza inicjałom, które pojawiają się na jego późniejszych pracach. Na to, że był z wykształcenia złotnikiem, wskazują punce – złotnicze narzędzia wbijane młotkiem w płytę, którymi wybijał wzory drobnych kwiatków i kółek. Jego figuralny alfabet przetrwał w 23 rzadkich, pojedynczych odbitkach.'
 			],
+			pelican_serpent: [
+				'Rycina to dwunasta z szesnastu scen o Cudzie amsterdamskim z 15 marca 1345 roku, kiedy w płomieniach paleniska znaleziono nietkniętą hostię. Dwa wiersze pod nią, po łacinie i po niderlandzku, stawiają obok siebie miedzianego węża i pelikana karmiącego pisklęta krwią: oba mówią o tej samej ofierze Chrystusa.'
+			],
 			candle_moths: [
 				'Rycina Vincenta Laurensza van der Vinne ilustruje „Leerzaame zinnebeelden” Adriaana Spinnikera, zbiór pouczających emblematów wydany w Haarlemie i Amsterdamie w 1714 roku. Owady, które giną od żaru i w wosku świecy, są w nim obrazem ludzi lekceważących ostrzeżenia, którzy przepadają przez marne, ziemskie życie.'
 			],
@@ -2141,6 +2144,13 @@ export const pl = {
 					'Israhel van Meckenem wyrył w ostatniej tercji XV wieku literę A z figuralnego alfabetu Mistrza E.S., ułożoną z lwa, psów, ptaków i człowieka.',
 				hint: 'Sztukę warto zgłębiać od A do Z.',
 				awarded: 'Za pojęcia w Słowniczku na każdą literę alfabetu.'
+			},
+			pelican_serpent: {
+				name: 'Gniazdo Nechusztana',
+				about:
+					'Na rycinie Boëtiusa Bolswerta z 1639 roku pelikan karmi pisklęta własną krwią u stóp krzyża, na którym wije się miedziany wąż.',
+				hint: 'Jak gołąb niosący gałązkę oliwną.',
+				awarded: 'Za dwa różne symbole o tym samym znaczeniu, wskazane na dwóch dziełach.'
 			},
 			candle_moths: {
 				name: 'Nocny lichtarz',

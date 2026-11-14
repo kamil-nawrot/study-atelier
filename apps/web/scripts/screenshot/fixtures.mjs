@@ -1666,6 +1666,7 @@ export const EXHIBITS = [
 		thresholds: [1, 10, 25, 50, 100, 500]
 	},
 	{ exhibit: 'figure_alphabet', room: 'scriptorium', hidden: true, value: 23, thresholds: [23] },
+	{ exhibit: 'pelican_serpent', room: 'scriptorium', hidden: true, value: 0, thresholds: [1] },
 	{
 		exhibit: 'chronicle',
 		room: 'map_room',
