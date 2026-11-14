@@ -11,6 +11,7 @@ type Arrival = {
 	from: PageStop | null;
 	to: PageStop;
 	restored?: boolean;
+	formPopped?: boolean;
 };
 
 const STORAGE_KEY = 'study-atelier:place-names';
@@ -21,11 +22,15 @@ function isForm(route: string | null): boolean {
 	return route !== null && FORM_ROUTE.test(route);
 }
 
-function afterForm(current: Place | undefined, to: PageStop): Place | undefined {
+function afterForm(
+	current: Place | undefined,
+	to: PageStop,
+	formPopped: boolean | undefined
+): Place | undefined {
 	if (!current) return undefined;
 	const { previous, ...opener } = current;
 	if (opener.path.split('?')[0] !== to.key) return opener;
-	return previous && { ...previous, steps: 2 };
+	return formPopped ? previous : previous && { ...previous, steps: 2 };
 }
 
 export function arrive(
@@ -33,9 +38,9 @@ export function arrive(
 	current: Place | undefined,
 	arrival: Arrival
 ): Place | undefined {
-	const { type, from, to, restored } = arrival;
+	const { type, from, to, restored, formPopped } = arrival;
 	if (type === 'popstate' || type === 'enter' || !from) return restored ? current : undefined;
-	if (isForm(from.route) && type === 'goto') return afterForm(current, to);
+	if (isForm(from.route) && type === 'goto') return afterForm(current, to, formPopped);
 	if (from.key === to.key) return current;
 	if (from.route === to.route && to.route !== null && CARRY_ROUTES.has(to.route)) return current;
 	const place = names[from.key];

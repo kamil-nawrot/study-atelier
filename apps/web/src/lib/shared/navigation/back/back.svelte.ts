@@ -11,6 +11,7 @@ import type { Place } from '#lib/shared/types/place.ts';
 let names = $state(loadNames());
 let current = $state<Place>();
 let restored = false;
+let formPopped = false;
 
 type Stop = {
 	url: URL | null;
@@ -29,8 +30,14 @@ export function recordArrival({ type, from, to }: Navigation): void {
 		type,
 		from: from?.url ? { key: from.url.pathname, route: from.route.id } : null,
 		to: { key: to.url.pathname, route: to.route.id },
-		restored
+		restored,
+		formPopped
 	});
+	if (type === 'goto') formPopped = false;
+}
+
+export function markFormPopped(): void {
+	formPopped = true;
 }
 
 export function forgetRestoredBackPlace(): void {
