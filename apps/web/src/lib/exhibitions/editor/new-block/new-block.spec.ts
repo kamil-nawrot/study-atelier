@@ -7,8 +7,10 @@ import {
 	kindOf,
 	quoteNode,
 	quoteText,
+	symbolNode,
 	termNode,
-	textNode
+	textNode,
+	withMeaning
 } from '#lib/exhibitions/editor/new-block/new-block.ts';
 
 describe('new blocks', () => {
@@ -28,6 +30,15 @@ describe('new blocks', () => {
 		expect(termNode('t1')).toEqual({ type: 'term', attrs: { termId: 't1' } });
 		expect(kindOf(termNode('t1'))).toBe('term');
 		expect(kindOf(textNode('divider'))).toBe('divider');
+	});
+
+	it('stores a symbol by its id and narrows it to one meaning or back to all', () => {
+		const symbol = symbolNode('s1');
+		expect(symbol).toEqual({ type: 'symbol', attrs: { symbolId: 's1' } });
+		expect(kindOf(symbol)).toBe('symbol');
+		const narrowed = withMeaning({ ...symbol, attrs: { ...symbol.attrs, align: 'center' } }, 'm1');
+		expect(narrowed.attrs).toEqual({ symbolId: 's1', align: 'center', meaningId: 'm1' });
+		expect(withMeaning(narrowed).attrs).toEqual({ symbolId: 's1', align: 'center' });
 	});
 
 	it('stores a palette as an artwork that shows only its colours', () => {

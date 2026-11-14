@@ -4,7 +4,9 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import ArtworkSearch from '#lib/exhibitions/components/ArtworkSearch/ArtworkSearch.svelte';
 	import TermSearch from '#lib/exhibitions/components/TermSearch/TermSearch.svelte';
+	import SymbolSearch from '#lib/exhibitions/components/SymbolSearch/SymbolSearch.svelte';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
+	import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
 	import FilterSidePanel from '#lib/wall/components/FilterSidePanel/FilterSidePanel.svelte';
 	import type {
 		ArtworkKind,
@@ -17,15 +19,28 @@
 		open: boolean;
 		lookup: ArtworkLookup;
 		terms?: readonly GlossaryTerm[];
+		symbols?: readonly SymbolOption[];
 		onadd: (block: NewBlock) => void;
 		ondrag?: (event: PointerEvent, block: NewBlock) => void;
 		addHref?: ResolvedPathname;
 	};
 
-	let { open = $bindable(), lookup, terms = [], onadd, ondrag, addHref }: Props = $props();
+	let {
+		open = $bindable(),
+		lookup,
+		terms = [],
+		symbols = [],
+		onadd,
+		ondrag,
+		addHref
+	}: Props = $props();
 
 	function termBlock(term: GlossaryTerm): NewBlock {
 		return { kind: 'term', termId: term.id, name: term.name };
+	}
+
+	function symbolBlock(symbol: SymbolOption): NewBlock {
+		return { kind: 'symbol', symbolId: symbol.id, name: symbol.name };
 	}
 
 	const kinds: { kind: TextKind; label: string }[] = [
@@ -41,7 +56,13 @@
 		{ kind: 'closeUp', label: m.exhibitions.blocks.closeUp }
 	];
 
+	const glossaryKinds = [
+		{ kind: 'term', label: m.exhibitions.panel.termKind },
+		{ kind: 'symbol', label: m.exhibitions.panel.symbolKind }
+	] as const;
+
 	let artworkKind = $state<ArtworkKind>('artwork');
+	let glossaryKind = $state<'term' | 'symbol'>('term');
 </script>
 
 <FilterSidePanel
@@ -91,11 +112,28 @@
 	</section>
 	<section class="section" aria-labelledby="panel-glossary">
 		<h3 id="panel-glossary">{m.exhibitions.panel.glossaryTitle}</h3>
-		<TermSearch
-			ondrag={(event, term) => ondrag?.(event, termBlock(term))}
-			onpick={(term) => onadd(termBlock(term))}
-			{terms}
-		/>
+		<p id="panel-glossary-as" class="caption">{m.exhibitions.panel.glossaryAs}</p>
+		<div class="as" aria-labelledby="panel-glossary-as" role="radiogroup">
+			{#each glossaryKinds as { kind, label } (kind)}
+				<label class="kind" class:chosen={glossaryKind === kind}>
+					<input name="glossary-kind" type="radio" value={kind} bind:group={glossaryKind} />
+					{label}
+				</label>
+			{/each}
+		</div>
+		{#if glossaryKind === 'symbol'}
+			<SymbolSearch
+				ondrag={(event, symbol) => ondrag?.(event, symbolBlock(symbol))}
+				onpick={(symbol) => onadd(symbolBlock(symbol))}
+				{symbols}
+			/>
+		{:else}
+			<TermSearch
+				ondrag={(event, term) => ondrag?.(event, termBlock(term))}
+				onpick={(term) => onadd(termBlock(term))}
+				{terms}
+			/>
+		{/if}
 	</section>
 </FilterSidePanel>
 

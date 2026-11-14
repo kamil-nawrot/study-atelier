@@ -11,7 +11,8 @@ const BLOCK_TYPES = new Set([
 	'artwork',
 	'closeUp',
 	'divider',
-	'term'
+	'term',
+	'symbol'
 ]);
 
 function walk(

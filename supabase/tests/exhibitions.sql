@@ -108,7 +108,15 @@ begin
       jsonb_build_object('type', 'column', 'content', jsonb_build_array(
         jsonb_build_object('type', 'divider', 'attrs', jsonb_build_object('line', true)))))),
     jsonb_build_object('type', 'term', 'attrs', jsonb_build_object(
-      'termId', '00000000-0000-4000-8000-0000000000f1', 'align', 'center')))), 2);
+      'termId', '00000000-0000-4000-8000-0000000000f1', 'align', 'center')),
+    jsonb_build_object('type', 'symbol', 'attrs', jsonb_build_object(
+      'symbolId', '00000000-0000-4000-8000-0000000000f2')),
+    jsonb_build_object('type', 'columns', 'content', jsonb_build_array(
+      jsonb_build_object('type', 'column', 'content', jsonb_build_array(jsonb_build_object('type', 'divider'))),
+      jsonb_build_object('type', 'column', 'content', jsonb_build_array(
+        jsonb_build_object('type', 'symbol', 'attrs', jsonb_build_object(
+          'symbolId', '00000000-0000-4000-8000-0000000000f2',
+          'meaningId', '00000000-0000-4000-8000-0000000000f3', 'valign', 'middle')))))))), 2);
   assert revision = 3, 'save_exhibition does not take a document with a row, close-ups and sets';
   assert (select array_agg(artwork_id order by position) from public.exhibition_artworks where exhibition_id = exhibition)
     = array[judith, olympia, raft],
@@ -216,6 +224,22 @@ begin
     'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "set", "content": [{"type": "term", "attrs": {"termId": "00000000-0000-4000-8000-0000000000f1"}}, {"type": "term", "attrs": {"termId": "00000000-0000-4000-8000-0000000000f1"}}]}]}'::jsonb))
     = '23514 exhibition_document',
     'an exhibition has a set of term blocks';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "symbol"}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a symbol block with no symbol';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "symbol", "attrs": {"symbolId": "00000000-0000-4000-8000-0000000000f2", "meaningId": "death"}}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a symbol block whose meaning is not an id';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "symbol", "attrs": {"symbolId": "00000000-0000-4000-8000-0000000000f2", "name": "Skull"}}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a symbol block with an attribute it does not know';
+  assert exhibitions_test.failure(format(
+    'select public.save_exhibition(%L, ''Light'', %L, 3)', exhibition, '{"type": "doc", "content": [{"type": "set", "content": [{"type": "symbol", "attrs": {"symbolId": "00000000-0000-4000-8000-0000000000f2"}}, {"type": "symbol", "attrs": {"symbolId": "00000000-0000-4000-8000-0000000000f2"}}]}]}'::jsonb))
+    = '23514 exhibition_document',
+    'an exhibition has a set of symbol blocks';
 
   listed := array(select ctid::text from public.exhibition_artworks where exhibition_id = exhibition order by position);
   revision := public.save_exhibition(exhibition, 'Light and shade',
