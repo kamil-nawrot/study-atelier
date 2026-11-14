@@ -225,7 +225,26 @@ const WRAPPERS = new Set([
 ]);
 const SHELLS = new Set(['bash', 'sh', 'zsh', 'dash']);
 
-const SUPABASE_CLI = /^supabase(@[\w.-]+)?$/;
+const SUPABASE_CLI = /^(?:\S*\/)?supabase(?:@\S+)?$/;
+const RUNNER_VALUE_FLAGS = new Set([
+	'-C',
+	'--dir',
+	'--filter',
+	'-F',
+	'--prefix',
+	'-w',
+	'--workspace'
+]);
+
+function runnerScript(words) {
+	const positional = [];
+	for (let index = 1; index < words.length; index += 1) {
+		const word = words[index];
+		if (RUNNER_VALUE_FLAGS.has(word)) index += 1;
+		else if (!word.startsWith('-')) positional.push(word);
+	}
+	return positional[0] === 'run' ? positional[1] : positional[0];
+}
 
 function checkDatabaseReset(words) {
 	const runner = RUNNERS.has(words[0]);
@@ -234,8 +253,8 @@ function checkDatabaseReset(words) {
 	const subcommands = supabase.filter((word) => !word.startsWith('-'));
 	const db = subcommands.indexOf('db');
 	if (
-		(runner && words.includes('db:reset')) ||
-		(db !== -1 && subcommands.slice(db + 1).includes('reset')) ||
+		(runner && runnerScript(words) === 'db:reset') ||
+		(db !== -1 && subcommands[db + 1] === 'reset') ||
 		(subcommands.includes('stop') && words.includes('--no-backup'))
 	) {
 		return 'A database reset or a stop without backup wipes the owner\'s local Supabase. Ask the owner to run "supabase migrations up" instead, and try SQL only in a rolled-back transaction.';
