@@ -310,7 +310,7 @@ begin
   select id into third_place from public.category_values where name = 'Third';
   insert into public.visits (place_id, visited_on, date_precision) values
     (first_place, '2026-05-14', 'day'), (second_place, '2026-05-14', 'day'), (first_place, '2026-05-14', 'day'),
-    (third_place, '2026-05-01', 'month'), (third_place, '2025-01-01', 'year');
+    (third_place, '2026-03-01', 'month'), (third_place, '2025-01-01', 'year');
   select id into morning from public.visits where place_id = first_place order by created_at, id limit 1;
   select id into elsewhere from public.visits where place_id = second_place;
   select id into later from public.visits where date_precision = 'month';
@@ -344,7 +344,7 @@ begin
   assert (select thresholds from public.unlock_exhibits('UTC') where exhibit = 'trevi_fountain') = array[2],
     'the Trevi fountain does not have one tier at two visits';
   assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'trevi_fountain') = array[1]::smallint[],
-    'an artwork seen on two days does not unlock the Trevi fountain';
+    'an artwork seen in March and on 14 May does not unlock the Trevi fountain';
   assert (select thresholds from public.unlock_exhibits('UTC') where exhibit = 'seven_league_boots') = array[3],
     'the seven-league boots do not have one tier at three places';
   assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'seven_league_boots') = array[1]::smallint[],
@@ -684,6 +684,10 @@ do $$
 declare
   place uuid;
   work uuid;
+  city uuid;
+  trip uuid;
+  inside uuid;
+  soon uuid;
 begin
   insert into public.category_values (category_code, name) values ('location', 'Uffizi') returning id into place;
   work := (select id from public.save_artwork(
@@ -693,8 +697,37 @@ begin
   insert into public.visit_artworks (visit_id, artwork_id)
     select visit.id, work from public.visits as visit where visit.place_id = place;
 
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'trevi_fountain') = 1,
+    'the Trevi fountain counts "1 maja 2026" as a return after "maj 2026"';
+
+  delete from public.visits where place_id = place;
+  insert into public.category_values (category_code, name) values ('location', 'Ateny') returning id into city;
+  insert into public.location_details (value_id, place_type) values (city, 'city');
+  insert into public.visits (kind, place_id, visited_on, date_precision, ends_on)
+    values ('trip', city, '2026-06-01', 'day', '2026-06-10') returning id into trip;
+  insert into public.visits (place_id, visited_on, date_precision, trip_id)
+    values (place, '2026-06-10', 'day', trip) returning id into inside;
+  insert into public.visit_artworks (visit_id, artwork_id) values (trip, work), (inside, work);
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'trevi_fountain') = 1,
+    'the Trevi fountain counts a trip and a visit within it as a return';
+
+  insert into public.visits (place_id, visited_on, date_precision)
+    values (place, '2026-07-09', 'day') returning id into soon;
+  insert into public.visit_artworks (visit_id, artwork_id) values (soon, work);
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'trevi_fountain') = 1,
+    'the Trevi fountain counts a visit 29 days after the end of a trip as a return';
+
+  update public.visits set visited_on = '2026-07-10' where id = soon;
+
   assert (select value from public.unlock_exhibits('UTC') where exhibit = 'trevi_fountain') = 2,
-    'the Trevi fountain counts "maj 2026" and "1 maja 2026" as one visit';
+    'the Trevi fountain does not count a visit 30 days after the end of a trip as a return';
+
+  update public.visits set visited_on = '2025-01-01', date_precision = 'year' where id = soon;
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'trevi_fountain') = 2,
+    'the Trevi fountain does not count a return after a year, in any order of the entries';
 end;
 $$;
 

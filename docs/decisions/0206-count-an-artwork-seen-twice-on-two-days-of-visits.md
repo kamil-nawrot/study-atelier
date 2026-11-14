@@ -1,6 +1,6 @@
 # 0206. Count an artwork seen twice on two days of visits
 
-- Status: accepted; the same date is superseded by [0236](0236-count-a-visit-date-with-its-precision-for-the-trevi-fountain.md)
+- Status: accepted; the two different dates are superseded by [0289](0289-count-two-sightings-thirty-days-apart-for-the-trevi-fountain.md)
 - Date: 2026-11-07
 
 ## Context and problem statement
