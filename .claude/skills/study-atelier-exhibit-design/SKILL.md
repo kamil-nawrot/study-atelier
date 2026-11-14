@@ -19,7 +19,7 @@ Talk to the owner in Polish; everything written to the repository and Linear is 
 ## 1. Start
 
 - Check that no other session works on the issue (its status, `git branch -r`, open pull requests), then set it In Progress and assign it.
-- Work in the main checkout unless another session uses it: a branch `feature/atl-<n>-design-the-…` from `develop`.
+- Work in a worktree from `pnpm worktree feature/atl-<n>-design-the-…` ([ADR-0247](../../../docs/decisions/0247-work-in-a-worktree-per-session.md)).
 
 ## 2. Candidates
 
@@ -42,8 +42,8 @@ Download the originals of every candidate into `tmp/mockups/atl-<n>/` (ignored b
 - Add two or three variants of the chosen engraving to `manifest.json` under a provisional exhibit code (`snake_case`, after the object), with `status` `alternative`, the Commons file, the licence, an English credit and the `crop` as fractions of the source.
 - The crop must be close to 10:13 in pixels of the source: `(x1 - x0) * width / ((y1 - y0) * height) ≈ 0.77`. Work the fractions out from the full size of the file, not the preview.
 - Edit the manifest with a script that loads and dumps it (`json.dumps(…, indent=2, ensure_ascii=False)`), never with Prettier: the file is not Prettier-formatted, and `pnpm format` would rewrite all of it.
-- Render with `exhibit-art build --fetch --only <code> --out tmp/mockups/atl-<n>` (from `tools/exhibit-art`, with its virtual environment) and look at `platinum.png` of each variant yourself before showing them: a hidden or single-tier exhibit is seen in platinum once found, a tiered one in every metal.
-- Show the variants with one line each and a recommendation. Once the owner picks one, set it `chosen`, the others `alternative` or `rejected`, and map the code to it in `app`.
+- Render with `exhibit-art build --fetch --only <code> --manifest manifest.json --out tmp/mockups/atl-<n>` (from the worktree's `tools/exhibit-art`, with the virtual environment and `--sources` of the main checkout, and the `--out` folder created first; see the tool's README) and look at `platinum.png` of each variant yourself before showing them: a hidden or single-tier exhibit is seen in platinum once found, a tiered one in every metal.
+- Show the variants with one line each and a recommendation. Once the owner picks one, set it `chosen`, the others `alternative` or `rejected`, and map the code to it in `app`. Commit the manifest and push the branch right away, so a session that ends early leaves the crops on GitHub.
 
 ## 4. Facts
 
