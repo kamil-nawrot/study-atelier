@@ -148,9 +148,9 @@ describe('symbol questions data', () => {
 		await expect(loadSymbolQuestionImages([])).resolves.toEqual(new Map());
 	});
 
-	it('gives no images when they cannot be loaded', async () => {
+	it('gives nothing when the images cannot be loaded', async () => {
 		answer({ data: null, error: { message: 'Failed to fetch' } });
 
-		await expect(loadSymbolQuestionImages(['pin-1'])).resolves.toEqual(new Map());
+		await expect(loadSymbolQuestionImages(['pin-1'])).resolves.toBeUndefined();
 	});
 });

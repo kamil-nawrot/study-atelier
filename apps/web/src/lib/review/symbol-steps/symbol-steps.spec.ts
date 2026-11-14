@@ -44,6 +44,12 @@ describe('symbol steps', () => {
 		expect(loadSymbolQuestionImages).toHaveBeenCalledWith(['pin-1']);
 	});
 
+	it('runs without the questions when their images cannot be loaded', async () => {
+		vi.mocked(loadSymbolQuestionImages).mockResolvedValue(undefined);
+
+		await expect(loadSymbolSteps(1, [])).resolves.toEqual([]);
+	});
+
 	it('runs without the questions when a load fails', async () => {
 		vi.mocked(loadSymbolOptions).mockResolvedValue({ symbols: [], error: 'Brak sieci.' });
 

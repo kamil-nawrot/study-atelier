@@ -20,6 +20,7 @@ export async function loadSymbolSteps(
 	if (pins.error || options.error) return [];
 	const questions = drawnSymbolQuestions(pins.pins, options.symbols, glossary, count);
 	const images = await loadSymbolQuestionImages(questions.map((question) => question.pin.pinId));
+	if (!images) return [];
 	const lenses = await fragmentLenses(
 		questions.map((question) => ({
 			...question.pin.fragment,
