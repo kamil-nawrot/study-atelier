@@ -28,6 +28,13 @@ describe('glossary tab', () => {
 		expect(rememberedGlossaryTab()).toBe('symbols');
 	});
 
+	it('opens the tab named in the address before the remembered one', () => {
+		rememberGlossaryTab('terms');
+
+		expect(rememberedGlossaryTab('symbols')).toBe('symbols');
+		expect(rememberedGlossaryTab('timeline')).toBe('terms');
+	});
+
 	it('ignores a tab it does not know', () => {
 		rememberGlossaryTab('timeline');
 

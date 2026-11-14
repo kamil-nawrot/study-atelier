@@ -64,7 +64,7 @@
 	.record {
 		display: flex;
 		justify-content: space-between;
-		align-items: baseline;
+		align-items: center;
 		gap: var(--spacing-4);
 		padding: var(--spacing-3);
 		color: var(--color-fg);

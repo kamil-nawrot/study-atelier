@@ -33,6 +33,8 @@ exhibit-art publish --out ../../apps/web/static/exhibits
 
 `build` and `publish` take `--fetch` to download missing sources first, and `--only` to limit the run to some exhibits (`--only marathon chronicle`) or variants (`--only marathon/durer-nemesis-cup`). Every command takes `--tiers <file>` to use other tiers than the built-in ones.
 
+The command is installed in the virtual environment of one checkout and reads that checkout's `manifest.json` and `.cache/sources/` by default. In a worktree ([ADR-0247](../../docs/decisions/0247-work-in-a-worktree-per-session.md)), run it from the worktree's `tools/exhibit-art` with `--manifest manifest.json`, and `--sources` pointing at the main checkout's `.cache/sources` to reuse the downloads; otherwise it renders the main checkout's variants and an exhibit missing there gives no image and no error. `build` also needs its `--out` folder to exist.
+
 ## The manifest
 
 `manifest.json` lists every variant made so far, chosen, alternative and rejected, so none has to be prepared again by hand. `app` names the variant shown in the app for each exhibit.

@@ -369,6 +369,7 @@ describe('symbols data', () => {
 				{
 					id: 'keys',
 					name: 'Keys',
+					cover_pin_id: 'pin-1',
 					symbol_meanings: [
 						{ id: 'm2', position: 1, text: 'Heaven' },
 						{ id: 'm1', position: 0, text: 'Power of the Church' }
@@ -383,6 +384,7 @@ describe('symbols data', () => {
 				{
 					id: 'keys',
 					name: 'Keys',
+					coverPinId: 'pin-1',
 					meanings: [
 						{ id: 'm1', text: 'Power of the Church' },
 						{ id: 'm2', text: 'Heaven' }

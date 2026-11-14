@@ -83,6 +83,12 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		licence: 'CC0',
 		commonsFile: "Seconde vue de la salle d'introduction. G.30766.jpg"
 	},
+	kircher_ark: {
+		credit: 'Nieznany rytownik według Athanasiusa Kirchera, „Wejście zwierząt do arki”, 1675',
+		licence: 'domena publiczna',
+		commonsFile:
+			'Athanasii Kircheri è Soc. Jesu Arca Noë - in tres libros digesta, quorum I. De rebus quae ante diluvium, II. De iis, quæ ipso diluvio ejusque duratione, III. De iis (IA athanasiikircher1675kirc).pdf'
+	},
 	night_watch: {
 		credit: 'William Unger według Rembrandta, „Straż nocna”, XIX wiek',
 		licence: 'CC0',
@@ -186,6 +192,12 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 			'Israhel van Meckenem według Mistrza E.S., litera A z „Alfabetu figuralnego”, ostatnia tercja XV wieku',
 		licence: 'domena publiczna',
 		page: 'https://id.smb.museum/object/1543315'
+	},
+	pelican_serpent: {
+		credit: 'Boëtius Adamsz. Bolswert, „Pelikan i miedziany wąż”, 1639',
+		licence: 'CC0',
+		commonsFile:
+			'Pelikaan en de koperen slang, 12 Het Mirakel van Amsterdam, 1345 (serietitel) Amstelredams eer ende opcomen door de denckwaerdighe miraklen aldaer geschied aen ende door het H. Sacrament des Altaers Anno 1345 (serietit, RP-P-1878-A-2587.jpg'
 	},
 	candle_moths: {
 		credit: 'Vincent Laurensz. van der Vinne, „Muchy lecą do światła świecy”, 1714',

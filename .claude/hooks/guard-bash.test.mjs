@@ -116,6 +116,12 @@ test('blocks a reset of the local database', () => {
 	assert.ok(blocked('pnpm --filter root db:reset'));
 	assert.ok(blocked('supabase --workdir x db reset'));
 	assert.ok(blocked('npx supabase@2 db reset'));
+	assert.ok(blocked('npx supabase@^2 db reset'));
+	assert.ok(blocked('./node_modules/.bin/supabase db reset'));
+	assert.ok(blocked('supabase db --local reset'));
+	assert.ok(!blocked('pnpm exec grep -r db:reset docs'));
+	assert.ok(!blocked('supabase db diff -f reset'));
+	assert.ok(!blocked('pnpm exec supabase db diff -f reset'));
 	assert.ok(blocked('pnpm -C . exec supabase --debug db reset --local'));
 	assert.ok(blocked('supabase stop --no-backup'));
 	assert.ok(blocked('pnpm exec supabase stop --no-backup'));

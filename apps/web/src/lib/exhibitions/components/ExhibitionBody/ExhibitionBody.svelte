@@ -1,6 +1,7 @@
 <script lang="ts">
 	import CloseUpFigure from '#lib/exhibitions/components/CloseUpFigure/CloseUpFigure.svelte';
 	import TermFigure from '#lib/exhibitions/components/TermFigure/TermFigure.svelte';
+	import SymbolFigure from '#lib/exhibitions/components/SymbolFigure/SymbolFigure.svelte';
 	import ExhibitionDivider from '#lib/exhibitions/components/ExhibitionDivider/ExhibitionDivider.svelte';
 	import ArtworkFigure from '#lib/exhibitions/components/ArtworkFigure/ArtworkFigure.svelte';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes/GlossaryNotes.svelte';
@@ -14,14 +15,16 @@
 	import type { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
 	import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
+	import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
 
 	type Props = {
 		document: ExhibitionDocument;
 		lookup: ArtworkLookup;
 		entries?: readonly GlossaryTerm[];
+		symbols?: readonly SymbolOption[];
 	};
 
-	let { document, lookup, entries }: Props = $props();
+	let { document, lookup, entries, symbols }: Props = $props();
 
 	let blocks = $derived(
 		(document.content ?? []).filter((block, index, all) => {
@@ -76,6 +79,13 @@
 		/>
 	{:else if block.type === 'term'}
 		<TermFigure linked termId={String(block.attrs?.termId)} terms={entries} />
+	{:else if block.type === 'symbol'}
+		<SymbolFigure
+			linked
+			meaningId={block.attrs?.meaningId as string | undefined}
+			symbolId={String(block.attrs?.symbolId)}
+			{symbols}
+		/>
 	{:else if block.type === 'divider'}
 		<ExhibitionDivider line={Boolean(block.attrs?.line)} upright={cell} />
 	{:else if block.type === 'set'}

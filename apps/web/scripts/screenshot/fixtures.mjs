@@ -799,6 +799,21 @@ function textBlock(...paragraphs) {
 	};
 }
 
+const symbolId = (number) => `00000000-0000-4000-b000-${String(number).padStart(12, '0')}`;
+const meaningId = (symbol, position) =>
+	`00000000-0000-4000-b100-${String(symbol * 10 + position).padStart(12, '0')}`;
+
+function symbolBlock(number, meaningPosition = null, extra = {}) {
+	return {
+		type: 'symbol',
+		attrs: {
+			symbolId: symbolId(number),
+			...(meaningPosition === null ? {} : { meaningId: meaningId(number, meaningPosition) }),
+			...extra
+		}
+	};
+}
+
 function artworkBlock(number, caption, note = false, extra = {}) {
 	return {
 		type: 'artwork',
@@ -875,6 +890,8 @@ export const EXHIBITIONS = [
 				type: 'term',
 				attrs: { termId: '00000000-0000-4000-9000-000000000007', valign: 'middle' }
 			}),
+			row(artworkBlock(9, ''), symbolBlock(1, null, { valign: 'middle' })),
+			row(symbolBlock(2, 1), symbolBlock(4)),
 			{
 				type: 'quote',
 				content: [
@@ -905,7 +922,7 @@ export const EXHIBITIONS = [
 			{ type: 'divider' },
 			textBlock('Na końcu zostaje pytanie: czy światło jest tematem, czy tylko narzędziem?')
 		],
-		[1, 3]
+		[1, 3, 9]
 	),
 	exhibition(2, 'Portrety kobiet', [textBlock('Notatki w przygotowaniu.')], [9]),
 	exhibition(3, '', [], []),
@@ -1380,10 +1397,6 @@ function pin(artworkNumber, number, x, y, glossaryNumber, text, viewWidth = null
 	};
 }
 
-const symbolId = (number) => `00000000-0000-4000-b000-${String(number).padStart(12, '0')}`;
-const meaningId = (symbol, position) =>
-	`00000000-0000-4000-b100-${String(symbol * 10 + position).padStart(12, '0')}`;
-
 function symbolContext(position, target) {
 	const empty = {
 		value_id: null,
@@ -1653,6 +1666,7 @@ export const EXHIBITS = [
 		thresholds: [1, 10, 25, 50, 100, 500]
 	},
 	{ exhibit: 'figure_alphabet', room: 'scriptorium', hidden: true, value: 23, thresholds: [23] },
+	{ exhibit: 'pelican_serpent', room: 'scriptorium', hidden: true, value: 0, thresholds: [1] },
 	{
 		exhibit: 'chronicle',
 		room: 'map_room',
@@ -1685,6 +1699,7 @@ export const EXHIBITS = [
 		thresholds: [1, 3, 5, 10, 25]
 	},
 	{ exhibit: 'lenoir_chapel', room: 'pavilion', hidden: true, value: 6, thresholds: [6] },
+	{ exhibit: 'kircher_ark', room: 'pavilion', hidden: true, value: 0, thresholds: [1] },
 	{ exhibit: 'mouth_of_truth', room: 'crypt', hidden: true, value: 0, thresholds: [1] },
 	{ exhibit: 'candle_moths', room: 'crypt', hidden: true, value: 1, thresholds: [1] }
 ];

@@ -2,6 +2,42 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.23.0] - 2026-11-14
+
+The atelier learns to see connections and places: an atlas of symbols, relations between artworks and between artists, a map of where the artworks are, trips in Kronika, and places grouped by country and city.
+
+### Added
+
+- The glossary has a tab "Symbole", your own atlas of symbols: a symbol has meanings with contexts (a person, a term), a main detail and its details from the artworks on a time axis "Przez wieki". A pin can mark a symbol and its meaning, "Przypisz detale" ticks the details of a meaning at once, and symbols are listed on the pages of values and persons.
+- Reviews ask about symbols: "Co przedstawia ten detal?" and "Do kogo należy ten atrybut?", counted in the round summary as "Poprawnie rozpoznane symbole:".
+- Typed relations between artworks ("Studium lub projekt do", "Kopia lub reprodukcja", "Inna wersja", "Część", "Nawiązuje do", "Powiązane z") and between authors ("Nauczyciel", "Uczeń", "Pod wpływem", "Współpraca", "Rodzina"), picked in the forms and shown in "Powiązania" on the artwork and author pages.
+- An author has a country.
+- "Mapa dzieł" over the wall opens a drawn map of the cities of your artworks, gold where you have seen an artwork in person, with the filters "Wszystkie", "Chcę zobaczyć" and "Widziane na żywo"; a click on a city opens its panel with its places, "Pokaż w Kartotece" and "Pokaż na ścianie".
+- The binoculars next to the heart mark an artwork as one you want to see in person ("Chcę zobaczyć na żywo"); the wall filters by it, and a visit that holds the artwork clears the mark.
+- Kronika logs a trip ("Podróż") to a city over several days next to museum visits: it preticks the artworks of the city, its visits stand under it, and a visit in its days is linked to it.
+- A place has its city: the field "Miasto" in the place form suggests your cities and the towns of a bundled catalogue (also by their English and original names, "London" finds Londyn), a starter museum gets its city at once, and a place in a city takes its country and its spot on the map from the city.
+- The tab "Miejsca" of Kartoteka is a tree of countries and cities with their places, folded like the eras, with "Miejsca bez kraju" at the end, and a city has its page with "Miejsca w tym mieście" and every artwork of the city.
+- New exhibits in Ekspozycja: "Czaszka zwycięzcy" for symbols, "Sieć Arachne" for relations, "Muszla pielgrzyma" for artworks seen after marking them, and the hidden "Sztaluga van Eycka" for three generations of masters.
+
+### Changed
+
+- The starter list of museums keeps only collections of art under one naming rule, with the Polish museums of art added; a place named like a museum's former name or common alias gets its details too.
+- Statystyki count trips apart from visits.
+- The loupe works on every image, so any pin can keep a view; the glossary and the exhibitions always show their search and add from their tabs like Kartoteka.
+- The tab "Miejsca" no longer sorts "Według kraju", as the tree is the division by country.
+- Internal: migrations run before the app is deployed, CI can be run by hand, a stricter guard hook and `pnpm verify`, the wrong answer of a quiz is logged, and a code review of the version with its fixes.
+
+### Fixed
+
+- Restoring an export failed when a place was named like a museum alias; it now imports.
+- The import of an export was offered to an atelier that held symbols or exhibitions and then failed; it is now offered only to an empty atelier.
+- Deleting a symbol whose main detail was a bare pin failed, the main detail could not be unset, and saving a pin or "Przypisz detale" could clear the meaning of a pin.
+- A visit lost its link to a trip shortened after it, and a city with trips could change its type and leave its trips unsaveable.
+
+### Migrations run on production
+
+24 migrations run on production with this release. Most add tables, columns and functions for symbols, relations, trips and the city of a place (`20261112150000_symbols`, `20261112200000_artwork_relations`, `20261113050000_trips_in_the_chronicle`, `20261113210000_city_of_a_place` and the others), and the exhibits are added to the catalogue. Four change existing data: `20261112170000_place_points_and_want_to_see` gives the starter museums their points, copies them to the places taken from the list and drops "Newgrounds"; `20261112190000_museum_catalogue_review` reviews the starter list (removes non-art entries, renames the rest under one rule, adds 23 Polish museums, renames `english_name` to `alias`) and renames a place taken from a renamed entry when it still has the old name; `20261113220000_city_of_a_starter_museum` stores the nearest town of each starter museum; and `20261112155000_symbol_points` adds the point events of existing symbols. Since migrations run before the deploy, the 0.22.0 app keeps working with them, except its list of starter museums, which reads `english_name` and fails to load until the 0.23.0 app is deployed a few minutes later.
+
 ## [0.22.0] - 2026-11-12
 
 The atelier is comfortable on a phone: a bottom bar to move around, views that fit the screen, reviews made for the thumb, images to zoom with two fingers, and an app to install on the home screen.
@@ -979,3 +1015,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.21.3]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.21.3
 [0.21.4]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.21.4
 [0.22.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.22.0
+[0.23.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.23.0

@@ -128,19 +128,21 @@ function entryOf(row: SymbolRow): SymbolEntry {
 type OptionRow = {
 	id: string;
 	name: string;
+	cover_pin_id: string | null;
 	symbol_meanings: { id: string; position: number; text: string }[];
 };
 
 export async function loadSymbolOptions(): Promise<{ symbols: SymbolOption[]; error?: string }> {
 	const { data, error } = await supabase
 		.from('symbols')
-		.select('id, name, symbol_meanings(id, position, text)')
+		.select('id, name, cover_pin_id, symbol_meanings(id, position, text)')
 		.order('name');
 	if (error) return { symbols: [], error: await failureMessage(error, symbolErrorMessage) };
 	return {
 		symbols: (data as unknown as OptionRow[]).map((row) => ({
 			id: row.id,
 			name: row.name,
+			...(row.cover_pin_id ? { coverPinId: row.cover_pin_id } : {}),
 			meanings: [...row.symbol_meanings]
 				.sort((a, b) => a.position - b.position)
 				.map(({ id, text }) => ({ id, text }))
