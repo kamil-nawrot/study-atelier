@@ -25,7 +25,7 @@ function fsrsCard(card: ReviewCard | null, now: Date): Card {
 	};
 }
 
-function reviewCard(artworkId: string, card: Card): ReviewCard {
+function reviewCard(artworkId: string, card: Card, rating: ReviewRating): ReviewCard {
 	return {
 		artworkId,
 		due: card.due,
@@ -36,7 +36,8 @@ function reviewCard(artworkId: string, card: Card): ReviewCard {
 		lapses: card.lapses,
 		scheduledDays: card.scheduled_days,
 		learningSteps: card.learning_steps,
-		lastReview: card.last_review ?? null
+		lastReview: card.last_review ?? null,
+		lastRating: rating
 	};
 }
 
@@ -47,7 +48,7 @@ export function schedule(
 	now: Date
 ): ReviewCard {
 	const next = scheduler.next(fsrsCard(card, now), now, rating as Grade);
-	return reviewCard(artworkId, next.card);
+	return reviewCard(artworkId, next.card, rating);
 }
 
 export function outcomes(
@@ -57,9 +58,9 @@ export function outcomes(
 ): Record<ReviewRating, ReviewCard> {
 	const preview = scheduler.repeat(fsrsCard(card, now), now);
 	return {
-		1: reviewCard(artworkId, preview[1].card),
-		2: reviewCard(artworkId, preview[2].card),
-		3: reviewCard(artworkId, preview[3].card)
+		1: reviewCard(artworkId, preview[1].card, 1),
+		2: reviewCard(artworkId, preview[2].card, 2),
+		3: reviewCard(artworkId, preview[3].card, 3)
 	};
 }
 

@@ -613,7 +613,13 @@ writes:
     name: Answer in review
     changes: [review_cards, review_log, free_review_days, point_events]
     side_effects:
-      [counters, streak, career points, a point for a right answer about time or a definition]
+      [
+        counters,
+        streak,
+        career points,
+        a point for a right answer about time or a definition,
+        only the first answer of the day of an artwork and facet schedules it; later ones are practice,
+      ]
     frequency: write
   - id: W09
     name: Toggle favourite
