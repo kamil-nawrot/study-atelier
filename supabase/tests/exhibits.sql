@@ -242,8 +242,8 @@ begin
     'an image full of pins does not unlock the pinacotheca';
 
   delete from public.artwork_pins where image_id = pinned and text = 'Pin 10';
-  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'pinacotheca') = 9,
-    'a deleted pin still counts';
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'pinacotheca') = 10,
+    'the pinacotheca, once found, is counted again instead of keeping its threshold';
   assert exists (select 1 from public.exhibit_tiers where exhibit = 'pinacotheca'),
     'a deleted pin takes the pinacotheca back';
   assert (select count(*) from public.point_events where kind = 'easter_egg' and code = 'pinacotheca') = 1,
@@ -977,10 +977,23 @@ begin
     'the hidden ark of Kircher gives no bonus';
 
   delete from public.symbols where id = dove;
-  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'kircher_ark') = 0,
-    'Kircher''s ark counts a symbol block whose symbol was deleted';
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'kircher_ark') = 1,
+    'Kircher''s ark, once found, is counted again instead of keeping its threshold';
   assert (select count(*) from public.exhibit_tiers where exhibit = 'kircher_ark') = 1,
     'Kircher''s ark is lost when its symbol is deleted';
+end;
+$$;
+
+reset role;
+
+delete from public.exhibit_tiers where owner_id = '00000000-0000-0000-0000-000000000019' and exhibit = 'kircher_ark';
+
+set local role authenticated;
+
+do $$
+begin
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'kircher_ark') = 0,
+    'Kircher''s ark counts a symbol block whose symbol was deleted';
 end;
 $$;
 
