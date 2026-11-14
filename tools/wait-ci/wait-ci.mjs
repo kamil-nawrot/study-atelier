@@ -5,6 +5,12 @@ const USAGE =
 	'Usage: pnpm wait-ci <pull request number> [--check <extra job name>]... [--timeout <minutes>]';
 const INTERVAL_MS = 30_000;
 const FAILED = new Set(['fail', 'cancel']);
+const PLACEHOLDERS = new Set(['UI library', 'Migrations on local Supabase']);
+const MARKDOWN_PATHS = new Set([
+	'package.json',
+	'prettier.config.js',
+	'.github/workflows/docs.yml'
+]);
 const UI_PATHS = [
 	/^packages\/ui\//,
 	/^design\//,
@@ -18,11 +24,7 @@ const UI_PATHS = [
 export function defaultChecks(files) {
 	const isMarkdown = (file) => file.endsWith('.md');
 	const checks = ['Conventions'];
-	if (
-		files.some(
-			(file) => isMarkdown(file) || file === 'package.json' || file === 'prettier.config.js'
-		)
-	) {
+	if (files.some((file) => isMarkdown(file) || MARKDOWN_PATHS.has(file))) {
 		checks.push('Markdown');
 	}
 	const appCode = files.some(
@@ -67,6 +69,7 @@ export function summarise(checks, names) {
 		if (buckets.some((bucket) => FAILED.has(bucket))) return { name, state: 'fail' };
 		if (buckets.length === 0 || buckets.includes('pending')) return { name, state: 'pending' };
 		if (buckets.includes('pass')) return { name, state: 'pass' };
+		if (PLACEHOLDERS.has(name) && names.includes(name)) return { name, state: 'pending' };
 		return { name, state: 'skipping' };
 	});
 	const overall = states.some(({ state }) => state === 'fail')
