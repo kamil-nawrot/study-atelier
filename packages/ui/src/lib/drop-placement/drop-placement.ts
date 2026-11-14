@@ -13,7 +13,6 @@ function scrollBox(element: Element): Element | null {
 	for (let node = element.parentElement; node; node = node.parentElement) {
 		if (node === document.body || node === document.documentElement) return null;
 		if (SCROLLING.test(getComputedStyle(node).overflowY)) return node;
-		if (node instanceof HTMLDialogElement) return node;
 	}
 	return null;
 }
@@ -59,7 +58,7 @@ function clear(list: HTMLElement): void {
 
 function placeInDialog(list: HTMLElement, parent: Element): void {
 	const anchor = parent.getBoundingClientRect();
-	const gap = parseFloat(getComputedStyle(parent).borderBottomWidth) || 0;
+	const gap = parseFloat(getComputedStyle(parent).borderBottomWidth);
 	const band = screenBand(parent, anchor, false, list);
 	list.style.position = 'fixed';
 	list.style.left = `${anchor.left}px`;

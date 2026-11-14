@@ -237,6 +237,42 @@ describe('placeDrop', () => {
 		expect(rect.bottom).toBeGreaterThan(host.getBoundingClientRect().bottom);
 	});
 
+	it('opens a list in a dialog upwards or cuts it to the room it has', async () => {
+		await page.viewport(800, 600);
+		const dialog = (): HTMLDialogElement => {
+			const host = document.createElement('dialog');
+			Object.assign(host.style, {
+				position: 'fixed',
+				inset: '0',
+				margin: '0',
+				padding: '0',
+				border: '0',
+				width: '400px',
+				height: '600px',
+				maxHeight: 'none'
+			});
+			host.setAttribute('open', '');
+			return host;
+		};
+		const low = field({ top: 450, list: 200, host: dialog() });
+		placeDrop(low);
+		const field1 = low.parentElement?.getBoundingClientRect();
+		expect(low.hasAttribute(DROP_UP)).toBe(true);
+		expect(low.getBoundingClientRect().bottom).toBeLessThanOrEqual(field1?.top ?? 0);
+		stage.remove();
+
+		const short = field({ top: 100, list: 100, host: dialog() });
+		placeDrop(short);
+		expect(short.hasAttribute(DROP_UP)).toBe(false);
+		expect(short.style.maxHeight).toBe('');
+		stage.remove();
+
+		const tall = field({ top: 100, list: 900, host: dialog() });
+		placeDrop(tall);
+		expect(tall.style.maxHeight).not.toBe('');
+		expect(tall.getBoundingClientRect().bottom).toBeLessThanOrEqual(600);
+	});
+
 	it('measures the window when the browser has no visual viewport', async () => {
 		await page.viewport(800, 600);
 		const original = Object.getOwnPropertyDescriptor(window, 'visualViewport');
