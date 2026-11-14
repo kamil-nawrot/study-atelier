@@ -20,6 +20,26 @@ test('picks the checks from the changed files', () => {
 	]);
 });
 
+test('waits for the jobs a workflow or a shared config starts', () => {
+	assert.deepEqual(defaultChecks(['pnpm-lock.yaml']), [
+		'Conventions',
+		'Web app',
+		'UI library',
+		'End-to-end'
+	]);
+	assert.deepEqual(defaultChecks(['lint/rule.js']), ['Conventions', 'Web app', 'UI library']);
+	assert.deepEqual(defaultChecks(['.github/workflows/migrations.yml']), [
+		'Conventions',
+		'Web app',
+		'Migrations on local Supabase'
+	]);
+	assert.deepEqual(defaultChecks(['.github/workflows/e2e.yml']), [
+		'Conventions',
+		'Web app',
+		'End-to-end'
+	]);
+});
+
 test('fails when a job outside the named ones fails', () => {
 	const checks = [
 		{ name: 'Web app', bucket: 'pass' },
