@@ -36,7 +36,8 @@
     "pilgrim_shell": "callot-pilgrims",
     "vault_cobweb": "weiditz-web",
     "van_eyck_easel": "galle-master-pupils-centre-right",
-    "kircher_ark": "kircher-entry-noah"
+    "kircher_ark": "kircher-entry-noah",
+    "pelican_serpent": "bolswert-pelican-scene"
   },
   "variants": [
     {
@@ -1585,6 +1586,76 @@
         0.03,
         0.823,
         0.97
+      ]
+    },
+    {
+      "exhibit": "pelican_serpent",
+      "status": "chosen",
+      "commons_file": "Pelikaan en de koperen slang, 12 Het Mirakel van Amsterdam, 1345 (serietitel) Amstelredams eer ende opcomen door de denckwaerdighe miraklen aldaer geschied aen ende door het H. Sacrament des Altaers Anno 1345 (serietit, RP-P-1878-A-2587.jpg",
+      "licence": "CC0",
+      "credit": "Boëtius Adamsz. Bolswert, The pelican and the brazen serpent, plate 12 of The Miracle of Amsterdam, from Leonardus Marius, Amstelredams eer ende opcomen, Antwerp, 1639, Rijksmuseum RP-P-1878-A-2587",
+      "variant": "bolswert-pelican-scene",
+      "crop": [
+        0.184,
+        0.1,
+        0.816,
+        0.6
+      ]
+    },
+    {
+      "exhibit": "pelican_serpent",
+      "status": "alternative",
+      "commons_file": "Pelikaan en de koperen slang, 12 Het Mirakel van Amsterdam, 1345 (serietitel) Amstelredams eer ende opcomen door de denckwaerdighe miraklen aldaer geschied aen ende door het H. Sacrament des Altaers Anno 1345 (serietit, RP-P-1878-A-2587.jpg",
+      "licence": "CC0",
+      "credit": "Boëtius Adamsz. Bolswert, The pelican and the brazen serpent, plate 12 of The Miracle of Amsterdam, from Leonardus Marius, Amstelredams eer ende opcomen, Antwerp, 1639, Rijksmuseum RP-P-1878-A-2587",
+      "variant": "bolswert-pelican-close",
+      "crop": [
+        0.2,
+        0.135,
+        0.8,
+        0.61
+      ]
+    },
+    {
+      "exhibit": "festina_lente_anchor",
+      "status": "alternative",
+      "commons_file": "Geharnaste arm met morgenster en olijftak anker met dolfijn Utrum Lubet Festina Lente (titel op object) Symbola Divina et Humana Pontificum Imperatorum Regum (serietitel), RP-P-2016-1042-104.jpg",
+      "licence": "CC0",
+      "credit": "After Aegidius Sadeler, Anchor with a dolphin, Festina lente, from Symbola divina et humana, 1666, Rijksmuseum RP-P-2016-1042-104",
+      "variant": "sadeler-anchor-cartouche",
+      "crop": [
+        0.38,
+        0.36,
+        0.91,
+        0.9
+      ]
+    },
+    {
+      "exhibit": "festina_lente_anchor",
+      "status": "alternative",
+      "commons_file": "Geharnaste arm met morgenster en olijftak anker met dolfijn Utrum Lubet Festina Lente (titel op object) Symbola Divina et Humana Pontificum Imperatorum Regum (serietitel), RP-P-2016-1042-104.jpg",
+      "licence": "CC0",
+      "credit": "After Aegidius Sadeler, Anchor with a dolphin, Festina lente, from Symbola divina et humana, 1666, Rijksmuseum RP-P-2016-1042-104",
+      "variant": "sadeler-anchor-banner",
+      "crop": [
+        0.4375,
+        0.464,
+        0.859,
+        0.895
+      ]
+    },
+    {
+      "exhibit": "festina_lente_anchor",
+      "status": "alternative",
+      "commons_file": "Geharnaste arm met morgenster en olijftak anker met dolfijn Utrum Lubet Festina Lente (titel op object) Symbola Divina et Humana Pontificum Imperatorum Regum (serietitel), RP-P-2016-1042-104.jpg",
+      "licence": "CC0",
+      "credit": "After Aegidius Sadeler, Anchor with a dolphin, Festina lente, from Symbola divina et humana, 1666, Rijksmuseum RP-P-2016-1042-104",
+      "variant": "sadeler-anchor-close",
+      "crop": [
+        0.469,
+        0.523,
+        0.828,
+        0.89
       ]
     }
   ]
