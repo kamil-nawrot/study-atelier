@@ -106,6 +106,7 @@ jobs:
           path: |
             apps/web/.svelte-kit/cloudflare
             apps/web/.svelte-kit/cloudflare-tmp
+            apps/web/.svelte-kit/output/server
           include-hidden-files: true
           retention-days: 1
           if-no-files-found: error
