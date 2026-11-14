@@ -225,16 +225,18 @@ const WRAPPERS = new Set([
 ]);
 const SHELLS = new Set(['bash', 'sh', 'zsh', 'dash']);
 
+const SUPABASE_CLI = /^supabase(@[\w.-]+)?$/;
+
 function checkDatabaseReset(words) {
-	const rest = RUNNERS.has(words[0])
-		? words.slice(1).filter((word) => !RUNNER_WORDS.has(word) && !word.startsWith('-'))
-		: words;
-	const script = RUNNERS.has(words[0]) ? rest : [];
-	const supabase = rest[0] === 'supabase' ? rest : [];
+	const runner = RUNNERS.has(words[0]);
+	const start = runner ? words.findIndex((word, index) => index > 0 && SUPABASE_CLI.test(word)) : 0;
+	const supabase = start !== -1 && SUPABASE_CLI.test(words[start]) ? words.slice(start + 1) : [];
+	const subcommands = supabase.filter((word) => !word.startsWith('-'));
+	const db = subcommands.indexOf('db');
 	if (
-		script[0] === 'db:reset' ||
-		(supabase[1] === 'db' && supabase[2] === 'reset') ||
-		(supabase[1] === 'stop' && words.some((word) => word === '--no-backup'))
+		(runner && words.includes('db:reset')) ||
+		(db !== -1 && subcommands.slice(db + 1).includes('reset')) ||
+		(subcommands.includes('stop') && words.includes('--no-backup'))
 	) {
 		return 'A database reset or a stop without backup wipes the owner\'s local Supabase. Ask the owner to run "supabase migrations up" instead, and try SQL only in a rolled-back transaction.';
 	}
