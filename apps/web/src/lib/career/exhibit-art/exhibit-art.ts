@@ -86,7 +86,8 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 	kircher_ark: {
 		credit: 'Nieznany rytownik według Athanasiusa Kirchera, „Wejście zwierząt do arki”, 1675',
 		licence: 'domena publiczna',
-		page: 'https://commons.wikimedia.org/wiki/File:Athanasii_Kircheri_%C3%A8_Soc._Jesu_Arca_No%C3%AB_-_in_tres_libros_digesta%2C_quorum_I._De_rebus_quae_ante_diluvium%2C_II._De_iis%2C_qu%C3%A6_ipso_diluvio_ejusque_duratione%2C_III._De_iis_%28IA_athanasiikircher1675kirc%29.pdf'
+		commonsFile:
+			'Athanasii Kircheri è Soc. Jesu Arca Noë - in tres libros digesta, quorum I. De rebus quae ante diluvium, II. De iis, quæ ipso diluvio ejusque duratione, III. De iis (IA athanasiikircher1675kirc).pdf'
 	},
 	night_watch: {
 		credit: 'William Unger według Rembrandta, „Straż nocna”, XIX wiek',
