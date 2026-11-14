@@ -2627,10 +2627,10 @@ export const pl = {
 		types: {
 			studyFrom: 'Studium lub projekt do',
 			studyTo: 'Ma studium lub projekt',
-			copyFrom: 'Kopia lub reprodukcja',
+			copyFrom: 'Jest kopią lub reprodukcją',
 			copyTo: 'Ma kopię lub reprodukcję',
 			version: 'Inna wersja',
-			partFrom: 'Część',
+			partFrom: 'Jest częścią',
 			partTo: 'Składa się z',
 			referenceFrom: 'Nawiązuje do',
 			referenceTo: 'Jest punktem odniesienia dla',
@@ -2650,8 +2650,8 @@ export const pl = {
 		title: 'Powiązania',
 		band: 'Inni artyści',
 		types: {
-			pupilFrom: 'Nauczyciel',
-			pupilTo: 'Uczeń',
+			pupilFrom: 'Jest uczniem',
+			pupilTo: 'Jest nauczycielem',
 			influenceFrom: 'Pod wpływem',
 			influenceTo: 'Wpływ na',
 			collaboration: 'Współpraca',
