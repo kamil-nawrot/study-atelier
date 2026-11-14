@@ -35,6 +35,10 @@
 					>
 						<Icon icon={ChevronRight} size="sm" />
 					</button>
+				{:else if !group.city && group.placeType}
+					<span class="chevron" title={placeTypeName(group.placeType)}>
+						<Icon icon={placeTypeIcon(group.placeType)} size="sm" />
+					</span>
 				{:else}
 					<span class="chevron"></span>
 				{/if}
@@ -44,11 +48,6 @@
 					href={valuePath('location', group.id)}
 				>
 					<span id="{uid}-{group.id}-name" class="name">
-						{#if !group.city && group.placeType}
-							<span class="type" title={placeTypeName(group.placeType)}>
-								<Icon icon={placeTypeIcon(group.placeType)} size="sm" />
-							</span>
-						{/if}
 						{group.name}
 					</span>
 					<span class="count">{m.atelier.count(group.count)}</span>
@@ -138,11 +137,6 @@
 		align-items: center;
 		gap: var(--spacing-2);
 		min-width: 0;
-	}
-
-	.type {
-		display: inline-flex;
-		color: var(--color-fg-muted);
 	}
 
 	.count {
