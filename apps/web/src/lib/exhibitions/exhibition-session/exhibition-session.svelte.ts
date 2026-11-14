@@ -16,6 +16,7 @@ export class ExhibitionSession {
 	#document: ExhibitionDocument;
 	#dirty = false;
 	#saving = false;
+	#running: Promise<void> | undefined;
 	#stopped = false;
 	#timer: ReturnType<typeof setTimeout> | undefined;
 
@@ -81,6 +82,10 @@ export class ExhibitionSession {
 
 	async flush(): Promise<void> {
 		clearTimeout(this.#timer);
+		if (this.#running) {
+			await this.#running;
+			clearTimeout(this.#timer);
+		}
 		if (this.#saving || !this.#dirty || this.status === 'conflict') return;
 		if (this.title.trim() === '') {
 			this.status = 'untitled';
@@ -88,8 +93,14 @@ export class ExhibitionSession {
 		}
 		this.#saving = true;
 		this.#dirty = false;
-		const result = await saveExhibition(this.#id, this.title, this.#document, this.#revision);
+		const running = saveExhibition(this.#id, this.title, this.#document, this.#revision);
+		this.#running = running.then(
+			() => undefined,
+			() => undefined
+		);
+		const result = await running;
 		this.#saving = false;
+		this.#running = undefined;
 		if (result.conflict) {
 			this.status = 'conflict';
 			this.#dirty = false;
@@ -104,8 +115,9 @@ export class ExhibitionSession {
 		}
 		this.#revision = result.revision;
 		this.error = undefined;
-		if (this.#dirty) this.#schedule(AUTOSAVE_DELAY_MS);
-		else this.status = 'saved';
+		if (!this.#dirty) this.status = 'saved';
+		else if (this.#stopped) void this.flush();
+		else this.#schedule(AUTOSAVE_DELAY_MS);
 	}
 
 	destroy(): void {
