@@ -52,7 +52,7 @@ export function cityOptions(
 	const known = new Set(cities.map((city) => valueKey(city.name)));
 	const shown =
 		key.length >= TOWN_MIN_QUERY
-			? searchTowns(query, towns).filter((town) => !known.has(valueKey(town.name)))
+			? searchTowns(query, towns, undefined, (town) => known.has(valueKey(town.name)))
 			: [];
 	const options: ValueOption[] = [
 		...own.map((city) => {

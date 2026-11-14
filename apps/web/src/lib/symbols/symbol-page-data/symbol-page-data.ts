@@ -40,16 +40,14 @@ export async function loadSymbolPage(id: string): Promise<SymbolPageResult> {
 }
 
 export async function loadSymbolForm(id?: string): Promise<SymbolFormResult> {
-	const [found, cardIndex, glossary] = await Promise.all([
-		id ? loadSymbol(id) : undefined,
-		loadCardIndex(),
-		loadTermIndex()
-	]);
-	const error = found?.error ?? cardIndex.error ?? glossary.error;
+	if (id) {
+		const found = await loadSymbol(id);
+		if (found.error) return { candidates: [], error: found.error };
+		if (!found.symbol) return { candidates: [], notFound: true };
+		return { symbol: found.symbol, candidates: [] };
+	}
+	const [cardIndex, glossary] = await Promise.all([loadCardIndex(), loadTermIndex()]);
+	const error = cardIndex.error ?? glossary.error;
 	if (error) return { candidates: [], error };
-	if (found && !found.symbol) return { candidates: [], notFound: true };
-	return {
-		...(found?.symbol ? { symbol: found.symbol } : {}),
-		candidates: contextCandidates(cardIndex.index, glossary.terms)
-	};
+	return { candidates: contextCandidates(cardIndex.index, glossary.terms) };
 }

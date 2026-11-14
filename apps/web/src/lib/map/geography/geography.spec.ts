@@ -79,7 +79,7 @@ describe('geographyOf', () => {
 			}
 		};
 
-		const geography = geographyOf(world as never, []);
+		const geography = geographyOf(world as never);
 
 		expect(geography.land.features).toHaveLength(1);
 		expect(geography.borders.coordinates).toEqual([
@@ -97,36 +97,32 @@ describe('loadGeography', () => {
 		vi.resetModules();
 	});
 
-	it('loads the files once and tries again after a failure', async () => {
+	it('loads only the world once and tries again after a failure', async () => {
 		const fetch = vi.fn().mockResolvedValue(new Response('', { status: 500 }));
 		vi.stubGlobal('fetch', fetch);
 		const { loadGeography } = await import('./geography.ts');
 
 		await expect(loadGeography()).rejects.toThrow();
-		fetch.mockImplementation((url: string) =>
+		fetch.mockImplementation(() =>
 			Promise.resolve(
 				new Response(
-					JSON.stringify(
-						url.endsWith('towns.json')
-							? [[2.35, 48.857, 'Paryż', 'FR']]
-							: {
-									type: 'Topology',
-									arcs: [],
-									objects: {
-										countries: { type: 'GeometryCollection', geometries: [] },
-										land: { type: 'GeometryCollection', geometries: [] }
-									}
-								}
-					)
+					JSON.stringify({
+						type: 'Topology',
+						arcs: [],
+						objects: {
+							countries: { type: 'GeometryCollection', geometries: [] },
+							land: { type: 'GeometryCollection', geometries: [] }
+						}
+					})
 				)
 			)
 		);
 
-		const geography = await loadGeography();
+		await loadGeography();
 		await loadGeography();
 
-		expect(geography.towns).toHaveLength(1);
-		expect(fetch).toHaveBeenCalledTimes(4);
+		expect(fetch).toHaveBeenCalledTimes(2);
+		expect(fetch.mock.calls.every(([url]) => String(url).endsWith('world.json'))).toBe(true);
 	});
 });
 
