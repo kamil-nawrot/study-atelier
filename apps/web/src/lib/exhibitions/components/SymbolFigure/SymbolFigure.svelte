@@ -32,9 +32,14 @@
 		const current = key;
 		if (!symbol) return;
 		let alive = true;
-		void loadSymbolCover(symbol.id, symbol.coverPinId, chosen?.id).then((result) => {
-			if (alive) loaded = { key: current, lens: result.lens };
-		});
+		void loadSymbolCover(symbol.id, symbol.coverPinId, chosen?.id).then(
+			(result) => {
+				if (alive) loaded = { key: current, lens: result.lens };
+			},
+			() => {
+				if (alive) loaded = { key: current };
+			}
+		);
 		return () => {
 			alive = false;
 		};

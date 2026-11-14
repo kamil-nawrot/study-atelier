@@ -12,15 +12,16 @@ const query = {
 	eq: vi.fn(),
 	not: vi.fn(),
 	is: vi.fn(),
-	order: vi.fn()
+	order: vi.fn(),
+	limit: vi.fn()
 };
 
-function answer(result: unknown): void {
-	query.select.mockReturnValue(query);
-	query.eq.mockReturnValue(query);
-	query.not.mockReturnValue(query);
-	query.is.mockReturnValue(query);
-	query.order.mockReset().mockReturnValueOnce(query).mockResolvedValueOnce(result);
+function answer(...results: unknown[]): void {
+	for (const step of [query.select, query.eq, query.not, query.is, query.order]) {
+		step.mockReset().mockReturnValue(query);
+	}
+	query.limit.mockReset();
+	for (const result of results) query.limit.mockResolvedValueOnce(result);
 	vi.mocked(supabase.from).mockReturnValue(query as never);
 }
 
@@ -39,22 +40,8 @@ const image = {
 	artworks: { deleted_at: null }
 };
 
-function row(
-	id: string,
-	meaning: string | null,
-	createdAt: string,
-	crop: string | null
-): Record<string, unknown> {
-	return {
-		id,
-		x: 0.5,
-		y: 0.4,
-		view_width: 0.2,
-		crop_path: crop,
-		symbol_meaning_id: meaning,
-		created_at: createdAt,
-		artwork_images: image
-	};
+function row(id: string, crop: string | null): Record<string, unknown> {
+	return { id, x: 0.5, y: 0.4, view_width: 0.2, crop_path: crop, artwork_images: image };
 }
 
 describe('symbol cover data', () => {
@@ -65,44 +52,37 @@ describe('symbol cover data', () => {
 		);
 	});
 
-	it('reads the details with a loupe view of artworks outside the trash, newest first', async () => {
-		answer({ data: [], error: null });
+	it('reads the newest detail with a loupe view of an artwork outside the trash', async () => {
+		answer({ data: [row('pin-new', 'owner/new.jpg')], error: null });
 
-		await loadSymbolCover('skull');
+		const { lens } = await loadSymbolCover('skull');
 
 		expect(supabase.from).toHaveBeenCalledWith('artwork_pins');
 		expect(query.eq).toHaveBeenCalledWith('symbol_id', 'skull');
 		expect(query.not).toHaveBeenCalledWith('view_width', 'is', null);
 		expect(query.is).toHaveBeenCalledWith('artwork_images.artworks.deleted_at', null);
 		expect(query.order).toHaveBeenCalledWith('created_at', { ascending: false });
+		expect(query.limit).toHaveBeenCalledWith(1);
+		expect(lens?.crop).toBe('https://images.test/owner/new.jpg');
 	});
 
-	it('shows the crop of the main detail', async () => {
-		answer({
-			data: [
-				row('pin-new', null, '2026-11-03T10:00:00Z', 'owner/new.jpg'),
-				row('pin-main', 'death', '2026-11-01T10:00:00Z', 'owner/main.jpg')
-			],
-			error: null
-		});
+	it('shows the crop of the main detail with one request', async () => {
+		answer({ data: [row('pin-main', 'owner/main.jpg')], error: null });
 
 		const { lens } = await loadSymbolCover('skull', 'pin-main');
 
+		expect(query.eq).toHaveBeenCalledWith('id', 'pin-main');
+		expect(query.limit).toHaveBeenCalledTimes(1);
 		expect(lens?.crop).toBe('https://images.test/owner/main.jpg');
 	});
 
-	it('shows the newest detail of the chosen meaning', async () => {
-		answer({
-			data: [
-				row('pin-new', null, '2026-11-03T10:00:00Z', 'owner/new.jpg'),
-				row('pin-death', 'death', '2026-11-02T10:00:00Z', 'owner/death.jpg'),
-				row('pin-main', 'penance', '2026-11-01T10:00:00Z', 'owner/main.jpg')
-			],
-			error: null
-		});
+	it('shows the newest detail of the chosen meaning when the main detail has another', async () => {
+		answer({ data: [], error: null }, { data: [row('pin-death', 'owner/death.jpg')], error: null });
 
 		const { lens } = await loadSymbolCover('skull', 'pin-main', 'death');
 
+		expect(query.eq).toHaveBeenCalledWith('symbol_meaning_id', 'death');
+		expect(query.limit).toHaveBeenCalledTimes(2);
 		expect(lens?.crop).toBe('https://images.test/owner/death.jpg');
 	});
 
@@ -115,7 +95,7 @@ describe('symbol cover data', () => {
 	it('says so when the details cannot be read', async () => {
 		answer({ data: null, error: { message: 'Failed to fetch' } });
 
-		await expect(loadSymbolCover('skull')).resolves.toEqual({
+		await expect(loadSymbolCover('skull', 'pin-main')).resolves.toEqual({
 			error: m.common.network
 		});
 	});
