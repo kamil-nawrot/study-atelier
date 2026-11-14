@@ -33,20 +33,16 @@ export function townsOf(rows: TownRow[]): Town[] {
 	});
 }
 
-export function geographyOf(world: World, rows: TownRow[]): Geography {
+export function geographyOf(world: World): Geography {
 	return {
 		land: feature(world, world.objects.land) as FeatureCollection,
-		borders: mesh(world, world.objects.countries, (first, second) => first !== second),
-		towns: townsOf(rows)
+		borders: mesh(world, world.objects.countries, (first, second) => first !== second)
 	};
 }
 
 export function loadGeography(): Promise<Geography> {
-	loading ??= Promise.all([
-		json<World>(asset('map/world.json')),
-		json<TownRow[]>(asset('map/towns.json'))
-	])
-		.then(([world, rows]) => geographyOf(world, rows))
+	loading ??= json<World>(asset('map/world.json'))
+		.then(geographyOf)
 		.catch((error: unknown) => {
 			loading = undefined;
 			throw error;
@@ -55,13 +51,11 @@ export function loadGeography(): Promise<Geography> {
 }
 
 export function loadTowns(): Promise<Town[]> {
-	loadingTowns ??= (
-		loading
-			? loading.then((geography) => geography.towns)
-			: json<TownRow[]>(asset('map/towns.json')).then(townsOf)
-	).catch((error: unknown) => {
-		loadingTowns = undefined;
-		throw error;
-	});
+	loadingTowns ??= json<TownRow[]>(asset('map/towns.json'))
+		.then(townsOf)
+		.catch((error: unknown) => {
+			loadingTowns = undefined;
+			throw error;
+		});
 	return loadingTowns;
 }
