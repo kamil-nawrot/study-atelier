@@ -45,14 +45,15 @@ begin
     'reading_room:night_watch', 'reading_room:marathon', 'reading_room:amateur_magnifier',
     'scriptorium:glossary', 'scriptorium:laurel_skull', 'scriptorium:timeline', 'scriptorium:hortus_cliffortianus', 'scriptorium:figure_alphabet',
     'map_room:chronicle', 'map_room:grand_tour', 'map_room:seen_live', 'map_room:trevi_fountain',
-    'map_room:seven_league_boots', 'map_room:pilgrim_shell', 'pavilion:crystal_palace', 'pavilion:lenoir_chapel', 'crypt:mouth_of_truth',
+    'map_room:seven_league_boots', 'map_room:pilgrim_shell', 'pavilion:crystal_palace', 'pavilion:lenoir_chapel', 'pavilion:kircher_ark',
+    'crypt:mouth_of_truth',
     'crypt:candle_moths'
-  ], 'the exhibits are not the agreed thirty-six in their rooms and order';
+  ], 'the exhibits are not the agreed thirty-seven in their rooms and order';
   assert (select array_agg(exhibit order by exhibit) from public.unlock_exhibits('UTC') where hidden) = array[
-    'amateur_magnifier', 'back_from_storage', 'candle_moths', 'figure_alphabet', 'lenoir_chapel', 'marathon',
+    'amateur_magnifier', 'back_from_storage', 'candle_moths', 'figure_alphabet', 'kircher_ark', 'lenoir_chapel', 'marathon',
     'mouth_of_truth', 'night_watch', 'pilgrim_shell', 'pinacotheca', 'seven_league_boots', 'trevi_fountain',
     'van_eyck_easel'
-  ], 'the hidden exhibits are not the agreed thirteen';
+  ], 'the hidden exhibits are not the agreed fourteen';
   assert (select value from public.unlock_exhibits('UTC') where exhibit = 'early_modern') = 5,
     'an era exhibit does not count the artworks of its era';
   assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'modern') = array[1]::smallint[],
@@ -891,6 +892,94 @@ begin
     'a master, his pupil and the pupil''s pupil do not find van Eyck''s easel';
   assert exists (select 1 from public.point_events where kind = 'easter_egg' and code = 'van_eyck_easel'),
     'the hidden easel of van Eyck gives no bonus';
+end;
+$$;
+
+reset role;
+
+do $$
+begin
+  assert (select array_agg(kind.value order by kind.value)
+      from jsonb_array_elements_text(private.exhibition_children() -> 'doc') as kind (value))
+    = array['artwork', 'closeUp', 'columns', 'divider', 'heading', 'quote', 'set', 'symbol', 'term', 'textBlock'],
+    'the editor has a new kind of block: decide whether Kircher''s ark counts it with content only, and update this list';
+end;
+$$;
+
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000019', 'owner-p@example.test');
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-000000000019", "role": "authenticated"}', true);
+
+do $$
+declare
+  kept uuid;
+  trashed uuid;
+  term uuid;
+  dove uuid;
+  archived uuid := gen_random_uuid();
+  words constant jsonb := jsonb_build_array(jsonb_build_object('type', 'paragraph', 'content',
+    jsonb_build_array(jsonb_build_object('type', 'text', 'text', 'Two by two'))));
+  blocks jsonb;
+begin
+  kept := (select id from public.save_artwork(
+    jsonb_build_object('title', 'Kept', 'author_unknown', true), '{"author": [], "location": []}'));
+  trashed := (select id from public.save_artwork(
+    jsonb_build_object('title', 'Trashed', 'author_unknown', true), '{"author": [], "location": []}'));
+  update public.artworks set deleted_at = now() where id = trashed;
+  insert into public.glossary_entries (name, category) values ('Arka', 'general') returning id into term;
+  dove := public.save_symbol('Dove', '[{"text": "peace", "contexts": []}]');
+
+  blocks := jsonb_build_array(
+    jsonb_build_object('type', 'columns', 'content', jsonb_build_array(
+      jsonb_build_object('type', 'column', 'content', jsonb_build_array(
+        jsonb_build_object('type', 'textBlock', 'content', words))),
+      jsonb_build_object('type', 'column', 'content', jsonb_build_array(
+        jsonb_build_object('type', 'heading', 'attrs', jsonb_build_object('level', 2), 'content',
+          jsonb_build_array(jsonb_build_object('type', 'text', 'text', 'Ark'))))))),
+    jsonb_build_object('type', 'quote', 'content', words),
+    jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', kept)),
+    jsonb_build_object('type', 'set', 'content', jsonb_build_array(
+      jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', kept, 'paletteOnly', true)),
+      jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', trashed, 'paletteOnly', true)))),
+    jsonb_build_object('type', 'set', 'content', jsonb_build_array(
+      jsonb_build_object('type', 'closeUp', 'attrs',
+        jsonb_build_object('artworkId', kept, 'x', 0.5, 'y', 0.5, 'viewWidth', 0.2)),
+      jsonb_build_object('type', 'closeUp', 'attrs',
+        jsonb_build_object('artworkId', kept, 'x', 0.2, 'y', 0.2, 'viewWidth', 0.1)))),
+    jsonb_build_object('type', 'divider'),
+    jsonb_build_object('type', 'term', 'attrs', jsonb_build_object('termId', term)),
+    jsonb_build_object('type', 'symbol', 'attrs', jsonb_build_object('symbolId', dove)));
+
+  perform public.save_exhibition(archived, 'Archived', jsonb_build_object('type', 'doc', 'content', blocks));
+  update public.exhibitions set deleted_at = now() where id = archived;
+  perform public.save_exhibition(gen_random_uuid(), 'Empty quote', jsonb_build_object('type', 'doc', 'content',
+    jsonb_set(blocks, '{1}', jsonb_build_object('type', 'quote', 'content',
+      jsonb_build_array(jsonb_build_object('type', 'paragraph', 'content',
+        jsonb_build_array(jsonb_build_object('type', 'text', 'text', '   '))))))));
+  perform public.save_exhibition(gen_random_uuid(), 'Trashed close-up', jsonb_build_object('type', 'doc', 'content',
+    jsonb_set(jsonb_set(blocks, '{4,content,0,attrs,artworkId}', to_jsonb(trashed)),
+      '{4,content,1,attrs,artworkId}', to_jsonb(trashed))));
+  perform public.save_exhibition(gen_random_uuid(), 'Heading in a text', jsonb_build_object('type', 'doc', 'content',
+    jsonb_set(blocks, '{0,content,1,content}', jsonb_build_array(jsonb_build_object('type', 'textBlock', 'content',
+      jsonb_build_array(jsonb_build_object('type', 'heading', 'attrs', jsonb_build_object('level', 3), 'content',
+        jsonb_build_array(jsonb_build_object('type', 'text', 'text', 'Ark')))))))));
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'kircher_ark') = 0,
+    'Kircher''s ark counts an archived exhibition, a blank quote, a close-up in the trash or a heading inside a text';
+
+  perform public.save_exhibition(gen_random_uuid(), 'Every kind', jsonb_build_object('type', 'doc', 'content', blocks));
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'kircher_ark') = 1,
+    'an exhibition with a block of every kind, in rows and sets, does not find Kircher''s ark';
+  assert exists (select 1 from public.point_events where kind = 'easter_egg' and code = 'kircher_ark'),
+    'the hidden ark of Kircher gives no bonus';
+
+  delete from public.symbols where id = dove;
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'kircher_ark') = 0,
+    'Kircher''s ark counts a symbol block whose symbol was deleted';
+  assert (select count(*) from public.exhibit_tiers where exhibit = 'kircher_ark') = 1,
+    'Kircher''s ark is lost when its symbol is deleted';
 end;
 $$;
 
