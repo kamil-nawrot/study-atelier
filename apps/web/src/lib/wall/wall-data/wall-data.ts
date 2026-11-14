@@ -54,6 +54,7 @@ type ArtworkRow = {
 	type_code: ArtworkTypeCode | null;
 	artwork_images: MainImageRow[];
 	favourite: boolean;
+	want_to_see?: boolean;
 	deleted_at: string | null;
 	artwork_values: ArtworkValueRow[];
 	artwork_field_entries?: FieldEntryRow[];
@@ -71,6 +72,7 @@ export const ARTWORK_COLUMNS = [
 	'type_code',
 	'artwork_images(source_image_file, own_image_path, own_image_url, image_width, image_height)',
 	'favourite',
+	'want_to_see',
 	'deleted_at',
 	'artwork_values(position, category_values(category_code, name, author_details(sort_name)))',
 	'artwork_field_entries(field_id, text_value)',
@@ -124,6 +126,7 @@ export function wallArtwork(row: ArtworkRow): WallArtwork {
 		hasImage: main !== undefined,
 		favourite: row.favourite,
 		...(row.visit_artworks?.length ? { seen: true } : {}),
+		...(row.want_to_see ? { wantToSee: true } : {}),
 		own: ownEntriesOf(row.artwork_values, row.artwork_field_entries),
 		image,
 		...(pendingImage ? { pendingImage } : {}),
@@ -212,18 +215,27 @@ export async function loadAtelier(): Promise<AtelierResult> {
 }
 
 type WallFilter =
-	{ eraCode: string } | { valueId: string } | { termId: string } | { visitId: string };
+	| { eraCode: string }
+	| { valueId: string }
+	| { valueIds: string[] }
+	| { termId: string }
+	| { symbolId: string }
+	| { visitId: string };
 
 const FILTER_EMBEDS: Record<string, string> = {
 	valueId: 'valued:artwork_values!inner(value_id)',
+	valueIds: 'valued:artwork_values!inner(value_id)',
 	termId: 'pinned:artwork_images!inner(artwork_pins!inner(glossary_entry_id))',
+	symbolId: 'symbolised:artwork_images!inner(artwork_pins!inner(symbol_id))',
 	visitId: 'seen:visit_artworks!inner(visit_id)'
 };
 
 const FILTER_COLUMNS: Record<string, string> = {
 	eraCode: 'era_code',
 	valueId: 'valued.value_id',
+	valueIds: 'valued.value_id',
 	termId: 'pinned.artwork_pins.glossary_entry_id',
+	symbolId: 'symbolised.artwork_pins.symbol_id',
 	visitId: 'seen.visit_id'
 };
 
@@ -234,7 +246,11 @@ function fetchWallRows(filter?: WallFilter): Promise<{ rows: ArtworkRow[]; error
 		const query = supabase
 			.from('artworks')
 			.select(embed ? `${ARTWORK_COLUMNS}, ${embed}` : ARTWORK_COLUMNS);
-		const filtered = name ? query.eq(FILTER_COLUMNS[name], value as string) : query;
+		const filtered = !name
+			? query
+			: Array.isArray(value)
+				? query.in(FILTER_COLUMNS[name], value)
+				: query.eq(FILTER_COLUMNS[name], value as string);
 		return filtered
 			.eq('artwork_images.position', 0)
 			.is('deleted_at', null)
@@ -254,13 +270,17 @@ async function loadWall(filter: WallFilter): Promise<AtelierResult> {
 }
 
 export function loadArtworksOfValue(
-	value: { eraCode: string } | { valueId: string }
+	value: { eraCode: string } | { valueId: string } | { valueIds: string[] }
 ): Promise<AtelierResult> {
 	return loadWall(value);
 }
 
 export function loadArtworksOfTerm(termId: string): Promise<AtelierResult> {
 	return loadWall({ termId });
+}
+
+export function loadArtworksOfSymbol(symbolId: string): Promise<AtelierResult> {
+	return loadWall({ symbolId });
 }
 
 export function loadArtworksOfVisit(visitId: string): Promise<AtelierResult> {

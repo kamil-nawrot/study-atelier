@@ -14,6 +14,7 @@ const used = {
 
 const visits = {
 	select: vi.fn(),
+	eq: vi.fn(),
 	order: vi.fn(),
 	range: vi.fn()
 };
@@ -109,10 +110,11 @@ describe('loadVisitPlaces', () => {
 		vi.clearAllMocks();
 		vi.mocked(supabase.from).mockReturnValue(visits as never);
 		visits.select.mockReturnValue(visits);
+		visits.eq.mockReturnValue(visits);
 		visits.order.mockReturnValue(visits);
 	});
 
-	it('names each place of a visit once', async () => {
+	it('names each place of a visit once, leaving the cities of trips out', async () => {
 		visits.range.mockResolvedValueOnce({
 			data: [
 				{ category_values: { name: 'Orsay' } },
@@ -123,6 +125,7 @@ describe('loadVisitPlaces', () => {
 		});
 
 		await expect(loadVisitPlaces()).resolves.toEqual({ places: ['Orsay'] });
+		expect(visits.eq).toHaveBeenCalledWith('kind', 'visit');
 		expect(visits.order).toHaveBeenCalledWith('id');
 	});
 

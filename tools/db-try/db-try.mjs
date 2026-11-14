@@ -11,19 +11,45 @@ const USAGE = `Usage: pnpm db:try [options] [file.sql]   (or SQL on stdin, or -c
 Everything runs in one transaction that is rolled back, so nothing stays in the database.`;
 
 const TRANSACTION =
-	/(?:^|;)\s*(begin|commit|end|abort|start\s+transaction|rollback(?!\s+to\b))\b/gi;
+	/(?:^|;)\s*(begin|commit|end|abort|start\s+transaction|prepare\s+transaction|rollback(?!\s+to\b))\b/gi;
+const SAFE_META = new Set(['echo', 'qecho', 'warn', 'set', 'unset', 'pset', 'x', 'timing', 't']);
 
 function withoutQuotedText(sql) {
 	return sql
 		.replace(/\$(\w*)\$[\s\S]*?\$\1\$/g, ' ')
-		.replace(/'(?:[^']|'')*'/g, "''")
 		.replace(/--[^\n]*/g, ' ')
-		.replace(/\/\*[\s\S]*?\*\//g, ' ');
+		.replace(/\/\*[\s\S]*?\*\//g, ' ')
+		.replace(/\b[eE]'(?:[^'\\]|\\[\s\S]|'')*'/g, "''")
+		.replace(/'(?:[^']|'')*'/g, "''");
+}
+
+function metaCommands(text) {
+	return text
+		.split('\n')
+		.map((line) => /^\s*\\(\S*)/.exec(line)?.[1])
+		.filter((name) => name !== undefined);
+}
+
+export function unsafeMetaCommand(sql) {
+	const found = metaCommands(withoutQuotedText(sql)).find((name) => !SAFE_META.has(name));
+	return found === undefined ? null : `\\${found}`;
 }
 
 export function transactionStatements(sql) {
-	return [...withoutQuotedText(sql).matchAll(TRANSACTION)].map((match) =>
+	const text = withoutQuotedText(sql)
+		.split('\n')
+		.map((line) => (/^\s*\\/.test(line) ? ';' : line))
+		.join('\n');
+	return [...text.matchAll(TRANSACTION)].map((match) =>
 		match[1].toLowerCase().replace(/\s+/g, ' ')
+	);
+}
+
+export function hasOpenQuote(sql) {
+	return /['"]|\$\w*\$/.test(
+		withoutQuotedText(sql)
+			.replace(/''/g, '')
+			.replace(/"[^"]*"/g, '')
 	);
 }
 
@@ -40,6 +66,17 @@ export function unwrapTest(sql) {
 
 export function buildScript(parts) {
 	for (const part of parts) {
+		const meta = unsafeMetaCommand(part.sql);
+		if (meta) {
+			throw new Error(
+				`${part.label} contains the psql command ${meta}, which could leave the transaction; nothing ran`
+			);
+		}
+		if (hasOpenQuote(part.sql)) {
+			throw new Error(
+				`${part.label} has a quote or a dollar quote that never closes, so it cannot be checked; nothing ran`
+			);
+		}
 		const found = transactionStatements(part.sql);
 		if (found.length > 0) {
 			throw new Error(

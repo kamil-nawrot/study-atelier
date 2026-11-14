@@ -31,4 +31,12 @@ describe('IconButton', () => {
 
 		await expect.element(page.getByRole('button', { name: 'Change photo' })).toBeDisabled();
 	});
+
+	it('takes the danger colour without a border as a plain button', async () => {
+		render(IconButton, { icon: Pencil, label: 'Remove', variant: 'plain', tone: 'danger' });
+
+		const button = page.getByRole('button', { name: 'Remove' }).element();
+		expect(getComputedStyle(button).borderTopStyle).toBe('none');
+		expect(button.classList.contains('tone-danger')).toBe(true);
+	});
 });

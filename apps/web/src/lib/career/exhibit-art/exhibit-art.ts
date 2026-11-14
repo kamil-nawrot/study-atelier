@@ -62,6 +62,11 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		licence: 'CC0',
 		commonsFile: 'De Bibliotheek in 1610, Objectnr PV PV14002.15.jpg'
 	},
+	laurel_skull: {
+		credit: 'Autor nieznany, wyd. Gerard Valck, „Martwa natura vanitas”, 1662–1726',
+		licence: 'CC0',
+		commonsFile: 'Vanitas stilleven, RP-P-OB-17.493.jpg'
+	},
 	own_eye: {
 		credit: 'Camera obscura, plansza z „Encyklopedii” Diderota i d’Alemberta, tło uzupełnione',
 		licence: 'domena publiczna',
@@ -142,6 +147,17 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		licence: 'CC0',
 		page: 'https://www.metmuseum.org/art/collection/search/369581'
 	},
+	vault_cobweb: {
+		credit: 'Według Hansa Weiditza, wyd. Heinrich Steiner, „Sklepienie z pajęczyną”, 1514–1531',
+		licence: 'CC0',
+		commonsFile: 'Gewelf met spinnenweb, RP-P-1874-11-72-1.jpg'
+	},
+	van_eyck_easel: {
+		credit: 'Warsztat Philipsa Galle’a według Jana van der Straeta, „Color olivi”, około 1589–1593',
+		licence: 'CC0',
+		commonsFile:
+			'Schilderen met olieverf Color olivi (titel op object) Nieuwe uitvindingen en ontdekkingen (serietitel) Nova Reperta (serietitel), RP-P-1904-1038.jpg'
+	},
 	hortus_cliffortianus: {
 		credit: 'Jan Wandelaar, frontyspis „Hortus Cliffortianus” Karola Linneusza, 1738',
 		licence: 'domena publiczna',
@@ -157,6 +173,13 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		credit: 'Gustave Doré, ilustracja do „Tomcia Palucha” Charles’a Perraulta, 1862',
 		licence: 'domena publiczna',
 		commonsFile: 'Le Petit Poucet (136548020).jpg'
+	},
+	pilgrim_shell: {
+		credit:
+			'Według Jacques’a Callota, wyd. Jean Lenfant, „Przewodnik drogami z Paryża do Świętego Jakuba w Galicji”, 1623–1699',
+		licence: 'CC0',
+		commonsFile:
+			'Twee pelgrims en een routebeschrijving naar Santiago de Compostela La guide des chemins de Paris a Saint Iacques en Galice disposee en abregé pour la comodité des pelerins (titel op object), RP-P-OB-20.935.jpg'
 	},
 	figure_alphabet: {
 		credit:

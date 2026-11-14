@@ -58,6 +58,9 @@ begin
     array(select id from public.artworks where title in ('David', 'Sistine Chapel')));
   perform public.save_visit('{"visited_on": "2026-03-01", "date_precision": "month"}', 'Rijksmuseum',
     array(select id from public.artworks where title in ('Night Watch', 'Archived')));
+  perform public.save_visit(
+    '{"kind": "trip", "visited_on": "2026-02-10", "date_precision": "day", "ends_on": "2026-02-14"}', 'Florence',
+    array(select id from public.artworks where title like 'Study %'));
 
   insert into public.glossary_entries (name, category) values ('Sfumato', 'general');
   insert into public.timeline_events (name, year_to) values ('Fall of Constantinople', 1453);
@@ -121,7 +124,8 @@ declare
 begin
   assert (stats ->> 'terms')::int = 1, 'the terms are not counted';
   assert (stats ->> 'events')::int = 1, 'the events are not counted';
-  assert (stats ->> 'visits')::int = 3, 'the visits are not counted';
+  assert (stats ->> 'visits')::int = 3, 'the visits are not counted, or count trips';
+  assert (stats ->> 'trips')::int = 1, 'the trips are not counted';
   assert (stats ->> 'exhibitions')::int = 1, 'the exhibitions are not counted, or those in Archiwum are';
 
   assert (stats ->> 'quiz_answers')::int = 4, 'quiz answers count flashcards or archived artworks';
@@ -151,7 +155,7 @@ begin
   assert (stats -> 'most_pinned' ->> 'pins')::int = 2, 'the pins are not counted';
   assert (stats -> 'most_pinned' ->> 'tied')::int = 1, 'the tied pinned artworks are not counted';
 
-  assert (stats -> 'largest_visit' ->> 'place') = 'Uffizi', 'the largest visit is not the earliest among the tied';
+  assert (stats -> 'largest_visit' ->> 'place') = 'Uffizi', 'the largest visit is a trip, or not the earliest among the tied';
   assert (stats -> 'largest_visit' ->> 'artworks')::int = 2, 'the artworks of a visit count archived ones';
   assert (stats -> 'largest_visit' ->> 'tied')::int = 1, 'the tied visits are not counted';
 

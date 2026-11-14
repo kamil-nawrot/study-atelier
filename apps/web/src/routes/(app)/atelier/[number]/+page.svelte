@@ -1,5 +1,6 @@
 <script lang="ts">
 	import MoreActions from '#lib/shared/navigation/MoreActions/MoreActions.svelte';
+	import Binoculars from '@lucide/svelte/icons/binoculars';
 	import Columns2 from '@lucide/svelte/icons/columns-2';
 	import Heart from '@lucide/svelte/icons/heart';
 	import Pencil from '@lucide/svelte/icons/pencil';
@@ -17,6 +18,9 @@
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import { favouriteLabel, favouriteToast } from '#lib/wall/favourite/favourite.ts';
 	import { setFavourite } from '#lib/wall/favourite-data/favourite-data.ts';
+	import { ArtworkMark } from '#lib/wall/artwork-mark/artwork-mark.svelte.ts';
+	import { wantToSeeLabel, wantToSeeToast } from '#lib/wall/want-to-see/want-to-see.ts';
+	import { setWantToSee } from '#lib/wall/want-to-see-data/want-to-see-data.ts';
 	import { ArtworkFlip } from '#lib/wall/artwork-flip/artwork-flip.svelte.ts';
 	import {
 		formatRecordNumber,
@@ -32,12 +36,16 @@
 
 	let toast: Toast;
 	let trashOpen = $state(false);
-	let favourites = $state<Record<string, boolean>>({});
-	let favouriteError = $state<string>();
+	const favouriteMark = new ArtworkMark(setFavourite);
+	const wantToSeeMark = new ArtworkMark(setWantToSee);
 
 	let favourite = $derived(
-		data.artwork ? (favourites[data.artwork.id] ?? data.artwork.favourite) : false
+		data.artwork ? favouriteMark.value(data.artwork.id, data.artwork.favourite) : false
 	);
+	let wantToSee = $derived(
+		data.artwork ? wantToSeeMark.value(data.artwork.id, data.artwork.wantToSee === true) : false
+	);
+	let markError = $derived(favouriteMark.error ?? wantToSeeMark.error);
 	let number = $derived(parseRecordNumber(params.number));
 	let label = $derived(number === null ? params.number : formatRecordNumber(number));
 	let artworkPath = $derived(resolve('/(app)/atelier/[number]', { number: params.number }));
@@ -70,19 +78,13 @@
 		void goto(artworkPath, { state: {}, shallow: true, replace: true });
 	});
 
-	async function toggleFavourite(): Promise<void> {
-		if (!data.artwork) return;
-		const { id } = data.artwork;
-		const next = !favourite;
-		favouriteError = undefined;
-		favourites[id] = next;
-		const { error } = await setFavourite(id, next);
-		if (error) {
-			favourites[id] = !next;
-			favouriteError = error;
-			return;
-		}
-		toast.show(favouriteToast(next));
+	async function toggle(
+		mark: ArtworkMark,
+		on: boolean,
+		said: typeof favouriteToast
+	): Promise<void> {
+		const next = data.artwork && (await mark.toggle(data.artwork.id, on));
+		if (next !== undefined) toast.show(said(next));
 	}
 </script>
 
@@ -101,10 +103,19 @@
 			<Button
 				aria-label={favouriteLabel(favourite)}
 				aria-pressed={favourite}
-				onclick={toggleFavourite}
+				onclick={() => toggle(favouriteMark, favourite, favouriteToast)}
 			>
-				<span class="heart" class:filled={favourite}>
+				<span class="mark" class:filled={favourite}>
 					<Icon icon={Heart} size="sm" />
+				</span>
+			</Button>
+			<Button
+				aria-label={wantToSeeLabel(wantToSee)}
+				aria-pressed={wantToSee}
+				onclick={() => toggle(wantToSeeMark, wantToSee, wantToSeeToast)}
+			>
+				<span class="mark" class:filled={wantToSee}>
+					<Icon icon={Binoculars} size="sm" />
 				</span>
 			</Button>
 			<MoreActions
@@ -152,9 +163,9 @@
 	{/snippet}
 
 	{#if data.artwork}
-		{#if favouriteError}
+		{#if markError}
 			<Alert tone="danger">
-				{favouriteError}
+				{markError}
 			</Alert>
 		{/if}
 		{#if data.pinsError}
@@ -178,6 +189,7 @@
 			pins={data.pins}
 			showPinsOnOpen={data.preferences?.viewShowPins}
 			summaries={data.summaries}
+			symbols={data.symbols}
 			visits={data.visits}
 		/>
 	{:else}
@@ -196,11 +208,11 @@
 <Toast bind:this={toast} />
 
 <style>
-	.heart {
+	.mark {
 		display: flex;
 	}
 
-	.heart.filled :global(svg) {
+	.mark.filled :global(svg) {
 		fill: currentColor;
 	}
 </style>

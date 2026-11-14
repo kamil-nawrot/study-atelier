@@ -58,7 +58,8 @@ describe('artworkInputFromForm', () => {
 			location: 'Mauritshuis',
 			notes: 'Seen in The Hague.',
 			image: null,
-			images: []
+			images: [],
+			relations: []
 		});
 	});
 
@@ -84,6 +85,7 @@ describe('artworkFormFromRecord', () => {
 		number: 7,
 		images: [],
 		favourite: false,
+		relations: [],
 		title: 'The Thinker',
 		authors: ['Auguste Rodin'],
 		authorUnknown: false,
@@ -125,7 +127,8 @@ describe('artworkFormFromRecord', () => {
 			notes: 'Seen in Paris.',
 			image: { kind: 'upload', path: 'user-id/thinker.jpg', width: 3, height: 4 },
 			images: [],
-			ownQueries: {}
+			ownQueries: {},
+			relations: []
 		});
 	});
 
@@ -194,6 +197,7 @@ describe('own fields in the form', () => {
 			number: 1,
 			favourite: false,
 			...artworkInputFromForm(emptyArtworkForm()),
+			relations: [],
 			own: { lecture: ['Baroque class'], source: true, seen: true, gone: 'Deleted field' }
 		};
 

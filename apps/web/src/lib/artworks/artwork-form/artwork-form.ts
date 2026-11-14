@@ -1,3 +1,7 @@
+import {
+	relationEntriesOf,
+	relationRowsOf
+} from '#lib/artwork-relations/relation-rows/relation-rows.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { emptyCategoryValues } from '#lib/card-index/category-values/category-values.ts';
 import type { ArtworkFormState } from '#lib/artworks/types/artwork-form-state.ts';
@@ -77,7 +81,8 @@ export function emptyArtworkForm(fields?: readonly OwnFieldDefinition[]): Artwor
 		...(fields ? { own: ownEntries(fields) } : {}),
 		ownQueries: Object.fromEntries(
 			(fields ?? []).filter((field) => field.kind === 'list').map((field) => [field.id, ''])
-		)
+		),
+		relations: []
 	};
 }
 
@@ -107,7 +112,8 @@ export function artworkFormFromRecord(
 		eraCode: record.eraCode,
 		notes: record.notes,
 		image: record.image,
-		images: [...record.images]
+		images: [...record.images],
+		relations: relationRowsOf(record.relations ?? [])
 	};
 }
 
@@ -139,7 +145,8 @@ export function artworkInputFromForm(form: ArtworkFormState): ArtworkInput {
 		notes: form.notes,
 		image,
 		images,
-		...(form.own ? { own: structuredClone(form.own) } : {})
+		...(form.own ? { own: structuredClone(form.own) } : {}),
+		relations: relationEntriesOf(form.relations)
 	};
 }
 

@@ -14,6 +14,7 @@
 		UNKNOWN_AUTHOR,
 		favouriteCount,
 		seenCount,
+		wantToSeeCount,
 		filterOptions,
 		hasOwnText,
 		ownFilterOptions,
@@ -23,6 +24,7 @@
 		tickedOptions,
 		toggleFavourites,
 		toggleSeen,
+		toggleWantToSee,
 		toggleOwnValue,
 		toggleTicked,
 		toggleValue
@@ -33,6 +35,7 @@
 	import type { CollectionFilter } from '#lib/catalogue/types/collection-filter.ts';
 	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
+	import Binoculars from '@lucide/svelte/icons/binoculars';
 	import Footprints from '@lucide/svelte/icons/footprints';
 	import Heart from '@lucide/svelte/icons/heart';
 	import FlagToggle from '#lib/wall/components/FlagToggle/FlagToggle.svelte';
@@ -128,6 +131,13 @@
 			label={m.atelier.filters.fields.seen}
 			onclick={() => (filter = toggleSeen(filter))}
 			pressed={filter.seen}
+		/>
+		<FlagToggle
+			count={wantToSeeCount(artworks, filter)}
+			icon={Binoculars}
+			label={m.atelier.filters.fields.wantToSee}
+			onclick={() => (filter = toggleWantToSee(filter))}
+			pressed={filter.wantToSee}
 		/>
 	</div>
 

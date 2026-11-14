@@ -11,3 +11,15 @@ export const chronicleErrorMessage = errorMessages(
 	},
 	m.common.network
 );
+
+export const tripErrorMessage = errorMessages(
+	{
+		P0002: m.chronicle.errors.notFound,
+		PGRST116: m.chronicle.errors.notFound,
+		'22023': m.chronicle.trip.form.notCity,
+		'23502': m.chronicle.errors.invalid,
+		'23503': m.chronicle.errors.invalid,
+		'23514': m.chronicle.errors.invalid
+	},
+	m.common.network
+);

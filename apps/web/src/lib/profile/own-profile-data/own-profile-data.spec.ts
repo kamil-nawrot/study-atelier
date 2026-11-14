@@ -30,6 +30,7 @@ const row = {
 	review_free: false,
 	review_glossary_on: true,
 	review_glossary_questions: 2,
+	review_symbol_questions: 1,
 	review_note_questions: false,
 	review_time_questions: false,
 	career_shown: false,

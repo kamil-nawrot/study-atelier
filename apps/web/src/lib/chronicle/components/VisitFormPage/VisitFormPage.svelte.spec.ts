@@ -25,7 +25,9 @@ describe('VisitFormPage', () => {
 	});
 
 	it('says that the visit does not exist', async () => {
-		render(VisitFormPage, { data: { notFound: true, artworks: [], places: [] } });
+		render(VisitFormPage, {
+			data: { notFound: true, artworks: [], places: [], tripPlaces: [], towns: [], trips: [] }
+		});
 
 		await expect.element(page.getByText(m.chronicle.errors.notFound)).toBeInTheDocument();
 		await expect.element(page.getByRole('link', { name: m.chronicle.back })).toBeInTheDocument();
@@ -34,7 +36,14 @@ describe('VisitFormPage', () => {
 	it('opens the saved visit in place of the form and confirms the save', async () => {
 		save.mockResolvedValue({ id: VISIT_ID });
 		render(VisitFormPage, {
-			data: { visit: testVisit({ place: 'Orsay' }), artworks: [], places: ['Orsay'] }
+			data: {
+				visit: testVisit({ place: 'Orsay' }),
+				artworks: [],
+				places: ['Orsay'],
+				tripPlaces: [],
+				towns: [],
+				trips: []
+			}
 		});
 
 		await userEvent.click(page.getByRole('button', { name: m.common.save, exact: true }));

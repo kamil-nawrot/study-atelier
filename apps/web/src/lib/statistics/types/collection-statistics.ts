@@ -4,6 +4,7 @@ export type CollectionStatistics = {
 	terms: number;
 	events: number;
 	visits: number;
+	trips: number;
 	exhibitions: number;
 	quizAnswers: number;
 	correctAnswers: number;

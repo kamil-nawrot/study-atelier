@@ -27,7 +27,6 @@
 	import Loupe from '#lib/images/components/Loupe/Loupe.svelte';
 	import PaletteBand from '#lib/images/components/PaletteBand/PaletteBand.svelte';
 	import { PaletteLoader } from '#lib/images/palette-loader/palette-loader.svelte.ts';
-	import { LOUPE_MIN_RATIO } from '#lib/images/loupe/loupe.ts';
 	import PinCard from '#lib/pins/components/PinCard/PinCard.svelte';
 	import PinDialog from '#lib/pins/components/PinDialog/PinDialog.svelte';
 	import PinMarkers from '#lib/pins/components/PinMarkers/PinMarkers.svelte';
@@ -35,6 +34,8 @@
 	import { refreshCareerOnFullImage } from '#lib/pins/full-image/full-image.ts';
 	import { pinsOfImage } from '#lib/pins/pin-layout/pin-layout.ts';
 	import type { Pin as PinRecord } from '#lib/pins/types/pin.ts';
+	import { createSymbolOption } from '#lib/symbols/symbols-data/symbols-data.ts';
+	import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
 	import { swipe } from '#lib/wall/flip/flip.ts';
 	import type { FlipDirection } from '#lib/wall/types/flip-direction.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -43,6 +44,7 @@
 		artwork: ArtworkRecord;
 		editHref: string;
 		glossary?: GlossaryTerm[];
+		symbols?: SymbolOption[];
 		pins: PinRecord[];
 		focusPin?: string;
 		showPinsOnOpen: boolean;
@@ -55,6 +57,7 @@
 		artwork,
 		editHref,
 		glossary,
+		symbols,
 		pins,
 		focusPin,
 		showPinsOnOpen,
@@ -62,6 +65,18 @@
 		flipLinks,
 		onflip
 	}: Props = $props();
+
+	let createdSymbols = $state.raw<SymbolOption[]>([]);
+	const allSymbols = $derived([
+		...(symbols ?? []),
+		...createdSymbols.filter((created) => !symbols?.some((own) => own.id === created.id))
+	]);
+
+	async function createSymbol(name: string): Promise<{ symbol?: SymbolOption; error?: string }> {
+		const result = await createSymbolOption(name);
+		if (result.symbol) createdSymbols = [...createdSymbols, result.symbol];
+		return result;
+	}
 
 	const STAGE_WIDTH = 960;
 	const VIEWER_WIDTH = 1920;
@@ -80,9 +95,7 @@
 	let frameWidth = $state(0);
 	let loupeOn = $state(false);
 	let large = $derived(artworkLargeSource(current));
-	let loupeReady = $derived(
-		large !== undefined && frameWidth > 0 && large.width >= LOUPE_MIN_RATIO * frameWidth
-	);
+	let loupeReady = $derived(large !== undefined && frameWidth > 0);
 	let loupeActive = $derived(loupeOn && loupeReady && mouse.current);
 
 	let showPins = $state(false);
@@ -237,10 +250,12 @@
 		entries={glossary ?? []}
 		image={current}
 		{imageId}
+		oncreatesymbol={createSymbol}
 		ondeleted={() => {}}
 		onsaved={pinSaved}
 		shownWidth={frameWidth}
 		spot={newPin}
+		symbols={allSymbols}
 		view={newPin.viewWidth}
 		bind:open={newPinOpen}
 	/>
@@ -251,6 +266,7 @@
 		image={current}
 		{pin}
 		shownWidth={frameWidth}
+		symbol={allSymbols.find((symbol) => symbol.id === pin.symbolId)}
 	/>
 {/snippet}
 

@@ -49,39 +49,75 @@ describe('CardIndexTabs', () => {
 		expect(names.indexOf('Anonim')).toBeGreaterThan(names.indexOf('Rembrandt'));
 	});
 
-	it('shows the country of a place in every sort', async () => {
+	it('groups places under their country and city, with the rest under "Miejsca bez kraju"', async () => {
 		renderTabs(
 			'location',
 			withValues(
-				{ id: 'l-uffizi', category: 'location', name: 'Uffizi', count: 1, countryCode: 'IT' },
+				{
+					id: 'l-florence',
+					category: 'location',
+					name: 'Florencja',
+					count: 1,
+					countryCode: 'IT',
+					placeType: 'city'
+				},
+				{
+					id: 'l-uffizi',
+					category: 'location',
+					name: 'Uffizi',
+					count: 3,
+					countryCode: 'IT',
+					placeType: 'museum',
+					cityId: 'l-florence'
+				},
 				{ id: 'l-home', category: 'location', name: 'Home', count: 1 }
 			)
 		);
 
-		await expect.element(page.getByText('Włochy')).toBeVisible();
-		await expect.element(page.getByText('Home')).toBeVisible();
+		await expect.element(page.getByRole('heading', { name: 'Włochy' })).toBeVisible();
+		await expect
+			.element(
+				page.getByRole('link', { name: m.cardIndex.openValue('Florencja', m.atelier.count(4)) })
+			)
+			.toBeVisible();
+		await expect.element(page.getByText('Uffizi')).not.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('heading', { name: m.cardIndex.placesWithoutCountry }))
+			.toBeVisible();
+
+		await page.getByRole('button', { name: 'Florencja' }).click();
+		await expect.element(page.getByText('Uffizi')).toBeVisible();
 	});
 
-	it('sorts places by country and shows the country, and remembers the choice', async () => {
-		const index = withValues(
-			{ id: 'l-uffizi', category: 'location', name: 'Uffizi', count: 1, countryCode: 'IT' },
-			{ id: 'l-orsay', category: 'location', name: 'Orsay', count: 1, countryCode: 'FR' }
+	it('finds a place under its country and city', async () => {
+		renderTabs(
+			'location',
+			withValues(
+				{
+					id: 'l-florence',
+					category: 'location',
+					name: 'Florencja',
+					count: 0,
+					countryCode: 'IT',
+					placeType: 'city'
+				},
+				{
+					id: 'l-uffizi',
+					category: 'location',
+					name: 'Uffizi',
+					count: 3,
+					countryCode: 'IT',
+					placeType: 'museum',
+					cityId: 'l-florence'
+				}
+			)
 		);
-		renderTabs('location', index);
 
-		await page
-			.getByRole('combobox', { name: m.cardIndex.sortLabel })
-			.selectOptions(m.cardIndex.sorts.country);
+		await page.getByRole('searchbox', { name: m.cardIndex.search.location }).fill('uff');
 
-		const names = listed();
-		expect(names.indexOf('Orsay')).toBeLessThan(names.indexOf('Uffizi'));
-		await expect.element(page.getByText('Francja')).toBeVisible();
-
-		document.body.innerHTML = '';
-		renderTabs('location', index);
-		await expect
-			.element(page.getByRole('combobox', { name: m.cardIndex.sortLabel }))
-			.toHaveValue('country');
+		await expect.element(page.getByRole('heading', { name: 'Włochy' })).toBeVisible();
+		await expect.element(page.getByText('Uffizi')).toBeVisible();
+		await expect.element(page.getByText('Athens')).not.toBeInTheDocument();
 	});
 
 	it('offers to add a value on every tab of values', async () => {

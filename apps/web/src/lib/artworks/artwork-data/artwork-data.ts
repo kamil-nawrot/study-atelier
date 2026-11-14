@@ -28,6 +28,12 @@ import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
 import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 import { names, validateArtwork, oneLine } from '#lib/artworks/artwork-record/artwork-record.ts';
+import { relationPayload } from '#lib/artwork-relations/relation-types/relation-types.ts';
+import {
+	RELATION_COLUMNS,
+	relationsFromRows,
+	type RelationRow
+} from '#lib/artwork-relations/relation-rows/relation-rows.ts';
 
 type ExistingArtwork = {
 	id: string;
@@ -51,9 +57,12 @@ type ArtworkRecordRow = {
 	era_code: EraCode | null;
 	notes: string | null;
 	favourite: boolean;
+	want_to_see?: boolean;
 	artwork_values: ArtworkValueRow[];
 	artwork_images: (ImageRow & { id: string; position: number; palette: Json | null })[];
 	artwork_field_entries?: FieldEntryRow[];
+	outgoing_relations?: RelationRow[];
+	incoming_relations?: RelationRow[];
 };
 
 const RECORD_COLUMNS = [
@@ -68,9 +77,11 @@ const RECORD_COLUMNS = [
 	'era_code',
 	'notes',
 	'favourite',
+	'want_to_see',
 	'artwork_values(position, category_values(category_code, name))',
 	`artwork_images(id, position, palette, ${IMAGE_COLUMNS.join(', ')})`,
-	'artwork_field_entries(field_id, text_value)'
+	'artwork_field_entries(field_id, text_value)',
+	...RELATION_COLUMNS
 ].join(', ');
 
 function storedYearFrom(input: ArtworkInput): number | null {
@@ -143,7 +154,8 @@ export async function saveArtwork(
 			values_by_category: valuesByCategory(input),
 			existing_id: existing?.id,
 			images: stored.map(imageRecord) as unknown as Json,
-			field_entries: fieldEntries(input)
+			field_entries: fieldEntries(input),
+			relations: input.relations ? (relationPayload(input.relations) as unknown as Json) : undefined
 		})
 		.single();
 	forgetCached([
@@ -181,6 +193,7 @@ function artworkRecordFromRow(row: ArtworkRecordRow): ArtworkRecord {
 		id: row.id,
 		number: row.record_number,
 		favourite: row.favourite,
+		...(row.want_to_see ? { wantToSee: true } : {}),
 		title: row.title,
 		authors: valuesOf(row.artwork_values, 'author'),
 		authorUnknown: row.author_unknown,
@@ -198,7 +211,8 @@ function artworkRecordFromRow(row: ArtworkRecordRow): ArtworkRecord {
 		notes: row.notes ?? '',
 		image,
 		images,
-		own: ownEntriesOf(row.artwork_values, row.artwork_field_entries)
+		own: ownEntriesOf(row.artwork_values, row.artwork_field_entries),
+		relations: relationsFromRows(row.outgoing_relations, row.incoming_relations)
 	};
 }
 

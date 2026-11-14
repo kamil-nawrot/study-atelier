@@ -5,6 +5,7 @@ import type { GlossaryEntryResult } from '#lib/glossary/types/glossary-entry-res
 import type { PinnedArtwork } from '#lib/glossary/types/pinned-artwork.ts';
 import type { TermFragment } from '#lib/glossary/types/term-fragment.ts';
 import { termFragments } from '#lib/glossary/term-fragments/term-fragments.ts';
+import { loadSymbolUses } from '#lib/symbols/symbol-uses-data/symbol-uses-data.ts';
 import { loadEntryPins } from '#lib/pins/pin-data/pin-data.ts';
 import type { PageLoad } from './$types';
 
@@ -31,10 +32,11 @@ export const load: PageLoad = async ({ params }): Promise<GlossaryEntryResult> =
 	const pinnedLoad = loadPinned(params.id);
 	const result = await loadGlossaryEntry(params.id);
 	if (!result.entry) return result;
-	const [mentions, glossary, pinned] = await Promise.all([
+	const [mentions, glossary, pinned, uses] = await Promise.all([
 		loadGlossaryMentions(result.entry),
 		result.entry.definition ? loadTermIndex() : undefined,
-		pinnedLoad
+		pinnedLoad,
+		loadSymbolUses({ glossaryEntryId: params.id })
 	]);
 	return {
 		...result,
@@ -42,6 +44,8 @@ export const load: PageLoad = async ({ params }): Promise<GlossaryEntryResult> =
 		glossary: glossary?.terms,
 		pinned: pinned.pinned,
 		fragments: pinned.fragments,
-		pinnedError: pinned.error
+		pinnedError: pinned.error,
+		symbolUses: uses.error ? undefined : uses.uses,
+		symbolUsesError: uses.error
 	};
 };

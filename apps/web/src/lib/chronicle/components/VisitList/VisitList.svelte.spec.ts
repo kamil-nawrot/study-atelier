@@ -3,7 +3,7 @@ import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
-import { testVisit } from '#lib/testing/chronicle/chronicle.ts';
+import { TRIP_ID, testTrip, testVisit } from '#lib/testing/chronicle/chronicle.ts';
 import VisitList from './VisitList.svelte';
 
 const lilies = testArtwork(1, 'Water Lilies');
@@ -53,5 +53,32 @@ describe('VisitList', () => {
 		await expect.element(page.getByRole('link', { name: 'Prado' })).not.toBeInTheDocument();
 		await page.getByRole('heading', { name: /^2018/ }).click();
 		await expect.element(page.getByRole('link', { name: 'Prado' })).toBeVisible();
+	});
+
+	it('lists the visits of a trip under its ticket', async () => {
+		render(VisitList, {
+			visits: [testVisit({ id: 'louvre', place: 'Louvre', tripId: TRIP_ID }), testTrip()],
+			artworks: new Map()
+		});
+
+		await expect.element(page.getByText(m.chronicle.trip.overline(5))).toBeInTheDocument();
+		await expect.element(page.getByText(m.chronicle.trip.visits(1))).toBeInTheDocument();
+		const nested = document.querySelector('.nested');
+		expect(nested?.textContent).toContain('Louvre');
+	});
+
+	it('shows an image only on the ticket of a single visit, not of a trip', async () => {
+		render(VisitList, {
+			visits: [
+				testVisit({ id: 'louvre', place: 'Louvre', tripId: TRIP_ID, artworkIds: [lilies.id] }),
+				testTrip({ artworkIds: [lilies.id] })
+			],
+			artworks: new Map([[lilies.id, lilies]])
+		});
+
+		await expect.element(page.getByText(m.chronicle.trip.visits(1))).toBeInTheDocument();
+		const images = document.querySelectorAll('.visits img');
+		expect(images).toHaveLength(1);
+		expect(images[0].closest('.nested')).not.toBeNull();
 	});
 });

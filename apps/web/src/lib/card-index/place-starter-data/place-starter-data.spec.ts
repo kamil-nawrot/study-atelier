@@ -42,8 +42,8 @@ describe('loadPlaceStarter', () => {
 		serve(
 			query({
 				data: [
-					{ name: 'Luwr', english_name: 'Louvre Museum', country_code: 'FR' },
-					{ name: 'Rijksmuseum', english_name: null, country_code: 'NL' }
+					{ name: 'Luwr', alias: 'Louvre Museum', country_code: 'FR' },
+					{ name: 'Rijksmuseum', alias: null, country_code: 'NL' }
 				],
 				error: null
 			}),
@@ -63,10 +63,10 @@ describe('loadPlaceStarter', () => {
 	});
 
 	it('reads past the first 1000 museums and places', async () => {
-		const museum = { name: 'Luwr', english_name: null, country_code: 'FR' };
+		const museum = { name: 'Luwr', alias: null, country_code: 'FR' };
 		const museums = query(
 			{ data: Array.from({ length: 1000 }, () => museum), error: null },
-			{ data: [{ name: 'Prado', english_name: null, country_code: 'ES' }], error: null }
+			{ data: [{ name: 'Prado', alias: null, country_code: 'ES' }], error: null }
 		);
 		const places = query(
 			{

@@ -1,3 +1,4 @@
+import type { SymbolUse } from '#lib/symbols/types/symbol-use.ts';
 import type { Mention } from '#lib/notes/types/mention.ts';
 import type { GlossaryEntry } from './glossary-entry.ts';
 import type { GlossaryTerm } from './glossary-term.ts';
@@ -11,6 +12,8 @@ export type GlossaryEntryResult = {
 	pinned?: PinnedArtwork[];
 	fragments?: TermFragment[];
 	pinnedError?: string;
+	symbolUses?: SymbolUse[];
+	symbolUsesError?: string;
 	error?: string;
 	notFound?: boolean;
 };

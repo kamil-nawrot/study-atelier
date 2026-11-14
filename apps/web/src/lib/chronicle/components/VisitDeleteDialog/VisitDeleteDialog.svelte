@@ -2,7 +2,7 @@
 	import { Alert, Button, Dialog } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { deleteVisit } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
-	import { visitDateFrom } from '#lib/chronicle/visit-date/visit-date.ts';
+	import { tripDateFrom } from '#lib/chronicle/trip-date/trip-date.ts';
 	import type { Visit } from '#lib/chronicle/types/visit.ts';
 
 	type Props = {
@@ -13,6 +13,9 @@
 
 	let { visit, open = $bindable(), ondeleted }: Props = $props();
 
+	let texts = $derived(
+		visit.kind === 'trip' ? m.chronicle.trip.deleteConfirm : m.chronicle.deleteConfirm
+	);
 	let deleting = $state(false);
 	let error = $state<string>();
 
@@ -44,9 +47,9 @@
 
 <Dialog
 	children={error ? errorAlert : undefined}
-	description={m.chronicle.deleteConfirm.description}
+	description={texts.description}
 	size="small"
-	title={m.chronicle.deleteConfirm.title(visitDateFrom(visit.date))}
+	title={texts.title(tripDateFrom(visit))}
 	bind:open
 >
 	{#snippet footer()}

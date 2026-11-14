@@ -1,12 +1,18 @@
 <script lang="ts">
+	import type { SuggestionSource } from '#lib/chronicle/types/suggestion-source.ts';
 	import { untrack } from 'svelte';
+	import Building2 from '@lucide/svelte/icons/building-2';
+	import Ticket from '@lucide/svelte/icons/ticket';
 	import {
 		Button,
+		ChoiceTiles,
 		Form,
 		FormActions,
 		NotesEditor,
+		Select,
 		ValueField,
-		type NoteLinks
+		type NoteLinks,
+		type ValueOption
 	} from '@study-atelier/ui';
 	import { VALUE_NAME_MAX_LENGTH } from '#lib/card-index/category-values/category-values.ts';
 	import { suggestValues, valueKey } from '#lib/card-index/value-suggestions/value-suggestions.ts';
@@ -16,19 +22,27 @@
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { saveVisit } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
+	import { cityOptions } from '#lib/values/city-options/city-options.ts';
+	import { ensureCityPlace } from '#lib/values/value-details-data/value-details-data.ts';
+	import type { PlaceCity } from '#lib/values/types/place-city.ts';
+	import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
 	import {
 		draftOfVisitForm,
 		emptyVisitForm,
 		placeOf,
+		suggestedArtworks,
 		validateVisitForm,
 		visitFormChanged,
 		visitFormOf,
 		withPlaceArtworks
 	} from '#lib/chronicle/visit-form/visit-form.ts';
+	import { linkedTrip, tripOptions } from '#lib/chronicle/visit-trip/visit-trip.ts';
 	import VisitDateField from '#lib/chronicle/components/VisitDateField/VisitDateField.svelte';
 	import VisitArtworksField from '#lib/chronicle/components/VisitArtworksField/VisitArtworksField.svelte';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import type { PlaceStarter } from '#lib/card-index/types/place-starter.ts';
+	import type { TripPlace } from '#lib/chronicle/types/trip-place.ts';
+	import type { Town } from '#lib/map/types/town.ts';
 	import type { Visit } from '#lib/chronicle/types/visit.ts';
 	import type { VisitDraft } from '#lib/chronicle/types/visit-draft.ts';
 	import type { VisitFormErrors } from '#lib/chronicle/types/visit-form-errors.ts';
@@ -38,6 +52,9 @@
 		visit?: Visit;
 		artworks: WallArtwork[];
 		places: string[];
+		tripPlaces?: TripPlace[];
+		towns?: Town[];
+		trips?: Visit[];
 		placeStarter?: PlaceStarter;
 		noteLinks?: NoteLinks;
 		cancelHref: string;
@@ -51,6 +68,9 @@
 		visit,
 		artworks,
 		places,
+		tripPlaces = [],
+		towns = [],
+		trips = [],
 		placeStarter,
 		noteLinks,
 		cancelHref,
@@ -63,16 +83,32 @@
 	const existing = untrack(() => visit);
 	const known = untrack(() => new Set(artworks.map((artwork) => artwork.id)));
 	const kept = existing?.artworkIds.filter((id) => !known.has(id)) ?? [];
-	const initial = (): VisitFormState =>
-		existing
-			? visitFormOf(
-					existing,
-					untrack(() => artworks)
-				)
-			: emptyVisitForm();
+	const source = (): SuggestionSource => ({ artworks, tripPlaces });
+	const initial = (): VisitFormState => {
+		if (!existing) return emptyVisitForm();
+		const start = emptyVisitForm(existing.kind);
+		const suggested = untrack(() =>
+			suggestedArtworks({ ...start, place: [existing.place] }, source())
+		);
+		return visitFormOf(
+			existing,
+			untrack(() => artworks),
+			suggested
+		);
+	};
+
+	const kinds = [
+		{ value: 'visit', label: m.chronicle.kind, note: m.chronicle.form.visitTile, icon: Ticket },
+		{
+			value: 'trip',
+			label: m.chronicle.trip.kind,
+			note: m.chronicle.form.tripTile,
+			icon: Building2
+		}
+	];
 
 	let form = $state<VisitFormState>(initial());
-	const errors = new LiveErrors<VisitFormErrors>(() => validateVisitForm(form));
+	const errors = new LiveErrors<VisitFormErrors>(() => validateVisitForm(form, tripPlaces));
 
 	const formState = new FormState<VisitFormState>(initial());
 	const changes = new UnsavedChanges(
@@ -81,29 +117,65 @@
 		visitFormChanged
 	);
 
+	let trip = $derived(form.kind === 'trip');
+	let texts = $derived(trip ? m.chronicle.trip.form : m.chronicle.form);
 	let placeKey = $derived(valueKey(placeOf(form)));
-	let shownPlace = untrack(() => placeKey);
+	let shownPlace = untrack(() => `${form.kind}:${placeKey}`);
+	let suggested = $derived(suggestedArtworks(form, source()));
+	let cities = $derived(
+		tripPlaces
+			.filter((place) => place.placeType === 'city')
+			.map((place): CardIndexRecord => ({
+				id: place.id,
+				category: 'location',
+				name: place.name,
+				count: 0,
+				placeType: 'city',
+				countryCode: place.countryCode ?? undefined
+			}))
+	);
+	let tripCities = $derived(cityOptions(form.placeQuery, cities, towns));
+	let tripTown = $state<PlaceCity | null>(null);
+
+	function pickTripCity(option: ValueOption): void {
+		const chosen = option.id ? tripCities.choices.get(option.id) : undefined;
+		tripTown = chosen && !chosen.id ? chosen : null;
+	}
 
 	let placeOptions = $derived(
-		suggestValues({
-			query: form.placeQuery,
-			existing: places,
-			selected: form.place,
-			starter: placeStarter?.museums,
-			notes: placeStarter?.notes
-		})
+		trip
+			? tripCities.options
+			: suggestValues({
+					query: form.placeQuery,
+					existing: places,
+					selected: form.place,
+					starter: placeStarter?.museums,
+					notes: placeStarter?.notes
+				})
 	);
 
 	$effect(() => {
-		const key = placeKey;
-		if (key === '' || key === shownPlace) return;
+		const key = `${form.kind}:${placeKey}`;
+		if (placeKey === '' || key === shownPlace) return;
 		shownPlace = key;
 		form = withPlaceArtworks(
 			untrack(() => form),
-			untrack(() => artworks),
+			untrack(() => suggested),
 			untrack(() => formState.saved)
 		);
 	});
+
+	let tripChosen = $state(untrack(() => existing !== undefined));
+	let link = $derived(linkedTrip(form, trips, { tripPlaces }, tripChosen));
+
+	$effect(() => {
+		const next = link.tripId;
+		if (untrack(() => form.tripId) !== next) form.tripId = next;
+	});
+
+	function chooseKind(value: string | null): void {
+		form.kind = value === 'trip' ? 'trip' : 'visit';
+	}
 
 	export function confirmLeave(): Promise<boolean> {
 		return changes.confirmLeave();
@@ -113,6 +185,13 @@
 		return formState.run(async () => {
 			if (!errors.check()) return;
 			const snapshot = $state.snapshot(form);
+			if (trip && tripTown && valueKey(tripTown.name) === valueKey(placeOf(snapshot))) {
+				const city = await ensureCityPlace(tripTown);
+				if (city.error) {
+					formState.error = city.error;
+					return;
+				}
+			}
 			const draft = draftOfVisitForm(snapshot, kept);
 			const result = await saveVisit(draft, existing?.id);
 			if (result.error || !result.id) {
@@ -126,14 +205,25 @@
 </script>
 
 <div class="page">
-	<Form error={formState.error} errorTitle={m.chronicle.form.errorTitle} onsubmit={submit}>
+	<Form error={formState.error} errorTitle={texts.errorTitle} onsubmit={submit}>
 		<div class="columns">
 			<div class="fields">
+				{#if !existing}
+					<ChoiceTiles
+						label={m.chronicle.form.kind}
+						narrowColumns={1}
+						onchange={chooseKind}
+						options={kinds}
+						value={form.kind}
+					/>
+				{/if}
+
 				<ValueField
 					error={errors.current.place}
-					hint={existing ? undefined : m.chronicle.form.placeHint}
-					label={m.chronicle.form.place}
+					hint={existing ? undefined : texts.placeHint}
+					label={texts.place}
 					maxlength={VALUE_NAME_MAX_LENGTH}
+					onpick={trip ? pickTripCity : undefined}
 					options={placeOptions}
 					single
 					bind:query={form.placeQuery}
@@ -142,10 +232,37 @@
 
 				<VisitDateField
 					errors={errors.current}
+					hint={trip ? m.chronicle.trip.form.startHint : undefined}
+					legend={trip ? m.chronicle.trip.form.start : undefined}
 					bind:day={form.day}
 					bind:month={form.month}
 					bind:year={form.year}
 				/>
+
+				{#if trip}
+					<VisitDateField
+						errors={{
+							day: errors.current.endDay,
+							month: errors.current.endMonth,
+							year: errors.current.endYear
+						}}
+						hint={m.chronicle.trip.form.endHint}
+						legend={m.chronicle.trip.form.end}
+						bind:day={form.endDay}
+						bind:month={form.endMonth}
+						bind:year={form.endYear}
+					/>
+				{/if}
+
+				{#if link.trips.length > 0}
+					<Select
+						hint={link.outside ? m.chronicle.form.tripOutside : m.chronicle.form.tripHint}
+						label={m.chronicle.form.trip}
+						onchange={() => (tripChosen = true)}
+						options={tripOptions(link.trips)}
+						bind:value={form.tripId}
+					/>
+				{/if}
 
 				<NotesEditor
 					hint={noteLinks ? m.artworkForm.notesLinkHint : undefined}
@@ -157,7 +274,14 @@
 			</div>
 
 			<div class="fields">
-				<VisitArtworksField {artworks} isNew={!existing} {onimagefailed} {onnearscreen} bind:form />
+				<VisitArtworksField
+					{artworks}
+					isNew={!existing}
+					{onimagefailed}
+					{onnearscreen}
+					{suggested}
+					bind:form
+				/>
 			</div>
 		</div>
 

@@ -20,6 +20,7 @@
 		{ count: statistics.terms, label: texts.terms },
 		{ count: statistics.events, label: texts.events },
 		{ count: statistics.visits, label: texts.visits },
+		{ count: statistics.trips, label: texts.trips },
 		{ count: statistics.exhibitions, label: texts.exhibitions }
 	]);
 </script>

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { seenArtworks, seenCount } from './seen.ts';
+import { testVisit } from '#lib/testing/chronicle/chronicle.ts';
 import type { Visit } from '#lib/chronicle/types/visit.ts';
 
 const lilies = testArtwork(1, 'Water Lilies');
@@ -8,7 +9,7 @@ const kiss = testArtwork(2, 'The Kiss');
 const artworks = new Map([lilies, kiss].map((artwork) => [artwork.id, artwork]));
 
 function visit(artworkIds: string[]): Visit {
-	return {
+	return testVisit({
 		id: artworkIds.join(),
 		place: 'Orsay',
 		placeType: null,
@@ -16,7 +17,7 @@ function visit(artworkIds: string[]): Visit {
 		date: { on: '2026-01-01', precision: 'year' },
 		notes: '',
 		artworkIds
-	};
+	});
 }
 
 describe('seenArtworks', () => {

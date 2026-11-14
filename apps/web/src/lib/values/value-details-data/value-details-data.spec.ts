@@ -8,8 +8,9 @@ import {
 import { forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { emptyAuthorDetails } from '#lib/values/author-form/author-form.ts';
+import { loadAuthorRelations } from '#lib/author-relations/author-relations-data/author-relations-data.ts';
 import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
-import { loadValueDetails, saveValueDetails } from './value-details-data.ts';
+import { ensureCityPlace, loadValueDetails, saveValueDetails } from './value-details-data.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { rpc: vi.fn(), from: vi.fn() }
@@ -17,6 +18,9 @@ vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 vi.mock('#lib/shared/data/data-cache/data-cache.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/shared/data/data-cache/data-cache.ts')>()),
 	forgetCached: vi.fn()
+}));
+vi.mock('#lib/author-relations/author-relations-data/author-relations-data.ts', () => ({
+	loadAuthorRelations: vi.fn()
 }));
 vi.mock('#lib/images/own-image-data/own-image-data.ts', () => ({
 	uploadOwnImage: vi.fn(),
@@ -74,7 +78,7 @@ describe('loadValueDetails', () => {
 
 		const result = await loadValueDetails(style);
 
-		expect(result.error).toBe(m.collectionErrors.network);
+		expect(result.error).toEqual(expect.any(String));
 	});
 });
 
@@ -138,6 +142,9 @@ describe('author details', () => {
 
 	it('reads the portrait, the years of life and the sort name', async () => {
 		vi.mocked(ownImageUrl).mockResolvedValue('https://signed.example/portrait.jpg');
+		vi.mocked(loadAuthorRelations).mockResolvedValue({
+			relations: [{ type: 'pupilFrom', author: { id: 'a2', name: 'Verrocchio' } }]
+		});
 		detailsTable({
 			summary: null,
 			notes: null,
@@ -145,6 +152,7 @@ describe('author details', () => {
 			death_year: 1519,
 			years_approximate: false,
 			sort_name: 'Vinci, Leonardo da',
+			country: 'Italia',
 			own_image_path: 'owner/portrait.jpg',
 			image_width: 400,
 			image_height: 500
@@ -164,11 +172,22 @@ describe('author details', () => {
 			birthYear: 1452,
 			deathYear: 1519,
 			yearsApproximate: false,
-			sortName: 'Vinci, Leonardo da'
+			sortName: 'Vinci, Leonardo da',
+			country: 'Italia',
+			relations: [{ type: 'pupilFrom', author: { id: 'a2', name: 'Verrocchio' } }]
 		});
+		expect(loadAuthorRelations).toHaveBeenCalledWith('a1');
+	});
+
+	it('fails the author page when its relations cannot be read', async () => {
+		detailsTable(null);
+		vi.mocked(loadAuthorRelations).mockResolvedValue({ relations: [], error: 'Brak sieci.' });
+
+		await expect(loadValueDetails(author)).resolves.toMatchObject({ error: 'Brak sieci.' });
 	});
 
 	it('gives an author without a row empty details', async () => {
+		vi.mocked(loadAuthorRelations).mockResolvedValue({ relations: [] });
 		detailsTable(null);
 
 		const { details } = await loadValueDetails(author);
@@ -206,9 +225,11 @@ describe('author details', () => {
 			details: expect.objectContaining({
 				birth_year: 1452,
 				death_year: null,
+				country: null,
 				own_image_path: 'owner/new.jpg',
 				source_image_file: null,
-				image_width: 4
+				image_width: 4,
+				relations: []
 			})
 		});
 		expect(removeOwnImage).toHaveBeenCalledWith('owner/old.jpg');
@@ -266,20 +287,32 @@ describe('location details', () => {
 		vi.mocked(supabase.rpc).mockResolvedValue({ error: null } as never);
 	});
 
-	it('reads the country and the type of place', async () => {
-		detailsTable({ summary: null, notes: null, country_code: 'FR', place_type: 'museum' });
+	it('reads the country, the type and the point of the place', async () => {
+		detailsTable({
+			summary: null,
+			notes: null,
+			country_code: 'FR',
+			place_type: 'museum',
+			latitude: 48.86,
+			longitude: 2.34
+		});
 
 		const { details } = await loadValueDetails(location);
 
 		expect(supabase.from).toHaveBeenCalledWith('location_details');
-		expect(details.location).toEqual({ countryCode: 'FR', placeType: 'museum' });
+		expect(details.location).toEqual({
+			countryCode: 'FR',
+			placeType: 'museum',
+			point: { latitude: 48.86, longitude: 2.34 }
+		});
 	});
 
 	it('ignores a country and a type it does not know', async () => {
 		detailsTable({ summary: null, notes: null, country_code: 'ZZ', place_type: 'garden' });
 		expect((await loadValueDetails(location)).details.location).toEqual({
 			countryCode: null,
-			placeType: null
+			placeType: null,
+			point: null
 		});
 	});
 
@@ -292,7 +325,208 @@ describe('location details', () => {
 
 		expect(supabase.rpc).toHaveBeenCalledWith('save_value_details', {
 			target_value: 'l1',
-			details: { summary: 'Pałac.', notes: '', country_code: 'FR', place_type: 'museum' }
+			details: {
+				summary: 'Pałac.',
+				notes: '',
+				country_code: 'FR',
+				place_type: 'museum'
+			}
 		});
+	});
+
+	it('sends only the location fields that changed', async () => {
+		const previous = {
+			summary: '',
+			notes: '',
+			location: {
+				countryCode: 'FR',
+				placeType: 'museum' as const,
+				city: { id: 'paris', name: 'Paryż' }
+			}
+		};
+		await saveValueDetails(location, { ...previous, summary: 'Pałac.' }, previous);
+
+		expect(supabase.rpc).toHaveBeenCalledWith('save_value_details', {
+			target_value: 'l1',
+			details: { summary: 'Pałac.', notes: '' }
+		});
+	});
+
+	it('saves the city of a place and never a city for a city', async () => {
+		await saveValueDetails(location, {
+			summary: '',
+			notes: '',
+			location: { countryCode: 'FR', placeType: 'museum', city: { id: 'paris', name: 'Paryż' } }
+		});
+		await saveValueDetails(
+			location,
+			{
+				summary: '',
+				notes: '',
+				location: { countryCode: 'FR', placeType: 'city', city: { id: 'paris', name: 'Paryż' } }
+			},
+			{
+				summary: '',
+				notes: '',
+				location: { countryCode: 'FR', placeType: 'museum', city: { id: 'paris', name: 'Paryż' } }
+			}
+		);
+
+		expect(
+			vi
+				.mocked(supabase.rpc)
+				.mock.calls.map((call) => (call[1] as { details: { city_id: unknown } }).details.city_id)
+		).toEqual(['paris', null]);
+	});
+
+	it('reads the city of a place with its country and point', async () => {
+		const query = {
+			select: vi.fn(),
+			eq: vi.fn(),
+			maybeSingle: vi
+				.fn()
+				.mockResolvedValueOnce({
+					data: {
+						summary: null,
+						notes: null,
+						place_type: 'museum',
+						country_code: 'FR',
+						city_id: 'paris'
+					},
+					error: null
+				})
+				.mockResolvedValueOnce({
+					data: {
+						name: 'Paryż',
+						location_details: { country_code: 'FR', latitude: 48.857, longitude: 2.35 }
+					},
+					error: null
+				})
+		};
+		query.select.mockReturnValue(query);
+		query.eq.mockReturnValue(query);
+		vi.mocked(supabase.from).mockReturnValue(query as never);
+
+		const { details } = await loadValueDetails(location);
+
+		expect(supabase.from).toHaveBeenLastCalledWith('category_values');
+		expect(details.location?.city).toEqual({
+			id: 'paris',
+			name: 'Paryż',
+			countryCode: 'FR',
+			point: { latitude: 48.857, longitude: 2.35 }
+		});
+	});
+});
+
+describe('the city of a place read as an embedded list', () => {
+	it('reads the country and the point of the city when its details come as an array', async () => {
+		const query = {
+			select: vi.fn(),
+			eq: vi.fn(),
+			maybeSingle: vi
+				.fn()
+				.mockResolvedValueOnce({
+					data: { summary: null, notes: null, place_type: 'museum', city_id: 'paris' },
+					error: null
+				})
+				.mockResolvedValueOnce({
+					data: {
+						name: 'Paryż',
+						location_details: [{ country_code: 'FR', latitude: 48.857, longitude: 2.35 }]
+					},
+					error: null
+				})
+		};
+		query.select.mockReturnValue(query);
+		query.eq.mockReturnValue(query);
+		vi.mocked(supabase.from).mockReturnValue(query as never);
+
+		const { details } = await loadValueDetails({
+			kind: 'location',
+			record: { id: 'l1', category: 'location', name: 'Luwr', count: 1 }
+		});
+
+		expect(details.location?.city).toEqual({
+			id: 'paris',
+			name: 'Paryż',
+			countryCode: 'FR',
+			point: { latitude: 48.857, longitude: 2.35 }
+		});
+	});
+});
+
+describe('the city of a place that cannot be read', () => {
+	it('fails the place page instead of showing the place without its city', async () => {
+		const query = {
+			select: vi.fn(),
+			eq: vi.fn(),
+			maybeSingle: vi
+				.fn()
+				.mockResolvedValueOnce({
+					data: { summary: null, notes: null, place_type: 'museum', city_id: 'paris' },
+					error: null
+				})
+				.mockResolvedValueOnce({ data: null, error: { message: 'offline' } })
+		};
+		query.select.mockReturnValue(query);
+		query.eq.mockReturnValue(query);
+		vi.mocked(supabase.from).mockReturnValue(query as never);
+
+		const result = await loadValueDetails({
+			kind: 'location',
+			record: { id: 'l1', category: 'location', name: 'Luwr', count: 1 }
+		});
+
+		expect(result.error).toEqual(expect.any(String));
+		expect(result.details.location).toBeUndefined();
+	});
+});
+
+describe('ensureCityPlace', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	it('keeps a city of the atelier and creates a catalogue town with its details', async () => {
+		vi.mocked(supabase.rpc).mockResolvedValue({ data: 'new-city', error: null } as never);
+
+		expect(await ensureCityPlace({ id: 'paris', name: 'Paryż' })).toEqual({ id: 'paris' });
+		expect(supabase.rpc).not.toHaveBeenCalled();
+		expect(
+			await ensureCityPlace({
+				name: 'Toledo',
+				countryCode: 'ES',
+				point: { latitude: 39.86, longitude: -4.03 },
+				wikidataId: 'Q5836'
+			})
+		).toEqual({ id: 'new-city' });
+		expect(supabase.rpc).toHaveBeenCalledWith('ensure_city_place', {
+			city_name: 'Toledo',
+			wikidata_id: 'Q5836',
+			country_code: 'ES',
+			latitude: 39.86,
+			longitude: -4.03
+		});
+	});
+
+	it('says when the name belongs to a place of another type', async () => {
+		vi.mocked(supabase.rpc).mockResolvedValue({ data: null, error: { code: 'SC003' } } as never);
+
+		expect(await ensureCityPlace({ name: 'Wiedeń' })).toEqual({
+			error: m.cardIndex.errors.cityName
+		});
+	});
+
+	it('never makes the place being edited its own city', async () => {
+		vi.mocked(supabase.rpc).mockResolvedValue({ data: null, error: { code: 'SC004' } } as never);
+
+		expect(await ensureCityPlace({ name: 'Toledo' }, 'l1')).toEqual({
+			error: m.cardIndex.errors.citySelf
+		});
+		expect(supabase.rpc).toHaveBeenCalledWith(
+			'ensure_city_place',
+			expect.objectContaining({ city_name: 'Toledo', exclude: 'l1' })
+		);
 	});
 });

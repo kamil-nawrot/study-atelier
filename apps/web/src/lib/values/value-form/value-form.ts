@@ -1,3 +1,4 @@
+import { placesOfCity } from '#lib/card-index/place-tree/place-tree.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import {
 	erasOfPeriod,
@@ -88,8 +89,10 @@ export function mergeDescription(
 	record: CardIndexRecord,
 	target: CardIndexRecord,
 	kindGenitive: string,
-	hasContent: boolean
+	hasContent: boolean,
+	index?: CardIndexData
 ): string {
+	const places = index && record.placeType === 'city' ? placesOfCity(index, record.id).length : 0;
 	const { mergeConfirm } = m.cardIndex;
 	const merged = record.name;
 	const kept = target.name;
@@ -97,7 +100,10 @@ export function mergeDescription(
 		...(hasContent ? [mergeConfirm.pageContent(merged)] : []),
 		mergeConfirm.irreversible
 	];
-	const visits = record.visits ? [mergeConfirm.visits(merged, kept, record.visits)] : [];
+	const visits = [
+		...(record.visits ? [mergeConfirm.visits(merged, kept, record.visits)] : []),
+		...(places > 0 ? [mergeConfirm.places(merged, kept, places)] : [])
+	];
 	if (record.count === 0) {
 		return [...(visits.length > 0 ? visits : [mergeConfirm.unused(merged)]), ...ending].join(' ');
 	}

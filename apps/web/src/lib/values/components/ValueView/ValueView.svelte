@@ -32,6 +32,7 @@
 	import MentionedIn from '#lib/notes/components/MentionedIn/MentionedIn.svelte';
 	import NotesSection from '#lib/notes/components/NotesSection/NotesSection.svelte';
 	import EraOutsideNote from '#lib/values/components/EraOutsideNote/EraOutsideNote.svelte';
+	import PlacePosition from '#lib/map/components/PlacePosition/PlacePosition.svelte';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 	type Props = {
@@ -68,16 +69,30 @@
 	let lifeYears = $derived(
 		author && formatLifeYears(author.birthYear, author.deathYear, author.yearsApproximate)
 	);
+	let city = $derived(details.location?.placeType === 'city' ? null : details.location?.city);
 	let place = $derived([
 		details.location?.placeType ? placeTypeName(details.location.placeType) : null,
-		details.location?.countryCode ? countryName(details.location.countryCode) : null
+		city
+			? cityLine
+			: details.location?.countryCode
+				? countryName(details.location.countryCode)
+				: null
 	]);
 	let title = $derived(
 		subject.kind === 'era' ? `${name.charAt(0).toLocaleUpperCase()}${name.slice(1)}` : name
 	);
 </script>
 
-<article class:with-portrait={portrait}>
+{#snippet cityLine()}
+	{#if city}
+		{#if city.id}
+			<a class="city" href={valuePath('location', city.id)}>{city.name}</a
+			>{:else}{city.name}{/if}{#if city.countryCode},
+			{countryName(city.countryCode)}{/if}
+	{/if}
+{/snippet}
+
+<article class:with-portrait={portrait} class:with-position={subject.kind === 'location'}>
 	{#if portrait}
 		<figure class="portrait">
 			<div class="mat">
@@ -112,8 +127,10 @@
 					<EraOutsideNote {artworks} code={subject.code} />
 				</p>
 			{/if}
-			{#if lifeYears}
-				<p>{lifeYears}</p>
+			{#if author && (lifeYears || author.country)}
+				<p class="author-line">
+					<MetaLine parts={[lifeYears || null, author.country]} />
+				</p>
 			{/if}
 			{#if place.some((part) => part !== null)}
 				<p class="place">
@@ -145,7 +162,11 @@
 		/>
 
 		{#if empty}
-			<p class="empty">{m.valuePage.kinds[subject.kind].noNotes}</p>
+			<p class="empty">
+				{details.location?.placeType === 'city'
+					? m.valuePage.city.noNotes
+					: m.valuePage.kinds[subject.kind].noNotes}
+			</p>
 		{:else}
 			{#if details.summary}
 				<Section>
@@ -161,6 +182,11 @@
 
 		<MentionedIn {mentions} />
 	</div>
+	{#if subject.kind === 'location' && details.location}
+		<aside class="position">
+			<PlacePosition point={city?.point ?? details.location.point ?? null} />
+		</aside>
+	{/if}
 </article>
 
 <style>
@@ -223,6 +249,13 @@
 		gap: var(--spacing-2);
 	}
 
+	.city {
+		color: inherit;
+		text-decoration: underline;
+		text-decoration-thickness: var(--border-width-hairline);
+		text-underline-offset: 0.2em;
+	}
+
 	.mark {
 		display: grid;
 		place-items: center;
@@ -271,6 +304,11 @@
 	@media (min-width: 768px) {
 		article.with-portrait {
 			grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+			gap: var(--spacing-12);
+		}
+
+		article.with-position {
+			grid-template-columns: minmax(0, 1fr) minmax(0, 480px);
 			gap: var(--spacing-12);
 		}
 	}

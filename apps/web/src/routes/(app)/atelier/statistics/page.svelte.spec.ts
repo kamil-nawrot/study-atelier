@@ -22,6 +22,7 @@ const statistics: CollectionStatistics = {
 	terms: 5,
 	events: 1,
 	visits: 2,
+	trips: 1,
 	exhibitions: 3,
 	quizAnswers: 0,
 	correctAnswers: 0,

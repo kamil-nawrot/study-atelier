@@ -1,3 +1,4 @@
+import { relationError } from '#lib/artwork-relations/relation-types/relation-types.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { signedYear } from '#lib/catalogue/years/years.ts';
 import type { ArtworkFieldErrors } from '#lib/artworks/types/artwork-field-errors.ts';
@@ -81,6 +82,8 @@ export function validateArtwork(input: ArtworkInput): ArtworkFieldErrors {
 	if (!input.authorUnknown && names(input.authors).length === 0) {
 		errors.authors = m.artworkErrors.authorRequired;
 	}
+	const relations = relationError(input.relations ?? []);
+	if (relations) errors.relations = relations;
 	return { ...errors, ...validateYears(input) };
 }
 

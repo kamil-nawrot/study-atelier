@@ -5,6 +5,7 @@
 	import { arrivedFromApp, goBackThroughHistory } from '#lib/shared/navigation/history/history.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
+	import { tripDateName } from '#lib/chronicle/trip-date/trip-date.ts';
 	import { visitDateName } from '#lib/chronicle/visit-date/visit-date.ts';
 	import VisitForm from '#lib/chronicle/components/VisitForm/VisitForm.svelte';
 	import type { VisitDraft } from '#lib/chronicle/types/visit-draft.ts';
@@ -47,7 +48,12 @@
 		const options = {
 			replace: true,
 			refreshAll: true,
-			state: { chronicleMessage: m.chronicle.saved(draft.place, visitDateName(draft.date)) }
+			state: {
+				chronicleMessage:
+					draft.kind === 'trip'
+						? m.chronicle.trip.saved(draft.place, tripDateName(draft))
+						: m.chronicle.saved(draft.place, visitDateName(draft.date))
+			}
 		};
 		if (cameFrom !== path) {
 			await goto(path, options);
@@ -78,6 +84,9 @@
 		onsaved={showSaved}
 		placeStarter={data.placeStarter}
 		places={data.places}
+		towns={data.towns}
+		tripPlaces={data.tripPlaces}
+		trips={data.trips}
 		visit={data.visit}
 	/>
 {/if}

@@ -22,6 +22,7 @@ export type WallArtwork = {
 	hasImage: boolean;
 	favourite: boolean;
 	seen?: boolean;
+	wantToSee?: boolean;
 	own?: OwnEntries;
 	image?: ArtworkTileImage;
 	imageUnavailable?: boolean;

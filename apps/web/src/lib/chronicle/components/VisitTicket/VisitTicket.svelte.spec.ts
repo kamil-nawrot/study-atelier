@@ -37,6 +37,20 @@ describe('VisitTicket', () => {
 		expect(hit?.closest('a')).toBe(container.querySelector('a'));
 	});
 
+	it('leaves the stub out of a trip in the list but keeps it in the trip view', async () => {
+		const trip = testVisit({ kind: 'trip' });
+		const { container, unmount } = await render(VisitTicket, {
+			visit: trip,
+			count: 2,
+			linked: true
+		});
+		expect(container.querySelector('.stub')).toBeNull();
+		unmount();
+
+		const view = await render(VisitTicket, { visit: trip, count: 2 });
+		expect(view.container.querySelector('.stub')).not.toBeNull();
+	});
+
 	it('heads the visit view with the place and the count in the stub', async () => {
 		render(VisitTicket, { visit: testVisit(), count: 2 });
 

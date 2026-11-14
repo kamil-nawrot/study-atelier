@@ -6,6 +6,7 @@ import { goto } from '$app/navigation';
 import { preloadArtwork } from '#lib/artworks/artwork-preload/artwork-preload.ts';
 import { setBackPlace } from '#lib/shared/navigation/back/back.svelte.ts';
 import { setFavourite } from '#lib/wall/favourite-data/favourite-data.ts';
+import { setWantToSee } from '#lib/wall/want-to-see-data/want-to-see-data.ts';
 import { moveToTrash } from '#lib/artworks/trash-data/trash-data.ts';
 import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
 import type { LoadArtworkResult } from '#lib/artworks/types/load-artwork-result.ts';
@@ -47,6 +48,7 @@ vi.mock('#lib/wall/favourite-data/favourite-data.ts', async (importOriginal) => 
 	...(await importOriginal<typeof import('#lib/wall/favourite-data/favourite-data.ts')>()),
 	setFavourite: vi.fn()
 }));
+vi.mock('#lib/wall/want-to-see-data/want-to-see-data.ts', () => ({ setWantToSee: vi.fn() }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
@@ -679,14 +681,18 @@ describe('artwork page', () => {
 			.toBeVisible();
 	});
 
-	it('shows a favourite artwork with a filled heart and clears it', async () => {
+	it('clears the favourite and want-to-see marks of an artwork', async () => {
 		vi.mocked(setFavourite).mockResolvedValue({});
-		renderPage({ artwork: artwork({ favourite: true }) });
+		vi.mocked(setWantToSee).mockResolvedValue({});
+		renderPage({ artwork: artwork({ favourite: true, wantToSee: true }) });
 
 		await page.getByRole('button', { name: m.favourite.remove }).click();
 
 		expect(setFavourite).toHaveBeenCalledWith('artwork-42', false);
 		await expect.element(page.getByText(m.favourite.removed)).toBeVisible();
+		await page.getByRole('button', { name: m.wantToSee.remove }).click();
+		expect(setWantToSee).toHaveBeenCalledWith('artwork-42', false);
+		await expect.element(page.getByText(m.wantToSee.removed)).toBeVisible();
 	});
 
 	it('puts the heart back and says so when the save fails', async () => {
@@ -860,6 +866,20 @@ describe('artwork page', () => {
 	});
 
 	describe('loupe', () => {
+		function pointAtLoupeCentre(): HTMLElement {
+			const layer = document.querySelector('.loupe') as HTMLElement;
+			const rect = layer.getBoundingClientRect();
+			layer.dispatchEvent(
+				new PointerEvent('pointermove', {
+					pointerType: 'mouse',
+					clientX: rect.left + rect.width / 2,
+					clientY: rect.top + rect.height / 2,
+					bubbles: true
+				})
+			);
+			return layer;
+		}
+
 		function loupeButton(): ReturnType<typeof page.getByRole> {
 			return page.getByRole('button', { name: m.loupe.label });
 		}
@@ -901,34 +921,30 @@ describe('artwork page', () => {
 			await expect.element(loupeButton()).toHaveAttribute('aria-pressed', 'true');
 		});
 
-		it('opens a new pin with the view of the loupe on a click', async () => {
+		it.each([4000, 40])(
+			'opens a pin with the view of the loupe on a %i px wide image',
+			async (width) => {
+				renderPage({
+					artwork: artwork({
+						image: { kind: 'url', url: IMAGE, width, height: width * 1.25, id: 'image-1' }
+					}),
+					pins: []
+				});
+
+				await loupeButton().click();
+				const layer = pointAtLoupeCentre();
+				layer.click();
+
+				const dialog = page.getByRole('dialog');
+				await expect.element(dialog).toHaveTextContent(m.pins.newTitle);
+				await expect.element(dialog).toHaveTextContent(/Widok lupy \(\d+(,\d)?×\)/);
+			}
+		);
+
+		it('dims the loupe and says why for an image whose size is unknown', async () => {
 			renderPage({
-				artwork: artwork({
-					image: { kind: 'url', url: IMAGE, width: 4000, height: 5000, id: 'image-1' }
-				}),
-				pins: []
+				artwork: artwork({ image: { kind: 'url', url: IMAGE, width: null, height: null } })
 			});
-
-			await loupeButton().click();
-			const layer = document.querySelector('.loupe') as HTMLElement;
-			const rect = layer.getBoundingClientRect();
-			layer.dispatchEvent(
-				new PointerEvent('pointermove', {
-					pointerType: 'mouse',
-					clientX: rect.left + rect.width / 2,
-					clientY: rect.top + rect.height / 2,
-					bubbles: true
-				})
-			);
-			layer.click();
-
-			const dialog = page.getByRole('dialog');
-			await expect.element(dialog).toHaveTextContent(m.pins.newTitle);
-			await expect.element(dialog).toHaveTextContent(/Widok lupy \(\d+(,\d)?×\)/);
-		});
-
-		it('dims the loupe and says why for an image that is not larger than shown', async () => {
-			renderPage();
 
 			await expect.element(loupeButton()).toHaveAttribute('aria-disabled', 'true');
 			await expect.element(page.getByRole('tooltip')).toHaveTextContent(m.loupe.unavailable);

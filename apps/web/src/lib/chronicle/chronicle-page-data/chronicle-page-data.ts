@@ -1,4 +1,8 @@
-import { loadVisit, loadVisits } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
+import {
+	loadTripVisits,
+	loadVisit,
+	loadVisits
+} from '#lib/chronicle/chronicle-data/chronicle-data.ts';
 import { loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
 import { loadNoteLinkLabels, mentionsLinks } from '#lib/notes/note-link-data/note-link-data.ts';
 import { loadArtworksOfVisit, loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
@@ -19,6 +23,8 @@ type VisitPageData = VisitResult & {
 	artworksError?: string;
 	noteLinks?: NoteLinks;
 	glossary?: GlossaryTerm[];
+	tripVisits?: Visit[];
+	tripVisitsError?: string;
 };
 
 export async function loadChronicle(): Promise<ChronicleData> {
@@ -35,15 +41,18 @@ export async function loadVisitPage(id: string): Promise<VisitPageData> {
 	const result = await loadVisit(id);
 	if (!result.visit) return { ...result, artworks: [] };
 	const notes = result.visit.notes;
-	const [atelier, noteLinks, glossary] = await Promise.all([
+	const [atelier, noteLinks, glossary, trip] = await Promise.all([
 		result.visit.artworkIds.length > 0 ? seen : undefined,
 		mentionsLinks(notes) ? loadNoteLinkLabels({ visitId: id }) : undefined,
-		notes ? loadTermIndex() : undefined
+		notes ? loadTermIndex() : undefined,
+		result.visit.kind === 'trip' ? loadTripVisits(id) : undefined
 	]);
 	return {
 		...result,
 		artworks: atelier?.artworks ?? [],
 		artworksError: atelier?.error,
+		tripVisits: trip?.visits,
+		tripVisitsError: trip?.error,
 		noteLinks,
 		glossary: glossary?.terms
 	};

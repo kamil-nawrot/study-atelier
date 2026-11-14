@@ -105,6 +105,7 @@ function artwork(number, title, authors, year, era, extra = {}) {
 		type_code: 'painting',
 		notes: null,
 		favourite: false,
+		want_to_see: false,
 		deleted_at: null,
 		artwork_values: authors.map((name, position) => ({
 			position,
@@ -199,6 +200,67 @@ export const ARTWORKS = [
 		['Renaissance']
 	),
 	artwork(10, 'Untitled study', ['Learner Example'], null, null, {})
+];
+
+const ARTWORK_PLACES = [
+	[2, 'MoMA, New York'],
+	[3, 'Mauritshuis'],
+	[5, 'Neues Museum'],
+	[6, 'Notre-Dame de Paris'],
+	[7, 'Belvedere'],
+	[9, 'Uffizi']
+];
+
+for (const [number, place] of ARTWORK_PLACES) {
+	withValues(
+		ARTWORKS.find((row) => row.record_number === number),
+		'location',
+		[place]
+	);
+}
+
+function mapPlace(name, placeType, countryCode, point, city = null) {
+	return {
+		id: valueId('location', name),
+		name,
+		location_details: [
+			{
+				place_type: placeType,
+				country_code: countryCode,
+				latitude: point?.[0] ?? null,
+				longitude: point?.[1] ?? null,
+				city_id: city ? valueId('location', city) : null
+			}
+		]
+	};
+}
+
+export const MAP_PLACES = [
+	mapPlace('Belvedere', 'museum', 'AT', [48.19139, 16.38083]),
+	mapPlace('Florencja', 'city', 'IT', [43.7696, 11.2558]),
+	mapPlace('Haga', 'city', 'NL', [52.07667, 4.29861]),
+	mapPlace('Louvre', 'museum', 'FR', null, 'Paryż'),
+	mapPlace('Mauritshuis', 'museum', 'NL', null, 'Haga'),
+	mapPlace('MoMA, New York', 'museum', 'US', null),
+	mapPlace('Neues Museum', 'museum', 'DE', [52.52, 13.39778]),
+	mapPlace('Notre-Dame de Paris', 'on_site', 'FR', null, 'Paryż'),
+	mapPlace('Paryż', 'city', 'FR', [48.85661, 2.35222]),
+	mapPlace('Uffizi', 'museum', 'IT', null, 'Florencja')
+];
+
+export const PLACE_SEARCH = [
+	{
+		item: 'http://www.wikidata.org/entity/Q188740',
+		label: 'Museum of Modern Art',
+		description: 'muzeum sztuki nowoczesnej w Nowym Jorku',
+		coord: 'Point(-73.97778 40.76139)'
+	},
+	{
+		item: 'http://www.wikidata.org/entity/Q1135626',
+		label: 'MoMA PS1',
+		description: 'muzeum sztuki współczesnej w Queens',
+		coord: 'Point(-73.94694 40.74556)'
+	}
 ];
 
 const STUDY_SET = [
@@ -298,6 +360,9 @@ export const REVIEW_CARDS = [
 for (const number of [1, 3, 4, 7])
 	ARTWORKS.find((row) => row.record_number === number).favourite = true;
 
+for (const number of [2, 5])
+	ARTWORKS.find((row) => row.record_number === number).want_to_see = true;
+
 export const TRASHED = [
 	artwork(11, 'Discarded sketch', ['Learner Example'], 2020, 'contemporary', {
 		...ownImage(11, 4, 5),
@@ -305,9 +370,47 @@ export const TRASHED = [
 	})
 ];
 
+const RELATIONS = [
+	{ from: 1, to: 9, kind: 'reference' },
+	{ from: 10, to: 1, kind: 'study' },
+	{ from: 7, to: 1, kind: 'reference' },
+	{ from: 8, to: 1, kind: 'reference' },
+	{ from: 11, to: 1, kind: 'study' }
+];
+
+function relatedRow(number) {
+	const row = [...ARTWORKS, ...TRASHED].find((candidate) => candidate.record_number === number);
+	return {
+		id: row.id,
+		record_number: row.record_number,
+		title: row.title,
+		deleted_at: row.deleted_at
+	};
+}
+
+for (const row of [...ARTWORKS, ...TRASHED]) {
+	const number = row.record_number;
+	row.outgoing_relations = RELATIONS.filter((relation) => relation.from === number).map(
+		(relation) => ({ kind: relation.kind, artwork: relatedRow(relation.to) })
+	);
+	row.incoming_relations = RELATIONS.filter((relation) => relation.to === number).map(
+		(relation) => ({ kind: relation.kind, artwork: relatedRow(relation.from) })
+	);
+}
+
 export function valueId(category, name) {
 	return `${category}-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 }
+
+export const AUTHOR_RELATIONS = [
+	{ from: 'Gustav Klimt', to: 'Leonardo da Vinci', kind: 'influence' },
+	{ from: 'Vincent van Gogh', to: 'Johannes Vermeer', kind: 'influence' },
+	{ from: 'Johannes Vermeer', to: 'Leonardo da Vinci', kind: 'related' }
+].map(({ from, to, kind }) => ({
+	kind,
+	from: { id: valueId('author', from), name: from },
+	to: { id: valueId('author', to), name: to }
+}));
 
 export const VALUE_USAGE = [
 	...new Map(
@@ -391,7 +494,57 @@ export const VALUE_DETAILS = {
 			summary: 'A former royal palace in Paris, a museum since 1793.',
 			notes: null,
 			country_code: 'FR',
-			place_type: 'museum'
+			place_type: 'museum',
+			latitude: null,
+			longitude: null,
+			city_id: valueId('location', 'Paryż')
+		},
+		{
+			value_id: valueId('location', 'Paryż'),
+			summary: null,
+			notes: null,
+			country_code: 'FR',
+			place_type: 'city',
+			latitude: 48.85661,
+			longitude: 2.35222
+		},
+		{
+			value_id: valueId('location', 'Notre-Dame de Paris'),
+			summary: null,
+			notes: null,
+			country_code: 'FR',
+			place_type: 'on_site',
+			latitude: null,
+			longitude: null,
+			city_id: valueId('location', 'Paryż')
+		},
+		{
+			value_id: valueId('location', 'Florencja'),
+			summary: null,
+			notes: null,
+			country_code: 'IT',
+			place_type: 'city',
+			latitude: 43.7696,
+			longitude: 11.2558
+		},
+		{
+			value_id: valueId('location', 'Uffizi'),
+			summary: null,
+			notes: null,
+			country_code: 'IT',
+			place_type: 'museum',
+			latitude: null,
+			longitude: null,
+			city_id: valueId('location', 'Florencja')
+		},
+		{
+			value_id: valueId('location', 'Belvedere'),
+			summary: null,
+			notes: null,
+			country_code: 'AT',
+			place_type: 'museum',
+			latitude: 48.19139,
+			longitude: 16.38083
 		}
 	],
 	period_details: [
@@ -405,17 +558,17 @@ export const VALUE_DETAILS = {
 };
 
 export const CATALOGUE_MUSEUMS = [
-	{ name: 'Luwr', english_name: 'Louvre Museum', country_code: 'FR' },
-	{ name: 'Prado', english_name: 'Museo del Prado', country_code: 'ES' },
-	{ name: 'Galeria Uffizi', english_name: 'Uffizi Gallery', country_code: 'IT' },
-	{ name: 'Muzeum Brytyjskie', english_name: 'British Museum', country_code: 'GB' },
-	{ name: 'Rijksmuseum', english_name: null, country_code: 'NL' },
+	{ name: 'Luwr', alias: 'Louvre Museum', country_code: 'FR' },
+	{ name: 'Prado', alias: 'Museo del Prado', country_code: 'ES' },
+	{ name: 'Galeria Uffizi', alias: 'Uffizi Gallery', country_code: 'IT' },
+	{ name: 'Muzeum Brytyjskie', alias: 'British Museum', country_code: 'GB' },
+	{ name: 'Rijksmuseum', alias: null, country_code: 'NL' },
 	{
 		name: 'Muzeum Narodowe w Warszawie',
-		english_name: 'National Museum in Warsaw',
+		alias: 'National Museum in Warsaw',
 		country_code: 'PL'
 	},
-	{ name: 'Pradla Museum', english_name: null, country_code: 'PL' }
+	{ name: 'Pradla Museum', alias: null, country_code: 'PL' }
 ];
 
 export const ARTWORK_SEARCH = [
@@ -475,6 +628,7 @@ export const PROFILE = {
 	review_free: true,
 	review_glossary_on: true,
 	review_glossary_questions: 2,
+	review_symbol_questions: 1,
 	review_note_questions: true,
 	review_time_questions: true,
 	career_shown: true,
@@ -527,11 +681,24 @@ function glossaryEntry(
 	};
 }
 
-function visit(number, place, placeType, countryCode, visitedOn, precision, notes, numbers) {
+function visit(
+	number,
+	place,
+	placeType,
+	countryCode,
+	visitedOn,
+	precision,
+	notes,
+	numbers,
+	trip = {}
+) {
 	return {
 		id: `00000000-0000-4000-8000-000000000${String(500 + number)}`,
+		kind: trip.kind ?? 'visit',
 		place_id: valueId('location', place),
 		visited_on: visitedOn,
+		ends_on: trip.endsOn ?? null,
+		trip_id: trip.tripId ?? null,
 		date_precision: precision,
 		notes,
 		category_values: {
@@ -553,7 +720,19 @@ export const VISITS = [
 		'2026-10-12',
 		'day',
 		'Tłum przed [#0001 Mona Lisa](/atelier/1), ale warto było podejść bliżej. Skrzydło Richelieu prawie puste, a w salach holenderskich spokój i światło z okien.',
-		[1, 3, 9, 6, 7]
+		[1, 3, 9, 6, 7],
+		{ tripId: '00000000-0000-4000-8000-000000000505' }
+	),
+	visit(
+		5,
+		'Paryż',
+		'city',
+		'FR',
+		'2026-10-10',
+		'day',
+		'Pięć dni spacerów: Marais, wyspy na Sekwanie i wieczory nad rzeką.',
+		[6],
+		{ kind: 'trip', endsOn: '2026-10-14' }
 	),
 	visit(
 		2,
@@ -577,6 +756,17 @@ export const VISITS = [
 		[9]
 	)
 ];
+
+for (const name of ['Paryż', 'Florencja']) {
+	if (VALUE_USAGE.some((row) => row.id === valueId('location', name))) continue;
+	VALUE_USAGE.push({
+		id: valueId('location', name),
+		category_code: 'location',
+		name,
+		artwork_count: 0,
+		visit_count: 0
+	});
+}
 
 for (const visit of VISITS) {
 	const name = visit.category_values.name;
@@ -1184,9 +1374,129 @@ function pin(artworkNumber, number, x, y, glossaryNumber, text, viewWidth = null
 		text,
 		view_width: viewWidth,
 		crop_path: cropPath,
+		symbol_id: null,
+		symbol_meaning_id: null,
 		created_at: '2026-10-22T10:00:00Z'
 	};
 }
+
+const symbolId = (number) => `00000000-0000-4000-b000-${String(number).padStart(12, '0')}`;
+const meaningId = (symbol, position) =>
+	`00000000-0000-4000-b100-${String(symbol * 10 + position).padStart(12, '0')}`;
+
+function symbolContext(position, target) {
+	const empty = {
+		value_id: null,
+		era_code: null,
+		artwork_id: null,
+		glossary_entry_id: null,
+		text: null,
+		category_values: null,
+		artworks: null,
+		glossary_entries: null
+	};
+	if (target.value) {
+		const [category, name] = target.value;
+		return {
+			...empty,
+			position,
+			value_id: valueId(category, name),
+			category_values: { category_code: category, name }
+		};
+	}
+	if (target.era) return { ...empty, position, era_code: target.era };
+	if (target.artwork) {
+		const row = ARTWORKS.find((candidate) => candidate.record_number === target.artwork);
+		return {
+			...empty,
+			position,
+			artwork_id: row.id,
+			artworks: { record_number: row.record_number, title: row.title }
+		};
+	}
+	if (target.person) {
+		const entry = GLOSSARY_ENTRIES.find((candidate) => candidate.name === target.person);
+		return {
+			...empty,
+			position,
+			glossary_entry_id: entry.id,
+			glossary_entries: { name: entry.name }
+		};
+	}
+	return { ...empty, position, text: target.text };
+}
+
+function symbol(number, name, createdAt, meanings, description = null) {
+	return {
+		id: symbolId(number),
+		name,
+		description,
+		created_at: createdAt,
+		symbol_meanings: meanings.map(([text, contexts], position) => ({
+			id: meaningId(number, position),
+			position,
+			text,
+			symbol_meaning_contexts: contexts.map((target, index) => symbolContext(index, target))
+		}))
+	};
+}
+
+export const SYMBOLS = [
+	symbol(
+		1,
+		'Czaszka',
+		'2026-11-02T10:00:00Z',
+		[
+			['przemijanie, śmierć', []],
+			['pokuta i życie pustelnicze', [{ text: 'św. Hieronim' }, { era: 'early_modern' }]]
+		],
+		'Ludzka czaszka, najczęstszy rekwizyt martwych natur vanitas i portretów świętych pokutników.'
+	),
+	symbol(2, 'Lilia', '2026-11-05T10:00:00Z', [
+		['czystość, niewinność', [{ text: 'Zwiastowanie' }]],
+		['monarchia francuska', [{ text: 'heraldyka' }, { value: ['author', 'Maurice de Sully'] }]]
+	]),
+	symbol(3, 'Perła', '2026-11-08T10:00:00Z', [
+		['próżność i bogactwo', [{ value: ['author', 'Johannes Vermeer'] }]],
+		['czystość', []],
+		['wiedza ukryta jak perła w muszli', [{ artwork: 9 }]]
+	]),
+	symbol(4, 'Gwiazda', '2026-11-10T10:00:00Z', [['przewodnictwo, nadzieja', []]]),
+	symbol(5, 'Złoto', '2026-11-11T10:00:00Z', [
+		['sacrum, światło boskie', [{ era: 'middle_ages' }]],
+		['bogactwo i luksus', [{ era: 'modern' }]]
+	])
+];
+
+function symbolPin(artworkNumber, number, x, y, symbolNumber, meaningPosition) {
+	return {
+		...pin(
+			artworkNumber,
+			number,
+			x,
+			y,
+			null,
+			null,
+			0.16,
+			`${USER.id}/pin-${number}-crop-0a1b2c3d.jpg`
+		),
+		symbol_id: symbolId(symbolNumber),
+		symbol_meaning_id: meaningPosition === null ? null : meaningId(symbolNumber, meaningPosition),
+		created_at: `2026-11-${String(number - 10).padStart(2, '0')}T10:00:00Z`
+	};
+}
+
+export const SYMBOL_PINS = [
+	symbolPin(1, 20, 0.5, 0.3, 1, 0),
+	symbolPin(9, 21, 0.4, 0.6, 1, 0),
+	symbolPin(3, 22, 0.55, 0.45, 1, 1),
+	symbolPin(9, 23, 0.7, 0.4, 2, 0),
+	symbolPin(6, 24, 0.5, 0.5, 2, 1),
+	symbolPin(3, 25, 0.48, 0.62, 3, 0),
+	symbolPin(1, 26, 0.3, 0.7, 3, null),
+	symbolPin(7, 27, 0.5, 0.4, 5, 1),
+	symbolPin(6, 28, 0.35, 0.25, 5, 0)
+];
 
 export const ARTWORK_PINS = [
 	pin(6, 1, 0.62, 0.34, 2, 'Półkolista część chóru, widoczna od wschodu.'),
@@ -1204,7 +1514,8 @@ export const ARTWORK_PINS = [
 			0.2,
 			index === 2 ? null : `${USER.id}/pin-${5 + index}-crop-0a1b2c3d.jpg`
 		)
-	)
+	),
+	...SYMBOL_PINS
 ];
 
 export const EXHIBITS = [
@@ -1229,6 +1540,14 @@ export const EXHIBITS = [
 		value: 4,
 		thresholds: [2, 3, 4, 5, 6, 7]
 	},
+	{
+		exhibit: 'vault_cobweb',
+		room: 'main_hall',
+		hidden: false,
+		value: 12,
+		thresholds: [1, 5, 10, 25, 50, 100, 250]
+	},
+	{ exhibit: 'van_eyck_easel', room: 'main_hall', hidden: true, value: 0, thresholds: [1] },
 	{
 		exhibit: 'own_eye',
 		room: 'main_hall',
@@ -1313,6 +1632,13 @@ export const EXHIBITS = [
 		thresholds: [1, 10, 25, 50, 100, 250, 500]
 	},
 	{
+		exhibit: 'laurel_skull',
+		room: 'scriptorium',
+		hidden: false,
+		value: 6,
+		thresholds: [1, 5, 10, 25, 50, 100]
+	},
+	{
 		exhibit: 'timeline',
 		room: 'scriptorium',
 		hidden: false,
@@ -1350,6 +1676,7 @@ export const EXHIBITS = [
 	},
 	{ exhibit: 'trevi_fountain', room: 'map_room', hidden: true, value: 2, thresholds: [2] },
 	{ exhibit: 'seven_league_boots', room: 'map_room', hidden: true, value: 1, thresholds: [3] },
+	{ exhibit: 'pilgrim_shell', room: 'map_room', hidden: true, value: 0, thresholds: [1] },
 	{
 		exhibit: 'crystal_palace',
 		room: 'pavilion',

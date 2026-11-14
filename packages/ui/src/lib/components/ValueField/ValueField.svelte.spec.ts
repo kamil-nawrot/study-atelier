@@ -356,4 +356,27 @@ describe('ValueField', () => {
 		await expect.element(page.getByRole('button', { name: /nawy/ })).not.toBeInTheDocument();
 		expect(document.querySelectorAll('.filling-lines .line')).toHaveLength(1);
 	});
+
+	it('lists found options without a group, keeps two of the same name and passes the picked one on', async () => {
+		const picked: ValueOption[] = [];
+		render(ValueField, {
+			label: 'Artwork',
+			single: true,
+			invalid: true,
+			options: [
+				{ kind: 'found', id: 'a', name: 'The Kiss', note: 'Gustav Klimt' },
+				{ kind: 'found', id: 'b', name: 'The Kiss', note: 'Auguste Rodin' }
+			],
+			onpick: (option: ValueOption) => picked.push(option)
+		});
+
+		const field = page.getByRole('combobox', { name: 'Artwork' });
+		await expect.element(field).toHaveAttribute('aria-invalid', 'true');
+		await userEvent.click(field);
+		await expect.element(page.getByRole('option', { name: /Auguste Rodin/ })).toBeVisible();
+		expect(page.getByRole('group').query()).toBeNull();
+		await userEvent.keyboard('{ArrowDown}{Enter}');
+
+		expect(picked).toEqual([{ kind: 'found', id: 'b', name: 'The Kiss', note: 'Auguste Rodin' }]);
+	});
 });

@@ -90,6 +90,14 @@ const SOURCES: Readonly<Record<string, readonly string[]>> = {
 		'https://collections.vam.ac.uk/item/O112433/detail-of-the-decoration-of-print-ottaviani-giovanni/',
 		'https://www.vam.ac.uk/articles/art-nouveau-an-international-style'
 	],
+	laurel_skull: [
+		'https://collections.vam.ac.uk/item/O127482/children-blowing-bubbles-oil-painting-unknown/',
+		'https://www.emblems.arts.gla.ac.uk/alciato/books.php?id=A31a',
+		'https://www.rct.uk/collection/exhibitions/the-art-of-italy-in-the-royal-collection/the-queens-gallery-buckingham/self-portrait-as-the-allegory-of-painting-la-pittura',
+		'https://digitalcommons.lmu.edu/mobydick-asc-galleryexhibit/20/',
+		'https://essentiels.bnf.fr/fr/article/1fa13963-21a8-4e08-950a-05f6515b7d34-1822-champollion-perce-secret-hieroglyphes',
+		'https://arthistorians.info/panofskye/'
+	],
 	own_eye: [
 		'https://collections.whipplemuseum.cam.ac.uk/objects/12563/',
 		'https://theartsdesk.com/visual-arts/canaletto-art-venice-queens-gallery-preview',
@@ -164,6 +172,16 @@ const SOURCES: Readonly<Record<string, readonly string[]>> = {
 		'https://www.vam.ac.uk/articles/building-the-museum',
 		'https://www.vam.ac.uk/collections/photographs'
 	],
+	vault_cobweb: [
+		'https://www.uffizi.it/en/artworks/verrocchio-leonardo-baptism-of-christ',
+		'https://www.nationalgallery.org.uk/artists/peter-paul-rubens',
+		'https://www.rijksmuseum.nl/en/press/press-releases/rembrandts-marten-and-oopjen-naar-het-louvre',
+		'https://www.louvre.fr/expositions-et-evenements/expositions/copistes',
+		'https://www.nationalgallery.org.uk/paintings/leonardo-da-vinci-the-virgin-of-the-rocks',
+		'https://www.vangoghmuseum.nl/assets/b023267d-2d87-43a6-88bf-956d4213f2cc?c=52f4bba580232396dbe6bf84801c5783b3e42cd25daff1bd91fef735c9d7bc52',
+		'https://www.museodelprado.es/en/the-collection/art-work/the-sense-of-smell/adff981e-a317-4152-9e04-05ada13be226'
+	],
+	van_eyck_easel: ['https://www.mpiwg-berlin.mpg.de/news/features/features-feature22'],
 	hortus_cliffortianus: [
 		'https://news.artnet.com/art-world/art-bites-first-museum-labels-2467975',
 		'https://www.musee-orsay.fr/en/artworks/arrangement-en-gris-et-noir-ndeg1-974',
@@ -177,6 +195,9 @@ const SOURCES: Readonly<Record<string, readonly string[]>> = {
 	],
 	seven_league_boots: [
 		'https://essentiels.bnf.fr/fr/extrait/a4e7265f-26a5-43ff-9fb2-924a75411cd5-bottes-sept-lieues-tresor-petit-poucet'
+	],
+	pilgrim_shell: [
+		'https://www.londonmuseum.org.uk/collections/v/object-37427/st-james-of-santiago-de-compostela/'
 	],
 	crystal_palace: [
 		'https://www.royalparks.org.uk/read-watch-listen/great-exhibition-1851-hyde-park',

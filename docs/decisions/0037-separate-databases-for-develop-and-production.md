@@ -1,6 +1,6 @@
 # 0037. Use a separate Supabase database for `develop` and for production
 
-- Status: accepted
+- Status: accepted; the order of deployment and migrations is superseded by [0284](0284-apply-the-migrations-before-deploying-the-app.md)
 - Date: 2026-10-13
 
 ## Context and problem statement

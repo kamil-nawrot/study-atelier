@@ -1,6 +1,12 @@
 import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
-import { buildScript, transactionStatements, unwrapTest } from './db-try.mjs';
+import {
+	buildScript,
+	hasOpenQuote,
+	transactionStatements,
+	unsafeMetaCommand,
+	unwrapTest
+} from './db-try.mjs';
 
 test('finds statements that end or start a transaction', () => {
 	assert.deepEqual(transactionStatements('select 1; commit;'), ['commit']);
@@ -43,4 +49,31 @@ test('builds one rolled-back transaction and refuses SQL that would end it', () 
 		() => buildScript([{ label: 'b.sql', sql: 'select 1; commit;' }]),
 		/b\.sql contains "commit"/
 	);
+});
+
+test('finds a commit hidden behind a psql command or an escaped quote', () => {
+	assert.deepEqual(transactionStatements("\\echo 'x'\ncommit;"), ['commit']);
+	assert.deepEqual(transactionStatements("select E'\\'';\ncommit;"), ['commit']);
+	assert.deepEqual(transactionStatements("select E'it\\'s'; commit;"), ['commit']);
+	assert.deepEqual(transactionStatements("select 'a''b'; commit;"), ['commit']);
+	assert.deepEqual(transactionStatements("prepare transaction 'x';"), ['prepare transaction']);
+});
+
+test('refuses psql commands that can run SQL or leave the transaction', () => {
+	assert.equal(unsafeMetaCommand('select 1;\n\\c postgres'), '\\c');
+	assert.equal(unsafeMetaCommand('select 1\n\\gexec'), '\\gexec');
+	assert.equal(unsafeMetaCommand('\\i other.sql'), '\\i');
+	assert.equal(unsafeMetaCommand('\\! rm -rf .'), '\\!');
+	assert.equal(unsafeMetaCommand("\\echo 'a'\n\\set x 1\n\\timing on"), null);
+	assert.equal(unsafeMetaCommand("select '\n\\c x\n';"), null);
+	for (const sql of ['\\c x', 'select 1\n\\gexec']) {
+		assert.throws(() => buildScript([{ label: 'c.sql', sql }]), /psql command/);
+	}
+});
+
+test('refuses SQL whose quotes do not close', () => {
+	assert.equal(hasOpenQuote("select 'a"), true);
+	assert.equal(hasOpenQuote('select $$a'), true);
+	assert.equal(hasOpenQuote("select 'a', $x$b$x$, E'\\'';"), false);
+	assert.throws(() => buildScript([{ label: 'd.sql', sql: "select 'a" }]), /never closes/);
 });

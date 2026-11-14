@@ -27,6 +27,7 @@ begin
   insert into public.artwork_fields (name, kind) values ('Wykład', 'list') returning id into lecture;
   insert into public.artwork_fields (name, kind) values ('Widziane', 'flag');
   insert into public.category_values (category_code, name) values (lecture::text, 'Lecture 1');
+  insert into public.category_values (category_code, name) values ('author', 'Fabritius');
 
   select id into first_artwork from public.save_artwork(
     '{"title": "Girl", "author_unknown": false, "era_code": "early_modern"}',
@@ -44,6 +45,11 @@ begin
   select id into second_artwork from public.save_artwork('{"title": "Milkmaid", "author_unknown": true}', '{}', null, null);
   select id into third_artwork from public.save_artwork('{"title": "Trashed", "author_unknown": true}', '{}', null, null);
   update public.artworks set deleted_at = now() where id = third_artwork;
+  insert into public.artwork_relations (from_id, to_id, kind) values (first_artwork, second_artwork, 'study');
+  insert into public.artwork_relations (from_id, to_id, kind)
+    values (least(second_artwork, third_artwork), greatest(second_artwork, third_artwork), 'related');
+  insert into public.author_relations (from_id, to_id, kind)
+    select vermeer, id, 'influence' from public.category_values where name = 'Fabritius';
 
   insert into public.artwork_field_entries (artwork_id, field_id, field_kind)
     select first_artwork, id, 'flag' from public.artwork_fields where name = 'Widziane';
@@ -52,6 +58,13 @@ begin
     values (first_artwork, 1, 'Q1', 'Girl.jpg') returning id into image;
   insert into public.glossary_entries (name, category, definition) values ('Tenebrism', 'painting', 'Dark') returning id into term;
   insert into public.artwork_pins (image_id, x, y, glossary_entry_id) values (image, 0.25, 0.5, term);
+  perform public.save_symbol('Pearl', jsonb_build_array(
+    jsonb_build_object('text', 'purity', 'contexts', jsonb_build_array(jsonb_build_object('value_id', vermeer),
+      jsonb_build_object('text', 'Dutch genre'))),
+    jsonb_build_object('text', 'vanity')));
+  insert into public.artwork_pins (image_id, x, y, view_width, symbol_id, symbol_meaning_id)
+    select image, 0.5, 0.5, 0.2, meaning.symbol_id, meaning.id from public.symbol_meanings as meaning where meaning.position = 1;
+  perform public.set_symbol_cover(pin.symbol_id, pin.id) from public.artwork_pins as pin where pin.symbol_id is not null;
   insert into public.timeline_events (name, year_to) values ('War', 1648);
   perform public.save_visit('{"visited_on": "2026-10-12", "date_precision": "day", "notes": "Seen"}', 'Louvre',
     array[first_artwork, third_artwork]);
@@ -84,10 +97,11 @@ do $$
 declare
   owner constant uuid := '00000000-0000-0000-0000-00000000000a';
   tables constant text[] := array[
-    'artworks', 'artwork_images', 'glossary_entries', 'artwork_pins', 'artwork_fields',
+    'artworks', 'artwork_images', 'glossary_entries', 'symbols', 'symbol_meanings', 'artwork_pins', 'artwork_fields',
     'category_values', 'artwork_values', 'period_eras', 'style_periods', 'author_details',
     'period_details', 'style_details', 'material_details', 'location_details', 'era_details',
-    'artwork_field_entries', 'timeline_events', 'visits', 'visit_artworks', 'exhibitions', 'review_cards', 'review_log'
+    'artwork_relations', 'author_relations',
+    'artwork_field_entries', 'symbol_meaning_contexts', 'timeline_events', 'visits', 'visit_artworks', 'exhibitions', 'review_cards', 'review_log'
   ];
   table_name text;
   rows jsonb;
@@ -155,7 +169,7 @@ begin
     and (select count(*) from public.author_details) = 1
     and (select count(*) from public.artwork_values) = 3
     and (select count(*) from public.artwork_images) = 1
-    and (select count(*) from public.artwork_pins) = 1
+    and (select count(*) from public.artwork_pins) = 2
     and (select count(*) from public.glossary_entries) = 1
     and (select count(*) from public.timeline_events) = 1
     and (select count(*) from public.review_cards) = 2
@@ -187,6 +201,36 @@ begin
   assert (select count(*) from public.artwork_pins as pin
       join public.glossary_entries as entry on entry.id = pin.glossary_entry_id) = 1,
     'a pin does not follow the new glossary entry';
+
+  assert (select array_agg(meaning.text order by meaning.position) from public.symbol_meanings as meaning
+      join public.symbols as symbol on symbol.id = meaning.symbol_id where symbol.name = 'Pearl') = '{purity,vanity}',
+    'the meanings of a symbol do not keep their order';
+  assert (select array_agg(coalesce(value.name, label.text) order by label.position)
+      from public.symbol_meaning_contexts as label
+      left join public.category_values as value on value.id = label.value_id) = '{Vermeer,"Dutch genre"}',
+    'a context label does not follow the new value';
+  assert (select meaning.text from public.artwork_pins as pin
+      join public.symbol_meanings as meaning on meaning.id = pin.symbol_meaning_id) = 'vanity',
+    'a pin does not follow the new symbol and meaning';
+  assert (select pin.symbol_id from public.symbols as symbol
+      join public.artwork_pins as pin on pin.id = symbol.cover_pin_id) = (select id from public.symbols where name = 'Pearl'),
+    'the main detail of a symbol does not follow the new pin';
+
+  assert (select count(*) from public.artwork_relations) = 2,
+    'the relations of the artworks do not come back';
+  assert (select bool_and(from_id < to_id) from public.artwork_relations where kind = 'related'),
+    'a symmetric relation does not keep the order of its new ids';
+  assert (select target.title from public.artwork_relations as relation
+      join public.artworks as source on source.id = relation.from_id
+      join public.artworks as target on target.id = relation.to_id
+      where relation.kind = 'study') = 'Milkmaid' and (select source.title from public.artwork_relations as relation
+      join public.artworks as source on source.id = relation.from_id where relation.kind = 'study') = 'Girl',
+    'a relation does not follow the new ids of its artworks';
+  assert (select target.name from public.author_relations as relation
+      join public.category_values as source on source.id = relation.from_id
+      join public.category_values as target on target.id = relation.to_id
+      where source.name = 'Vermeer' and relation.kind = 'influence') = 'Fabritius',
+    'a relation of authors does not follow the new ids of its authors';
 
   select * into saved from public.save_artwork('{"title": "New", "author_unknown": true}', '{}', null, null);
   assert saved.record_number = 4, 'the next record number does not follow the imported ones';

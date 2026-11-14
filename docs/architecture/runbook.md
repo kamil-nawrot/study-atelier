@@ -26,7 +26,7 @@ Supabase, production project, Authentication, Sign In / Providers: turn off "All
 ## Rolling back a release
 
 1. **The app:** Cloudflare, Workers & Pages, `study-atelier`, Deployments: open the previous production deployment and roll back to it. The app is back to the previous build within a minute; learners with an open tab get the "new version" notice and reload.
-2. **The database:** migrations only go forward. The previous build keeps working on the new schema as long as the release followed the two-step rule for removals ([code conventions](../guidelines/code-conventions.md), Database). Restore the database only when data was damaged: take the encrypted dump the release saved before migrating and follow [Bringing a backup back](backups.md#bringing-a-backup-back). Everything learners saved after the dump is lost, so tell them first.
+2. **The database:** migrations only go forward. A release may rename or drop what the previous build uses ([ADR-0283](../decisions/0283-rename-or-drop-database-objects-in-one-release.md)), so before rolling the app back check the release's migrations: the previous build works on the new schema only if they only added things. Restore the database only when data was damaged: take the encrypted dump the release saved before migrating and follow [Bringing a backup back](backups.md#bringing-a-backup-back). Everything learners saved after the dump is lost, so tell them first.
 3. **The code:** revert the release's changes on `develop` in a `fix` pull request, and ship it as a hotfix through `main`.
 
 ## Rotating a leaked key

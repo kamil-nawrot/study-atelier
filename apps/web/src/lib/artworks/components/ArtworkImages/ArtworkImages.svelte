@@ -23,6 +23,7 @@
 	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 	import ImageField from '#lib/images/components/ImageField/ImageField.svelte';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
+	import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
 	import PinLayer from '#lib/pins/components/PinLayer/PinLayer.svelte';
 	import { pinsOfImage } from '#lib/pins/pin-layout/pin-layout.ts';
 	import type { Pin } from '#lib/pins/types/pin.ts';
@@ -39,6 +40,7 @@
 		autoMatch?: boolean;
 		pins?: Pin[];
 		entries?: readonly GlossaryTerm[];
+		symbols?: readonly SymbolOption[];
 		pinsError?: string;
 		onmatching?: (matching: boolean) => void;
 		compactEmpty?: boolean;
@@ -54,6 +56,7 @@
 		autoMatch = false,
 		pins = $bindable(),
 		entries = [],
+		symbols = [],
 		pinsError,
 		onmatching,
 		compactEmpty = false
@@ -266,6 +269,7 @@
 			image={current()}
 			imageId={pinImageId}
 			onfailure={(message) => (pinFailure = message)}
+			{symbols}
 			bind:pins
 		/>
 	{/if}

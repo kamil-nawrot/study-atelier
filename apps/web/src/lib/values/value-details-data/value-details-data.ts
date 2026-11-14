@@ -3,6 +3,9 @@ import { removeOwnImage } from '#lib/images/own-image-data/own-image-data.ts';
 import { cacheKeys, forgetCached, type CacheKey } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { emptyAuthorDetails } from '#lib/values/author-form/author-form.ts';
+import { authorRelationPayload } from '#lib/author-relations/author-relation-types/author-relation-types.ts';
+import { loadAuthorRelations } from '#lib/author-relations/author-relations-data/author-relations-data.ts';
+import type { AuthorRelation } from '#lib/author-relations/types/author-relation.ts';
 import { cardIndexErrorMessage, collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
 import {
 	IMAGE_COLUMNS,
@@ -19,6 +22,8 @@ import { isCountryCode } from '#lib/catalogue/countries/countries.ts';
 import { isPlaceType } from '#lib/catalogue/place-types/place-types.ts';
 import type { AuthorDetails } from '#lib/values/types/author-details.ts';
 import type { LocationDetails } from '#lib/values/types/location-details.ts';
+import type { PlaceCity } from '#lib/values/types/place-city.ts';
+import type { PlacePoint } from '#lib/map/types/place-point.ts';
 import type { ValueDetails } from '#lib/values/types/value-details.ts';
 import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
 import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
@@ -36,14 +41,31 @@ type AuthorRow = ImageRow & {
 	death_year: number | null;
 	years_approximate: boolean;
 	sort_name: string | null;
+	country: string | null;
 };
 
-type LocationRow = { country_code: string | null; place_type: string | null };
+type LocationRow = {
+	country_code: string | null;
+	place_type: string | null;
+	latitude: number | null;
+	longitude: number | null;
+	city_id: string | null;
+};
+
+type CityDetails = Pick<LocationRow, 'country_code' | 'latitude' | 'longitude'>;
+
+type CityRow = {
+	name: string;
+	location_details: CityDetails | CityDetails[] | null;
+};
 
 type DetailsRow = { summary: string | null; notes: string | null } & Partial<AuthorRow> &
 	Partial<LocationRow>;
 
-const LOCATION_COLUMNS = 'summary, notes, country_code, place_type';
+const LOCATION_COLUMNS = 'summary, notes, country_code, place_type, latitude, longitude, city_id';
+
+const CITY_COLUMNS =
+	'name, location_details!location_details_value_id_owner_id_category_code_fkey(country_code, latitude, longitude)';
 
 const AUTHOR_COLUMNS = [
 	'summary',
@@ -52,6 +74,7 @@ const AUTHOR_COLUMNS = [
 	'death_year',
 	'years_approximate',
 	'sort_name',
+	'country',
 	...IMAGE_COLUMNS
 ].join(', ');
 
@@ -103,31 +126,85 @@ function detailsQuery(subject: ValueSubject): DetailsQuery {
 	}
 }
 
-async function authorOf(row: DetailsRow | null): Promise<AuthorDetails> {
-	if (!row) return emptyAuthorDetails();
+async function authorOf(
+	row: DetailsRow | null,
+	relations: AuthorRelation[]
+): Promise<AuthorDetails> {
+	if (!row) return { ...emptyAuthorDetails(), relations };
 	return {
 		image: await withPreview(imageOf(row as AuthorRow)),
 		birthYear: row.birth_year ?? null,
 		deathYear: row.death_year ?? null,
 		yearsApproximate: row.years_approximate ?? false,
-		sortName: row.sort_name ?? null
+		sortName: row.sort_name ?? null,
+		country: row.country ?? null,
+		relations
 	};
 }
 
-function locationOf(row: DetailsRow | null): LocationDetails {
-	const placeType = row?.place_type;
+function pointOf(row: Partial<LocationRow> | null | undefined): PlacePoint | null {
+	return row?.latitude != null && row.longitude != null
+		? { latitude: row.latitude, longitude: row.longitude }
+		: null;
+}
+
+async function cityOf(
+	cityId: string | null | undefined
+): Promise<{ city: PlaceCity | null; error?: ErrorLike }> {
+	if (!cityId) return { city: null };
+	const { data, error } = await supabase
+		.from('category_values')
+		.select(CITY_COLUMNS)
+		.eq('id', cityId)
+		.maybeSingle();
+	if (error) return { city: null, error };
+	const row = data as CityRow | null;
+	if (!row) return { city: null, error: {} };
+	const details = Array.isArray(row.location_details)
+		? (row.location_details[0] ?? null)
+		: row.location_details;
 	return {
-		countryCode: isCountryCode(row?.country_code) ? row.country_code : null,
-		placeType: isPlaceType(placeType) ? placeType : null
+		city: {
+			id: cityId,
+			name: row.name,
+			countryCode: isCountryCode(details?.country_code) ? details.country_code : null,
+			point: pointOf(details)
+		}
+	};
+}
+
+async function locationOf(
+	row: DetailsRow | null
+): Promise<{ location: LocationDetails; error?: ErrorLike }> {
+	const placeType = row?.place_type;
+	const { city, error } = await cityOf(row?.city_id);
+	return {
+		location: {
+			countryCode: isCountryCode(row?.country_code) ? row.country_code : null,
+			placeType: isPlaceType(placeType) ? placeType : null,
+			point: pointOf(row),
+			...(city ? { city } : {})
+		},
+		error
 	};
 }
 
 export async function loadValueDetails(subject: ValueSubject): Promise<ValueDetailsResult> {
-	const { data, error } = await detailsQuery(subject);
+	const [{ data, error }, related] = await Promise.all([
+		detailsQuery(subject),
+		subject.kind === 'author' ? loadAuthorRelations(subject.record.id) : undefined
+	]);
 	if (error) return { details: emptyValueDetails(), error: collectionErrorMessage(error) };
+	if (related?.error) return { details: emptyValueDetails(), error: related.error };
 	const details: ValueDetails = { summary: data?.summary ?? '', notes: data?.notes ?? '' };
-	if (subject.kind === 'author') details.author = await authorOf(data);
-	if (subject.kind === 'location') details.location = locationOf(data);
+	if (subject.kind === 'author') details.author = await authorOf(data, related?.relations ?? []);
+	if (subject.kind === 'location') {
+		const located = await locationOf(data);
+		if (located.error) {
+			return { details: emptyValueDetails(), error: collectionErrorMessage(located.error) };
+		}
+		details.location = located.location;
+	}
 	return { details };
 }
 
@@ -137,21 +214,38 @@ function authorColumns(author: AuthorDetails, image: ReturnType<typeof imageColu
 		death_year: author.deathYear,
 		years_approximate: author.yearsApproximate,
 		sort_name: author.sortName,
+		country: author.country,
+		relations: authorRelationPayload(author.relations),
 		...image
 	};
+}
+
+function cityIdOf(location: LocationDetails | undefined): string | null {
+	return location?.placeType === 'city' ? null : (location?.city?.id ?? null);
+}
+
+function locationColumns(location: LocationDetails, previous: LocationDetails | undefined): object {
+	const columns: Record<string, string | null> = {};
+	if (location.countryCode !== (previous?.countryCode ?? null)) {
+		columns.country_code = location.countryCode;
+	}
+	if (location.placeType !== (previous?.placeType ?? null)) columns.place_type = location.placeType;
+	if (cityIdOf(location) !== cityIdOf(previous)) columns.city_id = cityIdOf(location);
+	return columns;
 }
 
 function detailsPayload(
 	text: { summary: string; notes: string },
 	details: ValueDetails,
-	image: StoredImage | null
+	image: StoredImage | null,
+	previous: ValueDetails | undefined
 ): Json {
 	const { author, location } = details;
 	return {
 		...text,
 		...(author ? authorColumns(author, imageColumns(image)) : {}),
-		...(location ? { country_code: location.countryCode, place_type: location.placeType } : {})
-	};
+		...(location ? locationColumns(location, previous?.location) : {})
+	} as Json;
 }
 
 async function removeReplacedUpload(
@@ -192,7 +286,7 @@ export async function saveValueDetails(
 
 	const { error } = await supabase.rpc('save_value_details', {
 		target_value: subject.record.id,
-		details: detailsPayload(text, details, stored.image)
+		details: detailsPayload(text, details, stored.image, previous)
 	});
 	forgetCached(DETAILS_KEYS[subject.kind] ?? []);
 	if (error) {
@@ -202,4 +296,24 @@ export async function saveValueDetails(
 
 	await removeReplacedUpload(details, previous, stored.image);
 	return {};
+}
+
+export async function ensureCityPlace(
+	city: PlaceCity,
+	exclude?: string
+): Promise<{ id: string; error?: undefined } | { id?: undefined; error: string }> {
+	if (city.id) return { id: city.id };
+	const { data, error } = await supabase.rpc('ensure_city_place', {
+		city_name: city.name,
+		wikidata_id: city.wikidataId ?? undefined,
+		country_code: city.countryCode ?? undefined,
+		latitude: city.point?.latitude,
+		longitude: city.point?.longitude,
+		exclude: exclude || undefined
+	});
+	forgetCached([cacheKeys.cardIndex]);
+	if (error || !data) {
+		return { error: await failureMessage(error ?? {}, cardIndexErrorMessage) };
+	}
+	return { id: data };
 }

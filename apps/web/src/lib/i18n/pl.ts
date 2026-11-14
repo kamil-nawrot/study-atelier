@@ -330,6 +330,7 @@ export const pl = {
 			extraTitle: 'Pytania dodatkowe',
 			glossaryOn: 'Pytania ze Słowniczka',
 			glossaryQuestions: 'Liczba pytań w sesji',
+			symbolQuestions: 'Ile pytań o symbole dołączać do sesji?',
 			noteQuestions: 'Luka w Twoich notatkach',
 			timeQuestions: 'Rok powstania i kolejność dzieł',
 			viewHint:
@@ -384,6 +385,7 @@ export const pl = {
 				artworks: 'dzieł',
 				category_values: 'wartości w Kartotece',
 				glossary_entries: 'pojęć w Słowniczku',
+				symbols: 'symboli w atlasie symboli',
 				timeline_events: 'wydarzeń w Kalendarium',
 				visits: 'wizyt w Kronice',
 				exhibitions: 'wystaw',
@@ -518,6 +520,7 @@ export const pl = {
 				missing: 'Do uzupełnienia',
 				favourites: 'Ulubione',
 				seen: 'Widziane na żywo',
+				wantToSee: 'Chcę zobaczyć',
 				ticked: 'Zaznaczone'
 			},
 			ownField: 'Własne pole',
@@ -532,7 +535,8 @@ export const pl = {
 				locations: 'Miejsce',
 				missing: 'Do uzupełnienia',
 				favourites: 'Ulubione',
-				seen: 'Widziane na żywo'
+				seen: 'Widziane na żywo',
+				wantToSee: 'Chcę zobaczyć'
 			},
 			tag: (field: string, value: string): string => `${field} ${value}`,
 			unknownAuthor: 'Autor nieznany',
@@ -713,6 +717,12 @@ export const pl = {
 		removed: 'Usunięto z ulubionych.',
 		failed: 'Nie udało się zapisać zmiany. Spróbuj jeszcze raz.'
 	},
+	wantToSee: {
+		add: 'Chcę zobaczyć na żywo',
+		remove: 'Usuń z „Chcę zobaczyć”',
+		added: 'Dodano do dzieł, które chcesz zobaczyć.',
+		removed: 'Usunięto z dzieł, które chcesz zobaczyć.'
+	},
 	review: {
 		title: 'Powtórki',
 		lead: 'Codziennie trafiają tu dzieła do powtórki: nowe z Twojego atelier i te, które warto sobie przypomnieć. Im lepiej pamiętasz dzieło, tym rzadziej wraca.',
@@ -801,6 +811,12 @@ export const pl = {
 			typedEmpty: 'Żadne dzieło w atelier nie ma takiego tytułu.',
 			typedCheck: 'Sprawdź tytuł',
 			definitionTag: 'Pytanie dodatkowe ze Słowniczka',
+			symbolTag: 'Pytanie dodatkowe z atlasu symboli',
+			symbolQuestions: {
+				symbol: 'Co przedstawia ten detal?',
+				meaning: 'Jakie znaczenie ma tu ten symbol?',
+				attribute: 'Do kogo należy ten atrybut?'
+			},
 			noteTag: 'Pytanie dodatkowe z notatek',
 			noteQuestion: 'Jakiego pojęcia brakuje w Twojej notatce?',
 			noteSource: 'Z notatki do dzieła',
@@ -808,6 +824,7 @@ export const pl = {
 			definitionQuestion: 'Jakie pojęcie opisuje ta definicja?',
 			maskedTerm: 'ukryte pojęcie',
 			definitionRetry: 'Wrócimy do niej za chwilę.',
+			symbolRetry: 'Wrócimy do tego detalu za chwilę.',
 			pinHint: 'Wybierz pojęcie, które pasuje do zaznaczonego na zdjęciu miejsca.',
 			options: 'Odpowiedzi',
 			right: 'Tak, to',
@@ -891,6 +908,7 @@ export const pl = {
 			years: 'Trafiony rok powstania:',
 			orders: 'Poprawnie chronologicznie ułożone dzieła:',
 			definitions: 'Poprawnie odgadnięte pojęcia:',
+			symbols: 'Poprawnie rozpoznane symbole:',
 			notes: 'Poprawnie uzupełnione luki w notatkach:'
 		},
 		roundScore: (right: number, asked: number): string => `${right}/${asked}`,
@@ -1059,6 +1077,8 @@ export const pl = {
 			`W Kartotece zmieści się ${limit} wartości. Usuń te, których nie ma przy żadnym dziele, żeby dodać nowe.`,
 		glossaryEntries: (limit: number): string =>
 			`W Słowniczku zmieści się ${limit} pojęć. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
+		symbols: (limit: number): string =>
+			`W atlasie symboli zmieści się ${limit} symboli. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
 		timelineEvents: (limit: number): string =>
 			`W Kalendarium zmieści się ${limit} wydarzeń. Usuń te, których już nie potrzebujesz, żeby dodać nowe.`,
 		visits: (limit: number): string =>
@@ -1094,6 +1114,7 @@ export const pl = {
 		emptyEra: 'W tej epoce nie ma jeszcze okresów.',
 		periodsWithoutEra: 'Okresy bez epoki',
 		stylesWithoutPeriod: 'Style bez okresu',
+		placesWithoutCountry: 'Miejsca bez kraju',
 		emptyTimeline:
 			'Nie ma tu jeszcze okresów ani stylów. Dodaj pierwszy tutaj albo wpisz go przy dziele.',
 		emptyList: {
@@ -1176,6 +1197,8 @@ export const pl = {
 				`${workCount(count)} z „${merged}” ${count === 1 ? 'przypisze' : 'przypiszą'} się do „${kept}”, a „${merged}” zniknie z Kartoteki.`,
 			visits: (merged: string, kept: string, count: number): string =>
 				`Wizyty w „${merged}” (${count}) przeniosą się do „${kept}”.`,
+			places: (merged: string, kept: string, count: number): string =>
+				`Miejsca w „${merged}” (${count}) przeniosą się do „${kept}”.`,
 			periodLinks: (merged: string, kept: string): string =>
 				`Epoki i style okresu „${merged}” dołączą do „${kept}”.`,
 			pageContent: (merged: string): string =>
@@ -1203,7 +1226,17 @@ export const pl = {
 		deleted: (name: string): string => `Usunięto „${name}”.`,
 		errors: {
 			notFound: 'Nie ma już takiej wartości. Odśwież stronę.',
-			changed: 'Coś zmieniło się w międzyczasie. Odśwież stronę i spróbuj jeszcze raz.'
+			changed: 'Coś zmieniło się w międzyczasie. Odśwież stronę i spróbuj jeszcze raz.',
+			cityMerge: 'To miasto ma swoje miejsca. Możesz je połączyć tylko z innym miastem.',
+			cityType:
+				'To miasto ma swoje miejsca, więc musi zostać miastem. Najpierw zmień miasto tych miejsc.',
+			cityName:
+				'Masz już miejsce o tej nazwie, ale innego typu. Zmień jego typ na „Miasto” albo wybierz inne miasto.',
+			citySelf:
+				'To miejsce nie może być swoim własnym miastem. Wybierz inne miasto albo zmień typ tego miejsca na „Miasto”.',
+			cityTripsType: 'To miasto ma swoje podróże w Kronice, więc musi zostać miastem.',
+			cityTripsMerge:
+				'To miasto ma swoje podróże w Kronice. Możesz je połączyć tylko z innym miastem.'
 		}
 	},
 	ownFields: {
@@ -1334,14 +1367,16 @@ export const pl = {
 		removeView: 'Usuń widok',
 		newTitle: 'Nowa pinezka',
 		title: 'Pinezka',
-		term: 'Pojęcie ze Słowniczka (opcjonalnie)',
+		term: 'Pojęcie ze Słowniczka',
 		termPlaceholder: 'Szukaj pojęcia',
-		text: 'Opis (opcjonalnie)',
+		symbol: 'Symbol z atlasu',
+		symbolMeaning: 'Znaczenie na tym dziele',
+		text: 'Opis',
 		loadFailed: 'Nie udało się wczytać pinezek.',
 		errorTitle: 'Nie udało się zapisać pinezki',
 		deleteErrorTitle: 'Nie udało się usunąć pinezki',
 		errors: {
-			empty: 'Wybierz pojęcie albo wpisz opis.',
+			empty: 'Wybierz pojęcie lub symbol albo wpisz opis.',
 			tooLong: (limit: number): string => `Opis może mieć najwyżej ${limit} znaków.`,
 			tooMany: (limit: number): string => `Na jednym obrazie zmieści się ${limit} pinezek.`,
 			notFound: 'Nie znaleziono tej pinezki. Odśwież stronę i spróbuj jeszcze raz.'
@@ -1352,7 +1387,12 @@ export const pl = {
 		title: 'Słowniczek',
 		count: (count: number): string =>
 			`${count} ${plural(count, { one: 'pojęcie', few: 'pojęcia', many: 'pojęć' })}`,
-		lead: 'Pojęcia i postaci, które chcesz zapamiętać. Ich definicje pojawią się w Twoich notatkach.',
+		lead: 'Postaci ważne dla sztuki, pojęcia które warto znać by lepiej ją rozumieć, a także Twój własny atlas symboli powracających w wielu różnych dziełach i epokach.',
+		tabsLabel: 'Słowniczek',
+		tabs: {
+			terms: 'Pojęcia',
+			symbols: 'Symbole'
+		},
 		back: 'Słowniczek',
 		add: 'Dodaj pojęcie',
 		emptyTitle: 'Słowniczek jest jeszcze pusty',
@@ -1472,6 +1512,113 @@ export const pl = {
 			invalid: 'Nie udało się zapisać pojęcia. Sprawdź nazwę i definicję.'
 		}
 	},
+	symbols: {
+		count: (count: number): string =>
+			`${count} ${plural(count, { one: 'symbol', few: 'symbole', many: 'symboli' })}`,
+		add: 'Dodaj symbol',
+		emptyTitle: 'Atlas symboli jest jeszcze pusty',
+		empty:
+			'Gdy zauważysz motyw, który wraca na wielu dziełach, zapisz go tutaj razem z jego znaczeniami. Potem wskaż go w pinezce na dziele, a jego detale zbiorą się na stronie symbolu.',
+		addFirst: 'Dodaj pierwszy symbol',
+		search: 'Szukaj symbolu',
+		noResults: (query: string): string =>
+			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment.`,
+		sortLabel: 'Sortuj',
+		sorts: {
+			name: 'Alfabetycznie',
+			recent: 'Ostatnio dodane',
+			details: 'Najwięcej detali'
+		},
+		details: (count: number): string =>
+			`${count} ${plural(count, { one: 'detal', few: 'detale', many: 'detali' })}`,
+		meanings: (count: number): string =>
+			`${count} ${plural(count, { one: 'znaczenie', few: 'znaczenia', many: 'znaczeń' })}`,
+		loadErrorTitle: 'Nie udało się wczytać atlasu symboli',
+		contextKinds: {
+			author: 'autor',
+			period: 'okres',
+			style: 'styl',
+			material: 'materiał',
+			location: 'miejsce',
+			era: 'epoka',
+			artwork: 'dzieło',
+			person: 'postać'
+		},
+		attributes: 'Atrybuty postaci',
+		pin: {
+			create: (name: string): string => `Dodaj symbol „${name}”`
+		},
+		meaningDialog: {
+			newTitle: 'Nowe znaczenie',
+			editTitle: 'Edytuj znaczenie',
+			remove: 'Usuń znaczenie',
+			removeTitle: (text: string): string => `Usunąć znaczenie „${text}”?`,
+			removeDescription:
+				'Pinezki, które je wskazywały, zostaną przy symbolu bez wskazanego znaczenia.',
+			saved: 'Zapisano znaczenie.',
+			removed: 'Usunięto znaczenie.',
+			add: 'Dodaj znaczenie',
+			noMeanings: 'Ten symbol nie ma jeszcze znaczeń.',
+			actions: (text: string): string => `Działania znaczenia „${text}”`,
+			edit: 'Edytuj znaczenie',
+			moveUp: (text: string): string => `Przesuń „${text}” wyżej`,
+			moveDown: (text: string): string => `Przesuń „${text}” niżej`,
+			assign: 'Przypisz detale',
+			assignTitle: (text: string): string => `Detale znaczenia „${text}”`,
+			assignHint:
+				'Zaznacz detale, które mają to znaczenie. Odznaczone zostaną bez wskazanego znaczenia.',
+			assigned: 'Zapisano detale znaczenia.',
+			noPins: 'Ten symbol nie ma jeszcze detali na dziełach.'
+		},
+		card: {
+			open: 'Otwórz w atlasie symboli'
+		},
+		view: {
+			overline: 'Symbol',
+			general: 'znaczenie ogólne',
+			context: 'Kontekst',
+			reorder: 'Zmień kolejność',
+			reorderDone: 'Gotowe',
+			noDetails: 'Żaden detal nie ma jeszcze tego znaczenia.',
+			mainDetailSaved: 'Zapisano główny detal.',
+			mainDetailCleared: 'Usunięto główny detal. Okładką będzie najnowszy detal z wycinkiem.',
+			setMainDetail: 'Ustaw jako główny',
+			unsetMainDetail: 'Główny detal. Kliknij, żeby go odznaczyć',
+			detailsBack: 'Przewiń detale wstecz',
+			detailsForward: 'Przewiń detale dalej',
+			withoutMeaning: 'Bez wskazanego znaczenia',
+			axis: 'Przez wieki',
+			axisLabel: 'Detale tego symbolu na osi lat powstania dzieł',
+			notFoundTitle: 'Nie ma takiego symbolu',
+			notFound: 'Nie ma takiego symbolu w atlasie. Może został usunięty.',
+			loadErrorTitle: 'Nie udało się wczytać tego symbolu',
+			saved: (name: string): string => `Zapisano „${name}”.`,
+			deleted: (name: string): string => `Usunięto „${name}”.`
+		},
+		deleteConfirm: {
+			title: (name: string): string => `Usunąć „${name}” z atlasu symboli?`,
+			description:
+				'Pinezki na dziełach zostaną, ale nie będą już wskazywać tego symbolu. Tej akcji nie będzie można cofnąć.'
+		},
+		form: {
+			newTitle: 'Nowy symbol',
+			editTitle: 'Edycja symbolu',
+			nameTaken: (name: string): string => `Masz już w atlasie symbol „${name}”.`,
+			description: 'Opis',
+			meaning: 'Co oznacza?',
+			meaningRequired: 'Wpisz, co oznacza ten symbol, albo usuń to znaczenie.',
+			meaningTooLong: (max: number): string => `Znaczenie może mieć najwyżej ${max} znaków.`,
+			context: 'W jakim kontekście?',
+			contextHint:
+				'Wybierz wartość z Kartoteki, postać ze Słowniczka, lub wpisz własny opis. Puste pole będzie traktowane jako znaczenie ogólne.',
+			addContext: 'Dodaj kontekst',
+			errorTitle: 'Nie udało się zapisać symbolu'
+		},
+		errors: {
+			notFound: 'Nie ma takiego symbolu w atlasie. Może został usunięty.',
+			invalid: 'Nie udało się zapisać symbolu. Sprawdź nazwę i znaczenia.'
+		}
+	},
 	career: {
 		title: 'Ekspozycja',
 		lead: 'Sale z eksponatami, które udało Ci się zgromadzić, rozwijając swoje atelier. Każdy eksponat pokazuje Twoje postępy w innej dziedzinie nauki i kolekcjonowania. Niektóre są ukryte i odsłonią się dopiero wtedy, gdy spełnisz warunek ukryty w zagadce.',
@@ -1586,6 +1733,14 @@ export const pl = {
 				'Groteska, rodzaj ornamentu, wzięła nazwę od włoskiego „grottesco”. Jej wzory podpatrzono w starożytnych dekoracjach odkrytych pod koniec XV wieku w podziemnych salach, czyli grotach, Złotego Domu Nerona w Rzymie. Pod kierunkiem Rafaela ozdobiono nią potem loggie Pałacu Watykańskiego.',
 				'Secesję Włosi nazywali między innymi „Stile Liberty”, od londyńskiego domu towarowego Liberty & Co. Niemcy mówili „Jugendstil”, od monachijskiego pisma „Die Jugend”.'
 			],
+			laurel_skull: [
+				'„Homo bulla”, czyli „człowiek jest bańką”, to starożytne powiedzenie, które w XVI wieku przywrócił Erazm z Rotterdamu w zbiorze przysłów „Adagia”. Bańka jest krucha i piękna tylko przez chwilę, zanim pęknie, dlatego malarze przedstawiali dzieci puszczające bańki, by mówić o kruchości ludzkiego życia.',
+				'Pierwszą drukowaną książką uznaną za księgę symboli był „Emblematum liber” Andrei Alciata, wydany w Augsburgu 28 lutego 1531 roku. Miał 104 emblematy, z czego 97 z drzeworytami, które zamówił humanista Conrad Peutinger. Sam Alciato najpewniej nie miał z tym wydaniem nic wspólnego.',
+				'„Iconologia” Cesarego Ripy, podręcznik symboli dla artystów, opisuje Malarstwo jako kobietę o rozwichrzonych czarnych włosach, z ustami przewiązanymi chustą, bo malarstwo jest nieme, i z maską na złotym łańcuchu. Artemisia Gentileschi namalowała się jako ta alegoria, pomijając knebel. Jej koledzy mężczyźni nie mogli tak utożsamić się z kobiecą personifikacją Malarstwa.',
+				'W XVII wieku jezuitę Athanasiusa Kirchera, jednego z pierwszych badaczy starożytnego Egiptu, uważano za tego, który odczytał hieroglify. W 1650 roku wydał w Rzymie przekład napisów z obelisku, który do dziś stoi na Fontannie Czterech Rzek Berniniego. Przekład był błędny, a hieroglify odczytano naprawdę dopiero 150 lat później.',
+				'Grecki autor Horapollon z Aleksandrii objaśniał w V wieku znaczenia hieroglifów, a według jego dzieła czytano je potem jak szyfr-rebus dla wtajemniczonych, który nie zapisuje mowy. Dopiero w 1822 roku Jean-François Champollion pokazał na imionach Ptolemeusza i Kleopatry, że Egipcjanie zapisywali obce imiona znakami oddającymi dźwięki.',
+				'Niemiecki historyk sztuki Erwin Panofsky w 1934 roku wyemigrował na stałe do Stanów Zjednoczonych. W książce „Studies in Iconology” z 1939 roku oddzielił ikonologię od ikonografii, czyli odczytywania tematów dzieł przez symbole znane z literatury i innych dzieł sztuki.'
+			],
 			own_eye: [
 				'Camera lucida, przyrząd optyczny opatentowany w 1807 roku przez Williama Hyde’a Wollastona, pozwalała rysownikowi widzieć jednocześnie widok i kartkę. Widok nakładał się na papier, więc wystarczyło go obrysować.',
 				'Canaletto długo uchodził za malarza, który rysował Wenecję w plenerze z camera obscura. Badanie jego dopracowanych rysunków w podczerwieni wskazuje jednak, że powstawały w pracowni na podstawie szkiców z natury.',
@@ -1668,6 +1823,18 @@ export const pl = {
 				'Po Wielkiej Wystawie w 1851 roku za 5000 funtów rządowej dotacji kupiono wybór wystawionych przedmiotów. Stały się zaczątkiem otwartego w 1852 roku Muzeum Wyrobów, które miało uczyć projektantów, producentów i publiczność sztuki i wzornictwa. W 1899 roku dostało nazwę Muzeum Wiktorii i Alberta.',
 				'W 1852 roku V&A jako jedno z pierwszych muzeów zaczęło kupować do zbiorów fotografie, a w 1858 urządziło swoją pierwszą wystawę fotografii. Dziś ma około 800 000 zdjęć, jedną z najważniejszych kolekcji na świecie.'
 			],
+			vault_cobweb: [
+				'„Chrzest Chrystusa” z Uffizi powstał około 1470–1475 roku w pracowni Andrei del Verrocchia. Według Giorgia Vasariego pomagał mu młody uczeń, Leonardo, który anioła po lewej namalował tak zręcznie, że zdenerwował starszego mistrza. Dziś badacze przypisują Leonardowi także pejzaż, złote światło i postać Chrystusa.',
+				'Peter Paul Rubens dostawał o wiele za dużo zamówień, by wykonać je sam, więc zbudował dużą pracownię dla uczniów i pomocników. Jego warsztat wytworzył oszałamiającą liczbę dzieł: w latach 30. XVII wieku sam król Hiszpanii Filip IV zamówił u niego ponad 80 obrazów.',
+				'W 1634 roku Rembrandt namalował dla świeżo poślubionych Martena Soolmansa i Oopjen Coppit parę portretów, jedyne pendanty w tak monumentalnym formacie w swoim dorobku. W 2016 roku Holandia i Francja kupiły je wspólnie, a muzea umówiły się, że obrazy zawsze będą pokazywane razem, na zmianę w Rijksmuseum i w Luwrze.',
+				'Luwr jest ostatnim muzeum, które ma biuro kopistów; działa ono od otwarcia muzeum w 1793 roku. Kopiowanie dzieł innych było szkołą wielu mistrzów, od Matisse’a po Picassa.',
+				'Leonardo namalował „Madonnę w grocie” dwa razy: pierwsza wersja jest w Luwrze, druga w National Gallery. Nie wiadomo na pewno dlaczego. Być może sprzedał pierwszy obraz komuś innemu, gdy mediolańskie bractwo, które go zamówiło, nie chciało dopłacić za droższe materiały.',
+				'Vincent van Gogh zebrał razem z bratem Theo setki japońskich drzeworytów. W 1887 roku skopiował z jednego z nich kwitnący sad śliwowy Hiroshigego, ale czarny i szary pień drzewa zamienił na czerwony i niebieski, a pomarańczowe ramki z japońskimi znakami dodał tylko dla ozdoby.',
+				'Jan Brueghel starszy i Peter Paul Rubens przyjaźnili się i malowali razem na jednym obrazie: Brueghel pejzaże i dworskie sceny, Rubens postacie. Tak powstał cykl „Pięć zmysłów” w Prado, jedna z ich najbardziej udanych współprac: w dworskie sceny Brueghla Rubens wstawił alegorie zmysłów.'
+			],
+			van_eyck_easel: [
+				'Rycina pokazuje wyidealizowaną pracownię Jana van Eycka, któremu Stradanus za Giorgiem Vasarim przypisał wynalezienie farby olejnej. To nieprawda: Vasari nazwał van Eycka człowiekiem, który „lubował się w alchemii”, i liczył, że taki wynalazek sprowadzi sztukę niderlandzką do poziomu rzemiosła.'
+			],
 			hortus_cliffortianus: [
 				'Muzeum Ennigaldi, córki babilońskiego króla Nabonida i arcykapłanki boga księżyca, powstało w Ur około 530 roku p.n.e. i uchodzi za najstarsze na świecie. W 1925 roku Leonard Woolley rozpoznał je po etykietach: przy każdym przedmiocie leżał gliniany cylinder z napisami w czterech językach, objaśniającymi przedmiot i jego historię.',
 				'Portret matki Jamesa Whistlera, amerykańskiego malarza dzielącego karierę między Londyn i Paryż, ma podwójny tytuł: „Aranżacja w szarości i czerni nr 1” i „Portret matki artysty”. Wkrótce potem Whistler dawał swoim obrazom już tylko muzyczne podtytuły, bo ważniejsza była dla niego harmonia niż temat.',
@@ -1681,6 +1848,9 @@ export const pl = {
 			],
 			seven_league_boots: [
 				'W baśni Charles’a Perraulta buty olbrzyma były zaczarowane: rosły i malały, dopasowując się do nóg tego, kto je włożył. Według jednego z dwóch zakończeń Tomcio został w nich królewskim gońcem i jeszcze tego samego wieczoru przyniósł królowi wieści od armii oddalonej o dwieście mil.'
+			],
+			pilgrim_shell: [
+				'Pielgrzymi kupowali w sanktuarium w Composteli prawdziwe muszle przegrzebków i przypinali je do toreb. Gdy chętnych przybyło więcej, niż było muszli, zaczęto sprzedawać metalowe odznaki, a w XIII wieku w Composteli pracowało 100 wytwórców z licencją. Nikt nie wie na pewno, dlaczego muszla stała się znakiem świętego Jakuba.'
 			],
 			crystal_palace: [
 				'Na Wielką Wystawę w 1851 roku 5000 robotników w pięć miesięcy zbudowało w londyńskim Hyde Parku szklany Kryształowy Pałac. Gmach był tak duży, że w środku znalazły się drzewa parku. 14 000 wystawców pokazało w nim 100 000 przedmiotów z całego świata, które obejrzało sześć milionów ludzi.',
@@ -1849,6 +2019,12 @@ export const pl = {
 					'Rycina z 1610 roku pokazuje bibliotekę uniwersytetu w Lejdzie, w której księgi przykuwano łańcuchami do pulpitów.',
 				count: counter('pojęć w Słowniczku')
 			},
+			laurel_skull: {
+				name: 'Czaszka zwycięzcy',
+				about:
+					'Na mezzotincie wydanej przez Gerarda Valcka czaszka w laurowym wieńcu leży na nutach obok zgaszonej świecy, a wiersz pod nią przypomina, że przed Śmiercią ustąpi każdy zwycięzca.',
+				count: counter('symboli wskazanych na dziełach')
+			},
 			own_eye: {
 				name: 'Camera obscura z Encyklopedii',
 				about:
@@ -1908,6 +2084,19 @@ export const pl = {
 					'Cornelis Cort wyrył w 1578 roku w Rzymie pracownię, w której obok siebie pracują rzeźbiarze, malarze, rysownicy, architekci i rytownicy.',
 				count: counter('typów dzieł w atelier')
 			},
+			vault_cobweb: {
+				name: 'Sieć Arachne',
+				about:
+					'Na drzeworycie według Hansa Weiditza do niemieckiego wydania Cycerona pajęczyna rozpięta pod sklepieniem łowi muchy i większe owady.',
+				count: counter('powiązań między dziełami i autorami')
+			},
+			van_eyck_easel: {
+				name: 'Sztaluga van Eycka',
+				about:
+					'Na miedziorycie z warsztatu Philipsa Galle’a według Stradanusa Jan van Eyck maluje farbą olejną świętego Jerzego, a uczniowie wokół ucierają farby i ćwiczą rysunek.',
+				hint: 'Każdy mistrz był kiedyś czyimś uczniem.',
+				awarded: 'Za mistrza, jego ucznia i ucznia jego ucznia w atelier.'
+			},
 			hortus_cliffortianus: {
 				name: 'Ogród Clifforta',
 				about:
@@ -1927,6 +2116,13 @@ export const pl = {
 					'Na drzeworycie według Gustave’a Doré z 1862 roku Tomcio Paluch ściąga śpiącemu olbrzymowi siedmiomilowe buty.',
 				hint: 'Olbrzymowi wystarczy jeden krok, sprytnemu – jeden dzień.',
 				awarded: 'Za trzy muzea odwiedzone jednego dnia.'
+			},
+			pilgrim_shell: {
+				name: 'Muszla pielgrzyma',
+				about:
+					'Na kopii akwaforty Jacques’a Callota dwoje pielgrzymów w kapeluszach z muszlą świętego Jakuba stoi w środku rymowanego przewodnika z Paryża do Santiago de Compostela.',
+				hint: 'Marzenie, które ma adres, łatwiej spełnić.',
+				awarded: 'Za dzieło zobaczone na żywo po tym, jak trafiło na listę do zobaczenia.'
 			},
 			figure_alphabet: {
 				name: 'Alfabet Mistrza E.S.',
@@ -1949,6 +2145,53 @@ export const pl = {
 				hint: 'Kto patrzy z bliska, nie patrzy na zegarek.',
 				awarded: 'Za godzinę spędzoną z jednym dziełem.'
 			}
+		}
+	},
+	map: {
+		title: 'Mapa',
+		lead: 'Miasta, w których są Twoje dzieła. Zobacz, co już udało Ci się zobaczyć na żywo, a co jeszcze przed Tobą.',
+		back: 'Atelier',
+		wallLink: 'Mapa dzieł',
+		zoomIn: 'Przybliż',
+		zoomOut: 'Oddal',
+		group: (cities: string[], artworks: number): string =>
+			`${cities.join(', ')}, ${workCount(artworks)}. Pokaż miasta osobno`,
+		filtersLabel: 'Które dzieła pokazać',
+		filters: {
+			all: 'Wszystkie',
+			wantToSee: 'Chcę zobaczyć',
+			seen: 'Widziane na żywo'
+		},
+		emptyTitle: 'Mapa zapełni się wraz z miejscami',
+		empty: 'Gdy miejsce przy dziele dostanie miasto albo własne położenie, zobaczysz je na mapie.',
+		loadError: 'Nie udało się wczytać mapy. Sprawdź internet i spróbuj jeszcze raz.',
+		saveFailed: 'Nie udało się zapisać położenia. Spróbuj jeszcze raz.',
+		city: {
+			summary: (places: number, artworks: number, seen: number): string =>
+				[
+					`${places} ${plural(places, { one: 'miejsce', few: 'miejsca', many: 'miejsc' })}`,
+					' · ',
+					workCount(artworks),
+					seen > 0
+						? `, ${seen} ${plural(seen, { one: 'widziane', few: 'widziane', many: 'widzianych' })} na żywo`
+						: ''
+				].join(''),
+			seen: 'Widziane na żywo',
+			showOnWall: 'Pokaż na ścianie',
+			showInCardIndex: 'Pokaż w Kartotece',
+			close: 'Zamknij panel miasta',
+			artworks: workCount
+		},
+		suggestions: {
+			title: 'Czy chodzi o jedno z tych?',
+			searching: 'Szukanie podpowiedzi…',
+			none: 'Nie udało się znaleźć tego miejsca. Kliknij na mapie, gdzie jest.',
+			failed: 'Nie udało się pobrać podpowiedzi. Możesz kliknąć na mapie albo spróbować później.'
+		},
+		position: {
+			title: 'Położenie',
+			empty: 'To miejsce nie ma jeszcze położenia.',
+			remove: 'Usuń położenie'
 		}
 	},
 	statistics: {
@@ -1992,6 +2235,12 @@ export const pl = {
 					one: 'wizyta w Kronice',
 					few: 'wizyty w Kronice',
 					many: 'wizyt w Kronice'
+				}),
+			trips: (count: number): string =>
+				plural(count, {
+					one: 'podróż w Kronice',
+					few: 'podróże w Kronice',
+					many: 'podróży w Kronice'
 				}),
 			exhibitions: (count: number): string =>
 				plural(count, { one: 'wystawa', few: 'wystawy', many: 'wystaw' })
@@ -2107,13 +2356,17 @@ export const pl = {
 	chronicle: {
 		title: 'Kronika',
 		lead: 'Dziennik Twoich wizyt w muzeach i innych spotkań ze sztuką. Możesz tutaj zapisać, gdzie i kiedy udało Ci się zobaczyć dzieła z Twojej kolekcji na żywo.',
-		count: (visits: number, seen: number): string =>
-			`${visitCount(visits)} · ${workCount(seen)} na żywo`,
-		add: 'Dodaj wizytę',
+		count: (visits: number, trips: number, seen: number): string =>
+			[
+				visitCount(visits),
+				...(trips > 0 ? [tripCount(trips)] : []),
+				`${workCount(seen)} na żywo`
+			].join(' · '),
+		add: 'Dodaj wpis',
 		emptyTitle: 'Kronika jest jeszcze pusta',
 		empty:
-			'Zapisuj tu swoje wizyty w muzeach, galeriach i innych miejscach, gdzie spotykasz się ze sztuką. Przy każdej wizycie możesz zaznaczyć dzieła, które udało Ci się zobaczyć na żywo, i dodać notatkę z wrażeniami.',
-		addFirst: 'Dodaj pierwszą wizytę',
+			'Zapisuj tu swoje wizyty w muzeach, galeriach i zabytkach oraz podróże, podczas których zwiedzasz całe miasto. Przy każdym wpisie możesz zaznaczyć dzieła, które udało Ci się zobaczyć na żywo, i dodać notatkę z wrażeniami.',
+		addFirst: 'Dodaj pierwszy wpis',
 		loadErrorTitle: 'Nie udało się wczytać kroniki',
 		back: 'Kronika',
 		seen: (count: number): string => `${workCount(count)} na żywo`,
@@ -2136,10 +2389,18 @@ export const pl = {
 			description: 'Zniknie wizyta i jej notatka. Dzieła zostaną w kolekcji.'
 		},
 		form: {
-			newTitle: 'Nowa wizyta',
+			newTitle: 'Nowy wpis w kronice',
+			kind: 'Rodzaj wpisu',
+			visitTile: 'Pojedyncza wizyta w muzeum, galerii lub zabytku',
+			tripTile: 'Pobyt w mieście połączony ze zwiedzaniem',
+			trip: 'Część podróży',
+			tripHint: 'Wizyta w dniach podróży w tym samym mieście jest wybierana automatycznie.',
+			tripOutside:
+				'Ta wizyta wypada poza datami wybranej podróży. Wybierz inną podróż albo „Poza podróżą”, jeśli już do niej nie należy.',
+			noTrip: 'Poza podróżą',
 			editTitle: 'Edycja wizyty',
 			place: 'Miejsce',
-			placeHint: 'Muzeum, galeria albo kościół. Dzieła, które tam są, zaznaczymy od razu.',
+			placeHint: 'Muzeum, galeria albo kościół. Dzieła, które tam są, będą od razu zaznaczone.',
 			placeRequired: 'Wybierz, gdzie była wizyta.',
 			date: 'Data',
 			dateHint: 'Wystarczy sam rok, jeśli dokładniej nie pamiętasz.',
@@ -2152,13 +2413,13 @@ export const pl = {
 			dayInvalid: 'Taki dzień nie istnieje w tym miesiącu.',
 			notesPlaceholder: 'Jak było? Co Cię zaskoczyło? Co warto zapamiętać?',
 			artworks: 'Dzieła',
-			ticked: 'Zaznaczyliśmy wszystko z tego miejsca. Odznacz to, czego tym razem nie było.',
+			ticked: 'Dzieła z tego miejsca są już zaznaczone. Odznacz to, czego tym razem nie było.',
 			search: 'Udało się zobaczyć coś jeszcze? Szukaj w całej kolekcji',
 			noMatch: 'W kolekcji nie ma takiego dzieła.',
 			addArtwork: (title: string): string => `Dodaj „${title}”`,
 			fromPlace: 'Z tego miejsca',
 			fromElsewhere: 'Z innych miejsc',
-			noPlace: 'Wybierz miejsce, a pokażemy jego dzieła.',
+			noPlace: 'Po wybraniu miejsca pojawią się tu jego dzieła.',
 			placeEmpty:
 				'W kolekcji nie ma jeszcze dzieł z tego miejsca. Te zobaczone dodasz przez wyszukiwarkę.',
 			errorTitle: 'Nie udało się zapisać wizyty',
@@ -2168,6 +2429,45 @@ export const pl = {
 		errors: {
 			notFound: 'Nie ma takiej wizyty w kronice. Może została usunięta.',
 			invalid: 'Nie udało się zapisać wizyty. Sprawdź miejsce, datę i dzieła.'
+		},
+		trip: {
+			kind: 'Podróż',
+			overline: (days: number): string =>
+				`Podróż · ${days} ${plural(days, { one: 'dzień', few: 'dni', many: 'dni' })}`,
+			overlineApproximate: (date: string): string => `Podróż · ${date}`,
+			visits: (count: number): string => visitCount(count),
+			saved: (place: string, dates: string): string => `Zapisano podróż: ${place}, ${dates}.`,
+			view: {
+				visitsTitle: 'Wizyty w czasie podróży',
+				seenTitle: 'Widziane na żywo podczas zwiedzania',
+				noArtworks: 'Do tej podróży nie ma jeszcze dzieł. Kliknij „Edytuj”, żeby je zaznaczyć.',
+				deleted: (dates: string): string => `Usunięto podróż z ${dates}.`
+			},
+			deleteConfirm: {
+				title: (dates: string): string => `Usunąć podróż z ${dates}?`,
+				description:
+					'Zniknie podróż i jej notatka. Wizyty z jej czasu zostaną w kronice, a dzieła w kolekcji.'
+			},
+			form: {
+				editTitle: 'Edycja podróży',
+				place: 'Miasto podróży',
+				placeHint:
+					'Podróż dotyczy jednego miasta. Jego dzieła i dzieła z zabytków w nim będą od razu zaznaczone.',
+				placeRequired: 'Wpisz miasto podróży.',
+				notCity:
+					'Podróż może dotyczyć tylko miasta. Zmień rodzaj tego miejsca w Kartotece albo wybierz inne.',
+				start: 'Przyjazd',
+				startHint: 'Wystarczy miesiąc albo rok, jeśli dokładniej nie pamiętasz.',
+				end: 'Wyjazd',
+				endHint: 'Zostaw puste, jeśli podróż trwała jeden dzień.',
+				endBeforeStart: 'Podróż nie może się skończyć, zanim się zaczęła.',
+				endApproximate: 'Bez dokładnych dni podróż ma jedną datę: miesiąc albo rok.',
+				endDayMissing: 'Wpisz dzień wyjazdu.',
+				ticked:
+					'Dzieła z miasta i jego zabytków są już zaznaczone. Odznacz to, czego tym razem nie było.',
+				noPlace: 'Po wybraniu miasta pojawią się tu jego dzieła.',
+				errorTitle: 'Nie udało się zapisać podróży'
+			}
 		}
 	},
 	timeline: {
@@ -2301,10 +2601,64 @@ export const pl = {
 		allEvents: (count: number): string => `Pokaż wszystkie (${count})`,
 		otherEvents: 'Inne wydarzenia w tym czasie'
 	},
+	artworkRelations: {
+		title: 'Powiązania',
+		types: {
+			studyFrom: 'Studium lub projekt do',
+			studyTo: 'Ma studium lub projekt',
+			copyFrom: 'Kopia lub reprodukcja',
+			copyTo: 'Ma kopię lub reprodukcję',
+			version: 'Inna wersja',
+			partFrom: 'Część',
+			partTo: 'Składa się z',
+			referenceFrom: 'Nawiązuje do',
+			referenceTo: 'Jest punktem odniesienia dla',
+			related: 'Powiązane z'
+		},
+		add: 'Dodaj powiązanie',
+		type: 'Rodzaj powiązania',
+		choose: 'Wybierz rodzaj',
+		search: 'Szukaj dzieła',
+		remove: (title: string): string => `Usuń powiązanie z „${title}”`,
+		removeEmpty: 'Usuń powiązanie',
+		typeRequired: 'Wybierz, jak te dzieła są powiązane.',
+		artworkRequired: 'Wybierz dzieło albo usuń ten wiersz.',
+		noMatch: 'Nie ma takiego dzieła w Twoim atelier.'
+	},
+	authorRelations: {
+		title: 'Powiązania',
+		band: 'Inni artyści',
+		types: {
+			pupilFrom: 'Nauczyciel',
+			pupilTo: 'Uczeń',
+			influenceFrom: 'Pod wpływem',
+			influenceTo: 'Wpływ na',
+			collaboration: 'Współpraca',
+			family: 'Rodzina',
+			related: 'Powiązani z'
+		},
+		add: 'Dodaj powiązanie',
+		type: 'Rodzaj powiązania',
+		choose: 'Wybierz rodzaj',
+		search: 'Szukaj autora',
+		remove: (name: string): string => `Usuń powiązanie z „${name}”`,
+		removeEmpty: 'Usuń powiązanie',
+		typeRequired: 'Wybierz, jak ci artyści są powiązani.',
+		authorRequired: 'Wybierz autora albo usuń ten wiersz.',
+		noMatch: 'Nie ma takiego autora w Twoim atelier.'
+	},
 	valuePage: {
 		back: 'Kartoteka',
 		deleteBlocked: (demonstrative: string, count: string, other: string): string =>
 			`${demonstrative} ma jeszcze ${count}, więc nie da się go usunąć. Możesz go połączyć z ${other}.`,
+		cityDeleteBlocked: (count: number, places: number): string =>
+			`To miasto ma jeszcze ${count > 0 ? `${workCount(count)} i ` : ''}${placeCount(places)}, więc nie da się go usunąć. Możesz je połączyć z innym miastem.`,
+		city: {
+			places: 'Miejsca w tym mieście',
+			artworks: 'Dzieła z tego miasta',
+			noNotes: 'Nie masz jeszcze notatek o tym mieście.',
+			noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła z tego miasta.'
+		},
 		header: (kind: string, count: string): string => `${kind} · ${count}`,
 		born: (year: string): string => `ur. ${year}`,
 		died: (year: string): string => `zm. ${year}`,
@@ -2315,31 +2669,37 @@ export const pl = {
 		saved: 'Zapisano zmiany.',
 		kinds: {
 			era: {
+				symbols: 'Symbole tej epoki',
 				artworks: 'Dzieła z tej epoki',
 				noNotes: 'Nie masz jeszcze notatek o tej epoce.',
 				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła z tej epoki.'
 			},
 			period: {
+				symbols: 'Symbole tego okresu',
 				artworks: 'Dzieła z tego okresu',
 				noNotes: 'Nie masz jeszcze notatek o tym okresie.',
 				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła z tego okresu.'
 			},
 			style: {
+				symbols: 'Symbole tego stylu',
 				artworks: 'Dzieła w tym stylu',
 				noNotes: 'Nie masz jeszcze notatek o tym stylu.',
 				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła w tym stylu.'
 			},
 			material: {
+				symbols: 'Symbole tego materiału',
 				artworks: 'Dzieła z tego materiału',
 				noNotes: 'Nie masz jeszcze notatek o tym materiale.',
 				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła z tego materiału.'
 			},
 			author: {
+				symbols: 'Symbole tego autora',
 				artworks: 'Dzieła tego autora',
 				noNotes: 'Nie masz jeszcze notatek o tym autorze.',
 				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła tego autora.'
 			},
 			location: {
+				symbols: 'Symbole tego miejsca',
 				artworks: 'Dzieła z tego miejsca',
 				noNotes: 'Nie masz jeszcze notatek o tym miejscu.',
 				noArtworks: 'Nie posiadasz w swojej kolekcji żadnego dzieła z tego miejsca.'
@@ -2403,12 +2763,19 @@ export const pl = {
 		country: 'Kraj',
 		countryPlaceholder: 'Zacznij wpisywać nazwę kraju, żeby zobaczyć listę opcji',
 		countryHint: 'Wybierz kraj z listy.',
+		city: 'Miasto',
+		cityPlaceholder: 'Zacznij wpisywać nazwę miasta, żeby zobaczyć listę opcji',
+		cityHint: 'Wybierz miasto z listy albo dodaj nowe.',
+		cityOnMap: (city: string): string => `Na mapie w mieście ${city}.`,
+		authorCountry: 'Kraj autora',
+		authorCountryHint: 'Wpisz kraj lub krainę.',
 		placeType: 'Typ miejsca',
 		placeTypes: {
 			museum: 'Muzeum',
 			gallery: 'Galeria',
 			private_collection: 'Kolekcja prywatna',
-			on_site: 'Na miejscu'
+			on_site: 'Na miejscu',
+			city: 'Miasto'
 		}
 	},
 	exhibitions: {
@@ -2420,6 +2787,12 @@ export const pl = {
 		add: 'Dodaj wystawę',
 		adding: 'Dodawanie…',
 		search: 'Szukaj wystawy',
+		sortLabel: 'Sortuj',
+		sorts: {
+			changed: 'Ostatnio zmienione',
+			name: 'Alfabetycznie',
+			count: 'Najwięcej dzieł'
+		},
 		noResults: (query: string): string =>
 			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment tytułu.`,
 		newTitle: 'Nowa wystawa',
@@ -2618,8 +2991,16 @@ function exhibitionCount(count: number): string {
 	return `Na ${count} ${plural(count, { one: 'wystawie', few: 'wystawach', many: 'wystawach' })}`;
 }
 
+function tripCount(count: number): string {
+	return `${count} ${plural(count, { one: 'podróż', few: 'podróże', many: 'podróży' })}`;
+}
+
 function visitCount(count: number): string {
 	return `${count} ${plural(count, { one: 'wizyta', few: 'wizyty', many: 'wizyt' })}`;
+}
+
+function placeCount(count: number): string {
+	return `${count} ${plural(count, { one: 'miejsce', few: 'miejsca', many: 'miejsc' })}`;
 }
 
 function workCount(count: number): string {

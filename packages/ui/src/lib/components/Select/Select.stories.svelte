@@ -34,6 +34,11 @@
 
 <Story name="Disabled" args={{ value: 'sculpture', disabled: true }} />
 
+<Story
+	name="Placeholder until chosen"
+	args={{ placeholder: 'Choose a type', placeholderUntilChosen: true, value: 'painting' }}
+/>
+
 <Story name="Hidden label" args={{ hideLabel: true, placeholder: 'Type' }} />
 
 <Story

@@ -615,6 +615,22 @@ describe('edit value page', () => {
 				.toHaveValue('Fidiasz');
 		});
 
+		it('types the country of the author and saves it', async () => {
+			const loaded = { summary: '', notes: '', author: emptyAuthorDetails() };
+			renderEdit(subjectOf('author-phidias'), loaded);
+
+			const country = page.getByLabelText(m.valueForm.authorCountry);
+			await expect.element(country).toHaveAccessibleDescription(m.valueForm.authorCountryHint);
+			await country.fill(' Sumer ');
+			await saveButton().click();
+
+			expect(saveValueDetails).toHaveBeenCalledWith(
+				subjectOf('author-phidias'),
+				{ summary: '', notes: '', author: { ...emptyAuthorDetails(), country: 'Sumer' } },
+				loaded
+			);
+		});
+
 		it('rejects a death before the birth and saves nothing', async () => {
 			renderEdit(subjectOf('author-phidias'));
 
@@ -647,11 +663,79 @@ describe('edit value page', () => {
 						birthYear: -480,
 						deathYear: null,
 						yearsApproximate: false,
-						sortName: 'Fidiasz'
+						sortName: 'Fidiasz',
+						country: null,
+						relations: []
 					}
 				},
 				loaded
 			);
+		});
+	});
+
+	describe('author relations', () => {
+		const verrocchio = { id: 'author-verrocchio', name: 'Verrocchio' };
+
+		it('shows a loaded relation and saves its removal', async () => {
+			const loaded = {
+				summary: '',
+				notes: '',
+				author: {
+					...emptyAuthorDetails(),
+					relations: [{ type: 'pupilFrom' as const, author: verrocchio }]
+				}
+			};
+			renderEdit(subjectOf('author-phidias'), loaded);
+
+			await expect
+				.element(page.getByRole('combobox', { name: m.authorRelations.type }))
+				.toHaveValue('pupilFrom');
+			await page.getByRole('button', { name: m.authorRelations.remove(verrocchio.name) }).click();
+			await saveButton().click();
+
+			expect(saveValueDetails).toHaveBeenCalledWith(
+				subjectOf('author-phidias'),
+				{ summary: '', notes: '', author: emptyAuthorDetails() },
+				loaded
+			);
+		});
+
+		it('does not save an unfinished relation', async () => {
+			renderEdit(subjectOf('author-phidias'), {
+				summary: '',
+				notes: '',
+				author: emptyAuthorDetails()
+			});
+
+			await page.getByRole('button', { name: m.authorRelations.add }).click();
+			await page
+				.getByRole('combobox', { name: m.authorRelations.type })
+				.selectOptions(m.authorRelations.types.family);
+			await saveButton().click();
+
+			await expect.element(page.getByText(m.authorRelations.authorRequired)).toBeVisible();
+			expect(saveValueDetails).not.toHaveBeenCalled();
+		});
+
+		it('drops a row nobody started filling in and clears the error with it', async () => {
+			renderEdit(subjectOf('author-phidias'), {
+				summary: '',
+				notes: '',
+				author: emptyAuthorDetails()
+			});
+
+			await page.getByRole('button', { name: m.authorRelations.add }).click();
+			await page
+				.getByRole('combobox', { name: m.authorRelations.type })
+				.selectOptions(m.authorRelations.types.family);
+			await saveButton().click();
+			await expect.element(page.getByText(m.authorRelations.authorRequired)).toBeVisible();
+			await page.getByRole('button', { name: m.authorRelations.removeEmpty, exact: true }).click();
+			await page.getByRole('button', { name: m.authorRelations.add }).click();
+
+			expect(page.getByText(m.authorRelations.authorRequired).query()).toBeNull();
+			await saveButton().click();
+			expect(saveValue).toHaveBeenCalled();
 		});
 	});
 

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { ticketDate } from '#lib/chronicle/visit-date/visit-date.ts';
+	import { tripTicketDate } from '#lib/chronicle/trip-date/trip-date.ts';
 	import TicketStub from '#lib/chronicle/components/TicketStub/TicketStub.svelte';
 	import type { Visit } from '#lib/chronicle/types/visit.ts';
 
@@ -13,10 +13,14 @@
 
 	let text = $derived(stub ?? visit.place);
 
-	let date = $derived(ticketDate(visit.date));
+	let date = $derived(tripTicketDate(visit));
 </script>
 
-<a class="ticket" href={resolve('/(app)/atelier/chronicle/[id]', { id: visit.id })}>
+<a
+	class="ticket"
+	class:trip={visit.endsOn !== null}
+	href={resolve('/(app)/atelier/chronicle/[id]', { id: visit.id })}
+>
 	<span class="date">
 		<span class="day" aria-hidden="true">{date.main}</span>
 		{#if date.sub}
@@ -39,12 +43,30 @@
 		text-decoration: none;
 	}
 
+	.trip {
+		grid-template-columns: minmax(var(--spacing-16), max-content) minmax(0, 1fr);
+	}
+
+	.trip .day {
+		font-size: var(--font-size-lg);
+		white-space: nowrap;
+	}
+
 	.date {
+		--period: 20px;
+		--depth: 10px;
+		--teeth-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 32' preserveAspectRatio='none'%3E%3Cpolygon points='0,0 14,0 0,16 14,32 0,32'/%3E%3C/svg%3E");
+
 		display: grid;
 		align-content: center;
 		gap: var(--spacing-1);
-		padding: var(--spacing-3);
+		padding: var(--spacing-3) calc(var(--spacing-3) + var(--depth)) var(--spacing-3)
+			var(--spacing-3);
 		background: var(--color-surface);
+		mask:
+			var(--teeth-down) right top / var(--depth) var(--period) repeat-y,
+			linear-gradient(currentColor, currentColor) left top / calc(100% - var(--depth)) 100%
+				no-repeat;
 	}
 
 	.day,

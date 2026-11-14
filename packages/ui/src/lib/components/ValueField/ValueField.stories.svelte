@@ -80,4 +80,16 @@
 
 <Story name="Disabled" args={{ label: 'Authors', values: ['Rembrandt'], disabled: true }} />
 
+<Story
+	name="Found records"
+	args={{
+		label: 'Artwork',
+		single: true,
+		options: [
+			{ kind: 'found', id: 'kiss-klimt', name: 'The Kiss', note: 'Gustav Klimt' },
+			{ kind: 'found', id: 'kiss-rodin', name: 'The Kiss', note: 'Auguste Rodin' }
+		]
+	}}
+/>
+
 <Story name="Filling" args={{ label: 'Forms', values: ['nawy'], filling: true }} />

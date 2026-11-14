@@ -5,6 +5,8 @@ import {
 	deleteVisit,
 	loadArtworkVisits,
 	loadPlaceVisits,
+	loadTrips,
+	loadTripVisits,
 	loadVisit,
 	loadVisits,
 	saveVisit
@@ -23,7 +25,10 @@ const ID = '3f2c1d4e-5a6b-4c7d-8e9f-0a1b2c3d4e5f';
 function row(overrides: Record<string, unknown> = {}): Record<string, unknown> {
 	return {
 		id: ID,
+		kind: 'visit',
 		visited_on: '2026-10-12',
+		ends_on: null,
+		trip_id: null,
 		date_precision: 'day',
 		notes: 'Lilie wodne.',
 		category_values: {
@@ -49,8 +54,11 @@ function chain(result: unknown): Record<string, ReturnType<typeof vi.fn>> {
 }
 
 const draft: VisitDraft = {
+	kind: 'visit',
 	place: ' Musée d’Orsay ',
 	date: { on: '2026-10-01', precision: 'month' },
+	endsOn: null,
+	tripId: null,
 	notes: '  ',
 	artworkIds: ['a1']
 };
@@ -69,10 +77,13 @@ describe('loadVisits', () => {
 		expect(result.visits).toEqual([
 			{
 				id: ID,
+				kind: 'visit',
 				place: 'Musée d’Orsay',
 				placeType: 'museum',
 				countryCode: 'FR',
 				date: { on: '2026-10-12', precision: 'day' },
+				endsOn: null,
+				tripId: null,
 				notes: 'Lilie wodne.',
 				artworkIds: ['a1', 'a2']
 			}
@@ -136,6 +147,42 @@ describe('loadPlaceVisits', () => {
 	});
 });
 
+describe('loadTrips', () => {
+	it('asks only for trips, newest first', async () => {
+		const query = chain({ data: [row({ kind: 'trip', ends_on: '2026-10-14' })], error: null });
+
+		const result = await loadTrips();
+
+		expect(query.eq).toHaveBeenCalledWith('kind', 'trip');
+		expect(query.order).toHaveBeenCalledWith('visited_on', { ascending: false });
+		expect(result.visits.map((trip) => trip.endsOn)).toEqual(['2026-10-14']);
+	});
+
+	it('says when the trips cannot be loaded', async () => {
+		chain({ data: null, error: { message: 'TypeError: Failed to fetch' } });
+
+		expect(await loadTrips()).toEqual({ visits: [], error: m.common.network });
+	});
+});
+
+describe('loadTripVisits', () => {
+	it('asks for the visits of a trip in the order of the days', async () => {
+		const query = chain({ data: [row({ trip_id: 'trip-1' })], error: null });
+
+		const result = await loadTripVisits('trip-1');
+
+		expect(query.eq).toHaveBeenCalledWith('trip_id', 'trip-1');
+		expect(query.order).toHaveBeenCalledWith('visited_on');
+		expect(result.visits.map((visit) => visit.tripId)).toEqual(['trip-1']);
+	});
+
+	it('says when the visits cannot be loaded', async () => {
+		chain({ data: null, error: { message: 'TypeError: Failed to fetch' } });
+
+		expect(await loadTripVisits('trip-1')).toEqual({ visits: [], error: m.common.network });
+	});
+});
+
 describe('loadVisit', () => {
 	it('does not ask for an address that is not an id', async () => {
 		expect(await loadVisit('nope')).toEqual({ notFound: true });
@@ -165,7 +212,14 @@ describe('saveVisit', () => {
 		const result = await saveVisit(draft);
 
 		expect(rpc).toHaveBeenCalledWith('save_visit', {
-			visit: { visited_on: '2026-10-01', date_precision: 'month', notes: null },
+			visit: {
+				kind: 'visit',
+				visited_on: '2026-10-01',
+				date_precision: 'month',
+				ends_on: null,
+				trip_id: null,
+				notes: null
+			},
 			place: 'Musée d’Orsay',
 			artwork_ids: ['a1']
 		});
@@ -190,6 +244,19 @@ describe('saveVisit', () => {
 		rpc.mockResolvedValue({ data: null, error: { code: '23514', message: 'check' } } as never);
 
 		expect(await saveVisit(draft)).toEqual({ error: m.chronicle.errors.invalid });
+	});
+
+	it('sends a trip with its end and says when its place is not a city', async () => {
+		rpc.mockResolvedValue({ data: null, error: { code: '22023', message: 'city' } } as never);
+		const trip: VisitDraft = { ...draft, kind: 'trip', endsOn: '2026-10-14' };
+
+		expect(await saveVisit(trip)).toEqual({ error: m.chronicle.trip.form.notCity });
+		expect(rpc).toHaveBeenCalledWith(
+			'save_visit',
+			expect.objectContaining({
+				visit: expect.objectContaining({ kind: 'trip', ends_on: '2026-10-14' })
+			})
+		);
 	});
 });
 

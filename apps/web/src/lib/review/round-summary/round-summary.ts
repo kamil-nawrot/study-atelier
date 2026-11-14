@@ -13,6 +13,7 @@ export function roundSummary(session: ReviewSession, tomorrow: number): SessionS
 		years: session.years,
 		orders: session.orders,
 		definitions: session.extraScore('quiz_definition'),
+		symbols: session.extraScore('quiz_symbol'),
 		notes: session.extraScore('note_gap')
 	};
 }

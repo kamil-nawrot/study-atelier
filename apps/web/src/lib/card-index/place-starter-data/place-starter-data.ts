@@ -9,7 +9,7 @@ import { emptyPlaceStarter } from '#lib/card-index/place-starter/place-starter.t
 
 type MuseumRow = {
 	name: string;
-	english_name: string | null;
+	alias: string | null;
 	country_code: string;
 };
 
@@ -22,7 +22,7 @@ function fetchMuseums(): Promise<{ rows: MuseumRow[]; error?: ServiceError }> {
 	return fetchAll<MuseumRow>((from, to) =>
 		supabase
 			.from('catalogue_museums')
-			.select('name, english_name, country_code')
+			.select('name, alias, country_code')
 			.order('wikidata_id')
 			.range(from, to)
 	);
@@ -34,7 +34,9 @@ export async function loadPlaceStarter(): Promise<PlaceStarter> {
 		fetchAll<PlaceRow>((from, to) =>
 			supabase
 				.from('location_details')
-				.select('country_code, category_values(name)')
+				.select(
+					'country_code, category_values!location_details_value_id_owner_id_category_code_fkey(name)'
+				)
 				.not('country_code', 'is', null)
 				.order('value_id')
 				.range(from, to)
@@ -44,7 +46,7 @@ export async function loadPlaceStarter(): Promise<PlaceStarter> {
 	for (const row of museums.rows) {
 		starter.museums.push({
 			name: row.name,
-			aliases: row.english_name ? [row.english_name] : [],
+			aliases: row.alias ? [row.alias] : [],
 			note: countryName(row.country_code)
 		});
 	}

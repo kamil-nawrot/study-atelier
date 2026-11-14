@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
+import { m } from '#lib/i18n/i18n.ts';
 import { render } from 'vitest-browser-svelte';
 import { testEntry } from '#lib/testing/glossary/glossary.ts';
 import PinCard from './PinCard.svelte';
@@ -30,6 +31,34 @@ describe('PinCard', () => {
 		await expect.element(page.getByText('The rose window.')).toBeVisible();
 		await expect.element(page.getByText('Rose window', { exact: true })).toBeVisible();
 		await expect.element(page.getByText('Rose window is a test definition.')).toBeVisible();
+	});
+
+	it('shows the symbol and the meaning of the pin in a card that opens the atlas', async () => {
+		render(PinCard, {
+			pin: { ...PIN, symbolId: 'keys', symbolMeaningId: 'm2' },
+			symbol: {
+				id: 'keys',
+				name: 'Keys',
+				meanings: [
+					{ id: 'm1', text: 'Authority of the Church' },
+					{ id: 'm2', text: 'Access to heaven' }
+				]
+			}
+		});
+
+		await expect.element(page.getByText('Keys', { exact: true })).toBeVisible();
+		await expect.element(page.getByText('Access to heaven')).toBeVisible();
+		await expect.element(page.getByText('Authority of the Church')).not.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('link', { name: m.symbols.card.open }))
+			.toHaveAttribute('href', '/atelier/glossary/symbols/keys');
+		await expect.element(page.getByRole('link', { name: 'Edytuj symbol' })).not.toBeInTheDocument();
+	});
+
+	it('shows a symbol without a meaning with the link only', async () => {
+		render(PinCard, { pin: { ...PIN, symbolId: 'keys' }, symbol: { id: 'keys', name: 'Keys' } });
+
+		await expect.element(page.getByRole('link', { name: m.symbols.card.open })).toBeVisible();
 	});
 
 	it('shows only the text of a pin without a term', async () => {

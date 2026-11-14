@@ -373,6 +373,158 @@ alternatives:
     loses:
       - 'A deploy where the previous bundle shows the exhibits in the new order, still as one flat grid.'
 
+  - id: M7
+    name: Keep symbols with ordered meanings and context labels, and mark them on pins
+    status: 'accepted 2026-11-12, ADR-0257; schema, atlas and symbol page built in ATL-677, pins, value pages and review in ATL-678'
+    kind: schema
+    tables: [symbols, symbol_meanings, symbol_meaning_contexts, artwork_pins]
+    serves: [R26, R27, R28, R29, R30, W23, W24]
+    pull_requests: 2
+    risk: medium
+    risk_because: 'labels point at four kinds of rows (value, era, artwork, glossary person) and must follow their merges and deletes; a pin meaning must belong to the pin symbol'
+    how: >
+      symbols (name unique per owner) hold an ordered list of symbol_meanings (position, text). Each meaning has
+      any number of symbol_meaning_contexts rows, each with exactly one of value_id, era_code, artwork_id,
+      glossary_entry_id or text (a check). artwork_pins gains symbol_id and symbol_meaning_id; the pair
+      (symbol_meaning_id, symbol_id) references symbol_meanings (id, symbol_id), so a meaning of another symbol is
+      refused. save_symbol replaces the meanings and labels of one symbol in a transaction. The atlas reads one RPC
+      with the first meaning, the counts and a cover crop per symbol; the summary of a meaning is counted in the
+      browser from the pins the symbol page already loads.
+    design:
+      - 'Owner checks by composite foreign keys (x_id, owner_id), as in the other tables; RLS on every new table.'
+      - 'A symbol delete cascades its meanings and labels and sets the pin columns to null; a meaning delete sets symbol_meaning_id to null.'
+      - 'A deleted value, artwork or glossary entry deletes its labels (cascade); a merge of values moves the labels to the value that stays, like artwork_values.'
+      - 'Limits: 2000 symbols per owner, 10 meanings per symbol, 10 labels per meaning, a meaning text of 1 to 200 characters, a free label of 1 to 80.'
+      - 'export_atelier and import_atelier carry the three tables and the two pin columns; an older export has none.'
+    cost:
+      - 'migration: three tables, RLS, checks, two pin columns with the composite key, save_symbol, symbol_atlas, limits, export and import'
+      - 'SQL tests: save and reorder, foreign meaning refused on a pin, cascades, merge of values, limits, import of an old and a new export'
+      - 'database.types.ts, screenshot mocks for the new reads'
+    loses:
+      - 'A word can exist twice, as a term and as a symbol.'
+      - 'A label of a deleted value is lost instead of kept as text.'
+
+  - id: M8
+    name: Keep typed relations between artworks and between authors in two tables
+    status: 'done in 0.23, ATL-681 and ATL-682, ADR-0259'
+    kind: schema
+    tables: [artwork_relations, author_relations]
+    serves: [R31, R32, W25, W26]
+    pull_requests: 2
+    risk: low
+    risk_because: 'two small link tables like visit_artworks; the only subtle parts are the order of a symmetric pair and the merge of authors'
+    how: >
+      artwork_relations and author_relations hold (owner_id, from_id, to_id, kind). Both ids reference the records
+      of the same owner with composite foreign keys (artworks (id, owner_id); category_values (id, owner_id,
+      category_code) with the code fixed to author), deleted with them. kind is checked against the fixed list; a
+      symmetric kind is stored with from_id < to_id. save_artwork and save_value_details take the full list of
+      relations of the record and replace them in the same transaction. The artwork page reads the relations of
+      both directions with the artwork; value_page_content returns those of an author.
+    design:
+      - 'Primary key (from_id, to_id) for the forward read, an index on to_id for the reverse one, a unique index on (least, greatest) so a pair has one relation; a check refuses a relation to itself.'
+      - 'RLS on both tables, by owner_id, as in the other tables.'
+      - 'merge_category_values moves the author relations to the kept author and drops duplicates and a relation to itself.'
+      - 'A trashed artwork keeps its relations; the reads leave it out until it is restored.'
+      - 'export_atelier and import_atelier carry both tables; an older export has none.'
+    cost:
+      - 'migration: two tables, RLS, checks, save_artwork, save_value_details, value_page_content, merge_category_values, export and import'
+      - 'SQL tests: both directions, symmetric order, one relation per pair, cascades, merge of authors, import of an old and a new export'
+      - 'database.types.ts, screenshot mocks for the new reads'
+    loses:
+      - 'One relation per pair of records.'
+
+  - id: M9
+    name: Give a place a point, a starter museum its point and an artwork a want-to-see mark
+    status: 'built in 0.23: schema in ATL-684, the map, the place position and the fill-in mode in ATL-685'
+    kind: schema
+    tables: [location_details, catalogue_museums, artworks]
+    serves: [R33, W27, W28]
+    pull_requests: 3
+    risk: low
+    risk_because: 'nullable columns on existing tables and one boolean; the city is derived in the browser, so no stored name can go stale'
+    how: >
+      location_details gains latitude, longitude and wikidata_id, catalogue_museums gains latitude and longitude
+      (filled by the migration from Wikidata, Newgrounds deleted), artworks gains want_to_see. A trigger before an
+      insert into location_details copies the point and id of the starter museum it names (save_artwork and
+      save_visit), and a trigger after an insert into visit_artworks clears want_to_see of the artwork and records
+      a wish_seen point event worth no points (for the hidden exhibit of ATL-688), except during an import.
+      The map reads the places with their details once and takes the artworks from the cached wall collection.
+    design:
+      - 'A check keeps latitude and longitude both set or both null and in range; another keeps wikidata_id a Q-id.'
+      - 'No index: the map reads every place of the owner, which owner_id already serves.'
+      - "merge_category_values keeps the point of the kept place, or takes the merged one's when it has none."
+      - 'export_atelier and import_atelier carry the new columns; an older export has none.'
+      - 'Existing places get their point from a one-off reviewed SQL file run after the release, not from the migration.'
+    cost:
+      - 'migration: columns and checks, catalogue points, save_visit, merge_category_values, export and import'
+      - 'SQL tests: save_visit copying the point and clearing the mark, merge of places, import of an old and a new export'
+      - 'database.types.ts, screenshot mocks for the map'
+    loses:
+      - 'A place named after a whole city has the point of the city.'
+
+  - id: M10
+    name: Keep trips in the visits table and give a place the type city
+    status: 'designed in 0.23 (ATL-700); built in ATL-701 and ATL-702'
+    kind: schema
+    tables: [visits, location_details]
+    serves: [R34, W29, W30]
+    pull_requests: 2
+    risk: low
+    risk_because: 'new nullable columns and a kind with a default; every existing row stays a visit, and every read of seen in person keeps reading visit_artworks'
+    how: >
+      visits gains kind ('visit' or 'trip', default 'visit'), ends_on (a trip with day precision only, not before
+      visited_on) and trip_id (a visit's trip, references visits (id, owner_id) on delete set null).
+      location_details.place_type accepts 'city'. save_visit takes the kind, the end and the trip, and refuses a
+      trip at a place that is not a city. The trip's artworks stay in visit_artworks, so the trigger that clears
+      want_to_see and records wish_seen covers trips.
+    design:
+      - 'Checks: ends_on only on a trip, null unless date_precision is day, not before visited_on; trip_id only on a visit.'
+      - 'A trigger keeps trip_id pointing at a row of kind trip; the foreign key on (trip_id, owner_id) uses on delete set null (trip_id), so owner_id stays.'
+      - 'The exhibit of three places in one day filters kind = visit; the other counts of visits read both kinds.'
+      - 'export_atelier and import_atelier carry kind, ends_on and trip_id; an older export imports as visits.'
+      - 'Existing city places get the type from a one-off reviewed SQL file run after the release, not from the migration.'
+    cost:
+      - 'migration 20261113050000: columns, checks, trigger, place type, save_visit, the boots exhibit, export and import'
+      - 'SQL tests: a trip at a city and at another place, end before start, a visit linked and unlinked, deleting a trip, import of an old and a new export, the boots exhibit ignoring trips'
+      - 'database.types.ts, screenshot mocks for a trip'
+    loses:
+      - 'A trip covers one city; a journey through several is several trips.'
+
+  - id: M11
+    name: Give a place its city
+    status: 'designed in 0.23 (ATL-711); schema, rules, export and import, and the catalogue built in ATL-730; the city of a starter museum and the place form in ATL-731'
+    kind: schema
+    tables: [location_details, catalogue_museums]
+    serves: [R08, R33, R35, W03, W32]
+    pull_requests: 2
+    risk: medium
+    risk_because: 'a reference between two rows of one kind, kept honest by a check and a trigger, and merge, delete, export and import each gain a rule; existing places are not changed by the migration'
+    how: >
+      location_details gains city_id, a reference (city_id, owner_id, category_code) to category_values that
+      is set to null only when the account goes; a trigger keeps it pointing at a place of the type city and never
+      on a city, and copies the city's country to the place. A check keeps city_id apart from a point.
+      ensure_city_place finds or creates the city place of a catalogue town or a typed name, never the place
+      being edited (its exclude argument), and save_value_details takes its city_id; the form sends only the
+      location fields the learner changed, so a place the alias trigger filled keeps its type, country and city. catalogue_museums keeps the nearest catalogue town of every museum (city_name, its
+      Wikidata id, country and point, computed from the bundled towns), and the trigger that copies a starter
+      museum into a new place gives it that city through the same finding or creating of the city place, except
+      during an import. The tab "Miejsca", the city page, the
+      map and the trip form read the stored city instead of the nearest town.
+    design:
+      - 'A city place keeps the Wikidata id of its catalogue town in wikidata_id; no new column for the catalogue.'
+      - 'The catalogue is the bundled Natural Earth file, extended with the Wikidata id, the region and the original and English names; no table.'
+      - "merge_category_values moves the places of a merged city, refuses a city with places into another type, and lets the kept place keep its city or position or take the other's."
+      - 'delete_unused_value refuses a city with places; changing the type of such a city is refused.'
+      - "The country of a place with a city is a copy of the city's country kept by triggers, so every reader of location_details.country_code (exhibits, statistics, the chronicle) works unchanged."
+      - 'The export reads location_details with city_id; import_atelier sets the cities after every place exists; an older export has none.'
+      - 'Existing places get their cities from a one-off reviewed SQL file after the release (a follow-up issue of ATL-711), not from the migration.'
+    cost:
+      - 'migration: column, reference, index, check, trigger, save_value_details, merge_category_values, value_usage, export and import'
+      - 'SQL tests: a place with a city, a city and a point together refused, a city on a city refused, merging cities, a city with places into another type refused, deleting a city with places refused, import of an old and a new export'
+      - 'database.types.ts, screenshot mocks for the tree, the city page and the field'
+    loses:
+      - 'A place in a city stands at the city centre on the map; the own points of places that get a city are dropped.'
+
 patterns:
   - { id: R01, today: 10, target: 5, model: none, also: [T1, T2] }
   - { id: R02, today: 2, target: 2, model: none, also: [T13] }
@@ -443,6 +595,36 @@ patterns:
       target: '0 inside the artwork page RPC, else 1',
       model: [M5],
       also: []
+    }
+  - { id: R26, today: 'new', target: '1 RPC symbol_atlas', model: [M7] }
+  - { id: R27, today: 'new', target: '3 selects with embeds', model: [M7] }
+  - { id: R28, today: 'new', target: '+1 light index beside the term index', model: [M7] }
+  - { id: R29, today: 'new', target: '+1 select by the label column', model: [M7] }
+  - { id: R30, today: 'new', target: '+1 at the session start', model: [M7] }
+  - { id: R31, today: 'new', target: 'read with the artwork, no request of its own', model: [M8] }
+  - {
+      id: R32,
+      today: 'new',
+      target: '+1 select of author_relations, parallel to the author details',
+      model: [M8]
+    }
+  - {
+      id: R33,
+      today: 'new',
+      target: '1 select of the places with their details, artworks from the wall cache',
+      model: [M9]
+    }
+  - {
+      id: R35,
+      today: 'new',
+      target: 'as R07 plus 1 select of the places of the city',
+      model: [M11]
+    }
+  - {
+      id: R34,
+      today: 'new',
+      target: 'as R13 plus 1 select of the visits of the trip',
+      model: [M10]
     }
 
 writes:
@@ -533,6 +715,35 @@ writes:
   - { id: W20, today: 'new', after: 'one update of deleted_at', model: [M5] }
   - { id: W21, today: 'new', after: 'one update or delete, cascades its rows', model: [M5] }
   - { id: W22, today: 'new', after: 'one update of artwork_images.palette', model: [M5] }
+  - {
+      id: W23,
+      today: 'new',
+      after: 'save_symbol: the symbol, its meanings and labels',
+      model: [M7]
+    }
+  - { id: W24, today: 'new', after: 'one pin update with the two symbol columns', model: [M7] }
+  - {
+      id: W25,
+      today: 'new',
+      after: 'save_artwork replaces the relations of the artwork',
+      model: [M8]
+    }
+  - {
+      id: W26,
+      today: 'new',
+      after: 'save_value_details replaces the relations of the author',
+      model: [M8]
+    }
+  - { id: W27, today: 'new', after: 'one artwork update of want_to_see', model: [M9] }
+  - { id: W28, today: 'new', after: 'one location_details upsert of the point and id', model: [M9] }
+  - { id: W29, today: 'new', after: 'save_visit with kind trip', model: [M10] }
+  - { id: W30, today: 'new', after: 'save_visit sets trip_id', model: [M10] }
+  - {
+      id: W32,
+      today: 'new',
+      after: 'save_value_details sets city_id, creating the city place in the same call',
+      model: [M11]
+    }
 
 decisions:
   - id: D1

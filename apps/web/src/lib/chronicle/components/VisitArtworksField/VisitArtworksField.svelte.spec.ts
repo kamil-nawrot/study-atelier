@@ -17,13 +17,18 @@ function form(overrides: Partial<VisitFormState> = {}): VisitFormState {
 
 describe('VisitArtworksField', () => {
 	it('asks for a place first', async () => {
-		render(VisitArtworksField, { form: form(), artworks, isNew: true });
+		render(VisitArtworksField, { form: form(), artworks, suggested: [], isNew: true });
 
 		await expect.element(page.getByText(m.chronicle.form.noPlace)).toBeInTheDocument();
 	});
 
 	it('says when the collection has nothing from the place', async () => {
-		render(VisitArtworksField, { form: form({ place: ['Uffizi'] }), artworks, isNew: true });
+		render(VisitArtworksField, {
+			form: form({ place: ['Uffizi'] }),
+			artworks,
+			suggested: [],
+			isNew: true
+		});
 
 		await expect.element(page.getByText(m.chronicle.form.placeEmpty)).toBeInTheDocument();
 	});
@@ -32,6 +37,7 @@ describe('VisitArtworksField', () => {
 		render(VisitArtworksField, {
 			form: form({ place: ['Orsay'], chosen: [lilies.id] }),
 			artworks,
+			suggested: [lilies],
 			isNew: true
 		});
 
@@ -51,6 +57,7 @@ describe('VisitArtworksField', () => {
 		render(VisitArtworksField, {
 			form: form({ place: ['Orsay'], chosen: [lilies.id] }),
 			artworks,
+			suggested: [lilies],
 			isNew: false
 		});
 
@@ -66,8 +73,28 @@ describe('VisitArtworksField', () => {
 		await expect.element(page.getByRole('searchbox')).toHaveFocus();
 	});
 
+	it('speaks of the city of a trip', async () => {
+		const { rerender } = await render(VisitArtworksField, {
+			form: form({ kind: 'trip' }),
+			artworks,
+			suggested: [],
+			isNew: true
+		});
+
+		await expect.element(page.getByText(m.chronicle.trip.form.noPlace)).toBeInTheDocument();
+
+		await rerender({ form: form({ kind: 'trip', place: ['Vienna'] }), suggested: [kiss] });
+
+		await expect.element(page.getByText(m.chronicle.trip.form.ticked)).toBeInTheDocument();
+	});
+
 	it('says when the search finds nothing', async () => {
-		render(VisitArtworksField, { form: form({ place: ['Orsay'] }), artworks, isNew: true });
+		render(VisitArtworksField, {
+			form: form({ place: ['Orsay'] }),
+			artworks,
+			suggested: [lilies],
+			isNew: true
+		});
 
 		await page.getByRole('searchbox', { name: m.chronicle.form.search }).fill('water');
 

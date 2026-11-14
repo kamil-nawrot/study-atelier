@@ -2,6 +2,7 @@ export const ROW_LIMITS = {
 	artworks: 5000,
 	category_values: 5000,
 	glossary_entries: 2000,
+	symbols: 2000,
 	timeline_events: 2000,
 	visits: 1000,
 	exhibitions: 200,

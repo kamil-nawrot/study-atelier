@@ -31,7 +31,11 @@
     "amateur_magnifier": "daumier-amateur-figure",
     "crystal_palace": "burton-transept",
     "lenoir_chapel": "introduction-left",
-    "boncompagni_academy": "cort-workshop"
+    "boncompagni_academy": "cort-workshop",
+    "laurel_skull": "valck-vanitas-whole",
+    "pilgrim_shell": "callot-pilgrims",
+    "vault_cobweb": "weiditz-web",
+    "van_eyck_easel": "galle-master-pupils-centre-right"
   },
   "variants": [
     {
@@ -1322,6 +1326,189 @@
         0.33,
         0.98,
         0.973
+      ]
+    },
+    {
+      "exhibit": "laurel_skull",
+      "status": "chosen",
+      "commons_file": "Vanitas stilleven, RP-P-OB-17.493.jpg",
+      "licence": "CC0",
+      "credit": "Anonymous, published by Gerard Valck, Vanitas still life, mezzotint, 1662–1726, Rijksmuseum RP-P-OB-17.493",
+      "variant": "valck-vanitas-whole",
+      "crop": [
+        0.042,
+        0.019,
+        0.958,
+        0.901
+      ]
+    },
+    {
+      "exhibit": "laurel_skull",
+      "status": "alternative",
+      "commons_file": "Vanitas stilleven, RP-P-OB-17.493.jpg",
+      "licence": "CC0",
+      "credit": "Anonymous, published by Gerard Valck, Vanitas still life, mezzotint, 1662–1726, Rijksmuseum RP-P-OB-17.493",
+      "variant": "valck-vanitas-skull-candle",
+      "crop": [
+        0.271,
+        0.185,
+        0.9375,
+        0.826
+      ]
+    },
+    {
+      "exhibit": "laurel_skull",
+      "status": "alternative",
+      "commons_file": "Vanitas stilleven, RP-P-OB-17.493.jpg",
+      "licence": "CC0",
+      "credit": "Anonymous, published by Gerard Valck, Vanitas still life, mezzotint, 1662–1726, Rijksmuseum RP-P-OB-17.493",
+      "variant": "valck-vanitas-skull-bubbles",
+      "crop": [
+        0.104,
+        0.077,
+        0.792,
+        0.738
+      ]
+    },
+    {
+      "exhibit": "pilgrim_shell",
+      "status": "chosen",
+      "commons_file": "Twee pelgrims en een routebeschrijving naar Santiago de Compostela La guide des chemins de Paris a Saint Iacques en Galice disposee en abregé pour la comodité des pelerins (titel op object), RP-P-OB-20.935.jpg",
+      "licence": "CC0",
+      "credit": "Anonymous after Jacques Callot, Two pilgrims and a route to Santiago de Compostela, published by Lenfant, Paris, 1623–1699, Rijksmuseum RP-P-OB-20.935",
+      "variant": "callot-pilgrims",
+      "crop": [
+        0.279,
+        0.2,
+        0.724,
+        0.789
+      ]
+    },
+    {
+      "exhibit": "pilgrim_shell",
+      "status": "alternative",
+      "commons_file": "Twee pelgrims en een routebeschrijving naar Santiago de Compostela La guide des chemins de Paris a Saint Iacques en Galice disposee en abregé pour la comodité des pelerins (titel op object), RP-P-OB-20.935.jpg",
+      "licence": "CC0",
+      "credit": "Anonymous after Jacques Callot, Two pilgrims and a route to Santiago de Compostela, published by Lenfant, Paris, 1623–1699, Rijksmuseum RP-P-OB-20.935",
+      "variant": "callot-pilgrims-verse",
+      "crop": [
+        0.2417,
+        0.1262,
+        0.7583,
+        0.8097
+      ]
+    },
+    {
+      "exhibit": "pilgrim_shell",
+      "status": "alternative",
+      "commons_file": "Twee pelgrims en een routebeschrijving naar Santiago de Compostela La guide des chemins de Paris a Saint Iacques en Galice disposee en abregé pour la comodité des pelerins (titel op object), RP-P-OB-20.935.jpg",
+      "licence": "CC0",
+      "credit": "Anonymous after Jacques Callot, Two pilgrims and a route to Santiago de Compostela, published by Lenfant, Paris, 1623–1699, Rijksmuseum RP-P-OB-20.935",
+      "variant": "callot-pilgrims-hats",
+      "crop": [
+        0.359,
+        0.21,
+        0.6455,
+        0.589
+      ]
+    },
+    {
+      "exhibit": "vault_cobweb",
+      "status": "chosen",
+      "commons_file": "Gewelf met spinnenweb, RP-P-1874-11-72-1.jpg",
+      "licence": "CC0",
+      "credit": "Anonymous after Hans Weiditz, Vault with a cobweb, woodcut for Cicero, Officia M.T.C., published by Heinrich Steiner, 1514–1531, Rijksmuseum RP-P-1874-11-72-1",
+      "variant": "weiditz-web",
+      "crop": [
+        0.13,
+        0.12,
+        0.927,
+        0.718
+      ]
+    },
+    {
+      "exhibit": "vault_cobweb",
+      "status": "alternative",
+      "commons_file": "Gewelf met spinnenweb, RP-P-1874-11-72-1.jpg",
+      "licence": "CC0",
+      "credit": "Anonymous after Hans Weiditz, Vault with a cobweb, woodcut for Cicero, Officia M.T.C., published by Heinrich Steiner, 1514–1531, Rijksmuseum RP-P-1874-11-72-1",
+      "variant": "weiditz-web-whole",
+      "crop": [
+        0.125,
+        0.042,
+        0.932,
+        0.795
+      ],
+      "pad": true
+    },
+    {
+      "exhibit": "vault_cobweb",
+      "status": "alternative",
+      "commons_file": "Gewelf met spinnenweb, RP-P-1874-11-72-1.jpg",
+      "licence": "CC0",
+      "credit": "Anonymous after Hans Weiditz, Vault with a cobweb, woodcut for Cicero, Officia M.T.C., published by Heinrich Steiner, 1514–1531, Rijksmuseum RP-P-1874-11-72-1",
+      "variant": "weiditz-web-close",
+      "crop": [
+        0.2083,
+        0.1805,
+        0.7917,
+        0.618
+      ]
+    },
+    {
+      "exhibit": "van_eyck_easel",
+      "status": "alternative",
+      "commons_file": "Schilderen met olieverf Color olivi (titel op object) Nieuwe uitvindingen en ontdekkingen (serietitel) Nova Reperta (serietitel), RP-P-1904-1038.jpg",
+      "licence": "CC0",
+      "credit": "Workshop of Philips Galle after Stradanus, Color olivi, Nova Reperta, about 1590, Rijksmuseum RP-P-1904-1038",
+      "variant": "galle-master-pupils-left",
+      "crop": [
+        0.13,
+        0.0,
+        0.6925,
+        1.0
+      ]
+    },
+    {
+      "exhibit": "van_eyck_easel",
+      "status": "alternative",
+      "commons_file": "Schilderen met olieverf Color olivi (titel op object) Nieuwe uitvindingen en ontdekkingen (serietitel) Nova Reperta (serietitel), RP-P-1904-1038.jpg",
+      "licence": "CC0",
+      "credit": "Workshop of Philips Galle after Stradanus, Color olivi, Nova Reperta, about 1590, Rijksmuseum RP-P-1904-1038",
+      "variant": "galle-master-pupils-right",
+      "crop": [
+        0.4896,
+        0.121,
+        0.9479,
+        0.934
+      ]
+    },
+    {
+      "exhibit": "van_eyck_easel",
+      "status": "alternative",
+      "commons_file": "Schilderen met olieverf Color olivi (titel op object) Nieuwe uitvindingen en ontdekkingen (serietitel) Nova Reperta (serietitel), RP-P-1904-1038.jpg",
+      "licence": "CC0",
+      "credit": "Workshop of Philips Galle after Stradanus, Color olivi, Nova Reperta, about 1590, Rijksmuseum RP-P-1904-1038",
+      "variant": "galle-master-pupils-centre",
+      "crop": [
+        0.31,
+        0.08,
+        0.8,
+        0.95
+      ]
+    },
+    {
+      "exhibit": "van_eyck_easel",
+      "status": "chosen",
+      "commons_file": "Schilderen met olieverf Color olivi (titel op object) Nieuwe uitvindingen en ontdekkingen (serietitel) Nova Reperta (serietitel), RP-P-1904-1038.jpg",
+      "licence": "CC0",
+      "credit": "Workshop of Philips Galle after Stradanus, Color olivi, Nova Reperta, about 1590, Rijksmuseum RP-P-1904-1038",
+      "variant": "galle-master-pupils-centre-right",
+      "crop": [
+        0.36,
+        0.08,
+        0.85,
+        0.95
       ]
     }
   ]

@@ -185,6 +185,8 @@ export type Database = {
           id: string;
           image_id: string;
           owner_id: string;
+          symbol_id: string | null;
+          symbol_meaning_id: string | null;
           text: string | null;
           view_width: number | null;
           x: number;
@@ -198,6 +200,8 @@ export type Database = {
           id?: string;
           image_id: string;
           owner_id?: string;
+          symbol_id?: string | null;
+          symbol_meaning_id?: string | null;
           text?: string | null;
           view_width?: number | null;
           x: number;
@@ -210,6 +214,8 @@ export type Database = {
           id?: string;
           image_id?: string;
           owner_id?: string;
+          symbol_id?: string | null;
+          symbol_meaning_id?: string | null;
           text?: string | null;
           view_width?: number | null;
           x?: number;
@@ -228,6 +234,60 @@ export type Database = {
             columns: ["image_id", "owner_id"];
             isOneToOne: false;
             referencedRelation: "artwork_images";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "artwork_pins_symbol_id_owner_id_fkey";
+            columns: ["symbol_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "symbols";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "artwork_pins_symbol_meaning_id_symbol_id_fkey";
+            columns: ["symbol_meaning_id", "symbol_id"];
+            isOneToOne: false;
+            referencedRelation: "symbol_meanings";
+            referencedColumns: ["id", "symbol_id"];
+          },
+        ];
+      };
+      artwork_relations: {
+        Row: {
+          created_at: string;
+          from_id: string;
+          kind: string;
+          owner_id: string;
+          to_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          from_id: string;
+          kind: string;
+          owner_id?: string;
+          to_id: string;
+        };
+        Update: {
+          created_at?: string;
+          from_id?: string;
+          kind?: string;
+          owner_id?: string;
+          to_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "artwork_relations_from_id_owner_id_fkey";
+            columns: ["from_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "artwork_relations_to_id_owner_id_fkey";
+            columns: ["to_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
             referencedColumns: ["id", "owner_id"];
           },
         ];
@@ -299,6 +359,7 @@ export type Database = {
           title: string;
           type_code: string | null;
           updated_at: string;
+          want_to_see: boolean;
           year_approximate: boolean;
           year_from: number | null;
           year_to: number | null;
@@ -317,6 +378,7 @@ export type Database = {
           title: string;
           type_code?: string | null;
           updated_at?: string;
+          want_to_see?: boolean;
           year_approximate?: boolean;
           year_from?: number | null;
           year_to?: number | null;
@@ -334,6 +396,7 @@ export type Database = {
           title?: string;
           type_code?: string | null;
           updated_at?: string;
+          want_to_see?: boolean;
           year_approximate?: boolean;
           year_from?: number | null;
           year_to?: number | null;
@@ -359,6 +422,7 @@ export type Database = {
         Row: {
           birth_year: number | null;
           category_code: string;
+          country: string | null;
           death_year: number | null;
           image_height: number | null;
           image_width: number | null;
@@ -381,6 +445,7 @@ export type Database = {
         Insert: {
           birth_year?: number | null;
           category_code?: string;
+          country?: string | null;
           death_year?: number | null;
           image_height?: number | null;
           image_width?: number | null;
@@ -402,6 +467,7 @@ export type Database = {
         Update: {
           birth_year?: number | null;
           category_code?: string;
+          country?: string | null;
           death_year?: number | null;
           image_height?: number | null;
           image_width?: number | null;
@@ -430,23 +496,87 @@ export type Database = {
           },
         ];
       };
+      author_relations: {
+        Row: {
+          category_code: string;
+          created_at: string;
+          from_id: string;
+          kind: string;
+          owner_id: string;
+          to_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          category_code?: string;
+          created_at?: string;
+          from_id: string;
+          kind: string;
+          owner_id?: string;
+          to_id: string;
+        };
+        Update: {
+          category_code?: string;
+          created_at?: string;
+          from_id?: string;
+          kind?: string;
+          owner_id?: string;
+          to_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "author_relations_from_id_owner_id_category_code_fkey";
+            columns: ["from_id", "owner_id", "category_code"];
+            isOneToOne: false;
+            referencedRelation: "category_values";
+            referencedColumns: ["id", "owner_id", "category_code"];
+          },
+          {
+            foreignKeyName: "author_relations_to_id_owner_id_category_code_fkey";
+            columns: ["to_id", "owner_id", "category_code"];
+            isOneToOne: false;
+            referencedRelation: "category_values";
+            referencedColumns: ["id", "owner_id", "category_code"];
+          },
+        ];
+      };
       catalogue_museums: {
         Row: {
+          alias: string | null;
+          city_country_code: string | null;
+          city_latitude: number | null;
+          city_longitude: number | null;
+          city_name: string | null;
+          city_wikidata_id: string | null;
           country_code: string;
-          english_name: string | null;
+          latitude: number;
+          longitude: number;
           name: string;
           wikidata_id: string;
         };
         ComputedFields: never;
         Insert: {
+          alias?: string | null;
+          city_country_code?: string | null;
+          city_latitude?: number | null;
+          city_longitude?: number | null;
+          city_name?: string | null;
+          city_wikidata_id?: string | null;
           country_code: string;
-          english_name?: string | null;
+          latitude: number;
+          longitude: number;
           name: string;
           wikidata_id: string;
         };
         Update: {
+          alias?: string | null;
+          city_country_code?: string | null;
+          city_latitude?: number | null;
+          city_longitude?: number | null;
+          city_name?: string | null;
+          city_wikidata_id?: string | null;
           country_code?: string;
-          english_name?: string | null;
+          latitude?: number;
+          longitude?: number;
           name?: string;
           wikidata_id?: string;
         };
@@ -838,36 +968,48 @@ export type Database = {
         Row: {
           catalogue_wikidata_id: string | null;
           category_code: string;
+          city_id: string | null;
           country_code: string | null;
+          latitude: number | null;
+          longitude: number | null;
           notes: string | null;
           owner_id: string;
           place_type: string | null;
           summary: string | null;
           updated_at: string;
           value_id: string;
+          wikidata_id: string | null;
         };
         ComputedFields: never;
         Insert: {
           catalogue_wikidata_id?: string | null;
           category_code?: string;
+          city_id?: string | null;
           country_code?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
           notes?: string | null;
           owner_id?: string;
           place_type?: string | null;
           summary?: string | null;
           updated_at?: string;
           value_id: string;
+          wikidata_id?: string | null;
         };
         Update: {
           catalogue_wikidata_id?: string | null;
           category_code?: string;
+          city_id?: string | null;
           country_code?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
           notes?: string | null;
           owner_id?: string;
           place_type?: string | null;
           summary?: string | null;
           updated_at?: string;
           value_id?: string;
+          wikidata_id?: string | null;
         };
         Relationships: [
           {
@@ -876,6 +1018,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "catalogue_museums";
             referencedColumns: ["wikidata_id"];
+          },
+          {
+            foreignKeyName: "location_details_city_fkey";
+            columns: ["city_id", "owner_id", "category_code"];
+            isOneToOne: false;
+            referencedRelation: "category_values";
+            referencedColumns: ["id", "owner_id", "category_code"];
           },
           {
             foreignKeyName: "location_details_value_id_owner_id_category_code_fkey";
@@ -1145,6 +1294,7 @@ export type Database = {
           review_note_questions: boolean;
           review_quiz_kinds: string[];
           review_session_size: number;
+          review_symbol_questions: number;
           review_time_questions: boolean;
           updated_at: string;
           view_loupe_on: boolean;
@@ -1176,6 +1326,7 @@ export type Database = {
           review_note_questions?: boolean;
           review_quiz_kinds?: string[];
           review_session_size?: number;
+          review_symbol_questions?: number;
           review_time_questions?: boolean;
           updated_at?: string;
           view_loupe_on?: boolean;
@@ -1206,6 +1357,7 @@ export type Database = {
           review_note_questions?: boolean;
           review_quiz_kinds?: string[];
           review_session_size?: number;
+          review_symbol_questions?: number;
           review_time_questions?: boolean;
           updated_at?: string;
           view_loupe_on?: boolean;
@@ -1283,6 +1435,7 @@ export type Database = {
           owner_id: string;
           rating: number;
           reviewed_at: string;
+          wrong_answer: string | null;
           year_miss: number | null;
         };
         ComputedFields: never;
@@ -1298,6 +1451,7 @@ export type Database = {
           owner_id?: string;
           rating: number;
           reviewed_at?: string;
+          wrong_answer?: string | null;
           year_miss?: number | null;
         };
         Update: {
@@ -1312,6 +1466,7 @@ export type Database = {
           owner_id?: string;
           rating?: number;
           reviewed_at?: string;
+          wrong_answer?: string | null;
           year_miss?: number | null;
         };
         Relationships: [
@@ -1390,6 +1545,151 @@ export type Database = {
             columns: ["style_id", "owner_id"];
             isOneToOne: false;
             referencedRelation: "category_values";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
+      };
+      symbol_meaning_contexts: {
+        Row: {
+          artwork_id: string | null;
+          era_code: string | null;
+          glossary_entry_id: string | null;
+          id: string;
+          meaning_id: string;
+          owner_id: string;
+          position: number;
+          text: string | null;
+          value_id: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          artwork_id?: string | null;
+          era_code?: string | null;
+          glossary_entry_id?: string | null;
+          id?: string;
+          meaning_id: string;
+          owner_id?: string;
+          position: number;
+          text?: string | null;
+          value_id?: string | null;
+        };
+        Update: {
+          artwork_id?: string | null;
+          era_code?: string | null;
+          glossary_entry_id?: string | null;
+          id?: string;
+          meaning_id?: string;
+          owner_id?: string;
+          position?: number;
+          text?: string | null;
+          value_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "symbol_meaning_contexts_artwork_id_owner_id_fkey";
+            columns: ["artwork_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "symbol_meaning_contexts_era_code_fkey";
+            columns: ["era_code"];
+            isOneToOne: false;
+            referencedRelation: "eras";
+            referencedColumns: ["code"];
+          },
+          {
+            foreignKeyName: "symbol_meaning_contexts_glossary_entry_id_owner_id_fkey";
+            columns: ["glossary_entry_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "glossary_entries";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "symbol_meaning_contexts_meaning_id_owner_id_fkey";
+            columns: ["meaning_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "symbol_meanings";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "symbol_meaning_contexts_value_id_owner_id_fkey";
+            columns: ["value_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "category_values";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
+      };
+      symbol_meanings: {
+        Row: {
+          id: string;
+          owner_id: string;
+          position: number;
+          symbol_id: string;
+          text: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          id?: string;
+          owner_id?: string;
+          position: number;
+          symbol_id: string;
+          text: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          position?: number;
+          symbol_id?: string;
+          text?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "symbol_meanings_symbol_id_owner_id_fkey";
+            columns: ["symbol_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "symbols";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
+      };
+      symbols: {
+        Row: {
+          cover_pin_id: string | null;
+          created_at: string;
+          description: string | null;
+          id: string;
+          name: string;
+          owner_id: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          cover_pin_id?: string | null;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          name: string;
+          owner_id?: string;
+          updated_at?: string;
+        };
+        Update: {
+          cover_pin_id?: string | null;
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          name?: string;
+          owner_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "symbols_cover_pin_id_owner_id_fkey";
+            columns: ["cover_pin_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artwork_pins";
             referencedColumns: ["id", "owner_id"];
           },
         ];
@@ -1482,10 +1782,13 @@ export type Database = {
           category_code: string;
           created_at: string;
           date_precision: string;
+          ends_on: string | null;
           id: string;
+          kind: string;
           notes: string | null;
           owner_id: string;
           place_id: string;
+          trip_id: string | null;
           updated_at: string;
           visited_on: string;
         };
@@ -1494,10 +1797,13 @@ export type Database = {
           category_code?: string;
           created_at?: string;
           date_precision: string;
+          ends_on?: string | null;
           id?: string;
+          kind?: string;
           notes?: string | null;
           owner_id?: string;
           place_id: string;
+          trip_id?: string | null;
           updated_at?: string;
           visited_on: string;
         };
@@ -1505,10 +1811,13 @@ export type Database = {
           category_code?: string;
           created_at?: string;
           date_precision?: string;
+          ends_on?: string | null;
           id?: string;
+          kind?: string;
           notes?: string | null;
           owner_id?: string;
           place_id?: string;
+          trip_id?: string | null;
           updated_at?: string;
           visited_on?: string;
         };
@@ -1519,6 +1828,13 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: "category_values";
             referencedColumns: ["id", "owner_id", "category_code"];
+          },
+          {
+            foreignKeyName: "visits_trip_id_owner_id_fkey";
+            columns: ["trip_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "visits";
+            referencedColumns: ["id", "owner_id"];
           },
         ];
       };
@@ -1537,6 +1853,10 @@ export type Database = {
           artwork_count: number;
           field_id: string;
         }[];
+      };
+      assign_symbol_meaning: {
+        Args: { pin_ids: string[]; target_meaning: string };
+        Returns: undefined;
       };
       atelier_empty: { Args: Record<PropertyKey, never>; Returns: boolean };
       card_index: { Args: Record<PropertyKey, never>; Returns: Json };
@@ -1569,6 +1889,17 @@ export type Database = {
           record_number: number;
           title: string;
         }[];
+      };
+      ensure_city_place: {
+        Args: {
+          city_name: string;
+          country_code?: string;
+          exclude?: string;
+          latitude?: number;
+          longitude?: number;
+          wikidata_id?: string;
+        };
+        Returns: string;
       };
       import_atelier: { Args: { payload: Json }; Returns: Json };
       keep_alive: { Args: Record<PropertyKey, never>; Returns: string };
@@ -1614,7 +1945,7 @@ export type Database = {
         }[];
       };
       note_link_suggestions: {
-        Args: { link_trigger: string; phrase: string };
+        Args: { excluded?: string[]; link_trigger: string; phrase: string };
         Returns: {
           authors: string[];
           id: string;
@@ -1682,6 +2013,7 @@ export type Database = {
           existing_id?: string;
           field_entries?: Json;
           images?: Json;
+          relations?: Json;
           values_by_category: Json;
         };
         Returns: {
@@ -1702,6 +2034,15 @@ export type Database = {
         };
         Returns: number;
       };
+      save_symbol: {
+        Args: {
+          new_description?: string;
+          new_meanings: Json;
+          new_name: string;
+          symbol_id?: string;
+        };
+        Returns: string;
+      };
       save_value_details: {
         Args: { details: Json; target_value: string };
         Returns: undefined;
@@ -1720,8 +2061,21 @@ export type Database = {
         Args: { era_codes: string[]; move_to?: string; target_period: string };
         Returns: number;
       };
+      set_place_point: {
+        Args: {
+          latitude: number;
+          longitude: number;
+          place: string;
+          wikidata_id?: string;
+        };
+        Returns: undefined;
+      };
       set_style_periods: {
         Args: { period_ids: string[]; target_style: string };
+        Returns: undefined;
+      };
+      set_symbol_cover: {
+        Args: { pin_id?: string; symbol_id: string };
         Returns: undefined;
       };
       storage_has_room: { Args: { adding: number }; Returns: boolean };
@@ -1738,6 +2092,17 @@ export type Database = {
           artwork_count: number;
           period_id: string;
           style_id: string;
+        }[];
+      };
+      symbol_atlas: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          cover: Json;
+          created_at: string;
+          id: string;
+          meaning_count: number;
+          name: string;
+          pin_count: number;
         }[];
       };
       term_mentions: {

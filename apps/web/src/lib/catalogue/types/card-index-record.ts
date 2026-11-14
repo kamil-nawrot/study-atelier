@@ -11,4 +11,5 @@ export type CardIndexRecord = {
 	birthYear?: number;
 	countryCode?: string;
 	placeType?: PlaceType;
+	cityId?: string;
 };

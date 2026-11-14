@@ -12,6 +12,7 @@
 	import VisitDeleteDialog from '#lib/chronicle/components/VisitDeleteDialog/VisitDeleteDialog.svelte';
 	import VisitView from '#lib/chronicle/components/VisitView/VisitView.svelte';
 	import { seenArtworks } from '#lib/chronicle/seen/seen.ts';
+	import { tripDateFrom } from '#lib/chronicle/trip-date/trip-date.ts';
 	import { visitDateFrom } from '#lib/chronicle/visit-date/visit-date.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
@@ -47,7 +48,12 @@
 	async function showDeleted(removed: Visit): Promise<void> {
 		await goto(chroniclePath, {
 			refreshAll: true,
-			state: { chronicleMessage: m.chronicle.view.deleted(visitDateFrom(removed.date)) }
+			state: {
+				chronicleMessage:
+					removed.kind === 'trip'
+						? m.chronicle.trip.view.deleted(tripDateFrom(removed))
+						: m.chronicle.view.deleted(visitDateFrom(removed.date))
+			}
 		});
 	}
 </script>
@@ -92,6 +98,8 @@
 			noteLinks={data.noteLinks}
 			onimagefailed={(artwork) => images.failed(artwork)}
 			onnearscreen={(artwork) => images.request(artwork)}
+			tripVisits={data.tripVisits}
+			tripVisitsError={data.tripVisitsError}
 			{visit}
 		/>
 	{:else}

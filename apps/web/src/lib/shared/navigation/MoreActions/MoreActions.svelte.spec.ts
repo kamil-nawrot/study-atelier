@@ -1,6 +1,6 @@
 import Trash from '@lucide/svelte/icons/trash-2';
 import Columns2 from '@lucide/svelte/icons/columns-2';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createRawSnippet } from 'svelte';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
@@ -15,6 +15,14 @@ const buttons = createRawSnippet(() => ({
 const kept = createRawSnippet(() => ({ render: () => '<a href="/edit">Edit</a>' }));
 
 describe('MoreActions', () => {
+	beforeEach(() => {
+		document.body.style.paddingLeft = '400px';
+	});
+
+	afterEach(() => {
+		document.body.style.paddingLeft = '';
+	});
+
 	it('keeps its buttons on a larger screen', async () => {
 		await page.viewport(1280, 800);
 		render(MoreActions, { actions: [], children: buttons, kept });
