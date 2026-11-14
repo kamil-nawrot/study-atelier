@@ -32,32 +32,35 @@ function fragmentOf(row: CoverRow): PinFragment {
 	};
 }
 
-function details(symbolId: string, meaningId?: string) {
-	const query = supabase
+type Detail = { row?: CoverRow; error?: ServiceErrorLike };
+
+async function firstDetail(symbolId: string, meaningId?: string, pinId?: string): Promise<Detail> {
+	let query = supabase
 		.from('artwork_pins')
 		.select(COLUMNS)
 		.eq('symbol_id', symbolId)
 		.not('view_width', 'is', null)
 		.is('artwork_images.artworks.deleted_at', null);
-	return meaningId === undefined ? query : query.eq('symbol_meaning_id', meaningId);
+	if (meaningId !== undefined) query = query.eq('symbol_meaning_id', meaningId);
+	const { data, error } = await (
+		pinId === undefined
+			? query.order('created_at', { ascending: false }).order('id')
+			: query.eq('id', pinId)
+	).limit(1);
+	if (error) return { error };
+	return data.length > 0 ? { row: data[0] as unknown as CoverRow } : {};
 }
 
 async function coverRow(
 	symbolId: string,
 	coverPinId?: string,
 	meaningId?: string
-): Promise<{ row?: CoverRow; error?: ServiceErrorLike }> {
+): Promise<Detail> {
 	if (coverPinId !== undefined) {
-		const { data, error } = await details(symbolId, meaningId).eq('id', coverPinId).limit(1);
-		if (error) return { error };
-		if (data.length > 0) return { row: data[0] as unknown as CoverRow };
+		const main = await firstDetail(symbolId, meaningId, coverPinId);
+		if (main.error || main.row) return main;
 	}
-	const { data, error } = await details(symbolId, meaningId)
-		.order('created_at', { ascending: false })
-		.order('id')
-		.limit(1);
-	if (error) return { error };
-	return data.length > 0 ? { row: data[0] as unknown as CoverRow } : {};
+	return firstDetail(symbolId, meaningId);
 }
 
 export async function loadSymbolCover(

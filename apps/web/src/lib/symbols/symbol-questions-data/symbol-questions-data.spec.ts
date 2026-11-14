@@ -144,7 +144,7 @@ describe('symbol questions data', () => {
 		const images = await loadSymbolQuestionImages(['pin-1']);
 
 		expect(query.in).toHaveBeenCalledWith('id', ['pin-1']);
-		expect(images.get('pin-1')).toMatchObject({ kind: 'upload', path: 'owner/a.jpg' });
+		expect(images?.get('pin-1')).toMatchObject({ kind: 'upload', path: 'owner/a.jpg' });
 		await expect(loadSymbolQuestionImages([])).resolves.toEqual(new Map());
 	});
 
