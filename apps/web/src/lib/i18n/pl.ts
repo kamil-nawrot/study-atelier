@@ -2108,7 +2108,7 @@ export const pl = {
 				about:
 					'Giovanni Battista Piranesi wyrył Fontannę di Trevi około 1751 roku, jedenaście lat przed jej ukończeniem, z posągiem Oceana w centralnej niszy.',
 				hint: 'Prawdziwy wielbiciel zawsze wraca do źródła.',
-				awarded: 'Za dzieło zobaczone na żywo podczas dwóch wizyt.'
+				awarded: 'Za dzieło zobaczone na żywo dwa razy, w odstępie co najmniej 30 dni.'
 			},
 			seven_league_boots: {
 				name: 'Siedmiomilowe buty',
