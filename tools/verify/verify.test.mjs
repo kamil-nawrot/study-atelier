@@ -1,6 +1,12 @@
 import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
-import { isOwnersUntracked, splitNul, summary, touchesRootConfig } from './verify.mjs';
+import {
+	consumesChange,
+	isOwnersUntracked,
+	splitNul,
+	summary,
+	touchesRootConfig
+} from './verify.mjs';
 
 test('reads file names with non-ASCII characters from a NUL separated list', () => {
 	assert.deepEqual(splitNul('docs/Rzeźba.md\0apps/web/src/a b.ts\0'), [
@@ -29,4 +35,11 @@ test('does not call an empty run a pass', () => {
 	assert.match(summary([], ['a.ts'], false), /No check applies/);
 	assert.equal(summary([{ passed: true }], [], false), 'All 1 checks passed.');
 	assert.equal(summary([{ passed: true }, { passed: false }], [], false), '1 of 2 checks failed.');
+});
+
+test('checks the app when the library it consumes changes', () => {
+	const app = { dir: 'apps/web', consumes: 'packages/ui' };
+	assert.ok(consumesChange(app, ['packages/ui/src/a.ts']));
+	assert.ok(!consumesChange(app, ['docs/a.md']));
+	assert.ok(!consumesChange({ dir: 'packages/ui' }, ['packages/ui/src/a.ts']));
 });

@@ -18,7 +18,7 @@ function pin(id: string, extra: Partial<SymbolQuestionPin> = {}): SymbolQuestion
 	return {
 		pinId: id,
 		symbolName: 'Keys',
-		fragment: { pinId: id, artworkId: 'a', x: 0, y: 0, viewWidth: 0.1, text: '', image: null },
+		fragment: { pinId: id, artworkId: 'a', x: 0, y: 0, viewWidth: 0.1, text: '' },
 		...extra
 	};
 }

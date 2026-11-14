@@ -4,7 +4,7 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import PlaceSuggestions from '#lib/map/components/PlaceSuggestions/PlaceSuggestions.svelte';
 	import WorldMap from '#lib/map/components/WorldMap/WorldMap.svelte';
-	import { loadGeography } from '#lib/map/geography/geography.ts';
+	import { loadGeography, loadTowns } from '#lib/map/geography/geography.ts';
 	import { nearestTown } from '#lib/map/towns/towns.ts';
 	import type { Geography } from '#lib/map/types/geography.ts';
 	import type { Town } from '#lib/map/types/town.ts';
@@ -30,6 +30,7 @@
 	}: Props = $props();
 
 	let geography = $state<Geography>();
+	let towns = $state<Town[]>();
 	let failed = $state(false);
 	let focus = $state<PlacePoint | null>(null);
 	const searched = untrack(() => name.trim());
@@ -45,12 +46,21 @@
 		);
 	});
 
-	function choose(next: PlaceChoice): void {
-		const town =
-			next.suggested && ontown && geography ? nearestTown(next.point, geography.towns) : null;
-		if (town && ontown) {
-			ontown(town);
-			return;
+	$effect(() => {
+		if (!city || towns) return;
+		loadTowns().then(
+			(loaded) => (towns = loaded),
+			() => (failed = true)
+		);
+	});
+
+	async function choose(next: PlaceChoice): Promise<void> {
+		if (next.suggested && ontown) {
+			const nearest = nearestTown(next.point, await loadTowns().catch((): Town[] => []));
+			if (nearest) {
+				ontown(nearest);
+				return;
+			}
 		}
 		if (next.countryCode) oncountry?.(next.countryCode);
 		point = next.point;
@@ -84,8 +94,8 @@
 		<div class="side">
 			{#if !city}
 				<PlaceSuggestions name={searched} {choice} onchoose={choose} />
-			{:else if geography}
-				<PlaceSuggestions name={searched} {choice} onchoose={choose} towns={geography.towns} />
+			{:else if towns}
+				<PlaceSuggestions name={searched} {choice} onchoose={choose} {towns} />
 			{/if}
 			{#if point}
 				<div>

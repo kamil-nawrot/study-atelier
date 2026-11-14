@@ -1,11 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
-import { loadSymbolQuestionPins } from '#lib/symbols/symbol-questions-data/symbol-questions-data.ts';
+import {
+	loadSymbolQuestionImages,
+	loadSymbolQuestionPins
+} from '#lib/symbols/symbol-questions-data/symbol-questions-data.ts';
 import { loadSymbolOptions } from '#lib/symbols/symbols-data/symbols-data.ts';
 import { loadSymbolSteps } from './symbol-steps.ts';
 
 vi.mock('#lib/symbols/symbol-questions-data/symbol-questions-data.ts', () => ({
-	loadSymbolQuestionPins: vi.fn()
+	loadSymbolQuestionPins: vi.fn(),
+	loadSymbolQuestionImages: vi.fn()
 }));
 vi.mock('#lib/symbols/symbols-data/symbols-data.ts', () => ({ loadSymbolOptions: vi.fn() }));
 vi.mock('#lib/pins/fragment-lenses/fragment-lenses.ts', () => ({
@@ -17,13 +21,14 @@ const symbols = names.map((name) => ({ id: name, name, meanings: [] }));
 const pin = {
 	pinId: 'pin-1',
 	symbolName: 'Keys',
-	fragment: { pinId: 'pin-1', artworkId: 'a', x: 0, y: 0, viewWidth: 0.1, text: '', image: null }
+	fragment: { pinId: 'pin-1', artworkId: 'a', x: 0, y: 0, viewWidth: 0.1, text: '' }
 };
 
 describe('symbol steps', () => {
 	beforeEach(() => {
 		vi.mocked(loadSymbolQuestionPins).mockResolvedValue({ pins: [pin] });
 		vi.mocked(loadSymbolOptions).mockResolvedValue({ symbols });
+		vi.mocked(loadSymbolQuestionImages).mockResolvedValue(new Map());
 	});
 
 	it('loads nothing for a count of zero', async () => {
@@ -36,6 +41,7 @@ describe('symbol steps', () => {
 
 		expect(step).toMatchObject({ mode: 'quiz_symbol', kind: 'symbol', key: 'pin-1:symbol' });
 		expect(step.quiz.options).toHaveLength(4);
+		expect(loadSymbolQuestionImages).toHaveBeenCalledWith(['pin-1']);
 	});
 
 	it('runs without the questions when a load fails', async () => {

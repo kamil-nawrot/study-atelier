@@ -54,7 +54,7 @@
 
 	.nested {
 		padding-block-end: var(--spacing-2);
-		padding-inline-start: var(--spacing-6);
+		padding-inline-start: calc(var(--spacing-6) + var(--spacing-8));
 	}
 
 	.nested > li {

@@ -31,7 +31,8 @@ import {
 	addValue,
 	fillRequired,
 	deferred,
-	answerNothingFromWikidata
+	answerNothingFromWikidata,
+	withoutAutoMatch
 } from '#lib/testing/add-artwork/add-artwork.ts';
 import { leave } from '#lib/testing/navigation/navigation.ts';
 import AddArtworkPage from './+page.svelte';
@@ -83,6 +84,7 @@ function savedBefore(title: string, author: string, number = 5): void {
 }
 
 describe('add artwork page', () => {
+	withoutAutoMatch();
 	beforeEach(async () => {
 		vi.clearAllMocks();
 		answerNothingFromWikidata();

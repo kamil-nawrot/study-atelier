@@ -14,6 +14,7 @@
 	} from '#lib/glossary/glossary-tab/glossary-tab.ts';
 	import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
 	import SymbolAtlas from '#lib/symbols/components/SymbolAtlas/SymbolAtlas.svelte';
+	import { loadSymbolAtlas, type AtlasResult } from '#lib/symbols/symbols-data/symbols-data.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { PageProps, Snapshot } from './$types';
 
@@ -28,7 +29,7 @@
 	let symbolQuery = $state('');
 	let chosen = $state<GlossaryCategory[]>([]);
 	let symbols = $derived(tab === 'symbols');
-	let atlas = $derived(data.symbols ?? []);
+	let atlas = $state<AtlasResult>();
 
 	type Saved = {
 		tab?: string;
@@ -55,6 +56,11 @@
 		rememberGlossaryTab(tab);
 	});
 
+	$effect(() => {
+		if (!symbols || atlas) return;
+		void loadSymbolAtlas().then((loaded) => (atlas = loaded));
+	});
+
 	onMount(() => {
 		const message = page.state.glossaryMessage;
 		if (message === undefined) return;
@@ -66,8 +72,8 @@
 <AtelierLayout email={data.session.user.email ?? ''} heading title={m.glossary.title}>
 	<PageHeader lead={m.glossary.lead}>
 		{#snippet aside()}
-			{#if symbols && atlas.length > 0}
-				<span class="caption">{m.symbols.count(atlas.length)}</span>
+			{#if symbols && atlas && atlas.symbols.length > 0}
+				<span class="caption">{m.symbols.count(atlas.symbols.length)}</span>
 			{:else if !symbols && !data.error && data.entries.length > 0}
 				<span class="caption">{m.glossary.count(data.entries.length)}</span>
 			{/if}
@@ -81,7 +87,9 @@
 	{:else}
 		<Tabs label={m.glossary.tabsLabel} {tabs} bind:value={tab}>
 			{#if symbols}
-				<SymbolAtlas error={data.symbolsError} symbols={atlas} bind:query={symbolQuery} />
+				{#if atlas}
+					<SymbolAtlas error={atlas.error} symbols={atlas.symbols} bind:query={symbolQuery} />
+				{/if}
 			{:else}
 				<GlossaryList entries={data.entries} bind:chosen bind:query />
 			{/if}

@@ -20,7 +20,7 @@ import type { SymbolEntry } from '#lib/symbols/types/symbol-entry.ts';
 import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
 import type { SymbolPin } from '#lib/symbols/types/symbol-pin.ts';
 
-type AtlasResult = { symbols: AtlasSymbol[]; error?: string };
+export type AtlasResult = { symbols: AtlasSymbol[]; error?: string };
 type SymbolResult = { symbol?: SymbolEntry; notFound?: boolean; error?: string };
 type SymbolPinsResult = { pins: SymbolPin[]; error?: string };
 type SaveResult = { id?: string; nameTaken?: boolean; error?: string };

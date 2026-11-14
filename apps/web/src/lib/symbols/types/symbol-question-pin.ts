@@ -4,5 +4,5 @@ export type SymbolQuestionPin = {
 	pinId: string;
 	symbolName: string;
 	meaning?: { id: string; text: string; persons: string[] };
-	fragment: PinFragment;
+	fragment: Omit<PinFragment, 'image'>;
 };
