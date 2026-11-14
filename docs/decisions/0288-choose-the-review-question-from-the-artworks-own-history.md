@@ -42,11 +42,12 @@ Chosen by the owner: count in the artwork's answers, and let the question waitin
 1. A new artwork, or a forgotten one (`last_rating = 1`), gets a quiz about recognition: of title, image and author, among the kinds turned on, the one asked least recently for this artwork; one never asked comes first, and ties follow that order. The detail is not asked here, since it does not test whether the learner knows the artwork.
 2. Any other artwork gets a flashcard, unless one of these is due:
    - the detail, when the artwork has a pin with a glossary entry and the kind is on;
-   - the style quiz, when the stability is under 7 days, the kind is on and the scope is not a style ([ADR-0070](0070-no-style-quiz-in-a-style-scope.md));
    - the typed title, when the stability is at least 7 days and the kind is on.
-3. When two are due (the detail and one of the others; the style quiz and the typed title never meet), the one waiting longer wins, and the detail wins a tie. The other stays due for the next answer.
+3. When both are due, the one waiting longer wins, and the detail wins a tie. The other stays due for the next answer.
 
-**Form "Quizy".** The detail and the typed title follow the same rule as in "Mieszane". Otherwise the artwork gets, among title, image, author and style that are on, the kind asked least recently for it, in that order on a tie.
+The style quiz is no longer a recognition question: it has its own card and its own places in the round ([ADR-0291](0291-give-the-style-of-an-artwork-its-own-review-card.md)). The owner first chose to ask it every third answer of an artwork still being learnt, under the same rule as the detail, with the longer waiting one winning; the separate card replaced that before the build.
+
+**Form "Quizy".** The detail and the typed title follow the same rule as in "Mieszane". Otherwise the artwork gets, among title, image and author that are on, the kind asked least recently for it, in that order on a tie.
 
 **Form "Fiszki".** Flashcards only, as before.
 
@@ -55,7 +56,7 @@ Chosen by the owner: count in the artwork's answers, and let the question waitin
 ### Consequences
 
 - Good: the question follows the artwork, so a session is the same whatever the order of its artworks.
-- Good: every artwork gets the style quiz, its detail and the typed title at a steady pace instead of by chance.
+- Good: every artwork gets its detail and the typed title at a steady pace instead of by chance.
 - Good: the order of artworks in the session (era interleaving) and the choice of question no longer depend on each other, which simplifies the split of `review_session` in ATL-717.
 - Bad: `review_session` reads the last answers of up to 40 artworks (by the index on `artwork_id, reviewed_at`).
 - Bad: a settled artwork comes back rarely, so its typed title comes every third review of that artwork, which can be months apart; before, it came every third settled artwork of a session.
