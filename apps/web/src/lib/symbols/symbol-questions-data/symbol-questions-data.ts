@@ -89,13 +89,13 @@ export async function loadSymbolQuestionPins(): Promise<{
 
 export async function loadSymbolQuestionImages(
 	pinIds: readonly string[]
-): Promise<Map<string, ArtworkImageInput | null>> {
+): Promise<Map<string, ArtworkImageInput | null> | undefined> {
 	if (pinIds.length === 0) return new Map();
 	const { data, error } = await supabase
 		.from('artwork_pins')
 		.select(IMAGE_SELECT)
 		.in('id', [...pinIds]);
-	if (error) return new Map();
+	if (error) return undefined;
 	return new Map(
 		(data as unknown as ImagePinRow[]).map((row) => [row.id, imageOf(row.artwork_images)])
 	);

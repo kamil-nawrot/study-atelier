@@ -76,6 +76,15 @@ describe('SymbolFigure', () => {
 		expect(container.querySelector('.cover')).toBeNull();
 	});
 
+	it('shows the symbol without a lens when its detail cannot be loaded', async () => {
+		vi.mocked(loadSymbolCover).mockRejectedValue(new Error('Failed to fetch'));
+		const { container } = await render(SymbolFigure, { symbolId: 's1', symbols: [skull] });
+
+		await expect.element(page.getByText('Skull', { exact: true })).toBeInTheDocument();
+		await vi.waitFor(() => expect(loadSymbolCover).toHaveBeenCalled());
+		expect(container.querySelector('.cover')).toBeNull();
+	});
+
 	it('links to the atlas when viewed', async () => {
 		render(SymbolFigure, { symbolId: 's1', symbols: [skull], linked: true });
 

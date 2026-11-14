@@ -144,13 +144,13 @@ describe('symbol questions data', () => {
 		const images = await loadSymbolQuestionImages(['pin-1']);
 
 		expect(query.in).toHaveBeenCalledWith('id', ['pin-1']);
-		expect(images.get('pin-1')).toMatchObject({ kind: 'upload', path: 'owner/a.jpg' });
+		expect(images?.get('pin-1')).toMatchObject({ kind: 'upload', path: 'owner/a.jpg' });
 		await expect(loadSymbolQuestionImages([])).resolves.toEqual(new Map());
 	});
 
-	it('gives no images when they cannot be loaded', async () => {
+	it('gives nothing when the images cannot be loaded', async () => {
 		answer({ data: null, error: { message: 'Failed to fetch' } });
 
-		await expect(loadSymbolQuestionImages(['pin-1'])).resolves.toEqual(new Map());
+		await expect(loadSymbolQuestionImages(['pin-1'])).resolves.toBeUndefined();
 	});
 });
