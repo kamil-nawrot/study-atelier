@@ -13,7 +13,7 @@ import { pathToFileURL } from 'node:url';
 import { nodeEnv } from '../node-env/node-env.mjs';
 
 const PACKAGES = [
-	{ dir: 'apps/web', limits: ['--layout', 'src/lib'], dependencies: true },
+	{ dir: 'apps/web', limits: ['--layout', 'src/lib'], dependencies: true, consumes: 'packages/ui' },
 	{ dir: 'packages/ui', limits: ['--stories'], dependencies: false }
 ];
 const LINTED = /\.(ts|js|mjs|cjs|svelte)$/;
@@ -31,6 +31,10 @@ export function splitNul(text) {
 
 export function isOwnersUntracked(file) {
 	return OWNERS_UNTRACKED.test(file);
+}
+
+export function consumesChange(pkg, files) {
+	return Boolean(pkg.consumes) && files.some((file) => file.startsWith(`${pkg.consumes}/`));
 }
 
 export function touchesRootConfig(files) {
@@ -117,7 +121,9 @@ function changedSteps(files, deleted, rootConfig) {
 	}
 	for (const pkg of PACKAGES) {
 		const own = inPackage(files, pkg.dir);
-		if (own.length === 0 && inPackage(deleted, pkg.dir).length === 0 && !rootConfig) continue;
+		const upstream = consumesChange(pkg, [...files, ...deleted]);
+		if (own.length === 0 && inPackage(deleted, pkg.dir).length === 0 && !rootConfig && !upstream)
+			continue;
 		const label = (name) => `${name} (${pkg.dir})`;
 		const linted = own.filter((file) => LINTED.test(file));
 		const styled = own.filter((file) => file.startsWith('src/') && STYLED.test(file));

@@ -6,6 +6,7 @@ import {
 	loadExhibitionSummaries
 } from '#lib/exhibitions/exhibition-data/exhibition-data.ts';
 import { loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
+import { loadSymbolOptions } from '#lib/symbols/symbols-data/symbols-data.ts';
 import {
 	loadArchivedExhibitions,
 	loadExhibitionList,
@@ -22,6 +23,11 @@ vi.mock('#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts',
 vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({
 	loadTermIndex: vi.fn()
 }));
+vi.mock('#lib/symbols/symbols-data/symbols-data.ts', () => ({
+	loadSymbolOptions: vi.fn()
+}));
+
+const skull = { id: 's1', name: 'Skull', meanings: [] };
 
 import type { ExhibitionSummary } from '#lib/exhibitions/types/exhibition-summary.ts';
 
@@ -46,6 +52,7 @@ beforeEach(() => {
 	vi.clearAllMocks();
 	vi.mocked(loadArtworksByIds).mockResolvedValue({ artworks: [cover] });
 	vi.mocked(loadTermIndex).mockResolvedValue({ terms: [] } as never);
+	vi.mocked(loadSymbolOptions).mockResolvedValue({ symbols: [skull] });
 });
 
 describe('loadExhibitionList', () => {
@@ -117,6 +124,7 @@ describe('loadExhibitionPage', () => {
 		expect(loadArtworksByIds).toHaveBeenCalledWith([cover.id]);
 		expect(data.exhibition).toEqual(exhibition);
 		expect(data.artworks).toEqual([cover]);
+		expect(data.symbols).toEqual([skull]);
 	});
 
 	it('passes a failure on', async () => {

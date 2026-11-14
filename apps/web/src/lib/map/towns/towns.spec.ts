@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { testGeography } from '#lib/testing/map/map.ts';
+import { testTowns } from '#lib/testing/map/map.ts';
 import { distanceKm, nearestTown } from './towns.ts';
 
 describe('distanceKm', () => {
@@ -11,7 +11,7 @@ describe('distanceKm', () => {
 });
 
 describe('nearestTown', () => {
-	const towns = testGeography().towns;
+	const towns = testTowns();
 
 	it('takes the nearest town within reach', () => {
 		expect(nearestTown({ latitude: 48.8, longitude: 2.12 }, towns)?.name).toBe('Paryż');

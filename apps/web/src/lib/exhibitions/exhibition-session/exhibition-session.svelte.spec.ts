@@ -125,6 +125,44 @@ describe('ExhibitionSession', () => {
 		expect(session.status).toBe('saved');
 	});
 
+	it('waits for a running save and then saves what changed meanwhile when the learner leaves', async () => {
+		let finish: (revision: number) => void = () => {};
+		vi.mocked(saveExhibition).mockImplementationOnce(
+			() => new Promise((resolve) => (finish = (revision) => resolve({ revision })))
+		);
+		const session = new ExhibitionSession(exhibition);
+		session.replace(changed);
+		await vi.advanceTimersByTimeAsync(AUTOSAVE_DELAY_MS);
+		session.rename('Dark');
+		const flushed = session.flush();
+		session.destroy();
+		finish(4);
+		await flushed;
+		await vi.advanceTimersByTimeAsync(AUTOSAVE_DELAY_MS * 2);
+
+		expect(saveExhibition).toHaveBeenCalledTimes(2);
+		expect(saveExhibition).toHaveBeenLastCalledWith('exhibition-1', 'Dark', changed, 4);
+		expect(session.dirty).toBe(false);
+		expect(session.status).toBe('saved');
+	});
+
+	it('still saves what changed during a running save when the session is destroyed without a flush', async () => {
+		let finish: (revision: number) => void = () => {};
+		vi.mocked(saveExhibition).mockImplementationOnce(
+			() => new Promise((resolve) => (finish = (revision) => resolve({ revision })))
+		);
+		const session = new ExhibitionSession(exhibition);
+		session.replace(changed);
+		await vi.advanceTimersByTimeAsync(AUTOSAVE_DELAY_MS);
+		session.rename('Dark');
+		session.destroy();
+		finish(4);
+		await vi.advanceTimersByTimeAsync(AUTOSAVE_DELAY_MS * 2);
+
+		expect(saveExhibition).toHaveBeenCalledTimes(2);
+		expect(saveExhibition).toHaveBeenLastCalledWith('exhibition-1', 'Dark', changed, 4);
+	});
+
 	it('flushes at once when the learner leaves edit mode', async () => {
 		const session = new ExhibitionSession(exhibition);
 		session.replace(changed);

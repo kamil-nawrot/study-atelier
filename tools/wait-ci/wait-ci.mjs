@@ -5,15 +5,26 @@ const USAGE =
 	'Usage: pnpm wait-ci <pull request number> [--check <extra job name>]... [--timeout <minutes>]';
 const INTERVAL_MS = 30_000;
 const FAILED = new Set(['fail', 'cancel']);
+const PLACEHOLDERS = new Set(['UI library', 'Migrations on local Supabase']);
+const MARKDOWN_PATHS = new Set([
+	'package.json',
+	'prettier.config.js',
+	'.github/workflows/docs.yml'
+]);
+const UI_PATHS = [
+	/^packages\/ui\//,
+	/^design\//,
+	/^lint\//,
+	/^stylelint\//,
+	/^(pnpm-lock\.yaml|pnpm-workspace\.yaml|package\.json|\.nvmrc|stylelint\.config\.js|eslint\.config\.base\.js|prettier\.config\.js)$/,
+	/^\.github\/workflows\/ui\.yml$/,
+	/^\.github\/scripts\/coverage-(summary|ratchet)\.mjs$/
+];
 
 export function defaultChecks(files) {
 	const isMarkdown = (file) => file.endsWith('.md');
 	const checks = ['Conventions'];
-	if (
-		files.some(
-			(file) => isMarkdown(file) || file === 'package.json' || file === 'prettier.config.js'
-		)
-	) {
+	if (files.some((file) => isMarkdown(file) || MARKDOWN_PATHS.has(file))) {
 		checks.push('Markdown');
 	}
 	const appCode = files.some(
@@ -21,11 +32,14 @@ export function defaultChecks(files) {
 			!file.startsWith('docs/') && (!isMarkdown(file) || /^apps\/web\/src\/.*\.md$/.test(file))
 	);
 	if (appCode) checks.push('Web app');
-	if (files.some((file) => file.startsWith('packages/ui/'))) checks.push('UI library');
+	if (files.some((file) => UI_PATHS.some((pattern) => pattern.test(file))))
+		checks.push('UI library');
 	if (
 		files.some(
 			(file) =>
-				file.startsWith('supabase/') || file === 'apps/web/src/lib/shared/data/database.types.ts'
+				file.startsWith('supabase/') ||
+				file === 'apps/web/src/lib/shared/data/database.types.ts' ||
+				file === '.github/workflows/migrations.yml'
 		)
 	) {
 		checks.push('Migrations on local Supabase');
@@ -34,7 +48,8 @@ export function defaultChecks(files) {
 		files.some((file) =>
 			['apps/web/', 'packages/ui/', 'supabase/'].some((prefix) => file.startsWith(prefix))
 		) ||
-		files.includes('pnpm-lock.yaml')
+		files.includes('pnpm-lock.yaml') ||
+		files.includes('.github/workflows/e2e.yml')
 	) {
 		checks.push('End-to-end');
 	}
@@ -54,6 +69,7 @@ export function summarise(checks, names) {
 		if (buckets.some((bucket) => FAILED.has(bucket))) return { name, state: 'fail' };
 		if (buckets.length === 0 || buckets.includes('pending')) return { name, state: 'pending' };
 		if (buckets.includes('pass')) return { name, state: 'pass' };
+		if (PLACEHOLDERS.has(name) && names.includes(name)) return { name, state: 'pending' };
 		return { name, state: 'skipping' };
 	});
 	const overall = states.some(({ state }) => state === 'fail')

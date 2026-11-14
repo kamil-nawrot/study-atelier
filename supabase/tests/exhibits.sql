@@ -44,15 +44,17 @@ begin
     'reading_room:memory', 'reading_room:bullseye', 'reading_room:regular', 'reading_room:back_from_storage',
     'reading_room:night_watch', 'reading_room:marathon', 'reading_room:amateur_magnifier',
     'scriptorium:glossary', 'scriptorium:laurel_skull', 'scriptorium:timeline', 'scriptorium:hortus_cliffortianus', 'scriptorium:figure_alphabet',
+    'scriptorium:pelican_serpent',
     'map_room:chronicle', 'map_room:grand_tour', 'map_room:seen_live', 'map_room:trevi_fountain',
-    'map_room:seven_league_boots', 'map_room:pilgrim_shell', 'pavilion:crystal_palace', 'pavilion:lenoir_chapel', 'crypt:mouth_of_truth',
+    'map_room:seven_league_boots', 'map_room:pilgrim_shell', 'pavilion:crystal_palace', 'pavilion:lenoir_chapel', 'pavilion:kircher_ark',
+    'crypt:mouth_of_truth',
     'crypt:candle_moths'
-  ], 'the exhibits are not the agreed thirty-six in their rooms and order';
+  ], 'the exhibits are not the agreed thirty-eight in their rooms and order';
   assert (select array_agg(exhibit order by exhibit) from public.unlock_exhibits('UTC') where hidden) = array[
-    'amateur_magnifier', 'back_from_storage', 'candle_moths', 'figure_alphabet', 'lenoir_chapel', 'marathon',
-    'mouth_of_truth', 'night_watch', 'pilgrim_shell', 'pinacotheca', 'seven_league_boots', 'trevi_fountain',
+    'amateur_magnifier', 'back_from_storage', 'candle_moths', 'figure_alphabet', 'kircher_ark', 'lenoir_chapel', 'marathon',
+    'mouth_of_truth', 'night_watch', 'pelican_serpent', 'pilgrim_shell', 'pinacotheca', 'seven_league_boots', 'trevi_fountain',
     'van_eyck_easel'
-  ], 'the hidden exhibits are not the agreed thirteen';
+  ], 'the hidden exhibits are not the agreed fifteen';
   assert (select value from public.unlock_exhibits('UTC') where exhibit = 'early_modern') = 5,
     'an era exhibit does not count the artworks of its era';
   assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'modern') = array[1]::smallint[],
@@ -240,8 +242,8 @@ begin
     'an image full of pins does not unlock the pinacotheca';
 
   delete from public.artwork_pins where image_id = pinned and text = 'Pin 10';
-  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'pinacotheca') = 9,
-    'a deleted pin still counts';
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'pinacotheca') = 10,
+    'the pinacotheca, once found, is counted again instead of keeping its threshold';
   assert exists (select 1 from public.exhibit_tiers where exhibit = 'pinacotheca'),
     'a deleted pin takes the pinacotheca back';
   assert (select count(*) from public.point_events where kind = 'easter_egg' and code = 'pinacotheca') = 1,
@@ -310,7 +312,7 @@ begin
   select id into third_place from public.category_values where name = 'Third';
   insert into public.visits (place_id, visited_on, date_precision) values
     (first_place, '2026-05-14', 'day'), (second_place, '2026-05-14', 'day'), (first_place, '2026-05-14', 'day'),
-    (third_place, '2026-05-01', 'month'), (third_place, '2025-01-01', 'year');
+    (third_place, '2026-03-01', 'month'), (third_place, '2025-01-01', 'year');
   select id into morning from public.visits where place_id = first_place order by created_at, id limit 1;
   select id into elsewhere from public.visits where place_id = second_place;
   select id into later from public.visits where date_precision = 'month';
@@ -344,7 +346,7 @@ begin
   assert (select thresholds from public.unlock_exhibits('UTC') where exhibit = 'trevi_fountain') = array[2],
     'the Trevi fountain does not have one tier at two visits';
   assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'trevi_fountain') = array[1]::smallint[],
-    'an artwork seen on two days does not unlock the Trevi fountain';
+    'an artwork seen in March and on 14 May does not unlock the Trevi fountain';
   assert (select thresholds from public.unlock_exhibits('UTC') where exhibit = 'seven_league_boots') = array[3],
     'the seven-league boots do not have one tier at three places';
   assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'seven_league_boots') = array[1]::smallint[],
@@ -684,6 +686,10 @@ do $$
 declare
   place uuid;
   work uuid;
+  city uuid;
+  trip uuid;
+  inside uuid;
+  soon uuid;
 begin
   insert into public.category_values (category_code, name) values ('location', 'Uffizi') returning id into place;
   work := (select id from public.save_artwork(
@@ -693,8 +699,37 @@ begin
   insert into public.visit_artworks (visit_id, artwork_id)
     select visit.id, work from public.visits as visit where visit.place_id = place;
 
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'trevi_fountain') = 1,
+    'the Trevi fountain counts "1 maja 2026" as a return after "maj 2026"';
+
+  delete from public.visits where place_id = place;
+  insert into public.category_values (category_code, name) values ('location', 'Ateny') returning id into city;
+  insert into public.location_details (value_id, place_type) values (city, 'city');
+  insert into public.visits (kind, place_id, visited_on, date_precision, ends_on)
+    values ('trip', city, '2026-06-01', 'day', '2026-06-10') returning id into trip;
+  insert into public.visits (place_id, visited_on, date_precision, trip_id)
+    values (place, '2026-06-10', 'day', trip) returning id into inside;
+  insert into public.visit_artworks (visit_id, artwork_id) values (trip, work), (inside, work);
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'trevi_fountain') = 1,
+    'the Trevi fountain counts a trip and a visit within it as a return';
+
+  insert into public.visits (place_id, visited_on, date_precision)
+    values (place, '2026-07-09', 'day') returning id into soon;
+  insert into public.visit_artworks (visit_id, artwork_id) values (soon, work);
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'trevi_fountain') = 1,
+    'the Trevi fountain counts a visit 29 days after the end of a trip as a return';
+
+  update public.visits set visited_on = '2026-07-10' where id = soon;
+
   assert (select value from public.unlock_exhibits('UTC') where exhibit = 'trevi_fountain') = 2,
-    'the Trevi fountain counts "maj 2026" and "1 maja 2026" as one visit';
+    'the Trevi fountain does not count a visit 30 days after the end of a trip as a return';
+
+  update public.visits set visited_on = '2025-01-01', date_precision = 'year' where id = soon;
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'trevi_fountain') = 2,
+    'the Trevi fountain does not count a return after a year, in any order of the entries';
 end;
 $$;
 
@@ -858,6 +893,188 @@ begin
     'a master, his pupil and the pupil''s pupil do not find van Eyck''s easel';
   assert exists (select 1 from public.point_events where kind = 'easter_egg' and code = 'van_eyck_easel'),
     'the hidden easel of van Eyck gives no bonus';
+end;
+$$;
+
+reset role;
+
+do $$
+begin
+  assert (select array_agg(kind.value order by kind.value)
+      from jsonb_array_elements_text(private.exhibition_children() -> 'doc') as kind (value))
+    = array['artwork', 'closeUp', 'columns', 'divider', 'heading', 'quote', 'set', 'symbol', 'term', 'textBlock'],
+    'the editor has a new kind of block: decide whether Kircher''s ark counts it with content only, and update this list';
+end;
+$$;
+
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000019', 'owner-p@example.test');
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-000000000019", "role": "authenticated"}', true);
+
+do $$
+declare
+  kept uuid;
+  trashed uuid;
+  term uuid;
+  dove uuid;
+  archived uuid := gen_random_uuid();
+  words constant jsonb := jsonb_build_array(jsonb_build_object('type', 'paragraph', 'content',
+    jsonb_build_array(jsonb_build_object('type', 'text', 'text', 'Two by two'))));
+  blocks jsonb;
+begin
+  kept := (select id from public.save_artwork(
+    jsonb_build_object('title', 'Kept', 'author_unknown', true), '{"author": [], "location": []}'));
+  trashed := (select id from public.save_artwork(
+    jsonb_build_object('title', 'Trashed', 'author_unknown', true), '{"author": [], "location": []}'));
+  update public.artworks set deleted_at = now() where id = trashed;
+  insert into public.glossary_entries (name, category) values ('Arka', 'general') returning id into term;
+  dove := public.save_symbol('Dove', '[{"text": "peace", "contexts": []}]');
+
+  blocks := jsonb_build_array(
+    jsonb_build_object('type', 'columns', 'content', jsonb_build_array(
+      jsonb_build_object('type', 'column', 'content', jsonb_build_array(
+        jsonb_build_object('type', 'textBlock', 'content', words))),
+      jsonb_build_object('type', 'column', 'content', jsonb_build_array(
+        jsonb_build_object('type', 'heading', 'attrs', jsonb_build_object('level', 2), 'content',
+          jsonb_build_array(jsonb_build_object('type', 'text', 'text', 'Ark'))))))),
+    jsonb_build_object('type', 'quote', 'content', words),
+    jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', kept)),
+    jsonb_build_object('type', 'set', 'content', jsonb_build_array(
+      jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', kept, 'paletteOnly', true)),
+      jsonb_build_object('type', 'artwork', 'attrs', jsonb_build_object('artworkId', trashed, 'paletteOnly', true)))),
+    jsonb_build_object('type', 'set', 'content', jsonb_build_array(
+      jsonb_build_object('type', 'closeUp', 'attrs',
+        jsonb_build_object('artworkId', kept, 'x', 0.5, 'y', 0.5, 'viewWidth', 0.2)),
+      jsonb_build_object('type', 'closeUp', 'attrs',
+        jsonb_build_object('artworkId', kept, 'x', 0.2, 'y', 0.2, 'viewWidth', 0.1)))),
+    jsonb_build_object('type', 'divider'),
+    jsonb_build_object('type', 'term', 'attrs', jsonb_build_object('termId', term)),
+    jsonb_build_object('type', 'symbol', 'attrs', jsonb_build_object('symbolId', dove)));
+
+  perform public.save_exhibition(archived, 'Archived', jsonb_build_object('type', 'doc', 'content', blocks));
+  update public.exhibitions set deleted_at = now() where id = archived;
+  perform public.save_exhibition(gen_random_uuid(), 'Empty quote', jsonb_build_object('type', 'doc', 'content',
+    jsonb_set(blocks, '{1}', jsonb_build_object('type', 'quote', 'content',
+      jsonb_build_array(jsonb_build_object('type', 'paragraph', 'content',
+        jsonb_build_array(jsonb_build_object('type', 'text', 'text', '   '))))))));
+  perform public.save_exhibition(gen_random_uuid(), 'Trashed close-up', jsonb_build_object('type', 'doc', 'content',
+    jsonb_set(jsonb_set(blocks, '{4,content,0,attrs,artworkId}', to_jsonb(trashed)),
+      '{4,content,1,attrs,artworkId}', to_jsonb(trashed))));
+  perform public.save_exhibition(gen_random_uuid(), 'Heading in a text', jsonb_build_object('type', 'doc', 'content',
+    jsonb_set(blocks, '{0,content,1,content}', jsonb_build_array(jsonb_build_object('type', 'textBlock', 'content',
+      jsonb_build_array(jsonb_build_object('type', 'heading', 'attrs', jsonb_build_object('level', 3), 'content',
+        jsonb_build_array(jsonb_build_object('type', 'text', 'text', 'Ark')))))))));
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'kircher_ark') = 0,
+    'Kircher''s ark counts an archived exhibition, a blank quote, a close-up in the trash or a heading inside a text';
+
+  perform public.save_exhibition(gen_random_uuid(), 'Every kind', jsonb_build_object('type', 'doc', 'content', blocks));
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'kircher_ark') = 1,
+    'an exhibition with a block of every kind, in rows and sets, does not find Kircher''s ark';
+  assert exists (select 1 from public.point_events where kind = 'easter_egg' and code = 'kircher_ark'),
+    'the hidden ark of Kircher gives no bonus';
+
+  delete from public.symbols where id = dove;
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'kircher_ark') = 1,
+    'Kircher''s ark, once found, is counted again instead of keeping its threshold';
+  assert (select count(*) from public.exhibit_tiers where exhibit = 'kircher_ark') = 1,
+    'Kircher''s ark is lost when its symbol is deleted';
+end;
+$$;
+
+reset role;
+
+delete from public.exhibit_tiers where owner_id = '00000000-0000-0000-0000-000000000019' and exhibit = 'kircher_ark';
+
+set local role authenticated;
+
+do $$
+begin
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'kircher_ark') = 0,
+    'Kircher''s ark counts a symbol block whose symbol was deleted';
+end;
+$$;
+
+reset role;
+
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000020', 'owner-q@example.test');
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-000000000020", "role": "authenticated"}', true);
+
+do $$
+declare
+  first_image uuid;
+  second_image uuid;
+  trashed_image uuid;
+  lily uuid;
+  ermine uuid;
+  pearl uuid;
+  pure_heart uuid;
+begin
+  perform public.save_artwork(
+    jsonb_build_object('title', 'Annunciation', 'author_unknown', true),
+    '{}', null, '[{"source_wikidata_id": "Q301", "source_image_file": "Annunciation.jpg"}]');
+  perform public.save_artwork(
+    jsonb_build_object('title', 'Lady with an Ermine', 'author_unknown', true),
+    '{}', null, '[{"source_wikidata_id": "Q302", "source_image_file": "Lady.jpg"}]');
+  perform public.save_artwork(
+    jsonb_build_object('title', 'Thrown away', 'author_unknown', true),
+    '{}', null, '[{"source_wikidata_id": "Q303", "source_image_file": "Thrown.jpg"}]');
+  select image.id into first_image from public.artwork_images as image
+    join public.artworks as artwork on artwork.id = image.artwork_id where artwork.title = 'Annunciation';
+  select image.id into second_image from public.artwork_images as image
+    join public.artworks as artwork on artwork.id = image.artwork_id where artwork.title = 'Lady with an Ermine';
+  select image.id into trashed_image from public.artwork_images as image
+    join public.artworks as artwork on artwork.id = image.artwork_id where artwork.title = 'Thrown away';
+  update public.artworks set deleted_at = now() where title = 'Thrown away';
+
+  lily := public.save_symbol('Lily', '[{"text": "Czystość  serca", "contexts": []}]');
+  ermine := public.save_symbol('Ermine',
+    '[{"text": "władza", "contexts": []}, {"text": "CZYSTOŚĆ SERCA", "contexts": []}]');
+  pearl := public.save_symbol('Pearl', '[{"text": "czystość serca, niewinność", "contexts": []}]');
+  select id into pure_heart from public.symbol_meanings where symbol_id = ermine and text = 'CZYSTOŚĆ SERCA';
+
+  insert into public.artwork_pins (image_id, x, y, symbol_id) values
+    (first_image, 0.2, 0.2, lily), (second_image, 0.4, 0.4, ermine),
+    (first_image, 0.6, 0.6, pearl), (second_image, 0.6, 0.6, pearl);
+  insert into public.artwork_pins (image_id, x, y, symbol_id, symbol_meaning_id) values
+    (first_image, 0.4, 0.4, ermine, pure_heart), (trashed_image, 0.5, 0.5, ermine, pure_heart);
+
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'pelican_serpent') = 0,
+    'the nest of Nehushtan counts one symbol twice, two symbols on one artwork, a pin without a chosen meaning '
+    'of a symbol with two, a longer meaning or an artwork in the trash';
+
+  update public.artworks set deleted_at = null where title = 'Thrown away';
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'pelican_serpent') = 1,
+    'two symbols with the same meaning, apart from case and spaces, on two artworks do not find the nest of Nehushtan';
+  assert exists (select 1 from public.point_events where kind = 'easter_egg' and code = 'pelican_serpent'),
+    'the hidden nest of Nehushtan gives no bonus';
+end;
+$$;
+
+reset role;
+
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000021', 'owner-r@example.test');
+
+insert into public.exhibit_tiers (owner_id, exhibit, tier, tiers)
+  select '00000000-0000-0000-0000-000000000021', exhibit.code, 1, cardinality(exhibit.thresholds)
+    from public.exhibits as exhibit
+    where exhibit.hidden;
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-000000000021", "role": "authenticated"}', true);
+
+do $$
+begin
+  assert not exists (
+      select 1 from public.unlock_exhibits('UTC') as listed
+        where listed.hidden and listed.value <> listed.thresholds[1]),
+    'a found hidden exhibit is counted again instead of keeping its threshold';
 end;
 $$;
 

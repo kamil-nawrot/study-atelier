@@ -54,7 +54,8 @@ vi.mock('#lib/review/review-data/review-data.ts', () => ({
 	withPinPreviews: async (items: unknown) => items
 }));
 vi.mock('#lib/symbols/symbol-questions-data/symbol-questions-data.ts', () => ({
-	loadSymbolQuestionPins: vi.fn().mockResolvedValue({ pins: [] })
+	loadSymbolQuestionPins: vi.fn().mockResolvedValue({ pins: [] }),
+	loadSymbolQuestionImages: vi.fn().mockResolvedValue(new Map())
 }));
 vi.mock('#lib/symbols/symbols-data/symbols-data.ts', () => ({
 	loadSymbolOptions: vi.fn().mockResolvedValue({ symbols: [] })

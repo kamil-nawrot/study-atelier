@@ -35,7 +35,10 @@
     "laurel_skull": "valck-vanitas-whole",
     "pilgrim_shell": "callot-pilgrims",
     "vault_cobweb": "weiditz-web",
-    "van_eyck_easel": "galle-master-pupils-centre-right"
+    "van_eyck_easel": "galle-master-pupils-centre-right",
+    "kircher_ark": "kircher-entry-noah",
+    "pelican_serpent": "bolswert-pelican-scene",
+    "giotto_fly": "hooke-blue-fly-whole"
   },
   "variants": [
     {
@@ -1510,6 +1513,255 @@
         0.85,
         0.95
       ]
+    },
+    {
+      "exhibit": "kircher_ark",
+      "status": "chosen",
+      "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Athanasii_Kircheri_%C3%A8_Soc._Jesu_Arca_No%C3%AB_-_in_tres_libros_digesta%2C_quorum_I._De_rebus_quae_ante_diluvium%2C_II._De_iis%2C_qu%C3%A6_ipso_diluvio_ejusque_duratione%2C_III._De_iis_%28IA_athanasiikircher1675kirc%29.pdf/page179-1280px-Athanasii_Kircheri_%C3%A8_Soc._Jesu_Arca_No%C3%AB_-_in_tres_libros_digesta%2C_quorum_I._De_rebus_quae_ante_diluvium%2C_II._De_iis%2C_qu%C3%A6_ipso_diluvio_ejusque_duratione%2C_III._De_iis_%28IA_athanasiikircher1675kirc%29.pdf.jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Athanasii_Kircheri_%C3%A8_Soc._Jesu_Arca_No%C3%AB_-_in_tres_libros_digesta%2C_quorum_I._De_rebus_quae_ante_diluvium%2C_II._De_iis%2C_qu%C3%A6_ipso_diluvio_ejusque_duratione%2C_III._De_iis_%28IA_athanasiikircher1675kirc%29.pdf",
+      "licence": "Public domain",
+      "credit": "Unknown engraver after Athanasius Kircher, Ingressus Animalium intra Arcam, from Arca Noë, Amsterdam, Janssonius van Waesberge, 1675",
+      "variant": "kircher-entry-noah",
+      "crop": [
+        0.587,
+        0.28,
+        0.962,
+        0.955
+      ]
+    },
+    {
+      "exhibit": "kircher_ark",
+      "status": "alternative",
+      "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Athanasii_Kircheri_%C3%A8_Soc._Jesu_Arca_No%C3%AB_-_in_tres_libros_digesta%2C_quorum_I._De_rebus_quae_ante_diluvium%2C_II._De_iis%2C_qu%C3%A6_ipso_diluvio_ejusque_duratione%2C_III._De_iis_%28IA_athanasiikircher1675kirc%29.pdf/page179-1280px-Athanasii_Kircheri_%C3%A8_Soc._Jesu_Arca_No%C3%AB_-_in_tres_libros_digesta%2C_quorum_I._De_rebus_quae_ante_diluvium%2C_II._De_iis%2C_qu%C3%A6_ipso_diluvio_ejusque_duratione%2C_III._De_iis_%28IA_athanasiikircher1675kirc%29.pdf.jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Athanasii_Kircheri_%C3%A8_Soc._Jesu_Arca_No%C3%AB_-_in_tres_libros_digesta%2C_quorum_I._De_rebus_quae_ante_diluvium%2C_II._De_iis%2C_qu%C3%A6_ipso_diluvio_ejusque_duratione%2C_III._De_iis_%28IA_athanasiikircher1675kirc%29.pdf",
+      "licence": "Public domain",
+      "credit": "Unknown engraver after Athanasius Kircher, Ingressus Animalium intra Arcam, from Arca Noë, Amsterdam, Janssonius van Waesberge, 1675",
+      "variant": "kircher-entry-wide",
+      "crop": [
+        0.542,
+        0.2,
+        0.962,
+        0.955
+      ]
+    },
+    {
+      "exhibit": "kircher_ark",
+      "status": "rejected",
+      "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Athanasii_Kircheri_%C3%A8_Soc._Jesu_Arca_No%C3%AB_-_in_tres_libros_digesta%2C_quorum_I._De_rebus_quae_ante_diluvium%2C_II._De_iis%2C_qu%C3%A6_ipso_diluvio_ejusque_duratione%2C_III._De_iis_%28IA_athanasiikircher1675kirc%29.pdf/page179-1280px-Athanasii_Kircheri_%C3%A8_Soc._Jesu_Arca_No%C3%AB_-_in_tres_libros_digesta%2C_quorum_I._De_rebus_quae_ante_diluvium%2C_II._De_iis%2C_qu%C3%A6_ipso_diluvio_ejusque_duratione%2C_III._De_iis_%28IA_athanasiikircher1675kirc%29.pdf.jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Athanasii_Kircheri_%C3%A8_Soc._Jesu_Arca_No%C3%AB_-_in_tres_libros_digesta%2C_quorum_I._De_rebus_quae_ante_diluvium%2C_II._De_iis%2C_qu%C3%A6_ipso_diluvio_ejusque_duratione%2C_III._De_iis_%28IA_athanasiikircher1675kirc%29.pdf",
+      "licence": "Public domain",
+      "credit": "Unknown engraver after Athanasius Kircher, Ingressus Animalium intra Arcam, from Arca Noë, Amsterdam, Janssonius van Waesberge, 1675",
+      "variant": "kircher-entry-noah-close",
+      "crop": [
+        0.655,
+        0.36,
+        0.988,
+        0.97
+      ]
+    },
+    {
+      "exhibit": "kircher_ark",
+      "status": "alternative",
+      "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Athanasii_Kircheri_%C3%A8_Soc._Jesu_Arca_No%C3%AB_-_in_tres_libros_digesta%2C_quorum_I._De_rebus_quae_ante_diluvium%2C_II._De_iis%2C_qu%C3%A6_ipso_diluvio_ejusque_duratione%2C_III._De_iis_%28IA_athanasiikircher1675kirc%29.pdf/page179-1280px-Athanasii_Kircheri_%C3%A8_Soc._Jesu_Arca_No%C3%AB_-_in_tres_libros_digesta%2C_quorum_I._De_rebus_quae_ante_diluvium%2C_II._De_iis%2C_qu%C3%A6_ipso_diluvio_ejusque_duratione%2C_III._De_iis_%28IA_athanasiikircher1675kirc%29.pdf.jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Athanasii_Kircheri_%C3%A8_Soc._Jesu_Arca_No%C3%AB_-_in_tres_libros_digesta%2C_quorum_I._De_rebus_quae_ante_diluvium%2C_II._De_iis%2C_qu%C3%A6_ipso_diluvio_ejusque_duratione%2C_III._De_iis_%28IA_athanasiikircher1675kirc%29.pdf",
+      "licence": "Public domain",
+      "credit": "Unknown engraver after Athanasius Kircher, Ingressus Animalium intra Arcam, from Arca Noë, Amsterdam, Janssonius van Waesberge, 1675",
+      "variant": "kircher-entry-right",
+      "crop": [
+        0.465,
+        0.03,
+        0.988,
+        0.97
+      ]
+    },
+    {
+      "exhibit": "kircher_ark",
+      "status": "alternative",
+      "source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Athanasii_Kircheri_%C3%A8_Soc._Jesu_Arca_No%C3%AB_-_in_tres_libros_digesta%2C_quorum_I._De_rebus_quae_ante_diluvium%2C_II._De_iis%2C_qu%C3%A6_ipso_diluvio_ejusque_duratione%2C_III._De_iis_%28IA_athanasiikircher1675kirc%29.pdf/page179-1280px-Athanasii_Kircheri_%C3%A8_Soc._Jesu_Arca_No%C3%AB_-_in_tres_libros_digesta%2C_quorum_I._De_rebus_quae_ante_diluvium%2C_II._De_iis%2C_qu%C3%A6_ipso_diluvio_ejusque_duratione%2C_III._De_iis_%28IA_athanasiikircher1675kirc%29.pdf.jpg",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Athanasii_Kircheri_%C3%A8_Soc._Jesu_Arca_No%C3%AB_-_in_tres_libros_digesta%2C_quorum_I._De_rebus_quae_ante_diluvium%2C_II._De_iis%2C_qu%C3%A6_ipso_diluvio_ejusque_duratione%2C_III._De_iis_%28IA_athanasiikircher1675kirc%29.pdf",
+      "licence": "Public domain",
+      "credit": "Unknown engraver after Athanasius Kircher, Ingressus Animalium intra Arcam, from Arca Noë, Amsterdam, Janssonius van Waesberge, 1675",
+      "variant": "kircher-entry-centre",
+      "crop": [
+        0.3,
+        0.03,
+        0.823,
+        0.97
+      ]
+    },
+    {
+      "exhibit": "pelican_serpent",
+      "status": "chosen",
+      "commons_file": "Pelikaan en de koperen slang, 12 Het Mirakel van Amsterdam, 1345 (serietitel) Amstelredams eer ende opcomen door de denckwaerdighe miraklen aldaer geschied aen ende door het H. Sacrament des Altaers Anno 1345 (serietit, RP-P-1878-A-2587.jpg",
+      "licence": "CC0",
+      "credit": "Boëtius Adamsz. Bolswert, The pelican and the brazen serpent, plate 12 of The Miracle of Amsterdam, from Leonardus Marius, Amstelredams eer ende opcomen, Antwerp, 1639, Rijksmuseum RP-P-1878-A-2587",
+      "variant": "bolswert-pelican-scene",
+      "crop": [
+        0.184,
+        0.1,
+        0.816,
+        0.6
+      ]
+    },
+    {
+      "exhibit": "pelican_serpent",
+      "status": "alternative",
+      "commons_file": "Pelikaan en de koperen slang, 12 Het Mirakel van Amsterdam, 1345 (serietitel) Amstelredams eer ende opcomen door de denckwaerdighe miraklen aldaer geschied aen ende door het H. Sacrament des Altaers Anno 1345 (serietit, RP-P-1878-A-2587.jpg",
+      "licence": "CC0",
+      "credit": "Boëtius Adamsz. Bolswert, The pelican and the brazen serpent, plate 12 of The Miracle of Amsterdam, from Leonardus Marius, Amstelredams eer ende opcomen, Antwerp, 1639, Rijksmuseum RP-P-1878-A-2587",
+      "variant": "bolswert-pelican-close",
+      "crop": [
+        0.2,
+        0.135,
+        0.8,
+        0.61
+      ]
+    },
+    {
+      "exhibit": "festina_lente_anchor",
+      "status": "alternative",
+      "commons_file": "Geharnaste arm met morgenster en olijftak anker met dolfijn Utrum Lubet Festina Lente (titel op object) Symbola Divina et Humana Pontificum Imperatorum Regum (serietitel), RP-P-2016-1042-104.jpg",
+      "licence": "CC0",
+      "credit": "After Aegidius Sadeler, Anchor with a dolphin, Festina lente, from Symbola divina et humana, 1666, Rijksmuseum RP-P-2016-1042-104",
+      "variant": "sadeler-anchor-cartouche",
+      "crop": [
+        0.38,
+        0.36,
+        0.91,
+        0.9
+      ]
+    },
+    {
+      "exhibit": "festina_lente_anchor",
+      "status": "alternative",
+      "commons_file": "Geharnaste arm met morgenster en olijftak anker met dolfijn Utrum Lubet Festina Lente (titel op object) Symbola Divina et Humana Pontificum Imperatorum Regum (serietitel), RP-P-2016-1042-104.jpg",
+      "licence": "CC0",
+      "credit": "After Aegidius Sadeler, Anchor with a dolphin, Festina lente, from Symbola divina et humana, 1666, Rijksmuseum RP-P-2016-1042-104",
+      "variant": "sadeler-anchor-banner",
+      "crop": [
+        0.4375,
+        0.464,
+        0.859,
+        0.895
+      ]
+    },
+    {
+      "exhibit": "festina_lente_anchor",
+      "status": "alternative",
+      "commons_file": "Geharnaste arm met morgenster en olijftak anker met dolfijn Utrum Lubet Festina Lente (titel op object) Symbola Divina et Humana Pontificum Imperatorum Regum (serietitel), RP-P-2016-1042-104.jpg",
+      "licence": "CC0",
+      "credit": "After Aegidius Sadeler, Anchor with a dolphin, Festina lente, from Symbola divina et humana, 1666, Rijksmuseum RP-P-2016-1042-104",
+      "variant": "sadeler-anchor-close",
+      "crop": [
+        0.469,
+        0.523,
+        0.828,
+        0.89
+      ]
+    },
+    {
+      "exhibit": "giotto_fly",
+      "variant": "hooke-blue-fly-whole",
+      "status": "chosen",
+      "commons_file": "Hooke-bluefly.jpg",
+      "licence": "Public domain",
+      "credit": "Robert Hooke, Schem. XXVI, a blue fly, in Micrographia, London 1665",
+      "crop": [
+        0.0,
+        0.07,
+        1.0,
+        0.925
+      ]
+    },
+    {
+      "exhibit": "giotto_fly",
+      "variant": "hooke-blue-fly-wall",
+      "status": "alternative",
+      "commons_file": "Hooke-bluefly.jpg",
+      "licence": "Public domain",
+      "credit": "Robert Hooke, Schem. XXVI, a blue fly, in Micrographia, London 1665",
+      "crop": [
+        0.0,
+        0.07,
+        1.0,
+        0.925
+      ],
+      "background": "wall"
+    },
+    {
+      "exhibit": "giotto_fly",
+      "variant": "hooke-blue-fly-head",
+      "status": "alternative",
+      "commons_file": "Hooke-bluefly.jpg",
+      "licence": "Public domain",
+      "credit": "Robert Hooke, Schem. XXVI, a blue fly, in Micrographia, London 1665",
+      "crop": [
+        0.2,
+        0.12,
+        0.75,
+        0.59
+      ]
+    },
+    {
+      "exhibit": "giotto_fly",
+      "variant": "hooke-drone-fly-head",
+      "status": "alternative",
+      "commons_file": "Micrographia Schem 24.jpg",
+      "licence": "Public domain",
+      "credit": "Robert Hooke, Schem. XXIV, the eyes and head of a grey drone-fly, in Micrographia, London 1665",
+      "crop": [
+        0.1,
+        0.04,
+        0.93,
+        0.996
+      ]
+    },
+    {
+      "exhibit": "giotto_fly",
+      "licence": "Public Domain Mark 1.0",
+      "source_url": "https://d3dkjx001zrum8.cloudfront.net/a09b8f7b-3687-408b-af8d-4b68fd8f12d2/download_large/d741023f170a5fb8b22adcc9dc26977a.jpg",
+      "source_page": "https://digital.sciencehistory.org/works/w9505156z",
+      "credit": "Robert Hooke, Schem. XXVI, a blue fly, in Micrographia, London 1665, Science History Institute",
+      "variant": "shi-blue-fly-whole",
+      "status": "alternative",
+      "crop": [
+        0.1,
+        0.14,
+        0.94,
+        0.929
+      ]
+    },
+    {
+      "exhibit": "giotto_fly",
+      "licence": "Public Domain Mark 1.0",
+      "source_url": "https://d3dkjx001zrum8.cloudfront.net/a09b8f7b-3687-408b-af8d-4b68fd8f12d2/download_large/d741023f170a5fb8b22adcc9dc26977a.jpg",
+      "source_page": "https://digital.sciencehistory.org/works/w9505156z",
+      "credit": "Robert Hooke, Schem. XXVI, a blue fly, in Micrographia, London 1665, Science History Institute",
+      "variant": "shi-blue-fly-wide",
+      "status": "alternative",
+      "crop": [
+        0.06,
+        0.1,
+        0.98,
+        0.964
+      ]
+    },
+    {
+      "exhibit": "giotto_fly",
+      "licence": "Public Domain Mark 1.0",
+      "source_url": "https://d3dkjx001zrum8.cloudfront.net/a09b8f7b-3687-408b-af8d-4b68fd8f12d2/download_large/d741023f170a5fb8b22adcc9dc26977a.jpg",
+      "source_page": "https://digital.sciencehistory.org/works/w9505156z",
+      "credit": "Robert Hooke, Schem. XXVI, a blue fly, in Micrographia, London 1665, Science History Institute",
+      "variant": "shi-blue-fly-dark",
+      "status": "alternative",
+      "crop": [
+        0.1,
+        0.14,
+        0.94,
+        0.929
+      ],
+      "gamma": 1.6,
+      "cap": 0.9
     }
   ]
 }

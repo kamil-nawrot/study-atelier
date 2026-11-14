@@ -4,12 +4,13 @@ export type TextKind = 'textBlock' | 'heading' | 'quote' | 'divider';
 
 export type ArtworkKind = 'artwork' | 'palette' | 'closeUp';
 
-export type BlockKind = TextKind | ArtworkKind | 'term';
+export type BlockKind = TextKind | ArtworkKind | 'term' | 'symbol';
 
 export type NewBlock =
 	| { kind: TextKind }
 	| { kind: ArtworkKind; artworkId: string }
-	| { kind: 'term'; termId: string; name: string };
+	| { kind: 'term'; termId: string; name: string }
+	| { kind: 'symbol'; symbolId: string; name: string };
 
 export type CloseUpAttributes = {
 	artworkId: string;
@@ -40,6 +41,17 @@ export function artworkNode(artworkId: string, paletteOnly = false): ExhibitionD
 
 export function termNode(termId: string): ExhibitionDocument {
 	return { type: 'term', attrs: { termId } };
+}
+
+export function symbolNode(symbolId: string): ExhibitionDocument {
+	return { type: 'symbol', attrs: { symbolId } };
+}
+
+export function withMeaning(node: ExhibitionDocument, meaningId?: string): ExhibitionDocument {
+	const attrs = Object.fromEntries(
+		Object.entries(node.attrs ?? {}).filter(([key]) => key !== 'meaningId')
+	);
+	return { ...node, attrs: meaningId ? { ...attrs, meaningId } : attrs };
 }
 
 export function closeUpNode(attributes: CloseUpAttributes): ExhibitionDocument {

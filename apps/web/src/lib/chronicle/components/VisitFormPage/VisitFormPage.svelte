@@ -2,6 +2,7 @@
 	import { LoadFailure } from '@study-atelier/ui';
 	import { afterNavigate, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { markFormPopped } from '#lib/shared/navigation/back/back.svelte.ts';
 	import { arrivedFromApp, goBackThroughHistory } from '#lib/shared/navigation/history/history.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
@@ -60,6 +61,7 @@
 			return;
 		}
 		addEventListener('popstate', () => void goto(path, options), { once: true });
+		markFormPopped();
 		history.back();
 	}
 </script>

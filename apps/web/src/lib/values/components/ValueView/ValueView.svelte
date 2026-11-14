@@ -33,6 +33,8 @@
 	import NotesSection from '#lib/notes/components/NotesSection/NotesSection.svelte';
 	import EraOutsideNote from '#lib/values/components/EraOutsideNote/EraOutsideNote.svelte';
 	import PlacePosition from '#lib/map/components/PlacePosition/PlacePosition.svelte';
+	import CityPlaces from '#lib/values/components/CityPlaces/CityPlaces.svelte';
+	import type { CardIndexPlace } from '#lib/card-index/types/card-index-place.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
 	type Props = {
@@ -45,6 +47,7 @@
 		mentions?: Mention[];
 		visits?: Visit[];
 		artworks?: WallArtwork[];
+		cityPlaces?: CardIndexPlace[];
 	};
 
 	let {
@@ -56,7 +59,8 @@
 		glossary,
 		mentions = [],
 		visits = [],
-		artworks = []
+		artworks = [],
+		cityPlaces = []
 	}: Props = $props();
 
 	const PORTRAIT_WIDTH = 500;
@@ -187,6 +191,11 @@
 			<PlacePosition point={city?.point ?? details.location.point ?? null} />
 		</aside>
 	{/if}
+	{#if cityPlaces.length > 0}
+		<div class="places">
+			<CityPlaces places={cityPlaces} />
+		</div>
+	{/if}
 </article>
 
 <style>
@@ -309,7 +318,17 @@
 
 		article.with-position {
 			grid-template-columns: minmax(0, 1fr) minmax(0, 480px);
-			gap: var(--spacing-12);
+			grid-template-rows: auto 1fr;
+			gap: var(--spacing-6) var(--spacing-12);
+		}
+
+		.position {
+			grid-row: 1 / span 2;
+			grid-column: 2;
+		}
+
+		.places {
+			grid-column: 1;
 		}
 	}
 </style>

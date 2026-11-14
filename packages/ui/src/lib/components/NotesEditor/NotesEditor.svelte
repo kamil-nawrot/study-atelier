@@ -2,12 +2,9 @@
 	import type { NoteLinkTrigger } from '../../types/note-link-trigger';
 	import type { NoteLinks } from '../../types/note-links';
 	import type { SuggestionState } from '../../types/suggestion-state';
-	import { Editor } from '@tiptap/core';
-	import { Markdown } from '@tiptap/markdown';
-	import StarterKit from '@tiptap/starter-kit';
+	import type { Editor } from '@tiptap/core';
 	import { onMount } from 'svelte';
 	import { uiMessages } from '../../messages/messages';
-	import { NoteLink, NoteLinkSuggestion } from '../../note-link-extension/note-link-extension';
 	import { isBlank, notesCommands } from '../../notes-commands/notes-commands';
 	import { renderNotes } from '../../notes-markdown/notes-markdown';
 	import FieldMessage from '../FieldMessage/FieldMessage.svelte';
@@ -109,43 +106,29 @@
 	}
 
 	onMount(() => {
-		const instance = new Editor({
-			element: host,
-			editable: !disabled,
-			content: renderNotes(value, links),
-			extensions: [
-				StarterKit.configure({
-					blockquote: false,
-					bulletList: {},
-					code: false,
-					codeBlock: false,
-					dropcursor: false,
-					gapcursor: false,
-					heading: { levels: [3] },
-					horizontalRule: false,
-					link: false,
-					strike: false,
-					trailingNode: false,
-					underline: false
-				}),
-				Markdown,
-				NoteLink,
-				NoteLinkSuggestion.configure({
-					items: (trigger, query, signal) => links?.suggest(trigger, query, signal) ?? [],
-					onChange: updateSuggestion,
-					onKeyDown: chooseWithKey
-				})
-			],
-			editorProps: { attributes: { id: inputId, ...describe() } },
-			onCreate: ({ editor: created }) => refresh(created),
-			onSelectionUpdate: ({ editor: current }) => refresh(current),
-			onTransaction: ({ editor: current }) => refresh(current),
-			onUpdate: ({ editor: current }) => {
-				value = current.isEmpty ? '' : current.getMarkdown();
-			}
+		let instance: Editor | undefined;
+		let closed = false;
+		void import('../../notes-editor-factory/notes-editor-factory').then(({ createNotesEditor }) => {
+			if (closed) return;
+			instance = createNotesEditor({
+				element: host,
+				editable: !disabled,
+				content: renderNotes(value, links),
+				attributes: () => ({ id: inputId, ...describe() }),
+				links,
+				onChange: updateSuggestion,
+				onKeyDown: chooseWithKey,
+				onRefresh: refresh,
+				onValue: (current) => {
+					value = current.isEmpty ? '' : current.getMarkdown();
+				}
+			});
+			editor = instance;
 		});
-		editor = instance;
-		return () => instance.destroy();
+		return () => {
+			closed = true;
+			instance?.destroy();
+		};
 	});
 
 	$effect(() => {

@@ -1,6 +1,6 @@
 # 0236. Count a visit date with its precision for the Trevi fountain
 
-- Status: accepted
+- Status: superseded by [0289](0289-count-two-sightings-thirty-days-apart-for-the-trevi-fountain.md)
 - Date: 2026-11-09
 
 ## Context and problem statement

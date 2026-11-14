@@ -6,6 +6,7 @@ import { m } from '#lib/i18n/i18n.ts';
 import { GLOSSARY_INDEX_MIN_ENTRIES } from '#lib/glossary/glossary/glossary.ts';
 import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 import type { AtlasSymbol } from '#lib/symbols/types/atlas-symbol.ts';
+import { loadSymbolAtlas } from '#lib/symbols/symbols-data/symbols-data.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import { testEntry, testGlossary } from '#lib/testing/glossary/glossary.ts';
 import GlossaryPage from './+page.svelte';
@@ -25,10 +26,11 @@ vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
+vi.mock('#lib/symbols/symbols-data/symbols-data.ts', () => ({ loadSymbolAtlas: vi.fn() }));
 
 function renderGlossary(entries: GlossaryEntry[] = testGlossary(), error?: string): void {
 	render(GlossaryPage, {
-		data: { session: testSession(), symbols: [], symbolsError: undefined, entries, error },
+		data: { session: testSession(), entries, error },
 		params: {}
 	});
 }
@@ -304,8 +306,6 @@ describe('glossary page', () => {
 		const first = await render(GlossaryPage, {
 			data: {
 				session: testSession(),
-				symbols: [],
-				symbolsError: undefined,
 				entries: manyEntries(GLOSSARY_INDEX_MIN_ENTRIES)
 			},
 			params: {}
@@ -317,8 +317,6 @@ describe('glossary page', () => {
 		const second = await render(GlossaryPage, {
 			data: {
 				session: testSession(),
-				symbols: [],
-				symbolsError: undefined,
 				entries: manyEntries(GLOSSARY_INDEX_MIN_ENTRIES)
 			},
 			params: {}
@@ -339,7 +337,7 @@ describe('glossary page', () => {
 			})
 		);
 		const first = await render(GlossaryPage, {
-			data: { session: testSession(), symbols: [], symbolsError: undefined, entries },
+			data: { session: testSession(), entries },
 			params: {}
 		});
 		await page.getByRole('button', { name: `${m.glossary.categoryNames.painting} 40` }).click();
@@ -350,7 +348,7 @@ describe('glossary page', () => {
 		first.unmount();
 
 		const second = await render(GlossaryPage, {
-			data: { session: testSession(), symbols: [], symbolsError: undefined, entries },
+			data: { session: testSession(), entries },
 			params: {}
 		});
 		window.scrollTo({ top: place, behavior: 'instant' });
@@ -386,9 +384,10 @@ describe('glossary page', () => {
 			}
 		];
 
-		function renderSymbols(shown: AtlasSymbol[] = symbols, symbolsError?: string): void {
+		function renderSymbols(shown: AtlasSymbol[] = symbols, error?: string): void {
+			vi.mocked(loadSymbolAtlas).mockResolvedValue({ symbols: shown, error });
 			render(GlossaryPage, {
-				data: { session: testSession(), entries: testGlossary(), symbols: shown, symbolsError },
+				data: { session: testSession(), entries: testGlossary() },
 				params: {}
 			});
 		}
@@ -452,6 +451,19 @@ describe('glossary page', () => {
 
 			await expect.element(page.getByText(m.symbols.loadErrorTitle)).toBeVisible();
 			await expect.element(page.getByText('Offline.')).toBeVisible();
+		});
+
+		it('loads the atlas only when the tab is opened', async () => {
+			vi.mocked(loadSymbolAtlas).mockClear();
+			vi.mocked(loadSymbolAtlas).mockResolvedValue({ symbols });
+			renderGlossary();
+
+			await expect.element(page.getByRole('tab', { name: m.glossary.tabs.symbols })).toBeVisible();
+			expect(loadSymbolAtlas).not.toHaveBeenCalled();
+
+			await openSymbols();
+			await expect.element(page.getByRole('link', { name: /Czaszka/ })).toBeVisible();
+			expect(loadSymbolAtlas).toHaveBeenCalledTimes(1);
 		});
 
 		it('opens on the tab the learner left', async () => {

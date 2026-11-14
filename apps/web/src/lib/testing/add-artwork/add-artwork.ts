@@ -1,9 +1,10 @@
-import { vi } from 'vitest';
+import { afterEach, beforeEach, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { emptyValueLinks } from '#lib/card-index/value-links/value-links.ts';
 import type { ValueLinks } from '#lib/card-index/types/value-links.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { saveArtworkCalls } from '#lib/testing/duplicates/duplicates.ts';
+import { autoFetch } from '#lib/profile/auto-fetch/auto-fetch.svelte.ts';
 import { eraYearsText } from '#lib/catalogue/eras/eras.ts';
 
 export function linkedValues(): ValueLinks {
@@ -159,4 +160,13 @@ export function answerNothingFromWikidata(): void {
 		'fetch',
 		vi.fn(async () => new Response(JSON.stringify({ results: { bindings: [] } })))
 	);
+}
+
+export function withoutAutoMatch(): void {
+	beforeEach(() => {
+		autoFetch.image = false;
+	});
+	afterEach(() => {
+		autoFetch.image = true;
+	});
 }

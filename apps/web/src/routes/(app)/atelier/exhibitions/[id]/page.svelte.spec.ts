@@ -68,7 +68,14 @@ const exhibition = {
 
 function renderExhibition(overrides: Record<string, unknown> = {}): void {
 	render(ExhibitionPage, {
-		data: { session: testSession(), exhibition, artworks: [], glossary: [], ...overrides },
+		data: {
+			session: testSession(),
+			exhibition,
+			artworks: [],
+			glossary: [],
+			symbols: [],
+			...overrides
+		},
 		params: { id: ID }
 	});
 }

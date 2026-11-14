@@ -19,7 +19,8 @@ import {
 	fillRequired,
 	saveButton,
 	titleField,
-	answerNothingFromWikidata
+	answerNothingFromWikidata,
+	withoutAutoMatch
 } from '#lib/testing/add-artwork/add-artwork.ts';
 import AddArtworkPage from './+page.svelte';
 import { eraYearsText } from '#lib/catalogue/eras/eras.ts';
@@ -63,6 +64,7 @@ async function fillOutsideEra(): Promise<void> {
 }
 
 describe('the year and the era on the add artwork page', () => {
+	withoutAutoMatch();
 	beforeEach(async () => {
 		vi.clearAllMocks();
 		answerNothingFromWikidata();

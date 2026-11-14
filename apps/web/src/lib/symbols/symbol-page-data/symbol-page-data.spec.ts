@@ -75,7 +75,12 @@ describe('symbol page data', () => {
 
 		const form = await loadSymbolForm('skull');
 		expect(form.symbol).toEqual(testSymbol);
-		expect(form.candidates.length).toBeGreaterThan(0);
+		expect(form.candidates).toEqual([]);
+		expect(loadCardIndex).not.toHaveBeenCalled();
+		expect(loadTermIndex).not.toHaveBeenCalled();
+
+		await expect(loadSymbolForm()).resolves.toEqual({ candidates: expect.any(Array) });
+		expect(loadCardIndex).toHaveBeenCalledOnce();
 
 		vi.mocked(loadSymbol).mockResolvedValue({ notFound: true });
 		await expect(loadSymbolForm('gone')).resolves.toEqual({ candidates: [], notFound: true });

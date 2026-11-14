@@ -20,6 +20,44 @@ test('picks the checks from the changed files', () => {
 	]);
 });
 
+test('waits for the jobs a workflow or a shared config starts', () => {
+	assert.deepEqual(defaultChecks(['pnpm-lock.yaml']), [
+		'Conventions',
+		'Web app',
+		'UI library',
+		'End-to-end'
+	]);
+	assert.deepEqual(defaultChecks(['lint/rule.js']), ['Conventions', 'Web app', 'UI library']);
+	assert.deepEqual(defaultChecks(['.github/workflows/migrations.yml']), [
+		'Conventions',
+		'Web app',
+		'Migrations on local Supabase'
+	]);
+	assert.deepEqual(defaultChecks(['.github/workflows/e2e.yml']), [
+		'Conventions',
+		'Web app',
+		'End-to-end'
+	]);
+});
+
+test('waits for Markdown when only the docs workflow changes', () => {
+	assert.ok(defaultChecks(['.github/workflows/docs.yml']).includes('Markdown'));
+});
+
+test('waits for a named job whose only entry is the skipped placeholder of ci.yml', () => {
+	const checks = [
+		{ name: 'Web app', bucket: 'pass' },
+		{ name: 'UI library', bucket: 'skipping' }
+	];
+	assert.equal(summarise(checks, ['Web app', 'UI library']).overall, 'pending');
+	assert.equal(
+		summarise([...checks, { name: 'UI library', bucket: 'pass' }], ['Web app', 'UI library'])
+			.overall,
+		'pass'
+	);
+	assert.equal(summarise(checks, ['Web app']).overall, 'pass');
+});
+
 test('fails when a job outside the named ones fails', () => {
 	const checks = [
 		{ name: 'Web app', bucket: 'pass' },

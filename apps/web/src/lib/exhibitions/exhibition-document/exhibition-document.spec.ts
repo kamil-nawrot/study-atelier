@@ -56,10 +56,12 @@ describe('blockCountOf', () => {
 				text('x'),
 				{ type: 'heading', attrs: { level: 2 } },
 				{ type: 'quote', content: [{ type: 'paragraph' }, { type: 'paragraph' }] },
-				artwork('a')
+				artwork('a'),
+				{ type: 'term', attrs: { termId: 't' } },
+				{ type: 'symbol', attrs: { symbolId: 's' } }
 			]
 		};
-		expect(blockCountOf(document)).toBe(4);
+		expect(blockCountOf(document)).toBe(6);
 	});
 
 	it('counts the blocks of a row and the close-ups but not the row itself', () => {

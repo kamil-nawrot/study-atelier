@@ -130,6 +130,7 @@
 				{lookup}
 				onadd={(block) => pane?.add(block)}
 				ondrag={(event, block) => pane?.dragNew(event, block)}
+				symbols={data.symbols}
 				terms={data.glossary}
 				bind:open={panelOpen}
 			/>
@@ -138,14 +139,26 @@
 
 	{#if session && data.exhibition}
 		{#if editing}
-			<ExhibitionEditorPane bind:this={pane} {barHeight} {lookup} {session} terms={data.glossary} />
+			<ExhibitionEditorPane
+				bind:this={pane}
+				{barHeight}
+				{lookup}
+				{session}
+				symbols={data.symbols}
+				terms={data.glossary}
+			/>
 		{:else}
 			<article>
 				<header>
 					<p class="overline">{m.exhibitions.kind}</p>
 					<h1>{title}</h1>
 				</header>
-				<ExhibitionBody document={session.document} entries={data.glossary} {lookup} />
+				<ExhibitionBody
+					document={session.document}
+					entries={data.glossary}
+					{lookup}
+					symbols={data.symbols}
+				/>
 			</article>
 		{/if}
 	{:else}

@@ -9,7 +9,6 @@
 	import ArtworksSection from '#lib/wall/components/ArtworksSection/ArtworksSection.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import ValueView from '#lib/values/components/ValueView/ValueView.svelte';
-	import CityPlaces from '#lib/values/components/CityPlaces/CityPlaces.svelte';
 	import ValueDeleteAction from '#lib/values/components/ValueDeleteAction/ValueDeleteAction.svelte';
 	import SymbolUses from '#lib/symbols/components/SymbolUses/SymbolUses.svelte';
 	import RelationsBand from '#lib/relations/components/RelationsBand/RelationsBand.svelte';
@@ -81,6 +80,7 @@
 		<div class="page">
 			<ValueView
 				{artworks}
+				{cityPlaces}
 				count={artworks.length}
 				details={data.details}
 				glossary={data.glossary}
@@ -90,10 +90,6 @@
 				{subject}
 				visits={data.visits}
 			/>
-
-			{#if cityPlaces.length > 0}
-				<CityPlaces places={cityPlaces} />
-			{/if}
 
 			{#if data.relations}
 				<RelationsBand relations={data.relations} />

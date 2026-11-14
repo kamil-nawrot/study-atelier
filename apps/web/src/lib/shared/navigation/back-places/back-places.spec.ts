@@ -74,6 +74,14 @@ describe('arrive', () => {
 		});
 	});
 
+	it('gives a page back its previous place one step back when the form entry was popped', () => {
+		const names = withNames();
+		const inForm = arrive(names, entryPlace, { type: 'link', from: artwork, to: edit });
+		expect(
+			arrive(names, inForm, { type: 'goto', from: edit, to: artwork, formPopped: true })
+		).toEqual(entryPlace);
+	});
+
 	it('names the form when the learner follows a link out of it instead of saving', () => {
 		const names = named(withNames(), edit.key, { name: 'Edytuj dzieło #0007', path: edit.key });
 		const inForm = arrive(names, entryPlace, { type: 'link', from: artwork, to: edit });

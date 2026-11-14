@@ -1,6 +1,6 @@
 # 0222. Show a glossary term as a block of an exhibition
 
-- Status: accepted
+- Status: accepted; adding is extended by [0290](0290-show-a-symbol-from-the-atlas-as-a-block-of-an-exhibition.md)
 - Date: 2026-11-07
 
 ## Context and problem statement

@@ -1571,7 +1571,8 @@ export const pl = {
 			noPins: 'Ten symbol nie ma jeszcze detali na dziełach.'
 		},
 		card: {
-			open: 'Otwórz w atlasie symboli'
+			open: 'Otwórz w atlasie symboli',
+			deleted: 'Tego symbolu nie ma już w atlasie.'
 		},
 		view: {
 			overline: 'Symbol',
@@ -1862,8 +1863,14 @@ export const pl = {
 			lenoir_chapel: [
 				'Muzeum Zabytków Francuskich Alexandre’a Lenoira, otwarte w Paryżu w 1795 roku, było drugim muzeum narodowym Francji po Luwrze i przyczyniło się do narodzin pojęcia dziedzictwa. Zamknięto je w 1816 roku, a zbiory rozproszyły się: dziś są m.in. w Luwrze, bazylice Saint-Denis i katedrze Notre-Dame, a za granicą najwięcej w Metropolitan Museum.'
 			],
+			kircher_ark: [
+				'Jezuita Athanasius Kircher, zwany „mistrzem stu sztuk”, uważał, że Noe zabrał do arki tylko pierwotne rodzaje zwierząt, a resztę dały po potopie krzyżówki. Muła nie ratował, a na żyrafę miały wystarczyć dwa lamparty i dwa wielbłądy. Nad arką napisał, że ma ona nawet wolne stajnie dla tych, którzy wątpią w jej pojemność.'
+			],
 			figure_alphabet: [
 				'O Mistrzu E.S. wiadomo niewiele, a przydomek zawdzięcza inicjałom, które pojawiają się na jego późniejszych pracach. Na to, że był z wykształcenia złotnikiem, wskazują punce – złotnicze narzędzia wbijane młotkiem w płytę, którymi wybijał wzory drobnych kwiatków i kółek. Jego figuralny alfabet przetrwał w 23 rzadkich, pojedynczych odbitkach.'
+			],
+			pelican_serpent: [
+				'Rycina to dwunasta z szesnastu scen o Cudzie amsterdamskim z 15 marca 1345 roku, kiedy w płomieniach paleniska znaleziono nietkniętą hostię. Dwa wiersze pod nią, po łacinie i po niderlandzku, stawiają obok siebie miedzianego węża i pelikana karmiącego pisklęta krwią: oba mówią o tej samej ofierze Chrystusa.'
 			],
 			candle_moths: [
 				'Rycina Vincenta Laurensza van der Vinne ilustruje „Leerzaame zinnebeelden” Adriaana Spinnikera, zbiór pouczających emblematów wydany w Haarlemie i Amsterdamie w 1714 roku. Owady, które giną od żaru i w wosku świecy, są w nim obrazem ludzi lekceważących ostrzeżenia, którzy przepadają przez marne, ziemskie życie.'
@@ -2044,6 +2051,13 @@ export const pl = {
 				hint: 'Dobra opowieść nie pomija żadnego rozdziału.',
 				awarded: 'Za wystawę z dziełami wszystkich sześciu epok.'
 			},
+			kircher_ark: {
+				name: 'Arka Kirchera',
+				about:
+					'Athanasius Kircher w księdze „Arka Noego” (Amsterdam, 1675) pokazał, jak zwierzęta parami wchodzą do arki.',
+				hint: 'Mają rozmach, kuratorzy.',
+				awarded: 'Za wystawę ze wszystkimi rodzajami bloków.'
+			},
 			night_watch: {
 				name: 'Straż nocna',
 				about:
@@ -2108,7 +2122,7 @@ export const pl = {
 				about:
 					'Giovanni Battista Piranesi wyrył Fontannę di Trevi około 1751 roku, jedenaście lat przed jej ukończeniem, z posągiem Oceana w centralnej niszy.',
 				hint: 'Prawdziwy wielbiciel zawsze wraca do źródła.',
-				awarded: 'Za dzieło zobaczone na żywo podczas dwóch wizyt.'
+				awarded: 'Za dzieło zobaczone na żywo dwa razy, w odstępie co najmniej 30 dni.'
 			},
 			seven_league_boots: {
 				name: 'Siedmiomilowe buty',
@@ -2130,6 +2144,13 @@ export const pl = {
 					'Israhel van Meckenem wyrył w ostatniej tercji XV wieku literę A z figuralnego alfabetu Mistrza E.S., ułożoną z lwa, psów, ptaków i człowieka.',
 				hint: 'Sztukę warto zgłębiać od A do Z.',
 				awarded: 'Za pojęcia w Słowniczku na każdą literę alfabetu.'
+			},
+			pelican_serpent: {
+				name: 'Gniazdo Nechusztana',
+				about:
+					'Na rycinie Boëtiusa Bolswerta z 1639 roku pelikan karmi pisklęta własną krwią u stóp krzyża, na którym wije się miedziany wąż.',
+				hint: 'Jak gołąb niosący gałązkę oliwną.',
+				awarded: 'Za dwa różne symbole o tym samym znaczeniu, wskazane na dwóch dziełach.'
 			},
 			candle_moths: {
 				name: 'Nocny lichtarz',
@@ -2860,6 +2881,15 @@ export const pl = {
 			noTerm: 'Nic nie pasuje. Sprawdź pisownię albo dodaj hasło w Słowniczku.',
 			noTerms: 'W Słowniczku nie ma jeszcze haseł.',
 			browseGlossary: 'Otwórz Słowniczek…',
+			glossaryAs: 'Dodaj jako',
+			termKind: 'Pojęcie',
+			symbolKind: 'Symbol',
+			searchSymbol: 'Szukaj symbolu',
+			searchSymbolPlaceholder: 'Nazwa symbolu',
+			symbolsByName: 'Symbole od A do Z',
+			noSymbol: 'Nic nie pasuje. Sprawdź pisownię albo dodaj symbol w atlasie.',
+			noSymbols: 'W atlasie nie ma jeszcze symboli.',
+			browseSymbols: 'Otwórz atlas symboli…',
 			empty: 'W atelier nie ma jeszcze dzieł.',
 			loadError: 'Nie udało się wczytać dzieł.'
 		},
@@ -2889,6 +2919,8 @@ export const pl = {
 			divider: 'Odstęp',
 			term: 'Hasło',
 			termOf: (name: string): string => `Hasło ze Słowniczka: ${name}`,
+			symbol: 'Symbol',
+			symbolOf: (name: string): string => `Symbol z atlasu: ${name}`,
 			textHint: 'Pisz tutaj…',
 			headingHint: 'Wpisz nagłówek',
 			quoteHint: 'Wpisz cytat'
@@ -2906,6 +2938,8 @@ export const pl = {
 			orderedList: 'Lista numerowana',
 			line: 'Linia',
 			position: 'Położenie',
+			meaning: 'Znaczenie',
+			allMeanings: 'Wszystkie znaczenia',
 			addMore: 'Dodaj kolejny',
 			full: 'Zestaw ma już pięć elementów',
 			removeItem: (number: number): string => `Usuń element ${number} z zestawu`,

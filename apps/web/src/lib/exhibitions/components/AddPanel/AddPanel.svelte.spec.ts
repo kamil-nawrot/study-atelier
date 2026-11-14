@@ -72,6 +72,26 @@ describe('AddPanel', () => {
 		expect(onadd).toHaveBeenCalledWith({ kind: 'term', termId: 't1', name: 'Sfumato' });
 	});
 
+	it('switches the glossary section to symbols and adds one on a click', async () => {
+		const onadd = vi.fn();
+		render(AddPanel, {
+			open: true,
+			lookup: new ArtworkLookup(),
+			onadd,
+			terms: [],
+			symbols: [{ id: 's1', name: 'Czaszka', meanings: [] }]
+		});
+
+		await expect
+			.element(page.getByRole('radio', { name: m.exhibitions.panel.termKind }))
+			.toBeChecked();
+		await expect.element(page.getByRole('button', { name: 'Czaszka' })).not.toBeInTheDocument();
+		await userEvent.click(page.getByRole('radio', { name: m.exhibitions.panel.symbolKind }));
+		await userEvent.click(page.getByRole('button', { name: 'Czaszka' }));
+
+		expect(onadd).toHaveBeenCalledWith({ kind: 'symbol', symbolId: 's1', name: 'Czaszka' });
+	});
+
 	it('lists the artworks added last and adds one on a click', async () => {
 		const onadd = vi.fn();
 		render(AddPanel, { open: true, lookup: new ArtworkLookup(), onadd });

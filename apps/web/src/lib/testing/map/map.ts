@@ -1,5 +1,14 @@
 import type { Geography } from '#lib/map/types/geography.ts';
+import type { Town } from '#lib/map/types/town.ts';
 import type { MapPlace } from '#lib/map/types/map-place.ts';
+
+export function testTowns(): Town[] {
+	return [
+		{ name: 'Paryż', countryCode: 'FR', longitude: 2.35, latitude: 48.857 },
+		{ name: 'Berlin', countryCode: 'DE', longitude: 13.4, latitude: 52.52 },
+		{ name: 'Florencja', countryCode: 'IT', longitude: 11.25, latitude: 43.78 }
+	];
+}
 
 export function testGeography(): Geography {
 	return {
@@ -32,12 +41,7 @@ export function testGeography(): Geography {
 					[8, 55]
 				]
 			]
-		},
-		towns: [
-			{ name: 'Paryż', countryCode: 'FR', longitude: 2.35, latitude: 48.857 },
-			{ name: 'Berlin', countryCode: 'DE', longitude: 13.4, latitude: 52.52 },
-			{ name: 'Florencja', countryCode: 'IT', longitude: 11.25, latitude: 43.78 }
-		]
+		}
 	};
 }
 
