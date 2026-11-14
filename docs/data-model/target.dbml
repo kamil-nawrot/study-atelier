@@ -496,6 +496,7 @@ Table review_cards {
   scheduled_days integer [not null, default: `0`]
   learning_steps integer [not null, default: `0`]
   last_review "timestamp with time zone"
+  last_rating smallint
   created_at "timestamp with time zone" [not null, default: `now()`]
 
   indexes {
@@ -519,6 +520,7 @@ Table review_log {
   guessed_year integer
   year_miss integer
   wrong_answer text
+  practice boolean [not null, default: `false`]
 
   indexes {
     (artwork_id, reviewed_at) [name: 'review_log_artwork_id_reviewed_at_idx']
