@@ -1571,7 +1571,8 @@ export const pl = {
 			noPins: 'Ten symbol nie ma jeszcze detali na dziełach.'
 		},
 		card: {
-			open: 'Otwórz w atlasie symboli'
+			open: 'Otwórz w atlasie symboli',
+			deleted: 'Tego symbolu nie ma już w atlasie.'
 		},
 		view: {
 			overline: 'Symbol',
@@ -2860,6 +2861,15 @@ export const pl = {
 			noTerm: 'Nic nie pasuje. Sprawdź pisownię albo dodaj hasło w Słowniczku.',
 			noTerms: 'W Słowniczku nie ma jeszcze haseł.',
 			browseGlossary: 'Otwórz Słowniczek…',
+			glossaryAs: 'Dodaj jako',
+			termKind: 'Pojęcie',
+			symbolKind: 'Symbol',
+			searchSymbol: 'Szukaj symbolu',
+			searchSymbolPlaceholder: 'Nazwa symbolu',
+			symbolsByName: 'Symbole od A do Z',
+			noSymbol: 'Nic nie pasuje. Sprawdź pisownię albo dodaj symbol w atlasie.',
+			noSymbols: 'W atlasie nie ma jeszcze symboli.',
+			browseSymbols: 'Otwórz atlas symboli…',
 			empty: 'W atelier nie ma jeszcze dzieł.',
 			loadError: 'Nie udało się wczytać dzieł.'
 		},
@@ -2889,6 +2899,8 @@ export const pl = {
 			divider: 'Odstęp',
 			term: 'Hasło',
 			termOf: (name: string): string => `Hasło ze Słowniczka: ${name}`,
+			symbol: 'Symbol',
+			symbolOf: (name: string): string => `Symbol z atlasu: ${name}`,
 			textHint: 'Pisz tutaj…',
 			headingHint: 'Wpisz nagłówek',
 			quoteHint: 'Wpisz cytat'
@@ -2906,6 +2918,8 @@ export const pl = {
 			orderedList: 'Lista numerowana',
 			line: 'Linia',
 			position: 'Położenie',
+			meaning: 'Znaczenie',
+			allMeanings: 'Wszystkie znaczenia',
 			addMore: 'Dodaj kolejny',
 			full: 'Zestaw ma już pięć elementów',
 			removeItem: (number: number): string => `Usuń element ${number} z zestawu`,

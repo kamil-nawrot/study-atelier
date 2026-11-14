@@ -393,13 +393,15 @@ reads:
       - 'artworks: few, by the ids in exhibition_artworks, Archiwum included (deleted_at picks the frame), with images, palettes and notes'
       - 'note link labels: only for the artwork notes the document shows (R05)'
       - 'term index: cached, for marking the texts and the shown notes'
+      - 'symbol index: all, id, name and main detail, with the meaning ids and texts embedded (as in the pin dialog), for the symbol blocks and the panel'
+      - 'symbol lens: per symbol block, the pins of the symbol with a loupe view on artworks outside the trash, newest first; the main detail or the newest of the chosen meaning is shown'
     scope: one
     frequency: view
     today:
       {
-        requests: 3,
+        requests: 4,
         whole: [],
-        note: 'new in 0.21: the exhibition, its artworks by id and the term index'
+        note: 'new in 0.21: the exhibition, its artworks by id and the term index; ATL-747 adds the symbol index and one point read per symbol block (ADR-0290)'
       }
 
   - id: R24

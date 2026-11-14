@@ -14,7 +14,8 @@ export function rememberGlossaryTab(tab: string): void {
 	writeStored('session', TAB_KEY, tab);
 }
 
-export function rememberedGlossaryTab(): GlossaryTab {
+export function rememberedGlossaryTab(requested?: string | null): GlossaryTab {
+	if (isGlossaryTab(requested)) return requested;
 	const stored = readStored('session', TAB_KEY);
 	return isGlossaryTab(stored) ? stored : 'terms';
 }

@@ -30,6 +30,7 @@
 		artworkNode,
 		closeUpNode,
 		kindOf,
+		symbolNode,
 		termNode,
 		textNode,
 		type CloseUpAttributes,
@@ -38,16 +39,18 @@
 	import type { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
 	import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
+	import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
 	import type { ExhibitionSession } from '#lib/exhibitions/exhibition-session/exhibition-session.svelte.ts';
 
 	type Props = {
 		session: ExhibitionSession;
 		lookup: ArtworkLookup;
 		terms?: readonly GlossaryTerm[];
+		symbols?: readonly SymbolOption[];
 		barHeight: number;
 	};
 
-	let { session, lookup, terms, barHeight }: Props = $props();
+	let { session, lookup, terms, symbols, barHeight }: Props = $props();
 
 	let rows = $state.raw<Row[]>(untrack(() => rowsOf(session.document)));
 	let list = $state<HTMLElement>();
@@ -96,6 +99,8 @@
 			closeUpOpen = true;
 		} else if (block.kind === 'term') {
 			place(termNode(block.termId), target);
+		} else if (block.kind === 'symbol') {
+			place(symbolNode(block.symbolId), target);
 		} else if (block.kind === 'palette') {
 			void readablePalette(block.artworkId).then((node) => node && place(node, target));
 		} else if (block.kind === 'artwork') {
@@ -245,6 +250,7 @@
 						onmovestart={(event) => dragBlock(event, block.id, block.node)}
 						onremove={() => change(remove(rows, block.id))}
 						onstep={(direction) => stepBlock(block.id, direction)}
+						{symbols}
 						{terms}
 					/>
 				{/each}

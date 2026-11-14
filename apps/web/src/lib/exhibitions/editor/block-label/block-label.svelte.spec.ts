@@ -26,5 +26,8 @@ describe('block labels', () => {
 		expect(newBlockLabel({ kind: 'artwork', artworkId: 'gone' }, lookup)).toBe('Dzieło');
 		expect(blockLabel(artworkNode('artwork-1'), lookup)).toBe('Dzieło: Judith');
 		expect(blockLabel(textNode('quote'), lookup)).toBe('Cytat');
+		expect(newBlockLabel({ kind: 'symbol', symbolId: 's1', name: 'Skull' }, lookup)).toBe(
+			'Symbol: Skull'
+		);
 	});
 });

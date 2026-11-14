@@ -11,7 +11,10 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import ArtworkFigure from '#lib/exhibitions/components/ArtworkFigure/ArtworkFigure.svelte';
 	import TermFigure from '#lib/exhibitions/components/TermFigure/TermFigure.svelte';
+	import SymbolFigure from '#lib/exhibitions/components/SymbolFigure/SymbolFigure.svelte';
+	import MeaningPicker from '#lib/exhibitions/components/MeaningPicker/MeaningPicker.svelte';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
+	import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
 	import ExhibitionDivider from '#lib/exhibitions/components/ExhibitionDivider/ExhibitionDivider.svelte';
 	import BlockSetItems from '#lib/exhibitions/components/BlockSetItems/BlockSetItems.svelte';
 	import BlockBar from '#lib/exhibitions/components/BlockBar/BlockBar.svelte';
@@ -21,7 +24,8 @@
 		headingText,
 		kindOf,
 		quoteNode,
-		quoteText
+		quoteText,
+		withMeaning
 	} from '#lib/exhibitions/editor/new-block/new-block.ts';
 	import { TextField } from '#lib/exhibitions/editor/text-field/text-field.svelte.ts';
 	import { placed, positionOf } from '#lib/exhibitions/editor/block-position/block-position.ts';
@@ -34,6 +38,7 @@
 		block: Block;
 		lookup: ArtworkLookup;
 		terms?: readonly GlossaryTerm[];
+		symbols?: readonly SymbolOption[];
 		canUp: boolean;
 		canDown: boolean;
 		moving?: boolean;
@@ -49,6 +54,7 @@
 		block,
 		lookup,
 		terms,
+		symbols,
 		canUp,
 		canDown,
 		moving = false,
@@ -67,6 +73,11 @@
 	const label = $derived(m.exhibitions.blocks[kind]);
 	const position = $derived(positionOf(block.node));
 	const grows = $derived(kind === 'closeUp' || kind === 'palette');
+	const meanings = $derived(
+		kind === 'symbol'
+			? (symbols?.find((symbol) => symbol.id === attrs.symbolId)?.meanings ?? [])
+			: []
+	);
 
 	function keep(node: ExhibitionDocument): void {
 		const attrs = { ...block.node.attrs, ...node.attrs };
@@ -175,6 +186,12 @@
 				>
 					<CopyPlus aria-hidden="true" size={16} />
 				</button>
+			{:else if meanings.length > 1}
+				<MeaningPicker
+					meaningId={attrs.meaningId as string | undefined}
+					{meanings}
+					onpick={(meaningId) => onchange(withMeaning(block.node, meaningId))}
+				/>
 			{:else if kind === 'divider'}
 				<button
 					aria-label={m.exhibitions.bar.line}
@@ -221,6 +238,14 @@
 		{:else if kind === 'term'}
 			<div class="grab" onpointerdown={grab} role="presentation">
 				<TermFigure termId={String(attrs.termId)} {terms} />
+			</div>
+		{:else if kind === 'symbol'}
+			<div class="grab" onpointerdown={grab} role="presentation">
+				<SymbolFigure
+					meaningId={attrs.meaningId as string | undefined}
+					symbolId={String(attrs.symbolId)}
+					{symbols}
+				/>
 			</div>
 		{:else if kind === 'divider'}
 			<div class="grab" onpointerdown={grab} role="presentation">

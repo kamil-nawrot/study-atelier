@@ -24,7 +24,7 @@
 	const tabs = GLOSSARY_TABS.map((value) => ({ value, label: m.glossary.tabs[value] }));
 
 	let toast: Toast;
-	let tab = $state<string>(rememberedGlossaryTab());
+	let tab = $state<string>(rememberedGlossaryTab(page.url.searchParams.get('tab')));
 	let query = $state('');
 	let symbolQuery = $state('');
 	let chosen = $state<GlossaryCategory[]>([]);
