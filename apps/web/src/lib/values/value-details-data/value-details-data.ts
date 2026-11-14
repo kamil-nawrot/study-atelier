@@ -52,9 +52,11 @@ type LocationRow = {
 	city_id: string | null;
 };
 
+type CityDetails = Pick<LocationRow, 'country_code' | 'latitude' | 'longitude'>;
+
 type CityRow = {
 	name: string;
-	location_details: Pick<LocationRow, 'country_code' | 'latitude' | 'longitude'> | null;
+	location_details: CityDetails | CityDetails[] | null;
 };
 
 type DetailsRow = { summary: string | null; notes: string | null } & Partial<AuthorRow> &
@@ -158,7 +160,9 @@ async function cityOf(
 	if (error) return { city: null, error };
 	const row = data as CityRow | null;
 	if (!row) return { city: null, error: {} };
-	const details = row.location_details;
+	const details = Array.isArray(row.location_details)
+		? (row.location_details[0] ?? null)
+		: row.location_details;
 	return {
 		city: {
 			id: cityId,
