@@ -1698,6 +1698,7 @@ export const EXHIBITS = [
 		thresholds: [1, 3, 5, 10, 25]
 	},
 	{ exhibit: 'lenoir_chapel', room: 'pavilion', hidden: true, value: 6, thresholds: [6] },
+	{ exhibit: 'kircher_ark', room: 'pavilion', hidden: true, value: 0, thresholds: [1] },
 	{ exhibit: 'mouth_of_truth', room: 'crypt', hidden: true, value: 0, thresholds: [1] },
 	{ exhibit: 'candle_moths', room: 'crypt', hidden: true, value: 1, thresholds: [1] }
 ];
