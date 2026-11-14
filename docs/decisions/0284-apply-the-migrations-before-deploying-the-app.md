@@ -21,7 +21,7 @@
 
 ## Decision outcome
 
-Chosen by the owner: migrate, then deploy (ATL-722). The deployed build is the one the checks passed on: the `web` job builds the app and keeps `apps/web/.svelte-kit/cloudflare` as an artifact for one day; a new `deploy` job runs after `web` and `database` succeed, takes the artifact and uploads it with Wrangler. This supersedes the order of deployment and migrations in [ADR-0037](0037-separate-databases-for-develop-and-production.md).
+Chosen by the owner: migrate, then deploy (ATL-722). The deployed build is the one the checks passed on: the `web` job builds the app and keeps `apps/web/.svelte-kit/cloudflare` with the `cloudflare-tmp` folder its worker imports as an artifact for one day; a new `deploy` job runs after `web` and `database` succeed, takes the artifact and uploads it with Wrangler. This supersedes the order of deployment and migrations in [ADR-0037](0037-separate-databases-for-develop-and-production.md).
 
 ### Consequences
 

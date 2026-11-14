@@ -103,7 +103,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: web-build-${{ github.sha }}
-          path: apps/web/.svelte-kit/cloudflare
+          path: |
+            apps/web/.svelte-kit/cloudflare
+            apps/web/.svelte-kit/cloudflare-tmp
           include-hidden-files: true
           retention-days: 1
           if-no-files-found: error
@@ -187,7 +189,7 @@ jobs:
         if: env.CLOUDFLARE_CONFIGURED == 'true'
         with:
           name: web-build-${{ github.sha }}
-          path: apps/web/.svelte-kit/cloudflare
+          path: apps/web/.svelte-kit
 
       - name: Create Cloudflare Pages project
         if: env.CLOUDFLARE_CONFIGURED == 'true'
@@ -203,6 +205,7 @@ jobs:
       - name: Deploy to Cloudflare Pages
         if: env.CLOUDFLARE_CONFIGURED == 'true'
         working-directory: apps/web
+        shell: bash
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
