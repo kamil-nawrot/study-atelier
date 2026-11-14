@@ -2,6 +2,31 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.23.1] - 2026-11-14
+
+Exhibitions can show symbols from the atlas, and two new hidden exhibits wait in Ekspozycja.
+
+### Added
+
+- A block "Symbol" in exhibitions shows a symbol of the atlas in a framed card with the lens of its main detail and its meanings, or one meaning picked in "Znaczenie", and links to the atlas when viewing. "Słowniczek" of "Przybornik" starts with "Dodaj jako": "Pojęcie" or "Symbol", with "Szukaj symbolu".
+- New hidden exhibits in Ekspozycja: "Arka Kirchera" for one exhibition with a block of every kind, and "Gniazdo Nechusztana" for two different symbols with the same meaning, each shown on its own artwork.
+
+### Changed
+
+- The page of a city puts its places directly under its notes, the names of places outside cities line up with the cities in the tab "Miejsca", and the place rows of a city stand centred with their count.
+- Internal: the map, the town search, the review and the glossary load less, Ekspozycja no longer recounts hidden exhibits already found, stricter `pnpm wait-ci` and guard hook, steadier specs, and a code review of the version with its fixes.
+
+### Fixed
+
+- Edits made in an exhibition while it was being saved could be lost on leaving the editor; they are now saved.
+- "Fontanna di Trevi" counted a trip and a visit of its own days as two returns to an artwork; it now needs two sightings at least 30 days apart.
+- The back arrow of a visit led to "Wystawy" after saving an edit; it now leads to the list of visits.
+- Suggestion lists in a dialog, such as the contexts of a symbol meaning, were clipped and scrolled badly; they now lie over the dialog.
+
+### Migrations run on production
+
+6 migrations run on production with this release and change no existing data: `20261114150000_trevi_fountain_thirty_days_apart`, `20261114190000_kircher_ark_exhibit`, `20261114200000_pelican_serpent_exhibit`, `20261114210000_skip_found_hidden_exhibits` and `20261114220000_fix_the_0_23_1_review_findings` replace `private.exhibit_values`, and the second and third add the two hidden exhibits to the catalogue; `20261114180000_exhibition_symbols` lets an exhibition document hold a symbol block. The 0.23.0 app keeps working with them: it reads the same functions, and until it is replaced a few minutes later it shows the two new exhibits by their codes, hidden.
+
 ## [0.23.0] - 2026-11-14
 
 The atelier learns to see connections and places: an atlas of symbols, relations between artworks and between artists, a map of where the artworks are, trips in Kronika, and places grouped by country and city.
@@ -1016,3 +1041,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.21.4]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.21.4
 [0.22.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.22.0
 [0.23.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.23.0
+[0.23.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.23.1
