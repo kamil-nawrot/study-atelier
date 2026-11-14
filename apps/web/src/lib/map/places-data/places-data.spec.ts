@@ -7,7 +7,7 @@ vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { from: vi.fn(), rpc: vi.fn(), auth: { signOut: vi.fn() } }
 }));
 
-const query = { select: vi.fn(), eq: vi.fn(), order: vi.fn() };
+const query = { select: vi.fn(), eq: vi.fn(), order: vi.fn(), range: vi.fn() };
 
 describe('places data', () => {
 	beforeEach(() => {
@@ -15,10 +15,11 @@ describe('places data', () => {
 		vi.mocked(supabase.from).mockReturnValue(query as never);
 		query.select.mockReturnValue(query);
 		query.eq.mockReturnValue(query);
+		query.order.mockReturnValue(query);
 	});
 
 	it('reads the places with their type, country and point', async () => {
-		query.order.mockResolvedValue({
+		query.range.mockResolvedValue({
 			data: [
 				{
 					id: 'place-1',
@@ -57,10 +58,11 @@ describe('places data', () => {
 		});
 		expect(supabase.from).toHaveBeenCalledWith('category_values');
 		expect(query.eq).toHaveBeenCalledWith('category_code', 'location');
+		expect(query.range).toHaveBeenCalledWith(0, 999);
 	});
 
 	it('says the map could not load when the query fails', async () => {
-		query.order.mockResolvedValue({ data: null, error: { message: 'TypeError: Failed to fetch' } });
+		query.range.mockResolvedValue({ data: null, error: { message: 'TypeError: Failed to fetch' } });
 
 		await expect(loadMapPlaces()).resolves.toEqual({ places: [], error: m.map.loadError });
 	});

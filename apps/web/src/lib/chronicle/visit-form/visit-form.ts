@@ -135,6 +135,7 @@ function endErrors(form: VisitFormState): VisitFormErrors {
 		year: form.endYear
 	});
 	if (end === 'endApproximate') return { endDay: m.chronicle.trip.form.endApproximate };
+	if (end === 'endDayMissing') return { endDay: m.chronicle.trip.form.endDayMissing };
 	if (end === 'endBeforeStart') return { endDay: m.chronicle.trip.form.endBeforeStart };
 	if (end === 'yearInvalid') return { endYear: m.chronicle.form.yearInvalid };
 	if (end === 'dayInvalid') return { endDay: m.chronicle.form.dayInvalid };

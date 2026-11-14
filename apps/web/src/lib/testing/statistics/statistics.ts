@@ -7,6 +7,7 @@ export function testStatistics(
 		terms: 0,
 		events: 0,
 		visits: 0,
+		trips: 0,
 		exhibitions: 0,
 		quizAnswers: 0,
 		correctAnswers: 0,

@@ -1339,11 +1339,14 @@ function collectionStatistics() {
 	const pinned = ARTWORKS.find((row) =>
 		row.artwork_images.some((image) => image.id === pinnedImage)
 	);
-	const visit = [...VISITS].sort((a, b) => b.visit_artworks.length - a.visit_artworks.length)[0];
+	const visit = [...VISITS]
+		.filter((entry) => entry.kind !== 'trip')
+		.sort((a, b) => b.visit_artworks.length - a.visit_artworks.length)[0];
 	return {
 		terms: GLOSSARY_ENTRIES.length,
 		events: TIMELINE_EVENTS.length,
-		visits: VISITS.length,
+		visits: VISITS.filter((visit) => visit.kind !== 'trip').length,
+		trips: VISITS.filter((visit) => visit.kind === 'trip').length,
 		exhibitions: EXHIBITIONS.length,
 		quiz_answers: REVIEW_CARDS.length > 0 ? 106 : 0,
 		correct_answers: REVIEW_CARDS.length > 0 ? 83 : 0,

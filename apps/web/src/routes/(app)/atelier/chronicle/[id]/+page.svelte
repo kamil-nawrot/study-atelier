@@ -99,6 +99,7 @@
 			onimagefailed={(artwork) => images.failed(artwork)}
 			onnearscreen={(artwork) => images.request(artwork)}
 			tripVisits={data.tripVisits}
+			tripVisitsError={data.tripVisitsError}
 			{visit}
 		/>
 	{:else}

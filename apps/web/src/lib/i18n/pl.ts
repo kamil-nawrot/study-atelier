@@ -1233,7 +1233,10 @@ export const pl = {
 			cityName:
 				'Masz już miejsce o tej nazwie, ale innego typu. Zmień jego typ na „Miasto” albo wybierz inne miasto.',
 			citySelf:
-				'To miejsce nie może być swoim własnym miastem. Wybierz inne miasto albo zmień typ tego miejsca na „Miasto”.'
+				'To miejsce nie może być swoim własnym miastem. Wybierz inne miasto albo zmień typ tego miejsca na „Miasto”.',
+			cityTripsType: 'To miasto ma swoje podróże w Kronice, więc musi zostać miastem.',
+			cityTripsMerge:
+				'To miasto ma swoje podróże w Kronice. Możesz je połączyć tylko z innym miastem.'
 		}
 	},
 	ownFields: {
@@ -2233,6 +2236,12 @@ export const pl = {
 					few: 'wizyty w Kronice',
 					many: 'wizyt w Kronice'
 				}),
+			trips: (count: number): string =>
+				plural(count, {
+					one: 'podróż w Kronice',
+					few: 'podróże w Kronice',
+					many: 'podróży w Kronice'
+				}),
 			exhibitions: (count: number): string =>
 				plural(count, { one: 'wystawa', few: 'wystawy', many: 'wystaw' })
 		},
@@ -2386,6 +2395,8 @@ export const pl = {
 			tripTile: 'Pobyt w mieście połączony ze zwiedzaniem',
 			trip: 'Część podróży',
 			tripHint: 'Wizyta w dniach podróży w tym samym mieście jest wybierana automatycznie.',
+			tripOutside:
+				'Ta wizyta wypada poza datami wybranej podróży. Wybierz inną podróż albo „Poza podróżą”, jeśli już do niej nie należy.',
 			noTrip: 'Poza podróżą',
 			editTitle: 'Edycja wizyty',
 			place: 'Miejsce',
@@ -2451,6 +2462,7 @@ export const pl = {
 				endHint: 'Zostaw puste, jeśli podróż trwała jeden dzień.',
 				endBeforeStart: 'Podróż nie może się skończyć, zanim się zaczęła.',
 				endApproximate: 'Bez dokładnych dni podróż ma jedną datę: miesiąc albo rok.',
+				endDayMissing: 'Wpisz dzień wyjazdu.',
 				ticked:
 					'Dzieła z miasta i jego zabytków są już zaznaczone. Odznacz to, czego tym razem nie było.',
 				noPlace: 'Po wybraniu miasta pojawią się tu jego dzieła.',
