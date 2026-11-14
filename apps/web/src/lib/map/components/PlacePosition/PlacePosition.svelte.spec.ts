@@ -27,7 +27,6 @@ describe('PlacePosition', () => {
 		await vi.waitFor(() => expect(loadGeography).toHaveBeenCalled());
 		await expect.element(page.getByRole('heading', { name: m.map.position.title })).toBeVisible();
 		expect(page.getByText('Paryż, Francja').query()).toBeNull();
-		expect(page.getByRole('button', { name: m.map.position.change }).query()).toBeNull();
 		expect(page.getByRole('button', { name: m.map.position.remove }).query()).toBeNull();
 	});
 

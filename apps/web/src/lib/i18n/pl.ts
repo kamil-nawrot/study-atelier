@@ -1231,7 +1231,9 @@ export const pl = {
 			cityType:
 				'To miasto ma swoje miejsca, więc musi zostać miastem. Najpierw zmień miasto tych miejsc.',
 			cityName:
-				'Masz już miejsce o tej nazwie, ale innego typu. Zmień jego typ na „Miasto” albo wybierz inne miasto.'
+				'Masz już miejsce o tej nazwie, ale innego typu. Zmień jego typ na „Miasto” albo wybierz inne miasto.',
+			citySelf:
+				'To miejsce nie może być swoim własnym miastem. Wybierz inne miasto albo zmień typ tego miejsca na „Miasto”.'
 		}
 	},
 	ownFields: {
@@ -2158,7 +2160,7 @@ export const pl = {
 			seen: 'Widziane na żywo'
 		},
 		emptyTitle: 'Mapa zapełni się wraz z miejscami',
-		empty: 'Gdy przy dziele wpiszesz miejsce i uzupełnisz jego położenie, zobaczysz je na mapie.',
+		empty: 'Gdy miejsce przy dziele dostanie miasto albo własne położenie, zobaczysz je na mapie.',
 		loadError: 'Nie udało się wczytać mapy. Sprawdź internet i spróbuj jeszcze raz.',
 		saveFailed: 'Nie udało się zapisać położenia. Spróbuj jeszcze raz.',
 		city: {
@@ -2186,8 +2188,6 @@ export const pl = {
 		position: {
 			title: 'Położenie',
 			empty: 'To miejsce nie ma jeszcze położenia.',
-			set: 'Ustaw położenie',
-			change: 'Zmień położenie',
 			remove: 'Usuń położenie'
 		}
 	},

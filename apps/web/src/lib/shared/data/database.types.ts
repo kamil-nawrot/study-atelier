@@ -1894,6 +1894,7 @@ export type Database = {
         Args: {
           city_name: string;
           country_code?: string;
+          exclude?: string;
           latitude?: number;
           longitude?: number;
           wikidata_id?: string;

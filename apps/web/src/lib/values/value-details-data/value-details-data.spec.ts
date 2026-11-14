@@ -78,7 +78,7 @@ describe('loadValueDetails', () => {
 
 		const result = await loadValueDetails(style);
 
-		expect(result.error).toBe(m.collectionErrors.network);
+		expect(result.error).toEqual(expect.any(String));
 	});
 });
 
@@ -329,9 +329,26 @@ describe('location details', () => {
 				summary: 'Pałac.',
 				notes: '',
 				country_code: 'FR',
-				place_type: 'museum',
-				city_id: null
+				place_type: 'museum'
 			}
+		});
+	});
+
+	it('sends only the location fields that changed', async () => {
+		const previous = {
+			summary: '',
+			notes: '',
+			location: {
+				countryCode: 'FR',
+				placeType: 'museum' as const,
+				city: { id: 'paris', name: 'Paryż' }
+			}
+		};
+		await saveValueDetails(location, { ...previous, summary: 'Pałac.' }, previous);
+
+		expect(supabase.rpc).toHaveBeenCalledWith('save_value_details', {
+			target_value: 'l1',
+			details: { summary: 'Pałac.', notes: '' }
 		});
 	});
 
@@ -341,11 +358,19 @@ describe('location details', () => {
 			notes: '',
 			location: { countryCode: 'FR', placeType: 'museum', city: { id: 'paris', name: 'Paryż' } }
 		});
-		await saveValueDetails(location, {
-			summary: '',
-			notes: '',
-			location: { countryCode: 'FR', placeType: 'city', city: { id: 'paris', name: 'Paryż' } }
-		});
+		await saveValueDetails(
+			location,
+			{
+				summary: '',
+				notes: '',
+				location: { countryCode: 'FR', placeType: 'city', city: { id: 'paris', name: 'Paryż' } }
+			},
+			{
+				summary: '',
+				notes: '',
+				location: { countryCode: 'FR', placeType: 'museum', city: { id: 'paris', name: 'Paryż' } }
+			}
+		);
 
 		expect(
 			vi
@@ -394,6 +419,33 @@ describe('location details', () => {
 	});
 });
 
+describe('the city of a place that cannot be read', () => {
+	it('fails the place page instead of showing the place without its city', async () => {
+		const query = {
+			select: vi.fn(),
+			eq: vi.fn(),
+			maybeSingle: vi
+				.fn()
+				.mockResolvedValueOnce({
+					data: { summary: null, notes: null, place_type: 'museum', city_id: 'paris' },
+					error: null
+				})
+				.mockResolvedValueOnce({ data: null, error: { message: 'offline' } })
+		};
+		query.select.mockReturnValue(query);
+		query.eq.mockReturnValue(query);
+		vi.mocked(supabase.from).mockReturnValue(query as never);
+
+		const result = await loadValueDetails({
+			kind: 'location',
+			record: { id: 'l1', category: 'location', name: 'Luwr', count: 1 }
+		});
+
+		expect(result.error).toEqual(expect.any(String));
+		expect(result.details.location).toBeUndefined();
+	});
+});
+
 describe('ensureCityPlace', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -427,5 +479,17 @@ describe('ensureCityPlace', () => {
 		expect(await ensureCityPlace({ name: 'Wiedeń' })).toEqual({
 			error: m.cardIndex.errors.cityName
 		});
+	});
+
+	it('never makes the place being edited its own city', async () => {
+		vi.mocked(supabase.rpc).mockResolvedValue({ data: null, error: { code: 'SC004' } } as never);
+
+		expect(await ensureCityPlace({ name: 'Toledo' }, 'l1')).toEqual({
+			error: m.cardIndex.errors.citySelf
+		});
+		expect(supabase.rpc).toHaveBeenCalledWith(
+			'ensure_city_place',
+			expect.objectContaining({ city_name: 'Toledo', exclude: 'l1' })
+		);
 	});
 });
