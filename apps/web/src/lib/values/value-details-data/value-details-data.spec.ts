@@ -419,6 +419,43 @@ describe('location details', () => {
 	});
 });
 
+describe('the city of a place read as an embedded list', () => {
+	it('reads the country and the point of the city when its details come as an array', async () => {
+		const query = {
+			select: vi.fn(),
+			eq: vi.fn(),
+			maybeSingle: vi
+				.fn()
+				.mockResolvedValueOnce({
+					data: { summary: null, notes: null, place_type: 'museum', city_id: 'paris' },
+					error: null
+				})
+				.mockResolvedValueOnce({
+					data: {
+						name: 'Paryż',
+						location_details: [{ country_code: 'FR', latitude: 48.857, longitude: 2.35 }]
+					},
+					error: null
+				})
+		};
+		query.select.mockReturnValue(query);
+		query.eq.mockReturnValue(query);
+		vi.mocked(supabase.from).mockReturnValue(query as never);
+
+		const { details } = await loadValueDetails({
+			kind: 'location',
+			record: { id: 'l1', category: 'location', name: 'Luwr', count: 1 }
+		});
+
+		expect(details.location?.city).toEqual({
+			id: 'paris',
+			name: 'Paryż',
+			countryCode: 'FR',
+			point: { latitude: 48.857, longitude: 2.35 }
+		});
+	});
+});
+
 describe('the city of a place that cannot be read', () => {
 	it('fails the place page instead of showing the place without its city', async () => {
 		const query = {
