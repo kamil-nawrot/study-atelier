@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Disclosure, Section, type NoteLinks } from '@study-atelier/ui';
+	import { Alert, Disclosure, Section, type NoteLinks } from '@study-atelier/ui';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes/GlossaryNotes.svelte';
 	import { m } from '#lib/i18n/i18n.ts';
 	import ArtworkWall from '#lib/wall/components/ArtworkWall/ArtworkWall.svelte';
@@ -13,6 +13,7 @@
 		visit: Visit;
 		artworks: WallArtwork[];
 		tripVisits?: Visit[];
+		tripVisitsError?: string;
 		noteLinks?: NoteLinks;
 		glossary?: GlossaryTerm[];
 		onnearscreen?: (artwork: WallArtwork) => void;
@@ -23,6 +24,7 @@
 		visit,
 		artworks,
 		tripVisits = [],
+		tripVisitsError,
 		noteLinks,
 		glossary,
 		onnearscreen,
@@ -43,7 +45,11 @@
 		</div>
 	{/if}
 
-	{#if tripVisits.length > 0}
+	{#if tripVisitsError}
+		<section aria-label={m.chronicle.trip.view.visitsTitle}>
+			<Alert tone="danger">{tripVisitsError}</Alert>
+		</section>
+	{:else if tripVisits.length > 0}
 		<section aria-labelledby="trip-visits">
 			<Disclosure
 				id="trip-visits"

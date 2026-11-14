@@ -358,4 +358,28 @@ describe('VisitForm', () => {
 		await vi.waitFor(() => expect(onsaved).toHaveBeenCalled());
 		expect(save).toHaveBeenCalledWith(expect.objectContaining({ tripId: TRIP_ID }), VISIT_ID);
 	});
+
+	it('keeps a visit in a trip that no longer covers its date and says so', async () => {
+		save.mockResolvedValue({ id: VISIT_ID });
+		const onsaved = vi.fn();
+		render(VisitForm, {
+			visit: testVisit({
+				place: 'Orsay',
+				date: { on: '2026-10-20', precision: 'day' },
+				tripId: TRIP_ID
+			}),
+			artworks,
+			places: ['Orsay'],
+			trips: [testTrip()],
+			cancelHref: '/atelier/chronicle',
+			onsaved
+		});
+
+		await expect.element(page.getByLabelText(m.chronicle.form.trip)).toHaveValue(TRIP_ID);
+		await expect.element(page.getByText(m.chronicle.form.tripOutside)).toBeInTheDocument();
+		await userEvent.click(saveButton());
+
+		await vi.waitFor(() => expect(onsaved).toHaveBeenCalled());
+		expect(save).toHaveBeenCalledWith(expect.objectContaining({ tripId: TRIP_ID }), VISIT_ID);
+	});
 });

@@ -53,6 +53,7 @@ export function tripOptions(trips: readonly Visit[]): SelectOption[] {
 export type TripLink = {
 	trips: Visit[];
 	tripId: string;
+	outside: boolean;
 };
 
 export function linkedTrip(
@@ -62,12 +63,17 @@ export function linkedTrip(
 	chosen: boolean
 ): TripLink {
 	const date = dateFromParts(form);
-	if (form.kind !== 'visit' || !isVisitDate(date)) return { trips: [], tripId: '' };
+	if (form.kind !== 'visit' || !isVisitDate(date)) return { trips: [], tripId: '', outside: false };
 	const covering = tripsCovering(trips, date);
 	if (chosen) {
-		const kept = covering.some((trip) => trip.id === form.tripId);
-		return { trips: covering, tripId: kept ? form.tripId : '' };
+		if (covering.some((trip) => trip.id === form.tripId)) {
+			return { trips: covering, tripId: form.tripId, outside: false };
+		}
+		const stored = trips.find((trip) => trip.id === form.tripId);
+		return stored
+			? { trips: [...covering, stored], tripId: stored.id, outside: true }
+			: { trips: covering, tripId: '', outside: false };
 	}
 	const match = sameCityTrip(covering, placeOf(form), source.tripPlaces);
-	return { trips: covering, tripId: match?.id ?? '' };
+	return { trips: covering, tripId: match?.id ?? '', outside: false };
 }

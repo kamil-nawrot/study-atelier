@@ -11,7 +11,8 @@ import type { TicketDate } from '#lib/chronicle/types/ticket-date.ts';
 import type { Visit } from '#lib/chronicle/types/visit.ts';
 import type { VisitDate } from '#lib/chronicle/types/visit-date.ts';
 
-export type TripEndProblem = 'endApproximate' | 'endBeforeStart' | 'yearInvalid' | 'dayInvalid';
+export type TripEndProblem =
+	'endApproximate' | 'endDayMissing' | 'endBeforeStart' | 'yearInvalid' | 'dayInvalid';
 
 type Dated = Pick<Visit, 'date' | 'endsOn'>;
 
@@ -27,19 +28,33 @@ export function tripDays(trip: Dated): number | null {
 	return Math.round((utc(end).getTime() - utc(trip.date.on).getTime()) / DAY_MS) + 1;
 }
 
+function endMonthAndYear(
+	start: VisitDate,
+	day: number,
+	month: string,
+	year: string
+): { month: string; year: string } {
+	const [startYear, startMonth, startDay] = start.on.split('-').map(Number);
+	let endMonth = month === '' ? startMonth : Number(month);
+	let endYear = year === '' ? startYear : Number(year);
+	if (month === '' && year === '' && day < startDay) endMonth += 1;
+	if (year === '' && endMonth < startMonth) endYear += 1;
+	if (endMonth > 12) {
+		endMonth -= 12;
+		endYear += 1;
+	}
+	return { month: String(endMonth), year: year === '' ? String(endYear) : year };
+}
+
 export function tripEndFromParts(
 	start: VisitDate,
 	parts: DateParts
 ): string | null | TripEndProblem {
 	const [day, month, year] = [parts.day.trim(), parts.month.trim(), parts.year.trim()];
 	if (day === '' && month === '' && year === '') return null;
-	if (start.precision !== 'day' || day === '') return 'endApproximate';
-	const [startYear, startMonth] = start.on.split('-').map(Number);
-	const end = dateFromParts({
-		day,
-		month: month === '' ? String(startMonth) : month,
-		year: year === '' ? String(startYear) : year
-	});
+	if (start.precision !== 'day') return 'endApproximate';
+	if (day === '') return 'endDayMissing';
+	const end = dateFromParts({ day, ...endMonthAndYear(start, Number(day), month, year) });
 	if (end === 'yearInvalid' || end === 'dayInvalid') return end;
 	if (!isVisitDate(end)) return 'dayInvalid';
 	if (end.on < start.on) return 'endBeforeStart';

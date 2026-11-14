@@ -50,4 +50,15 @@ describe('VisitView', () => {
 			.toHaveAttribute('href', '/atelier/chronicle/louvre');
 		await expect.element(page.getByText(m.chronicle.trip.view.noArtworks)).toBeInTheDocument();
 	});
+
+	it('shows a failed load of the visits of a trip in their own place', async () => {
+		render(VisitView, { visit: testTrip(), artworks: [], tripVisitsError: 'offline' });
+
+		await expect
+			.element(
+				page.getByRole('region', { name: m.chronicle.trip.view.visitsTitle }).getByText('offline')
+			)
+			.toBeInTheDocument();
+		await expect.element(page.getByText(m.chronicle.trip.view.noArtworks)).toBeInTheDocument();
+	});
 });

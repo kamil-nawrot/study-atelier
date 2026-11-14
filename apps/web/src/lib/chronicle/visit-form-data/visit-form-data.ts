@@ -31,7 +31,7 @@ export async function loadVisitForm(id?: string): Promise<VisitFormData> {
 	]);
 	return {
 		...result,
-		error: result.error ?? atelier.error ?? trips.error,
+		error: result.error ?? atelier.error ?? trips.error ?? mapPlaces.error,
 		artworks: atelier.artworks,
 		places: [...places].sort((a, b) => a.localeCompare(b, locale)),
 		tripPlaces: mapPlaces.places.map(({ id, name, placeType, countryCode, point, cityId }) => ({

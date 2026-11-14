@@ -1,13 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { loadVisit, loadVisits } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
+import {
+	loadTripVisits,
+	loadVisit,
+	loadVisits
+} from '#lib/chronicle/chronicle-data/chronicle-data.ts';
 import { loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
 import { loadNoteLinkLabels } from '#lib/notes/note-link-data/note-link-data.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
-import { testVisit } from '#lib/testing/chronicle/chronicle.ts';
+import { testTrip, testVisit } from '#lib/testing/chronicle/chronicle.ts';
 import { loadArtworksOfVisit, loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
 import { loadChronicle, loadVisitPage } from './chronicle-page-data.ts';
 
 vi.mock('#lib/chronicle/chronicle-data/chronicle-data.ts', () => ({
+	loadTripVisits: vi.fn(),
 	loadVisit: vi.fn(),
 	loadVisits: vi.fn()
 }));
@@ -92,5 +97,16 @@ describe('loadVisitPage', () => {
 		vi.mocked(loadVisit).mockResolvedValue({ visit: testVisit({ notes: '' }) });
 		await loadVisitPage('id');
 		expect(loadTermIndex).not.toHaveBeenCalled();
+	});
+
+	it('keeps a failed load of the visits of a trip apart from its artworks', async () => {
+		vi.mocked(loadVisit).mockResolvedValue({ visit: testTrip({ artworkIds: [lilies.id] }) });
+		vi.mocked(loadTripVisits).mockResolvedValue({ visits: [], error: 'offline' });
+
+		const data = await loadVisitPage('trip');
+
+		expect(data.tripVisitsError).toBe('offline');
+		expect(data.artworksError).toBeUndefined();
+		expect(data.artworks).toEqual([lilies]);
 	});
 });

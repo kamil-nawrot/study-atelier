@@ -8,6 +8,7 @@ type StatisticsRow = {
 	terms: number;
 	events: number;
 	visits: number;
+	trips?: number;
 	exhibitions: number;
 	quiz_answers: number;
 	correct_answers: number;
@@ -57,6 +58,7 @@ function statisticsOf(row: StatisticsRow): CollectionStatistics {
 		terms: row.terms,
 		events: row.events,
 		visits: row.visits,
+		trips: row.trips ?? 0,
 		exhibitions: row.exhibitions,
 		quizAnswers: row.quiz_answers,
 		correctAnswers: row.correct_answers,

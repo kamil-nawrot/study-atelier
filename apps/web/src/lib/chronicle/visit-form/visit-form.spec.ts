@@ -234,11 +234,11 @@ describe('validateVisitForm', () => {
 
 	it('checks the end of a trip', () => {
 		const trip = form({ kind: 'trip', place: ['Paris'], day: '10', month: '10', year: '2026' });
-		expect(validateVisitForm({ ...trip, endDay: '9' }).endDay).toBe(
+		expect(validateVisitForm({ ...trip, endDay: '9', endMonth: '10' }).endDay).toBe(
 			m.chronicle.trip.form.endBeforeStart
 		);
 		expect(validateVisitForm({ ...trip, endMonth: '11' }).endDay).toBe(
-			m.chronicle.trip.form.endApproximate
+			m.chronicle.trip.form.endDayMissing
 		);
 		expect(validateVisitForm({ ...trip, day: '', endDay: '14' }).endDay).toBe(
 			m.chronicle.trip.form.endApproximate

@@ -9,6 +9,8 @@ export const cardIndexErrorMessage = errorMessages(
 		SC001: m.cardIndex.errors.cityMerge,
 		SC002: m.cardIndex.errors.cityType,
 		SC003: m.cardIndex.errors.cityName,
+		SC004: m.cardIndex.errors.cityTripsType,
+		SC005: m.cardIndex.errors.cityTripsMerge,
 		'23001': m.cardIndex.errors.changed,
 		'23505': m.cardIndex.errors.changed,
 		'23514': m.cardIndex.errors.changed

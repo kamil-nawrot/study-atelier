@@ -9,7 +9,7 @@ describe('HoldingsSection', () => {
 	it('names every number in the form that agrees with it', async () => {
 		render(HoldingsSection, {
 			holdings: { artworks: 1, authors: 3, places: 12, seen: 0 },
-			statistics: testStatistics({ terms: 22, events: 5, visits: 1 })
+			statistics: testStatistics({ terms: 22, events: 5, visits: 1, trips: 3 })
 		});
 
 		const texts = m.statistics.holdings;
@@ -21,6 +21,7 @@ describe('HoldingsSection', () => {
 		await expect.element(section.getByText(texts.terms(22))).toBeVisible();
 		await expect.element(section.getByText(texts.events(5))).toBeVisible();
 		await expect.element(section.getByText(texts.visits(1))).toBeVisible();
+		await expect.element(section.getByText(texts.trips(3))).toBeVisible();
 		await expect.element(section.getByText('22', { exact: true })).toBeVisible();
 	});
 });

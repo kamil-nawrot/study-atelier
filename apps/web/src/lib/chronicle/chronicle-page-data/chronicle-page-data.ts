@@ -24,6 +24,7 @@ type VisitPageData = VisitResult & {
 	noteLinks?: NoteLinks;
 	glossary?: GlossaryTerm[];
 	tripVisits?: Visit[];
+	tripVisitsError?: string;
 };
 
 export async function loadChronicle(): Promise<ChronicleData> {
@@ -49,8 +50,9 @@ export async function loadVisitPage(id: string): Promise<VisitPageData> {
 	return {
 		...result,
 		artworks: atelier?.artworks ?? [],
-		artworksError: atelier?.error ?? trip?.error,
+		artworksError: atelier?.error,
 		tripVisits: trip?.visits,
+		tripVisitsError: trip?.error,
 		noteLinks,
 		glossary: glossary?.terms
 	};

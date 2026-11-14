@@ -77,6 +77,12 @@ describe('loadVisitForm', () => {
 		expect((await loadVisitForm(testTrip().id)).trips).toEqual([]);
 	});
 
+	it('reports places that do not load instead of opening a trip without its cities', async () => {
+		vi.mocked(loadMapPlaces).mockResolvedValue({ places: [], error: 'offline' });
+
+		expect((await loadVisitForm()).error).toBe('offline');
+	});
+
 	it('opens the form without towns when they do not load', async () => {
 		vi.mocked(loadTowns).mockRejectedValue(new Error('offline'));
 

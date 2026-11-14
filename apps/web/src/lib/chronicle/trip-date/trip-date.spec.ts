@@ -43,7 +43,21 @@ describe('tripEndFromParts', () => {
 		expect(
 			tripEndFromParts({ on: '2026-10-01', precision: 'month' }, { day: '3', month: '', year: '' })
 		).toBe('endApproximate');
-		expect(tripEndFromParts(day, { day: '', month: '11', year: '' })).toBe('endApproximate');
+	});
+
+	it('asks for the day of an end given without one', () => {
+		expect(tripEndFromParts(day, { day: '', month: '11', year: '' })).toBe('endDayMissing');
+		expect(tripEndFromParts(day, { day: '', month: '', year: '2027' })).toBe('endDayMissing');
+	});
+
+	it('moves an end day before the start day into the next month and year', () => {
+		expect(tripEndFromParts(day, { day: '3', month: '', year: '' })).toBe('2026-11-03');
+		expect(
+			tripEndFromParts({ on: '2026-12-28', precision: 'day' }, { day: '3', month: '', year: '' })
+		).toBe('2027-01-03');
+		expect(
+			tripEndFromParts({ on: '2026-12-28', precision: 'day' }, { day: '3', month: '1', year: '' })
+		).toBe('2027-01-03');
 	});
 
 	it('refuses a day the month does not have', () => {

@@ -78,17 +78,31 @@ describe('linkedTrip', () => {
 	it('picks the trip of the same city until the learner chooses', () => {
 		expect(linkedTrip(form({ place: ['Belvedere'] }), trips, source, false)).toEqual({
 			trips: [paris, vienna],
-			tripId: 'vienna'
+			tripId: 'vienna',
+			outside: false
 		});
 		expect(linkedTrip(form({ place: ['Kraków'] }), trips, source, false).tripId).toBe('');
 	});
 
-	it('keeps the chosen trip while it covers the date and drops it after', () => {
+	it('keeps the chosen trip and marks it when the date falls outside it', () => {
 		const chosen = form({ place: ['Belvedere'], tripId: 'paris' });
-		expect(linkedTrip(chosen, trips, source, true).tripId).toBe('paris');
+		expect(linkedTrip(chosen, trips, source, true)).toMatchObject({
+			tripId: 'paris',
+			outside: false
+		});
 		expect(linkedTrip({ ...chosen, day: '20' }, trips, source, true)).toEqual({
+			trips: [paris],
+			tripId: 'paris',
+			outside: true
+		});
+	});
+
+	it('leaves the visit outside a trip that no longer exists', () => {
+		const chosen = form({ day: '20', tripId: 'gone' });
+		expect(linkedTrip(chosen, trips, source, true)).toEqual({
 			trips: [],
-			tripId: ''
+			tripId: '',
+			outside: false
 		});
 	});
 

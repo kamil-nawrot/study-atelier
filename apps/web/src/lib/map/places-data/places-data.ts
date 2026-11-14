@@ -3,6 +3,7 @@ import { isCountryCode } from '#lib/catalogue/countries/countries.ts';
 import { isPlaceType } from '#lib/catalogue/place-types/place-types.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { errorMessages } from '#lib/shared/data/errors/errors.ts';
+import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import type { MapPlace } from '#lib/map/types/map-place.ts';
 import type { PlacePoint } from '#lib/map/types/place-point.ts';
@@ -46,15 +47,19 @@ export function mapPlaceOf(row: PlaceRow): MapPlace {
 }
 
 export async function loadMapPlaces(): Promise<{ places: MapPlace[]; error?: string }> {
-	const { data, error } = await supabase
-		.from('category_values')
-		.select(
-			'id, name, location_details!location_details_value_id_owner_id_category_code_fkey(place_type, country_code, latitude, longitude, city_id)'
-		)
-		.eq('category_code', 'location')
-		.order('name');
+	const { rows, error } = await fetchAll<PlaceRow>((from, to) =>
+		supabase
+			.from('category_values')
+			.select(
+				'id, name, location_details!location_details_value_id_owner_id_category_code_fkey(place_type, country_code, latitude, longitude, city_id)'
+			)
+			.eq('category_code', 'location')
+			.order('name')
+			.order('id')
+			.range(from, to)
+	);
 	if (error) return { places: [], error: loadErrorMessage(error) };
-	return { places: (data as PlaceRow[]).map(mapPlaceOf) };
+	return { places: rows.map(mapPlaceOf) };
 }
 
 export async function setPlacePoint(

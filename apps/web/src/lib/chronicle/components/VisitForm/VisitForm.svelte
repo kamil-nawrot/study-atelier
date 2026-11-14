@@ -256,7 +256,7 @@
 
 				{#if link.trips.length > 0}
 					<Select
-						hint={m.chronicle.form.tripHint}
+						hint={link.outside ? m.chronicle.form.tripOutside : m.chronicle.form.tripHint}
 						label={m.chronicle.form.trip}
 						onchange={() => (tripChosen = true)}
 						options={tripOptions(link.trips)}
