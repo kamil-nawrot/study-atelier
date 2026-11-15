@@ -46,7 +46,12 @@
 		{:else}
 			<ArtworkImage {alt} unavailable />
 		{/if}
-		<span class="badge" class:empty={number === null && !place} aria-hidden="true">
+		<span
+			class="badge"
+			class:empty={number === null && !place}
+			class:numbered={!place && number !== null}
+			aria-hidden="true"
+		>
 			{#if place?.right}
 				<Icon icon={Check} size="sm" />
 			{:else if place}
@@ -130,6 +135,20 @@
 		font-size: var(--font-size-xs);
 		font-variant-numeric: tabular-nums;
 		line-height: var(--line-height-xs);
+	}
+
+	@media (max-width: 767.98px) {
+		.badge.numbered {
+			top: 0;
+			left: 0;
+			min-width: calc(var(--spacing-8) + var(--spacing-2));
+			height: calc(var(--spacing-8) + var(--spacing-2));
+			background: var(--color-highlight);
+			color: var(--color-bg);
+			font-size: var(--font-size-lg);
+			font-weight: var(--font-weight-bold);
+			line-height: var(--line-height-lg);
+		}
 	}
 
 	.caption {

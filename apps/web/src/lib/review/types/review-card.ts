@@ -1,3 +1,4 @@
+import type { ReviewRating } from './review-rating.ts';
 import type { ReviewState } from './review-state.ts';
 
 export type ReviewCard = {
@@ -11,4 +12,5 @@ export type ReviewCard = {
 	scheduledDays: number;
 	learningSteps: number;
 	lastReview: Date | null;
+	lastRating: ReviewRating | null;
 };

@@ -42,6 +42,7 @@ function card(artworkId: string, due: Date, overrides: Partial<ReviewCard> = {})
 		scheduledDays: 10,
 		learningSteps: 0,
 		lastReview: new Date(due.getTime() - 10 * 24 * 60 * 60 * 1000),
+		lastRating: 3,
 		...overrides
 	};
 }

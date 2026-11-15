@@ -34,7 +34,8 @@ const row = {
 	lapses: 1,
 	scheduled_days: 4,
 	learning_steps: 0,
-	last_review: '2026-10-13T08:00:00.000Z'
+	last_review: '2026-10-13T08:00:00.000Z',
+	last_rating: 1
 };
 
 const card: ReviewCard = {
@@ -47,7 +48,8 @@ const card: ReviewCard = {
 	lapses: 1,
 	scheduledDays: 4,
 	learningSteps: 0,
-	lastReview: new Date('2026-10-13T08:00:00.000Z')
+	lastReview: new Date('2026-10-13T08:00:00.000Z'),
+	lastRating: 1
 };
 
 function cardsQuery(

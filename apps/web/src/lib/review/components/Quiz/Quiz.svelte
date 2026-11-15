@@ -128,6 +128,7 @@
 <ReviewCard
 	actions={next}
 	{alt}
+	answersLast={item.mode !== 'quiz_image'}
 	{artwork}
 	compact
 	credit={answered ? credit : undefined}
@@ -162,7 +163,9 @@
 			{/if}
 		</div>
 		{#if item.mode !== 'quiz_image'}
-			<QuizOptions {chosen} {onanswer} {quiz} {saving} />
+			<div class="answers">
+				<QuizOptions {chosen} {onanswer} {quiz} {saving} />
+			</div>
 		{/if}
 		{@render feedback()}
 	{/snippet}

@@ -334,7 +334,8 @@ function reviewCard(number, dueInDays, stability, state, lapses = 0) {
 		lapses,
 		scheduled_days: Math.max(0, Math.round(stability)),
 		learning_steps: 0,
-		last_review: new Date(now - (lapses > 0 ? 1 : 6) * DAY).toISOString()
+		last_review: new Date(now - (lapses > 0 ? 1 : 6) * DAY).toISOString(),
+		last_rating: state === 3 ? 1 : 3
 	};
 }
 
