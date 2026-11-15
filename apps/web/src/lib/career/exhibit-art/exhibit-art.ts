@@ -208,6 +208,11 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		credit: 'Honoré Daumier, „Prawdziwy znawca”, 1847',
 		licence: 'domena publiczna',
 		page: 'https://www.rijksmuseum.nl/en/collection/RP-P-2015-26-183'
+	},
+	giotto_fly: {
+		credit: 'Robert Hooke, „Mucha plujka pod mikroskopem”, 1665',
+		licence: 'domena publiczna',
+		commonsFile: 'Hooke-bluefly.jpg'
 	}
 };
 

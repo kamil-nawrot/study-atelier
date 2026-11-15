@@ -1279,6 +1279,7 @@ export type Database = {
           fetch_event: boolean;
           fetch_forms: boolean;
           fetch_image: boolean;
+          giotto_fly_at: string | null;
           legal_accepted_at: string | null;
           legal_version: string | null;
           long_look_at: string | null;
@@ -1311,6 +1312,7 @@ export type Database = {
           fetch_event?: boolean;
           fetch_forms?: boolean;
           fetch_image?: boolean;
+          giotto_fly_at?: string | null;
           legal_accepted_at?: string | null;
           legal_version?: string | null;
           long_look_at?: string | null;
@@ -1342,6 +1344,7 @@ export type Database = {
           fetch_event?: boolean;
           fetch_forms?: boolean;
           fetch_image?: boolean;
+          giotto_fly_at?: string | null;
           legal_accepted_at?: string | null;
           legal_version?: string | null;
           long_look_at?: string | null;
@@ -1971,6 +1974,10 @@ export type Database = {
       };
       record_free_answers: {
         Args: { answers: number; day_start: string };
+        Returns: undefined;
+      };
+      record_giotto_fly: {
+        Args: Record<PropertyKey, never>;
         Returns: undefined;
       };
       record_long_look: {

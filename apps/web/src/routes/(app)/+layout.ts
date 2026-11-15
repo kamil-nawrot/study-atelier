@@ -24,6 +24,7 @@ type AppLayoutData = {
 	careerShown?: boolean;
 	nightLightRecorded?: boolean;
 	longLookRecorded?: boolean;
+	giottoFlyRecorded?: boolean;
 	preferences?: Preferences;
 	ownProfile?: OwnProfileResult;
 };
@@ -49,6 +50,7 @@ export const load: LayoutLoad = async ({ parent, depends }): Promise<AppLayoutDa
 		careerShown: own.profile.careerShown,
 		nightLightRecorded: own.nightLightRecorded,
 		longLookRecorded: own.longLookRecorded,
+		giottoFlyRecorded: own.giottoFlyRecorded,
 		preferences: loaded,
 		ownProfile: own
 	};
