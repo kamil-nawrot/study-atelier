@@ -165,20 +165,17 @@
 		free={flow.freeOpen}
 		fresh={flow.counts.fresh}
 		knowledge={flow.knowledge}
-		known={flow.counts.known}
+		known={flow.counts.known + flow.counts.styles + flow.counts.years + flow.counts.orders}
 		missing={flow.missing}
 		nextWhen={flow.nextDate ? formatWhen(flow.nextDate, flow.now) : undefined}
 		onform={(chosen) => flow.chooseForm(chosen)}
 		onscope={(chosen) => flow.chooseScope(chosen)}
 		onstart={() => flow.start()}
-		orders={flow.counts.orders}
 		reviewedToday={flow.reviewedToday}
 		scope={flow.activeScope}
 		scopes={flow.scopes}
 		starting={flow.starting}
 		streak={flow.streak}
-		styles={flow.counts.styles}
 		troubles={flow.hard}
-		years={flow.counts.years}
 	/>
 {/if}

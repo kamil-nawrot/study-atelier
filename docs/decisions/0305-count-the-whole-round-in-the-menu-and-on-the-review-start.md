@@ -22,10 +22,10 @@
 Chosen by the owner during the walkthrough of 0.24: count the whole round.
 
 - `review_round_counts` returns `styles`, `years` and `orders` beside `known` and `fresh`, and `review_round_size` adds them up. `review_counts` gives it as `waiting`, and `review_plan` gives it as `tomorrow`.
-- The review start shows the total in its heading and lists the parts under it, with the icons of the summary lines.
+- The review start keeps its texts: the heading gives the total, and the style, year and order questions count with the returning artworks ("powracające") in the line under it.
 - `review_round` gives a style place only to an artwork whose style quiz can be built, with at least three other styles in the scope; otherwise recognition takes the place.
 
 ### Consequences
 
 - Good: a round of N shows N and holds N questions whenever there are enough artworks.
-- Bad: the heading counts questions, not artworks, because an order question shows four artworks.
+- Bad: the heading still says artworks, while an order question shows four of them; the owner kept the texts for simplicity.

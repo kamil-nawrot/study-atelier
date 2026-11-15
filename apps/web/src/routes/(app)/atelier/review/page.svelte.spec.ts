@@ -194,7 +194,7 @@ describe('review page', () => {
 			.not.toBeInTheDocument();
 	});
 
-	it('counts the style, year and order questions in the round', async () => {
+	it('counts the style, year and order questions with the returning artworks', async () => {
 		const artworks = collection(25);
 		const reviewCards = cards(artworks.slice(0, 20), (index) => (index < 9 ? -1 : 5));
 		const plan = testReviewPlan(artworks, reviewCards);
@@ -213,9 +213,8 @@ describe('review page', () => {
 		);
 
 		await expect.element(page.getByRole('heading', { name: m.review.waiting(20) })).toBeVisible();
-		await expect.element(page.getByText(m.review.planStyles(4))).toBeVisible();
-		await expect.element(page.getByText(m.review.planYears(2))).toBeVisible();
-		await expect.element(page.getByText(m.review.planOrders(1))).toBeVisible();
+		await expect.element(page.getByText(m.review.planKnown(16))).toBeVisible();
+		await expect.element(page.getByText(m.review.planFresh(4))).toBeVisible();
 	});
 
 	it('tells how many days in a row there were reviews', async () => {
