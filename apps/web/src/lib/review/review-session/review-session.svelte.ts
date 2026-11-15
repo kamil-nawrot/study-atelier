@@ -179,8 +179,7 @@ export class ReviewSession {
 		if (!correct) {
 			const missed = this.#missed.get(key) ?? 0;
 			this.#missed.set(key, missed + 1);
-			if (missed < MAX_REPEATS)
-				this.#retry({ ...item, quiz: shuffleQuiz(item.quiz, this.#random) });
+			if (missed < MAX_REPEATS) this.#retry(item);
 		} else if (!this.free && !this.#missed.has(key)) {
 			void recordRightAnswer(startOfDay(this.#now()));
 		}
@@ -305,16 +304,15 @@ export class ReviewSession {
 		this.answers.push({ item, rating });
 		if (rating === 1 && (repeats ?? 0) < MAX_REPEATS) {
 			this.#repeats.set(item.artwork.id, (repeats ?? 0) + 1);
-			const retry = item.quiz
-				? { ...item, card, quiz: shuffleQuiz(item.quiz, this.#random) }
-				: { ...item, card };
-			this.#retry(retry);
+			this.#retry({ ...item, card });
 		}
 		return true;
 	}
 
 	#retry(step: SessionStep): void {
-		this.queue = retryLater(this.queue, this.position, step, this.#random);
+		const again =
+			'quiz' in step && step.quiz ? { ...step, quiz: shuffleQuiz(step.quiz, this.#random) } : step;
+		this.queue = retryLater(this.queue, this.position, again, this.#random);
 	}
 
 	#advance(): void {
