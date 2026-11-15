@@ -1,6 +1,6 @@
 # 0299. Land Giotto's fly now and then on the artwork image
 
-- Status: accepted
+- Status: accepted; how often the fly lands and how it looks are superseded by [0304](0304-land-giotto-s-fly-on-one-in-100-openings-as-a-fly-silhouette.md)
 - Date: 2026-11-15
 
 ## Context and problem statement

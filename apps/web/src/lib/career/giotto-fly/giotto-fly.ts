@@ -1,7 +1,7 @@
 import { recordGiottoFly } from '#lib/career/career-data/career-data.ts';
 import { career } from '#lib/career/career-state/career-state.svelte.ts';
 
-export const FLY_CHANCE = 1 / 20;
+export const FLY_CHANCE = 1 / 100;
 
 export type FlySpot = { left: number; top: number; turn: number };
 
