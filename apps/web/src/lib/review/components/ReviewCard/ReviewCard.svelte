@@ -12,6 +12,7 @@
 		credit?: string;
 		compact?: boolean;
 		questionFirst?: boolean;
+		answersLast?: boolean;
 		collapsed?: boolean;
 		labelledby: string;
 		stage?: Snippet;
@@ -27,6 +28,7 @@
 		credit,
 		compact = false,
 		questionFirst = false,
+		answersLast = false,
 		collapsed = false,
 		labelledby,
 		stage,
@@ -59,7 +61,7 @@
 {#if questionFirst && phone.current}
 	<div class="card question-first" class:compact>
 		<section class="panel" aria-labelledby={labelledby}>
-			<div class="body">
+			<div class="body" class:answers-last={answersLast}>
 				{@render body()}
 			</div>
 			{@render scene()}
@@ -70,7 +72,7 @@
 	<div class="card" class:compact>
 		{@render scene()}
 		<section class="panel" aria-labelledby={labelledby}>
-			<div class="body" {@attach overlayScrollbar()}>
+			<div class="body" class:answers-last={answersLast} {@attach overlayScrollbar()}>
 				{@render body()}
 			</div>
 			{@render bar()}
@@ -152,6 +154,20 @@
 
 		.collapsed {
 			padding: var(--spacing-2) var(--spacing-4);
+		}
+
+		.answers-last {
+			grid-template-rows: auto 1fr auto;
+			align-content: stretch;
+		}
+
+		.answers-last > :global(.feedback) {
+			grid-row: 2;
+			align-self: end;
+		}
+
+		.answers-last > :global(.answers) {
+			grid-row: 3;
 		}
 	}
 

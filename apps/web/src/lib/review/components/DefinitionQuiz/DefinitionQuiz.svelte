@@ -67,7 +67,7 @@
 	</div>
 {/snippet}
 
-<ReviewCard actions={next} alt="" compact labelledby="quiz-heading" stage={definition}>
+<ReviewCard answersLast actions={next} alt="" compact labelledby="quiz-heading" stage={definition}>
 	{#snippet body()}
 		<div class="intro">
 			<p class="overline">{m.review.quiz.definitionTag}</p>
@@ -75,7 +75,9 @@
 				{m.review.quiz.definitionQuestion}
 			</h1>
 		</div>
-		<QuizOptions {chosen} {onanswer} {quiz} saving={false} />
+		<div class="answers">
+			<QuizOptions {chosen} {onanswer} {quiz} saving={false} />
+		</div>
 		<div class="feedback" role="status">
 			{#if answered}
 				<p class="verdict">

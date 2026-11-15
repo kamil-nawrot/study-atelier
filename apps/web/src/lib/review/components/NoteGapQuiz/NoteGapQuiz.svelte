@@ -82,6 +82,7 @@
 {/snippet}
 
 <ReviewCard
+	answersLast
 	actions={next}
 	alt={item.artwork.title}
 	artwork={item.artwork}
@@ -99,7 +100,9 @@
 				{@render note()}
 			{/if}
 		</div>
-		<QuizOptions {chosen} {onanswer} {quiz} saving={false} />
+		<div class="answers">
+			<QuizOptions {chosen} {onanswer} {quiz} saving={false} />
+		</div>
 		<div class="feedback" role="status">
 			{#if answered}
 				<p class="verdict">

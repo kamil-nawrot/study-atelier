@@ -84,6 +84,7 @@
 			disabled={disabled || value <= bounds[0]}
 			icon={Minus}
 			label={m.review.year.earlier}
+			variant="plain"
 			onclick={(event) => press(-1, event)}
 			onpointercancel={release}
 			onpointerdown={(event) => hold(-1, event)}
@@ -95,6 +96,7 @@
 			disabled={disabled || value >= bounds[1]}
 			icon={Plus}
 			label={m.review.year.later}
+			variant="plain"
 			onclick={(event) => press(1, event)}
 			onpointercancel={release}
 			onpointerdown={(event) => hold(1, event)}
