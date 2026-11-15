@@ -1,6 +1,6 @@
 # 0287. Cap the review counter in the menu at one round
 
-- Status: accepted
+- Status: accepted; what the counter counts is superseded by [0305](0305-count-the-whole-round-in-the-menu-and-on-the-review-start.md)
 - Date: 2026-11-14
 
 ## Context and problem statement
