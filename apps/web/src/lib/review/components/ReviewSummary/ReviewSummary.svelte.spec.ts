@@ -58,6 +58,7 @@ describe('ReviewSummary', () => {
 			definitions: { asked: 3, right: 1 },
 			symbols: { asked: 2, right: 2 },
 			notes: { asked: 1, right: 1 },
+			pairs: { asked: 2, right: 1 },
 			tomorrow: 12
 		});
 
@@ -70,6 +71,7 @@ describe('ReviewSummary', () => {
 			`${m.review.roundLines.definitions} 1/3`,
 			`${m.review.roundLines.symbols} 2/2`,
 			`${m.review.roundLines.notes} 1/1`,
+			`${m.review.roundLines.pairs} 1/2`,
 			'Jutro będzie czekać na Ciebie 12 dzieł do powtórki'
 		]);
 		expect(`${m.review.tomorrowStart(2)} 2 ${m.review.tomorrowEnd(2)}`).toBe(

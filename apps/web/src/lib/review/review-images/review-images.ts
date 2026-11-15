@@ -1,4 +1,6 @@
 import { QUIZ_TILE_SIZES } from '#lib/review/quiz/quiz.ts';
+import type { OrderItem } from '#lib/review/types/order-item.ts';
+import type { PairItem } from '#lib/review/types/pair-item.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
 import type { SessionStep } from '#lib/review/types/session-step.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -15,11 +17,16 @@ export function preload(artwork: WallArtwork, sizes = '(min-width: 768px) 60vw, 
 	void loader.decode().catch(() => undefined);
 }
 
+function stepArtworks(step: OrderItem | PairItem): WallArtwork[] {
+	if (step.mode === 'order') return step.artworks;
+	return step.quiz.options.flatMap((option) => (option.artwork ? [option.artwork] : []));
+}
+
 export function preloadSteps(steps: SessionStep[]): void {
 	for (const step of steps) {
 		if (step.mode === 'quiz_definition' || step.mode === 'quiz_symbol') continue;
-		if (step.mode === 'order') {
-			for (const artwork of step.artworks) preload(artwork, QUIZ_TILE_SIZES);
+		if (step.mode === 'order' || step.mode === 'quiz_pair') {
+			for (const artwork of stepArtworks(step)) preload(artwork, QUIZ_TILE_SIZES);
 			continue;
 		}
 		preload(step.artwork);

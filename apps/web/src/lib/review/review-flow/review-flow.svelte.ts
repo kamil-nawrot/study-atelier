@@ -12,14 +12,8 @@ import {
 	waitingTomorrow
 } from '#lib/review/overview/overview.ts';
 import { FreeAnswers } from '#lib/review/free-answers/free-answers.ts';
+import { loadExtraSteps } from '#lib/review/extra-steps/extra-steps.ts';
 import { roundSummary } from '#lib/review/round-summary/round-summary.ts';
-import {
-	definitionItems,
-	definitionCount,
-	drawnTerms,
-	withDefinitionsOf
-} from '#lib/review/definitions/definitions.ts';
-import { loadTermDefinitions } from '#lib/glossary/glossary-data/glossary-data.ts';
 import { offeredForms, quizzesPossible } from '#lib/review/forms/forms.ts';
 import {
 	currentDate,
@@ -29,14 +23,11 @@ import {
 } from '#lib/review/queue/queue.ts';
 import { quizArtworks, sessionItems } from '#lib/review/quiz/quiz.ts';
 import {
-	loadReviewDetails,
 	loadSession,
 	REVIEW_COUNTS_DEPENDENCY,
 	withPinPreviews
 } from '#lib/review/review-data/review-data.ts';
 import { preloadSteps, withItemImages } from '#lib/review/review-images/review-images.ts';
-import { loadSymbolSteps } from '#lib/review/symbol-steps/symbol-steps.ts';
-import { drawNoteGap } from '#lib/review/note-gap/note-gap.ts';
 import { reviewedSince, streakWithToday } from '#lib/review/streak-week/streak-week.ts';
 import { ResolvedImages } from '#lib/review/resolved-images/resolved-images.svelte.ts';
 import { ReviewStop } from '#lib/review/review-stop/review-stop.svelte.ts';
@@ -51,11 +42,7 @@ import type { ReviewSource } from '#lib/review/types/review-source.ts';
 import type { ScopeChoice } from '#lib/review/types/scope-choice.ts';
 import type { SessionSummary } from '#lib/review/types/session-summary.ts';
 import { reportError } from '#lib/shared/monitoring/monitoring.ts';
-import {
-	timeArtworks,
-	timeQuestions,
-	withTimeImages
-} from '#lib/review/time-questions/time-questions.ts';
+import { timeArtworks, timeQuestions } from '#lib/review/time-questions/time-questions.ts';
 
 const PRELOAD_AHEAD = 2;
 const ALL_SCOPE: ReviewScope = { kind: 'all' };
@@ -201,7 +188,7 @@ export class ReviewFlow {
 
 	async #prepareSession(): Promise<string | undefined> {
 		const free = this.freeOpen;
-		const { reviewTimeQuestions, reviewNoteQuestions } = this.#data().preferences;
+		const { reviewTimeQuestions } = this.#data().preferences;
 		const loaded = await loadSession(
 			startOfDay(currentDate()),
 			this.activeForm,
@@ -214,38 +201,25 @@ export class ReviewFlow {
 		const times = timeQuestions(loaded.rows, this.artworksById, currentDate());
 		const artworks = [...items.map((item) => item.artwork), ...timeArtworks(times)];
 		const shown = [...artworks, ...quizArtworks(items)];
-		const glossary = this.#data().glossary;
-		const drawn = drawnTerms(glossary, definitionCount(this.#data().preferences, glossary));
-		const shownImages = this.images.resolve(shown);
-		const definedRead = loadTermDefinitions(drawn.map((term) => term.id));
-		const gaps = await drawNoteGap(
-			reviewNoteQuestions,
-			this.activeScope,
+		const extras = await loadExtraSteps({
+			preferences: this.#data().preferences,
+			glossary: this.#data().glossary,
+			scope: this.activeScope,
+			asked: artworks,
 			shown,
-			this.artworksById,
-			glossary
-		);
-		const gapArtworks = gaps.map((gap) => gap.artwork);
-		const [, , found, defined, symbolSteps] = await Promise.all([
-			shownImages,
-			this.images.resolve(gapArtworks),
-			loadReviewDetails([...artworks, ...gapArtworks].map((artwork) => artwork.id)),
-			definedRead,
-			loadSymbolSteps(this.#data().preferences.reviewSymbolQuestions, glossary)
-		]);
-		if (found.error) return found.error;
-		this.details = found.details;
+			atelier: this.#data().artworks,
+			artworksById: this.artworksById,
+			images: this.images,
+			times
+		});
+		if (extras.error) return extras.error;
+		this.details = extras.details;
 		if (free) this.freeRound += 1;
 		this.#free = new FreeAnswers();
 		this.session = new ReviewSession(
 			withExtraSteps(
 				items.map((item) => withItemImages(item, this.images.withImage)),
-				[
-					...definitionItems(withDefinitionsOf(drawn, defined.definitions), glossary),
-					...symbolSteps,
-					...gaps.map((gap) => ({ ...gap, artwork: this.images.withImage(gap.artwork) })),
-					...times.map((step) => withTimeImages(step, this.images.withImage))
-				]
+				extras.steps
 			),
 			this.cards,
 			undefined,

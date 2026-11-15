@@ -1,14 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { testReviewCard } from '#lib/testing/review/review.ts';
-import { recordReview, recordRightAnswer } from '#lib/review/review-data/review-data.ts';
+import {
+	recordPairAnswer,
+	recordReview,
+	recordRightAnswer
+} from '#lib/review/review-data/review-data.ts';
 import { ReviewSession } from './review-session.svelte.ts';
 import type { DefinitionItem } from '#lib/review/types/definition-item.ts';
 import type { NoteGapItem } from '#lib/review/types/note-gap-item.ts';
+import type { PairItem } from '#lib/review/types/pair-item.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
 import type { YearItem } from '#lib/review/types/year-item.ts';
 
 vi.mock('#lib/review/review-data/review-data.ts', () => ({
+	recordPairAnswer: vi.fn(),
 	recordReview: vi.fn(),
 	recordRightAnswer: vi.fn()
 }));
@@ -332,6 +338,52 @@ describe('ReviewSession', () => {
 		expect(review.extraScore('note_gap')).toEqual({ asked: 1, right: 0 });
 		expect(first.extraScore('note_gap')).toEqual({ asked: 1, right: 1 });
 		expect(first.extraScore('quiz_definition')).toEqual({ asked: 0, right: 0 });
+	});
+
+	it('records the first answer to a confused pair once and asks it again after a wrong one', async () => {
+		vi.mocked(recordRightAnswer).mockClear();
+		const monet = testArtwork(7, 'Impression', { authors: ['Claude Monet'] });
+		const manet = testArtwork(8, 'Olympia', { authors: ['Édouard Manet'] });
+		const pair: PairItem = {
+			mode: 'quiz_pair',
+			kind: 'author',
+			key: 'author:claude monet|édouard manet',
+			asked: 'Claude Monet',
+			other: 'Édouard Manet',
+			quiz: {
+				answer: 0,
+				options: [monet, manet].map((artwork) => ({ label: artwork.title, artwork }))
+			}
+		};
+		const review = new ReviewSession(
+			[pair, ...items(5)],
+			new Map(),
+			() => start,
+			() => 0
+		);
+
+		await review.answer(1);
+		expect(recordPairAnswer).toHaveBeenCalledExactlyOnceWith(pair, false);
+		expect(review.queue.filter((step) => step.mode === 'quiz_pair')).toHaveLength(2);
+		review.proceed();
+		review.position = review.queue.findIndex(
+			(step, index) => index > 0 && step.mode === 'quiz_pair'
+		);
+		await review.answer(review.current?.mode === 'quiz_pair' ? review.current.quiz.answer : 0);
+		expect(recordPairAnswer).toHaveBeenCalledOnce();
+		expect(recordRightAnswer).not.toHaveBeenCalled();
+		expect(review.extraScore('quiz_pair')).toEqual({ asked: 1, right: 0 });
+
+		const free = new ReviewSession(
+			[pair, ...items(2)],
+			new Map(),
+			() => start,
+			() => 0,
+			true
+		);
+		await free.answer(0);
+		expect(recordPairAnswer).toHaveBeenCalledOnce();
+		expect(free.extraScore('quiz_pair')).toEqual({ asked: 1, right: 1 });
 	});
 
 	it('does not rate a quiz like a flashcard', async () => {

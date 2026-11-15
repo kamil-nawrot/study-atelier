@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import {
+	loadConfusedPairs,
 	loadReviewCards,
 	loadReviewCounts,
 	loadReviewDetails,
@@ -9,6 +10,7 @@ import {
 	loadNoteGap,
 	loadSession,
 	recordFreeAnswers,
+	recordPairAnswer,
 	recordRightAnswer,
 	recordReview,
 	withPinPreviews
@@ -463,5 +465,56 @@ describe('review data', () => {
 			previewUrl: 'https://signed.test/pin.jpg'
 		});
 		expect(createSignedUrls).toHaveBeenCalledWith(['owner/pin.jpg'], expect.any(Number));
+	});
+
+	it('reads the confused pairs and gives none when they cannot be read', async () => {
+		rpc.mockResolvedValueOnce({
+			data: [
+				{ kind: 'style', first_value: 'Baroque', second_value: 'Mannerism', confused_at: 'x' },
+				{
+					kind: 'author',
+					first_value: 'Claude Monet',
+					second_value: 'Édouard Manet',
+					confused_at: 'x'
+				}
+			],
+			error: null
+		} as never);
+		await expect(loadConfusedPairs()).resolves.toEqual([
+			{ kind: 'style', first: 'Baroque', second: 'Mannerism' },
+			{ kind: 'author', first: 'Claude Monet', second: 'Édouard Manet' }
+		]);
+		expect(rpc).toHaveBeenCalledWith('confused_pairs');
+		rpc.mockResolvedValueOnce({ data: null, error: { message: 'boom' } } as never);
+		await expect(loadConfusedPairs()).resolves.toEqual([]);
+	});
+
+	it('records the answer to a pair on the artwork that was asked for', async () => {
+		rpc.mockResolvedValue({ data: null, error: null } as never);
+		const monet = testArtwork(1, 'Impression');
+		const manet = testArtwork(2, 'Olympia');
+		const quiz = {
+			answer: 1,
+			options: [manet, monet].map((artwork) => ({ label: artwork.title, artwork }))
+		};
+		const item = {
+			mode: 'quiz_pair' as const,
+			kind: 'author' as const,
+			key: 'k',
+			asked: 'Claude Monet',
+			other: 'Édouard Manet',
+			quiz
+		};
+		await recordPairAnswer(item, false);
+		expect(rpc).toHaveBeenCalledWith('record_pair_answer', {
+			target_artwork: monet.id,
+			kind: 'author',
+			asked: 'Claude Monet',
+			other: 'Édouard Manet',
+			correct: false
+		});
+		rpc.mockClear();
+		await recordPairAnswer({ ...item, quiz: { ...quiz, options: [] } }, true);
+		expect(rpc).not.toHaveBeenCalled();
 	});
 });

@@ -21,8 +21,8 @@
 	let viewer: ReturnType<typeof ImageViewer>;
 	let viewed = $state<{ image: WallArtwork['image']; alt: string }>();
 
-	function ratioOf(option: QuizOption): number {
-		const image = option.artwork?.image;
+	function ratioOf(option: QuizOption | undefined): number {
+		const image = option?.artwork?.image;
 		return image ? image.width / image.height : FALLBACK_RATIO;
 	}
 
@@ -39,7 +39,9 @@
 	style:--r3={ratioOf(quiz.options[2])}
 	style:--r4={ratioOf(quiz.options[3])}
 	style:--ratio-sum={quiz.options.reduce((sum, option) => sum + ratioOf(option), 0)}
+	style:--tiles={quiz.options.length}
 	class="tiles-frame"
+	class:pair={quiz.options.length === 2}
 >
 	<ol class="tiles" aria-label={m.review.quiz.options}>
 		{#each quiz.options as option, index (option.artwork?.id ?? option.label)}
@@ -85,12 +87,17 @@
 		list-style: none;
 	}
 
+	.pair .tiles {
+		height: max(var(--h1), var(--h2));
+	}
+
 	@media (min-width: 768px) {
 		.tiles-frame {
 			--tile-gap: var(--spacing-4);
 			--tile-height: min(
 				100cqh - var(--tile-chrome-y),
-				(100cqw - 3 * var(--tile-gap) - 4 * var(--tile-chrome-x)) / var(--ratio-sum)
+				(100cqw - (var(--tiles) - 1) * var(--tile-gap) - var(--tiles) * var(--tile-chrome-x)) /
+					var(--ratio-sum)
 			);
 		}
 

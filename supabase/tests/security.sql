@@ -99,7 +99,7 @@ declare
   covered constant text[] := array[
     'keep_alive', 'value_usage', 'card_index', 'period_era_usage', 'style_period_usage', 'merge_category_values',
     'set_period_eras', 'set_style_periods', 'delete_unused_value', 'value_page_content', 'save_era_details',
-    'save_value_details', 'record_review', 'review_counts', 'review_streak', 'term_mentions', 'review_session',
+    'save_value_details', 'record_review', 'record_pair_answer', 'confused_pairs', 'review_counts', 'review_streak', 'term_mentions', 'review_session',
     'unused_images', 'move_artwork_field', 'artwork_field_usage', 'save_artwork', 'import_atelier', 'save_visit',
     'storage_usage', 'delete_account', 'storage_has_room', 'deleted_account_images', 'search_key',
     'duplicate_candidates', 'used_category_values', 'learner_points', 'unlock_exhibits', 'record_free_answers',
@@ -984,6 +984,9 @@ begin
   assert security_test.denied('select public.save_artwork(''{}'', ''{}'')'), 'anon executes save_artwork';
   assert security_test.denied('select * from public.review_cards'), 'anon reads review cards';
   assert security_test.denied('select public.review_counts(now())'), 'anon executes review_counts';
+  assert security_test.denied('select public.confused_pairs()'), 'anon executes confused_pairs';
+  assert security_test.denied(format('select public.record_pair_answer(%L, ''author'', ''a'', ''b'', true)',
+    gen_random_uuid())), 'anon executes record_pair_answer';
   assert security_test.denied('select public.review_session(now())'), 'anon executes review_session';
   assert security_test.denied('select public.note_gap_artwork()'), 'anon executes note_gap_artwork';
   assert security_test.denied('select public.review_streak(now(), ''UTC'')'), 'anon executes review_streak';

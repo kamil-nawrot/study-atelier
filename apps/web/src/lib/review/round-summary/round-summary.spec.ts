@@ -4,6 +4,7 @@ import { ReviewSession } from '#lib/review/review-session/review-session.svelte.
 import { roundSummary } from './round-summary.ts';
 
 vi.mock('#lib/review/review-data/review-data.ts', () => ({
+	recordPairAnswer: vi.fn(),
 	recordReview: vi.fn().mockResolvedValue({}),
 	recordRightAnswer: vi.fn().mockResolvedValue(undefined)
 }));
@@ -43,7 +44,8 @@ describe('roundSummary', () => {
 			styles: { asked: 0, right: 0 },
 			definitions: { asked: 0, right: 0 },
 			symbols: { asked: 0, right: 0 },
-			notes: { asked: 0, right: 0 }
+			notes: { asked: 0, right: 0 },
+			pairs: { asked: 0, right: 0 }
 		});
 	});
 

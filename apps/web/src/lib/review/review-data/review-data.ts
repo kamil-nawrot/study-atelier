@@ -11,6 +11,8 @@ import { noteWrite } from '#lib/shared/data/writes/writes.ts';
 import type { ReviewScope } from '#lib/review/types/review-scope.ts';
 import { startOfDay } from '#lib/review/queue/queue.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
+import type { ConfusedPair } from '#lib/review/types/confused-pair.ts';
+import type { PairItem } from '#lib/review/types/pair-item.ts';
 import type { ReviewCounts } from '#lib/review/types/review-counts.ts';
 import type { ReviewForm } from '#lib/review/types/review-form.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
@@ -168,6 +170,29 @@ export async function recordFreeAnswers(dayStart: Date, answers: number): Promis
 	const { error } = await supabase.rpc('record_free_answers', {
 		day_start: dayStart.toISOString(),
 		answers
+	});
+	if (!error) noteWrite();
+}
+
+export async function loadConfusedPairs(): Promise<ConfusedPair[]> {
+	const { data, error } = await supabase.rpc('confused_pairs');
+	if (error || !data) return [];
+	return data.map((row) => ({
+		kind: row.kind === 'style' ? 'style' : 'author',
+		first: row.first_value,
+		second: row.second_value
+	}));
+}
+
+export async function recordPairAnswer(item: PairItem, correct: boolean): Promise<void> {
+	const asked = item.quiz.options[item.quiz.answer]?.artwork;
+	if (!asked) return;
+	const { error } = await supabase.rpc('record_pair_answer', {
+		target_artwork: asked.id,
+		kind: item.kind,
+		asked: item.asked,
+		other: item.other,
+		correct
 	});
 	if (!error) noteWrite();
 }
