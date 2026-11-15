@@ -1,5 +1,13 @@
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
-import { isDueToday, reviewableArtworks, sessionCounts } from '#lib/review/queue/queue.ts';
+import {
+	isDueToday,
+	MIN_ARTWORKS,
+	newAllowance,
+	reviewableArtworks,
+	sessionCounts
+} from '#lib/review/queue/queue.ts';
+import type { Preferences } from '#lib/profile/types/preferences.ts';
+import type { ReviewCounts } from '#lib/review/types/review-counts.ts';
 import type { QuizMode } from '#lib/review/types/quiz-mode.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewForm } from '#lib/review/types/review-form.ts';
@@ -7,6 +15,11 @@ import type { ReviewScope } from '#lib/review/types/review-scope.ts';
 import type { SessionInput } from '#lib/review/types/session-input.ts';
 
 export const STYLE_SHARE = 5;
+
+type RoundPreferences = Pick<
+	Preferences,
+	'reviewSessionSize' | 'reviewNewPerDay' | 'reviewForm' | 'reviewQuizKinds'
+>;
 
 type StylePlacesInput = {
 	artworks: WallArtwork[];
@@ -43,4 +56,20 @@ export function plannedCounts(
 	input: SessionInput & Omit<StylePlacesInput, 'sessionSize'> & { sessionSize: number }
 ): ReturnType<typeof sessionCounts> {
 	return sessionCounts({ ...input, stylePlaces: stylePlaces(input) });
+}
+
+export function roundWaiting(counts: ReviewCounts, preferences: RoundPreferences): number {
+	if (counts.withImage < MIN_ARTWORKS) return 0;
+	const {
+		reviewSessionSize: sessionSize,
+		reviewForm: form,
+		reviewQuizKinds: quizKinds
+	} = preferences;
+	const styled = form !== 'flashcards' && quizKinds.includes('quiz_style');
+	const size =
+		sessionSize -
+		(styled ? Math.min(Math.floor(sessionSize / STYLE_SHARE), counts.styleWaiting) : 0);
+	const known = Math.min(counts.due, size);
+	const allowance = newAllowance(counts.newToday, preferences.reviewNewPerDay);
+	return known + Math.min(counts.newAvailable, allowance, size - known);
 }

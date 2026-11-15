@@ -217,7 +217,8 @@ function reviewCounts(dayStartText) {
 		due: cards.filter((card) => new Date(card.due).getTime() < dayEnd).length,
 		new_available: live.filter((id) => !cards.some((card) => card.artwork_id === id)).length,
 		new_today: 0,
-		with_image: live.length
+		with_image: live.length,
+		style_waiting: 0
 	};
 }
 
