@@ -2024,6 +2024,7 @@ export type Database = {
           due: number;
           new_available: number;
           new_today: number;
+          style_waiting: number;
           with_image: number;
         }[];
       };

@@ -6,9 +6,9 @@ import { startOfDay } from '#lib/review/queue/queue.ts';
 import {
 	loadReviewCards,
 	loadReviewCounts,
-	loadReviewStreak,
-	waitingToday
+	loadReviewStreak
 } from '#lib/review/review-data/review-data.ts';
+import { roundWaiting } from '#lib/review/style-places/style-places.ts';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ parent, untrack }) => {
@@ -28,7 +28,7 @@ export const load: PageLoad = async ({ parent, untrack }) => {
 		cards: review.cards,
 		styleCards: review.styleCards,
 		newToday: counts.counts?.newToday ?? 0,
-		waiting: counts.counts ? waitingToday(counts.counts, preferences.reviewNewPerDay) : undefined,
+		waiting: counts.counts ? roundWaiting(counts.counts, preferences) : undefined,
 		streak: streak.days,
 		preferences,
 		termPins,
