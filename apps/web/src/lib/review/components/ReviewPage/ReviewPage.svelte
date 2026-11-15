@@ -165,7 +165,7 @@
 		free={flow.freeOpen}
 		fresh={flow.counts.fresh}
 		knowledge={flow.knowledge}
-		known={flow.counts.known}
+		known={flow.counts.known + flow.counts.styles + flow.counts.years + flow.counts.orders}
 		missing={flow.missing}
 		nextWhen={flow.nextDate ? formatWhen(flow.nextDate, flow.now) : undefined}
 		onform={(chosen) => flow.chooseForm(chosen)}

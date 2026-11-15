@@ -23,7 +23,17 @@ export function testReviewPlan(
 		: 0;
 	const reviewed = pool.filter((artwork) => cards.has(artwork.id)).length;
 	return {
-		scopes: [{ scope: { kind: 'all' }, known, fresh, artworks: pool.length }],
+		scopes: [
+			{
+				scope: { kind: 'all' },
+				known,
+				fresh,
+				styles: 0,
+				years: 0,
+				orders: 0,
+				artworks: pool.length
+			}
+		],
 		free: reviewed > 0 ? [{ scope: { kind: 'all' }, count: reviewed }] : [],
 		tomorrow: 0
 	};

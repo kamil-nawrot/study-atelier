@@ -1951,7 +1951,7 @@ export type Database = {
         Returns: Json;
       };
       confused_pairs: {
-        Args: Record<PropertyKey, never>;
+        Args: { time_zone?: string };
         Returns: {
           confused_at: string;
           first_value: string;
@@ -2116,6 +2116,7 @@ export type Database = {
         Returns: Json;
       };
       review_round_counts: { Args: { round: Json }; Returns: Json };
+      review_round_size: { Args: { round: Json }; Returns: number };
       review_session: {
         Args: {
           day_start: string;

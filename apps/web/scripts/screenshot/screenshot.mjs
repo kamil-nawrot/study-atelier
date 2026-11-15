@@ -233,9 +233,17 @@ function reviewCounts(dayStartText) {
 
 function reviewPlan(dayStartText) {
 	const counts = reviewCounts(dayStartText);
+	const extras =
+		counts.known > 7 ? { styles: 4, years: 2, orders: 1 } : { styles: 0, years: 0, orders: 0 };
 	return {
 		scopes: [
-			{ kind: 'all', known: counts.known, fresh: counts.fresh, artworks: counts.with_image }
+			{
+				kind: 'all',
+				known: counts.known - extras.styles - extras.years - extras.orders,
+				fresh: counts.fresh,
+				...extras,
+				artworks: counts.with_image
+			}
 		],
 		free: counts.reviewed > 0 ? [{ kind: 'all', count: counts.reviewed }] : [],
 		tomorrow: 0
