@@ -86,7 +86,7 @@ export const pl = {
 		invalidCredentials:
 			'E-mail albo hasło się nie zgadzają. Sprawdź oba pola albo ustaw nowe hasło.',
 		emailNotConfirmed:
-			'Ten adres nie jest jeszcze potwierdzony. Kliknij link z wiadomości, którą wysłaliśmy po rejestracji.',
+			'Ten adres nie jest jeszcze potwierdzony. Kliknij link z wiadomości wysłanej po rejestracji.',
 		weakPassword: 'To hasło łatwo odgadnąć. Wybierz dłuższe, najlepiej z cyframi i znakami.',
 		samePassword: 'Nowe hasło musi być inne niż obecne.',
 		emailTaken: 'Ten adres jest już przypisany do innego konta.',
@@ -127,21 +127,21 @@ export const pl = {
 	},
 	checkEmail: {
 		title: 'Sprawdź skrzynkę',
-		lead: 'Jeszcze tylko potwierdzenie adresu i możemy zaczynać.',
-		sentTitle: 'Wysłaliśmy link',
+		lead: 'Jeszcze tylko potwierdzenie adresu i można zaczynać.',
+		sentTitle: 'Link wysłany',
 		sent: (email: string): string => `Na adres ${email}. Kliknij go, żeby potwierdzić konto.`,
 		sentNoEmail: 'Kliknij link z wiadomości, żeby potwierdzić konto.',
 		notReceived: 'Nic nie dotarło? Zajrzyj do spamu albo poproś o nowy link.',
 		resend: 'Wyślij link ponownie',
-		resent: 'Wysłaliśmy nowy link.'
+		resent: 'Nowy link wysłany.'
 	},
 	forgotPassword: {
 		title: 'Nie pamiętasz hasła?',
-		lead: 'Zdarza się. Podaj e-mail konta, a wyślemy link do ustawienia nowego hasła.',
+		lead: 'Zdarza się. Podaj e-mail konta, na który przyjdzie link do ustawienia nowego hasła.',
 		submit: 'Wyślij link',
 		sentTitle: 'Sprawdź skrzynkę',
 		sent: (email: string): string =>
-			`Jeśli konto ${email} istnieje, wysłaliśmy na nie link do ustawienia nowego hasła.`,
+			`Jeśli konto ${email} istnieje, link do ustawienia nowego hasła został na nie wysłany.`,
 		errorTitle: 'Nie udało się wysłać linku'
 	},
 	updatePassword: {
@@ -2910,7 +2910,7 @@ export const pl = {
 			saving: 'Zapisywanie…',
 			saved: 'Zapisano',
 			untitled: 'Wpisz tytuł, żeby zapisać zmiany',
-			failed: 'Nie udało się zapisać. Spróbujemy ponownie za chwilę.',
+			failed: 'Nie udało się zapisać. Kolejna próba za chwilę.',
 			conflict:
 				'Ta wystawa w międzyczasie zmieniła swój kształt, więc Twoich ostatnich zmian nie udało się zapisać. Odśwież stronę, żeby zobaczyć najnowszą wersję.',
 			conflictTitle: 'Nie zapisano zmian',
@@ -3055,7 +3055,7 @@ export const pl = {
 		},
 		errors: {
 			notFound: 'Nie ma takiej wystawy.',
-			invalid: 'Wystawa ma w sobie coś, czego nie umiemy zapisać.',
+			invalid: 'Tej wystawy nie da się zapisać w obecnym kształcie.',
 			tooBig: 'Ta wystawa jest za duża, żeby ją zapisać. Może warto podzielić ją na dwie?'
 		}
 	},
