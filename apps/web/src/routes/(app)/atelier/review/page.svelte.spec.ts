@@ -194,6 +194,30 @@ describe('review page', () => {
 			.not.toBeInTheDocument();
 	});
 
+	it('counts the style, year and order questions in the round', async () => {
+		const artworks = collection(25);
+		const reviewCards = cards(artworks.slice(0, 20), (index) => (index < 9 ? -1 : 5));
+		const plan = testReviewPlan(artworks, reviewCards);
+		plan.scopes[0] = { ...plan.scopes[0], known: 9, fresh: 4, styles: 4, years: 2, orders: 1 };
+		renderReview(
+			artworks,
+			reviewCards,
+			0,
+			undefined,
+			0,
+			{},
+			defaultPreferences,
+			undefined,
+			[],
+			plan
+		);
+
+		await expect.element(page.getByRole('heading', { name: m.review.waiting(20) })).toBeVisible();
+		await expect.element(page.getByText(m.review.planStyles(4))).toBeVisible();
+		await expect.element(page.getByText(m.review.planYears(2))).toBeVisible();
+		await expect.element(page.getByText(m.review.planOrders(1))).toBeVisible();
+	});
+
 	it('tells how many days in a row there were reviews', async () => {
 		renderReview(collection(25), new Map(), 0, undefined, 5);
 
@@ -461,6 +485,9 @@ describe('review page', () => {
 			scope: { kind: 'style', name: 'Caravaggism' },
 			known: 12,
 			fresh: 8,
+			styles: 0,
+			years: 0,
+			orders: 0,
 			artworks: 21
 		});
 		renderReview(artworks, due, 0, undefined, 0, {}, defaultPreferences, undefined, [], plan);

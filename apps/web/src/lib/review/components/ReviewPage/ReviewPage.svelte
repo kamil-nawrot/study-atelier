@@ -171,11 +171,14 @@
 		onform={(chosen) => flow.chooseForm(chosen)}
 		onscope={(chosen) => flow.chooseScope(chosen)}
 		onstart={() => flow.start()}
+		orders={flow.counts.orders}
 		reviewedToday={flow.reviewedToday}
 		scope={flow.activeScope}
 		scopes={flow.scopes}
 		starting={flow.starting}
 		streak={flow.streak}
+		styles={flow.counts.styles}
 		troubles={flow.hard}
+		years={flow.counts.years}
 	/>
 {/if}

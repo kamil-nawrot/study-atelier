@@ -736,11 +736,15 @@ export const pl = {
 		lead: 'Codziennie trafiają tu dzieła do powtórki: nowe z Twojego atelier i te, które warto sobie przypomnieć. Im lepiej pamiętasz dzieło, tym rzadziej wraca.',
 		loadErrorTitle: 'Nie udało się wczytać powtórek',
 		startErrorTitle: 'Nie udało się rozpocząć sesji powtórkowej',
-		waiting: (count: number): string => `Na dziś do powtórki zaplanowane masz ${workCount(count)}`,
+		waiting: (count: number): string =>
+			`Na dziś zaplanowane masz ${count} ${plural(count, { one: 'pytanie', few: 'pytania', many: 'pytań' })} o dzieła`,
 		planKnown: (count: number): string =>
 			`${count} ${plural(count, { one: 'powracające', few: 'powracające', many: 'powracających' })}`,
 		planFresh: (count: number): string =>
 			`${count} ${plural(count, { one: 'nowe', few: 'nowe', many: 'nowych' })}`,
+		planStyles: (count: number): string => `${count} o styl`,
+		planYears: (count: number): string => `${count} o datę`,
+		planOrders: (count: number): string => `${count} o kolejność`,
 		streakCaption: 'Twoja seria powtórek',
 		streakDays: (days: number): string =>
 			plural(days, { one: 'dzień z rzędu', few: 'dni z rzędu', many: 'dni z rzędu' }),

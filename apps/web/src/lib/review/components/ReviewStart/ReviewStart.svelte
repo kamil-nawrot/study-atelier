@@ -1,9 +1,12 @@
 <script lang="ts">
+	import Brush from '@lucide/svelte/icons/brush';
 	import Layers from '@lucide/svelte/icons/layers';
+	import ListOrdered from '@lucide/svelte/icons/list-ordered';
 	import Play from '@lucide/svelte/icons/play';
 	import Plus from '@lucide/svelte/icons/plus';
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import Sprout from '@lucide/svelte/icons/sprout';
+	import Target from '@lucide/svelte/icons/target';
 	import {
 		Alert,
 		Button,
@@ -29,6 +32,9 @@
 	type Props = {
 		known: number;
 		fresh: number;
+		styles?: number;
+		years?: number;
+		orders?: number;
 		missing: number;
 		nextWhen?: string;
 		scopes: ScopeChoice[];
@@ -50,6 +56,9 @@
 	let {
 		known,
 		fresh,
+		styles = 0,
+		years = 0,
+		orders = 0,
 		missing,
 		nextWhen,
 		scopes,
@@ -68,7 +77,16 @@
 		onstart
 	}: Props = $props();
 
-	let waiting = $derived(known + fresh);
+	let waiting = $derived(known + fresh + styles + years + orders);
+	let parts = $derived(
+		[
+			{ icon: RotateCcw, count: known, label: m.review.planKnown },
+			{ icon: Sprout, count: fresh, label: m.review.planFresh },
+			{ icon: Brush, count: styles, label: m.review.planStyles },
+			{ icon: Target, count: years, label: m.review.planYears },
+			{ icon: ListOrdered, count: orders, label: m.review.planOrders }
+		].filter((part) => part.count > 0)
+	);
 
 	function scopeLabel(option: ReviewScope): string {
 		switch (option.kind) {
@@ -94,14 +112,9 @@
 				{#if waiting > 0}
 					<h2>{m.review.waiting(waiting)}</h2>
 					<p class="lead plan">
-						{#if known > 0}
-							<span class="part"
-								><Icon icon={RotateCcw} size="sm" />{m.review.planKnown(known)}</span
-							>
-						{/if}
-						{#if fresh > 0}
-							<span class="part"><Icon icon={Sprout} size="sm" />{m.review.planFresh(fresh)}</span>
-						{/if}
+						{#each parts as part (part.icon)}
+							<span class="part"><Icon icon={part.icon} size="sm" />{part.label(part.count)}</span>
+						{/each}
 					</p>
 				{:else}
 					<h2>{m.review.allDoneTitle}</h2>
