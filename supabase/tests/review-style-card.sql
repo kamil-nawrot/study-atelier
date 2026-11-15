@@ -142,6 +142,10 @@ begin
     from public.artworks as artwork
     where artwork.record_number <= 10;
 
+  assert (select style_waiting from public.review_counts(date_trunc('day', now()))) = 30 + (
+      select count(*) from public.review_cards
+        where facet = 'style' and due < date_trunc('day', now()) + interval '1 day'),
+    'the counts do not hold the style cards due today and the artworks without one';
   session := pg_temp.session();
   assert pg_temp.styles_asked(session) = 6,
     'a round of 30 with 10 style cards due does not ask 6 styles: ' || pg_temp.styles_asked(session);
@@ -182,6 +186,8 @@ declare
   session jsonb;
 begin
   update public.profiles set review_session_size = 20;
+  assert (select style_waiting from public.review_counts(date_trunc('day', now()))) = 40,
+    'the counts do not hold every artwork with a style and no style card';
   session := pg_temp.session();
   assert pg_temp.styles_asked(session) = 4,
     'a round of 20 with no style due does not ask 4 new styles: ' || pg_temp.styles_asked(session);

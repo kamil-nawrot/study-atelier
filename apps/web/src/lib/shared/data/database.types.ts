@@ -1996,6 +1996,7 @@ export type Database = {
           new_available: number;
           new_today: number;
           with_image: number;
+          style_waiting: number;
         }[];
       };
       review_session: {

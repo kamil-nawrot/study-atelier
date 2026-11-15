@@ -3,4 +3,5 @@ export type ReviewCounts = {
 	newAvailable: number;
 	newToday: number;
 	withImage: number;
+	styleWaiting: number;
 };
