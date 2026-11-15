@@ -324,16 +324,29 @@ function reviewSession({
 	const pool = ARTWORKS.filter((row) => hasImage(row) && inScope(row, kind, value));
 	if (pool.length < 20) return [];
 	const cardOf = (row) => REVIEW_CARDS.find((card) => card.artwork_id === row.id);
+	const styled =
+		form === 'flashcards' || kind === 'style'
+			? []
+			: pool
+					.filter((row) => cardOf(row) && valuesOf(row, 'style').length > 0)
+					.slice(0, 4)
+					.flatMap((row) => {
+						const options = quizFor(row, 'quiz_style', pool);
+						return options
+							? [{ artwork_id: row.id, mode: 'quiz_style', facet: 'style', options, card: null }]
+							: [];
+					});
+	const size = 20 - styled.length;
 	const due = pool
 		.filter((row) => cardOf(row) && new Date(cardOf(row).due).getTime() < dayEnd)
 		.sort((a, b) => new Date(cardOf(a).due).getTime() - new Date(cardOf(b).due).getTime())
-		.slice(0, 20);
-	const fresh = pool.filter((row) => !cardOf(row)).slice(0, Math.min(10, 20 - due.length));
+		.slice(0, size);
+	const fresh = pool.filter((row) => !cardOf(row)).slice(0, Math.min(10, size - due.length));
 	const known = pool
 		.filter((row) => cardOf(row))
 		.sort((a, b) => cardOf(a).stability - cardOf(b).stability);
 	const free = Array.from(
-		{ length: Math.min(20, known.length) },
+		{ length: Math.min(size, known.length) },
 		(_, index) => known[(index + (freeRound ?? 0) * 20) % known.length]
 	);
 	let settled = 0;
@@ -349,7 +362,7 @@ function reviewSession({
 			form === 'flashcards'
 				? []
 				: form === 'quizzes'
-					? rotated(['quiz_title', 'quiz_image', 'quiz_author', 'quiz_style'], slot)
+					? rotated(['quiz_title', 'quiz_image', 'quiz_author'], slot)
 					: !card || card.state !== 2
 						? rotated(['quiz_title', 'quiz_image', 'quiz_author'], slot)
 						: [];
@@ -358,6 +371,11 @@ function reviewSession({
 			if (options) return { artwork_id: row.id, mode, options };
 		}
 		return { artwork_id: row.id, mode: 'flashcard' };
+	});
+	styled.forEach((item, index) => {
+		const spot = Math.min(items.length, (index + 1) * 4 + index);
+		const neighbours = [items[spot - 1], items[spot]].map((step) => step?.artwork_id);
+		items.splice(neighbours.includes(item.artwork_id) ? spot + 1 : spot, 0, item);
 	});
 	if (!timeQuestions || items.length === 0) return items;
 	const asked = new Set(items.map((item) => item.artwork_id));

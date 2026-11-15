@@ -1,3 +1,4 @@
+import type { Preferences } from '#lib/profile/types/preferences.ts';
 import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 import { shuffle, shuffleQuiz } from '#lib/review/quiz/quiz.ts';
 import type { DefinedTerm } from '#lib/review/types/defined-term.ts';
@@ -15,6 +16,15 @@ function defined(glossary: readonly GlossaryTerm[]): GlossaryTerm[] {
 
 export function definitionsOffered(glossary: readonly GlossaryTerm[]): boolean {
 	return new Set(defined(glossary).map(nameKey)).size >= MIN_DEFINITION_TERMS;
+}
+
+export function definitionCount(
+	preferences: Pick<Preferences, 'reviewGlossaryOn' | 'reviewGlossaryQuestions'>,
+	glossary: readonly GlossaryTerm[]
+): number {
+	return preferences.reviewGlossaryOn && definitionsOffered(glossary)
+		? preferences.reviewGlossaryQuestions
+		: 0;
 }
 
 export function wrongNames(

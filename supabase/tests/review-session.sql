@@ -52,18 +52,18 @@ begin
 
   assert (
     select item ->> 'mode' from jsonb_array_elements(session) as item
-      where (item ->> 'artwork_id')::uuid = forgotten
+      where (item ->> 'artwork_id')::uuid = forgotten and not item ? 'facet'
   ) in ('quiz_title', 'quiz_image'),
     'a mixed session does not quiz an artwork whose last answer was forgotten';
   assert (
     select item ->> 'mode' from jsonb_array_elements(session) as item
-      where (item ->> 'artwork_id')::uuid = known
+      where (item ->> 'artwork_id')::uuid = known and not item ? 'facet'
   ) = 'flashcard',
     'a mixed session quizzes an artwork remembered for weeks';
 
   assert not exists (
     select 1 from jsonb_array_elements(public.review_session(day_start, 'quizzes')) as item
-      where item ->> 'mode' = 'quiz_style'
+      where item ->> 'mode' = 'quiz_style' and not item ? 'facet'
   ),
     'a session of quizzes asks for the style among the questions about recognising an artwork';
   assert not exists (

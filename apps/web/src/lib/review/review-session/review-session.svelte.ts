@@ -1,7 +1,6 @@
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 import { currentDate, retryLater, startOfDay } from '#lib/review/queue/queue.ts';
 import { shuffleQuiz } from '#lib/review/quiz/quiz.ts';
-import type { Quiz } from '#lib/review/types/quiz.ts';
 import { recordReview, recordRightAnswer } from '#lib/review/review-data/review-data.ts';
 import { outcomes, quizRating } from '#lib/review/scheduler/scheduler.ts';
 import type { DefinitionItem } from '#lib/review/types/definition-item.ts';
@@ -14,19 +13,9 @@ import type { SessionStep } from '#lib/review/types/session-step.ts';
 import { boundsOf, yearOutcome, yearsOf } from '#lib/review/year-guess/year-guess.ts';
 import { ORDER_SIZE, placedRight } from '#lib/review/order-guess/order-guess.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
+import { artworkItem, extraKey, pickedWrong, scoreOf } from '#lib/review/step-kinds/step-kinds.ts';
 
 const MAX_REPEATS = 2;
-
-const EXTRA_MODES = new Set(['quiz_definition', 'quiz_symbol', 'note_gap', 'year', 'order']);
-
-function artworkItem(step: SessionStep | undefined): step is ReviewItem {
-	return step !== undefined && !EXTRA_MODES.has(step.mode);
-}
-
-function extraKey(item: DefinitionItem | SymbolItem | NoteGapItem): string {
-	if (item.mode === 'quiz_symbol') return item.key;
-	return item.mode === 'note_gap' ? `${item.artwork.id}:${item.term.id}` : item.term.id;
-}
 
 type ReviewAnswerLog = {
 	item: ReviewItem;
@@ -55,7 +44,9 @@ export class ReviewSession {
 	extraAnswers = $state<{ mode: 'quiz_definition' | 'quiz_symbol' | 'note_gap'; right: boolean }[]>(
 		[]
 	);
+	styleAnswers = $state<boolean[]>([]);
 	readonly cards: Map<string, ReviewCard>;
+	readonly styleCards = new SvelteMap<string, ReviewCard>();
 	readonly startedAt: number;
 	readonly free: boolean;
 	#shownAt: number;
@@ -101,14 +92,17 @@ export class ReviewSession {
 	}
 
 	get anyAnswer(): boolean {
-		return this.answers.length + this.yearAnswers.length + this.orderAnswers.length > 0;
+		return [this.answers, this.yearAnswers, this.orderAnswers, this.styleAnswers].some(
+			(answers) => answers.length > 0
+		);
+	}
+
+	get styles(): { asked: number; right: number } {
+		return scoreOf(this.styleAnswers);
 	}
 
 	get orders(): { asked: number; right: number } {
-		return {
-			asked: this.orderAnswers.length,
-			right: this.orderAnswers.filter(Boolean).length
-		};
+		return scoreOf(this.orderAnswers);
 	}
 
 	extraScore(mode: 'quiz_definition' | 'quiz_symbol' | 'note_gap'): {
@@ -164,24 +158,56 @@ export class ReviewSession {
 			item.mode === 'quiz_symbol' ||
 			item.mode === 'note_gap'
 		) {
-			const key = extraKey(item);
-			if (!this.#asked.has(key)) {
-				this.#asked.add(key);
-				this.extraAnswers.push({ mode: item.mode, right: correct });
-			}
-			if (!correct) {
-				this.#missed.add(key);
-				this.#retry({ ...item, quiz: shuffleQuiz(item.quiz, this.#random) });
-			} else if (!this.free && !this.#missed.has(key)) {
-				void recordRightAnswer(startOfDay(this.#now()));
-			}
+			this.#answerExtra(item, correct);
 			this.chosen = choice;
 			return;
 		}
 		const wrongAnswer = pickedWrong(item.quiz, choice);
-		if (await this.#save(item, quizRating(correct), undefined, correct, wrongAnswer)) {
-			this.chosen = choice;
+		const saved =
+			item.facet === 'style'
+				? await this.#saveStyle(item, correct, wrongAnswer)
+				: await this.#save(item, quizRating(correct), undefined, correct, wrongAnswer);
+		if (saved) this.chosen = choice;
+	}
+
+	#answerExtra(item: DefinitionItem | SymbolItem | NoteGapItem, correct: boolean): void {
+		const key = extraKey(item);
+		if (!this.#asked.has(key)) {
+			this.#asked.add(key);
+			this.extraAnswers.push({ mode: item.mode, right: correct });
 		}
+		if (!correct) {
+			this.#missed.add(key);
+			this.#retry({ ...item, quiz: shuffleQuiz(item.quiz, this.#random) });
+		} else if (!this.free && !this.#missed.has(key)) {
+			void recordRightAnswer(startOfDay(this.#now()));
+		}
+	}
+
+	async #saveStyle(item: ReviewItem, correct: boolean, wrongAnswer?: string): Promise<boolean> {
+		const now = this.#now();
+		const rating = quizRating(correct);
+		const card = outcomes(item.artwork.id, item.card, now)[rating];
+		if (!this.free) {
+			this.saving = true;
+			this.error = undefined;
+			const { error } = await recordReview(card, {
+				mode: 'quiz_style',
+				facet: 'style',
+				rating,
+				correct,
+				answerMs: now.getTime() - this.#shownAt,
+				...(wrongAnswer === undefined ? {} : { wrongAnswer })
+			});
+			this.saving = false;
+			if (error) {
+				this.error = error;
+				return false;
+			}
+			this.styleCards.set(item.artwork.id, card);
+		}
+		this.styleAnswers.push(correct);
+		return true;
 	}
 
 	async guess(year: number): Promise<void> {
@@ -298,8 +324,4 @@ export class ReviewSession {
 		this.ordered = undefined;
 		this.#shownAt = this.#now().getTime();
 	}
-}
-
-function pickedWrong(quiz: Quiz, choice: number): string | undefined {
-	return choice === quiz.answer ? undefined : quiz.options[choice]?.label;
 }

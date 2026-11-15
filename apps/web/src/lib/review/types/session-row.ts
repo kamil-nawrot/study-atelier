@@ -9,6 +9,8 @@ export type SessionRow =
 			mode: ReviewMode;
 			options?: SessionOptionRow[];
 			pin?: SessionPinRow;
+			facet?: 'style';
+			card?: SessionCardRow | null;
 	  }
 	| { artwork_id: string; mode: 'year'; card: SessionCardRow | null }
 	| { mode: 'order'; artwork_ids: string[] };

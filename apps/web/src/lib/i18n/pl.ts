@@ -907,6 +907,7 @@ export const pl = {
 		roundLines: {
 			years: 'Trafiony rok powstania:',
 			orders: 'Poprawnie chronologicznie ułożone dzieła:',
+			styles: 'Poprawnie dopasowane style:',
 			definitions: 'Poprawnie odgadnięte pojęcia:',
 			symbols: 'Poprawnie rozpoznane symbole:',
 			notes: 'Poprawnie uzupełnione luki w notatkach:'

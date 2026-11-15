@@ -95,6 +95,29 @@ describe('review queue', () => {
 		expect(sessionCounts({ artworks, cards, now, newToday: 0 })).toEqual({ known: 20, fresh: 0 });
 	});
 
+	it('leaves the places of the style questions out of the artworks a session takes', () => {
+		const artworks = collection(40);
+		const cards = new Map(
+			artworks
+				.slice(0, 25)
+				.map((artwork, index) => [artwork.id, card(artwork.id, new Date(2026, 8, 1 + index))])
+		);
+		expect(sessionCounts({ artworks, cards, now, newToday: 0, stylePlaces: 4 })).toEqual({
+			known: 16,
+			fresh: 0
+		});
+		expect(
+			sessionCounts({
+				artworks,
+				cards: new Map(),
+				now,
+				newToday: 0,
+				sessionSize: 10,
+				stylePlaces: 2
+			})
+		).toEqual({ known: 0, fresh: 8 });
+	});
+
 	it('counts only artworks with an image', () => {
 		const artworks = collection(25, (index) => ({ hasImage: index !== 0 }));
 		expect(sessionCounts({ artworks, cards: new Map(), now, newToday: 0 }).fresh).toBe(10);
