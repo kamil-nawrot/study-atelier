@@ -84,6 +84,7 @@
 <ReviewCard
 	actions={next}
 	alt={item.artwork.title}
+	answersLast
 	artwork={item.artwork}
 	compact
 	credit={details?.credit}
@@ -99,7 +100,9 @@
 				{@render note()}
 			{/if}
 		</div>
-		<QuizOptions {chosen} {onanswer} {quiz} saving={false} />
+		<div class="answers">
+			<QuizOptions {chosen} {onanswer} {quiz} saving={false} />
+		</div>
 		<div class="feedback" role="status">
 			{#if answered}
 				<p class="verdict">
