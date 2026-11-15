@@ -1,5 +1,5 @@
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';
-import { currentDate, retryLater, startOfDay } from '#lib/review/queue/queue.ts';
+import { currentDate, MAX_REPEATS, retryLater, startOfDay } from '#lib/review/queue/queue.ts';
 import { shuffleQuiz } from '#lib/review/quiz/quiz.ts';
 import {
 	recordPairAnswer,
@@ -10,6 +10,8 @@ import { outcomes, quizRating } from '#lib/review/scheduler/scheduler.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
 import type { ReviewRating } from '#lib/review/types/review-rating.ts';
+import type { ReviewAnswerLog } from '#lib/review/types/review-answer-log.ts';
+import type { YearAnswerLog } from '#lib/review/types/year-answer-log.ts';
 import type { SessionStep } from '#lib/review/types/session-step.ts';
 import { boundsOf, yearOutcome, yearsOf } from '#lib/review/year-guess/year-guess.ts';
 import { ORDER_SIZE, placedRight } from '#lib/review/order-guess/order-guess.ts';
@@ -26,19 +28,6 @@ import {
 	type ExtraMode,
 	type ExtraQuizItem
 } from '#lib/review/step-kinds/step-kinds.ts';
-
-const MAX_REPEATS = 2;
-
-type ReviewAnswerLog = {
-	item: ReviewItem;
-	rating: ReviewRating;
-};
-
-type YearAnswerLog = {
-	artworkId: string;
-	guess: number;
-	rating: ReviewRating;
-};
 
 export class ReviewSession {
 	queue = $state<SessionStep[]>([]);
@@ -60,7 +49,7 @@ export class ReviewSession {
 	readonly startedAt: number;
 	readonly free: boolean;
 	#shownAt: number;
-	#missed = new SvelteSet<string>();
+	#missed = new SvelteMap<string, number>();
 	#asked = new SvelteSet<string>();
 	#repeats = new SvelteMap<string, number>();
 	#now: () => Date;
@@ -177,8 +166,9 @@ export class ReviewSession {
 			if (item.mode === 'quiz_pair' && !this.free) void recordPairAnswer(item, correct);
 		}
 		if (!correct) {
-			this.#missed.add(key);
-			this.#retry({ ...item, quiz: shuffleQuiz(item.quiz, this.#random) });
+			const missed = this.#missed.get(key) ?? 0;
+			this.#missed.set(key, missed + 1);
+			if (missed < MAX_REPEATS) this.#retry(item);
 		} else if (!this.free && !this.#missed.has(key)) {
 			void recordRightAnswer(startOfDay(this.#now()));
 		}
@@ -187,7 +177,11 @@ export class ReviewSession {
 	async #saveStyle(item: ReviewItem, correct: boolean, wrongAnswer?: string): Promise<boolean> {
 		const now = this.#now();
 		const rating = quizRating(correct);
-		const card = outcomes(item.artwork.id, item.card, now)[rating];
+		const key = `style:${item.artwork.id}`;
+		const repeats = this.#repeats.get(key);
+		const card =
+			(repeats === undefined ? null : item.card) ??
+			outcomes(item.artwork.id, item.card, now)[rating];
 		if (!this.free) {
 			this.saving = true;
 			this.error = undefined;
@@ -206,7 +200,11 @@ export class ReviewSession {
 			}
 			this.styleCards.set(item.artwork.id, card);
 		}
-		this.styleAnswers.push(correct);
+		if (repeats === undefined) this.styleAnswers.push(correct);
+		if (!correct && (repeats ?? 0) < MAX_REPEATS) {
+			this.#repeats.set(key, (repeats ?? 0) + 1);
+			this.#retry({ ...item, card });
+		}
 		return true;
 	}
 
@@ -303,16 +301,15 @@ export class ReviewSession {
 		this.answers.push({ item, rating });
 		if (rating === 1 && (repeats ?? 0) < MAX_REPEATS) {
 			this.#repeats.set(item.artwork.id, (repeats ?? 0) + 1);
-			const retry = item.quiz
-				? { ...item, card, quiz: shuffleQuiz(item.quiz, this.#random) }
-				: { ...item, card };
-			this.#retry(retry);
+			this.#retry({ ...item, card });
 		}
 		return true;
 	}
 
 	#retry(step: SessionStep): void {
-		this.queue = retryLater(this.queue, this.position, step, this.#random);
+		const again =
+			'quiz' in step && step.quiz ? { ...step, quiz: shuffleQuiz(step.quiz, this.#random) } : step;
+		this.queue = retryLater(this.queue, this.position, again, this.#random);
 	}
 
 	#advance(): void {
