@@ -100,6 +100,7 @@ declare
     'keep_alive', 'value_usage', 'card_index', 'period_era_usage', 'style_period_usage', 'merge_category_values',
     'set_period_eras', 'set_style_periods', 'delete_unused_value', 'value_page_content', 'save_era_details',
     'save_value_details', 'record_review', 'record_pair_answer', 'confused_pairs', 'review_counts', 'review_streak', 'term_mentions', 'review_session',
+    'review_round', 'review_round_counts', 'review_plan', 'review_likeness',
     'unused_images', 'move_artwork_field', 'artwork_field_usage', 'save_artwork', 'import_atelier', 'save_visit',
     'storage_usage', 'delete_account', 'storage_has_room', 'deleted_account_images', 'search_key',
     'duplicate_candidates', 'used_category_values', 'learner_points', 'unlock_exhibits', 'record_free_answers',
@@ -405,6 +406,8 @@ begin
   assert (select value from public.unlock_exhibits('UTC') where exhibit = 'collection') = 0,
     'B counts the exhibits of A';
   assert public.review_session('2026-10-16T00:00:00Z') = '[]'::jsonb, 'B builds a session of A';
+  assert (public.review_round('2026-10-16T00:00:00Z') ->> 'artworks')::integer = 0, 'B plans a round of A';
+  assert public.review_plan('2026-10-16T00:00:00Z') -> 'free' = '[]'::jsonb, 'B plans a free round of A';
   assert public.review_session('2026-10-16T00:00:00Z', 'mixed', 'all', null, 0) = '[]'::jsonb,
     'B builds a free session of A';
   assert public.note_gap_artwork() = '[]', 'B draws a note gap of A';
@@ -988,6 +991,8 @@ begin
   assert security_test.denied(format('select public.record_pair_answer(%L, ''author'', ''a'', ''b'', true)',
     gen_random_uuid())), 'anon executes record_pair_answer';
   assert security_test.denied('select public.review_session(now())'), 'anon executes review_session';
+  assert security_test.denied('select public.review_round(now())'), 'anon executes review_round';
+  assert security_test.denied('select public.review_plan(now())'), 'anon executes review_plan';
   assert security_test.denied('select public.note_gap_artwork()'), 'anon executes note_gap_artwork';
   assert security_test.denied('select public.review_streak(now(), ''UTC'')'), 'anon executes review_streak';
   assert security_test.denied('select public.learner_points()'), 'anon executes learner_points';

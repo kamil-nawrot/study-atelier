@@ -2024,10 +2024,32 @@ export type Database = {
           due: number;
           new_available: number;
           new_today: number;
-          style_waiting: number;
+          waiting: number;
           with_image: number;
         }[];
       };
+      review_likeness: {
+        Args: {
+          answer: Database["public"]["CompositeTypes"]["review_likeness_facts"];
+          other: Database["public"]["CompositeTypes"]["review_likeness_facts"];
+        };
+        Returns: number;
+      };
+      review_plan: {
+        Args: { day_start: string; session_form?: string };
+        Returns: Json;
+      };
+      review_round: {
+        Args: {
+          day_start: string;
+          free_round?: number;
+          scope_kind?: string;
+          scope_value?: string;
+          session_form?: string;
+        };
+        Returns: Json;
+      };
+      review_round_counts: { Args: { round: Json }; Returns: Json };
       review_session: {
         Args: {
           day_start: string;
@@ -2191,7 +2213,15 @@ export type Database = {
       [_ in never]: never;
     };
     CompositeTypes: {
-      [_ in never]: never;
+      review_likeness_facts: {
+        authors: string[] | null;
+        styles: string[] | null;
+        period: string | null;
+        type: string | null;
+        era: string | null;
+        year: number | null;
+        place: string | null;
+      };
     };
   };
 };

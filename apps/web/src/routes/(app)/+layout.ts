@@ -3,7 +3,6 @@ import type { Session } from '@supabase/supabase-js';
 import { resolve } from '$app/paths';
 import { startOfDay } from '#lib/review/queue/queue.ts';
 import { loadReviewCounts, REVIEW_COUNTS_DEPENDENCY } from '#lib/review/review-data/review-data.ts';
-import { roundWaiting } from '#lib/review/style-places/style-places.ts';
 import { applyAutoFetch } from '#lib/profile/auto-fetch/auto-fetch.svelte.ts';
 import { applyEraBounds } from '#lib/catalogue/era-bounds/era-bounds.svelte.ts';
 import {
@@ -29,9 +28,9 @@ type AppLayoutData = {
 	ownProfile?: OwnProfileResult;
 };
 
-async function reviewWaiting(preferences: Preferences): Promise<number> {
+async function reviewWaiting(): Promise<number> {
 	const { counts } = await loadReviewCounts(startOfDay(new Date()));
-	return counts ? roundWaiting(counts, preferences) : 0;
+	return counts?.waiting ?? 0;
 }
 
 export const load: LayoutLoad = async ({ parent, depends }): Promise<AppLayoutData> => {
@@ -44,7 +43,7 @@ export const load: LayoutLoad = async ({ parent, depends }): Promise<AppLayoutDa
 	applyEraBounds(own.eraBounds);
 	return {
 		session,
-		reviewWaiting: reviewWaiting(loaded),
+		reviewWaiting: reviewWaiting(),
 		menuProfile: Promise.resolve(own.error ? undefined : own.profile),
 		acceptedLegalVersion: Promise.resolve(own.legalVersion),
 		careerShown: own.profile.careerShown,
