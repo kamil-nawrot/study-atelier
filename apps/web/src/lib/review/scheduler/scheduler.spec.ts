@@ -28,7 +28,8 @@ describe('scheduler', () => {
 			lapses: 0,
 			scheduledDays: 0,
 			learningSteps: 0,
-			lastReview: new Date(now.getTime() - 6 * 60 * 1000)
+			lastReview: new Date(now.getTime() - 6 * 60 * 1000),
+			lastRating: 2
 		};
 		const card = schedule('artwork-1', stuck, 2, now);
 		expect(card.state).toBe(2);

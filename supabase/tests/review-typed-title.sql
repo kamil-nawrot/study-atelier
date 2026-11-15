@@ -52,21 +52,29 @@ begin
       '{"mode": "flashcard", "rating": 3}');
     settled := settled || pg_temp.work(number);
   end loop;
+  for number in 1..3 loop
+    perform public.record_review(pg_temp.work(number),
+      jsonb_build_object('due', now() - interval '1 hour', 'stability', 20, 'difficulty', 4, 'state', 2,
+        'reps', 5, 'lapses', 0, 'scheduled_days', 20, 'learning_steps', 0, 'last_review', now()),
+      '{"mode": "flashcard", "rating": 3}');
+  end loop;
   perform public.record_review(pg_temp.work(10),
     jsonb_build_object('due', now() - interval '1 hour', 'stability', 3, 'difficulty', 5, 'state', 2,
       'reps', 2, 'lapses', 0, 'scheduled_days', 3, 'learning_steps', 0, 'last_review', now()),
     '{"mode": "flashcard", "rating": 2}');
 
   session := public.review_session(day_start, 'mixed');
-  assert (select count(*) from pg_temp.typed(session)) = 3,
-    'a mixed session does not type every third settled artwork: ' || session::text;
+  assert (select array_agg((typed.item ->> 'artwork_id')::uuid order by typed.item ->> 'artwork_id')
+      from pg_temp.typed(session) as typed (item))
+      = (select array_agg(id order by id::text) from unnest(settled[1:3]) as id),
+    'a mixed session does not type the settled artworks with two answers and no typed title: '
+      || session::text;
   assert not exists (
-    select 1 from pg_temp.typed(session) as item
-      where not ((item ->> 'artwork_id')::uuid = any (settled)) or item -> 'options' <> '[]'
-  ), 'a typed title asks about an artwork that is not settled, or carries options';
+    select 1 from pg_temp.typed(session) as item where item -> 'options' <> '[]'
+  ), 'a typed title carries options';
 
   assert (select count(*) from pg_temp.typed(public.review_session(day_start, 'quizzes'))) = 3,
-    'the quizzes form does not type every third settled artwork';
+    'the quizzes form does not type the same settled artworks';
   assert not exists (select 1 from pg_temp.typed(public.review_session(day_start, 'flashcards'))),
     'the flashcards form types a title';
 
@@ -90,6 +98,14 @@ begin
   assert exists (
     select 1 from public.review_log where artwork_id = settled[1] and mode = 'quiz_typed' and correct
   ), 'a typed title answer is not logged';
+
+  update public.profiles
+    set review_quiz_kinds = array['quiz_title', 'quiz_image', 'quiz_author', 'quiz_pin', 'quiz_typed'];
+  update public.review_cards set due = now() - interval '1 hour' where artwork_id = settled[1];
+  assert not exists (
+    select 1 from pg_temp.typed(public.review_session(day_start, 'mixed')) as item
+      where (item ->> 'artwork_id')::uuid = settled[1]
+  ), 'a typed title comes back right after it was asked';
 end;
 $$;
 

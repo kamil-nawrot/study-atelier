@@ -69,6 +69,7 @@ type CardRow = {
 	scheduled_days: number;
 	learning_steps: number;
 	last_review: string | null;
+	last_rating: number | null;
 };
 
 type CountsRow = {
@@ -89,7 +90,11 @@ const DETAILS_COLUMNS = `id, notes, artwork_images(${IMAGE_COLUMNS.join(', ')})`
 export const REVIEW_COUNTS_DEPENDENCY = 'review:counts';
 
 const CARD_COLUMNS =
-	'artwork_id, due, stability, difficulty, state, reps, lapses, scheduled_days, learning_steps, last_review';
+	'artwork_id, due, stability, difficulty, state, reps, lapses, scheduled_days, learning_steps, last_review, last_rating';
+
+function ratingOf(value: number | null | undefined): ReviewRating | null {
+	return value === 1 || value === 2 || value === 3 ? value : null;
+}
 
 function reviewCard(row: CardRow): ReviewCard {
 	return {
@@ -102,7 +107,8 @@ function reviewCard(row: CardRow): ReviewCard {
 		lapses: row.lapses,
 		scheduledDays: row.scheduled_days,
 		learningSteps: row.learning_steps,
-		lastReview: row.last_review ? new Date(row.last_review) : null
+		lastReview: row.last_review ? new Date(row.last_review) : null,
+		lastRating: ratingOf(row.last_rating)
 	};
 }
 

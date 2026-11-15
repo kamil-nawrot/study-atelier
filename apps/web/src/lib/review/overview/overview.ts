@@ -22,7 +22,6 @@ import type { SummaryGroup } from '#lib/review/types/summary-group.ts';
 
 const MIN_DUE_IN_SCOPE = 10;
 const TROUBLES = 4;
-const RELEARNING_STATE = 3;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 const relativeDays = new Intl.RelativeTimeFormat('pl', { numeric: 'auto' });
@@ -148,7 +147,7 @@ export function troubles(artworks: WallArtwork[], cards: Map<string, ReviewCard>
 	return reviewableArtworks(artworks)
 		.flatMap((artwork) => {
 			const card = cards.get(artwork.id);
-			return card && (card.lapses > 0 || card.state === RELEARNING_STATE)
+			return card && (card.lapses > 0 || card.lastRating === 1)
 				? [{ artwork, reviewed: card.lastReview?.getTime() ?? 0 }]
 				: [];
 		})

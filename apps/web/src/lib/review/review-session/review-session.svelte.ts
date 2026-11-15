@@ -15,6 +15,8 @@ import { boundsOf, yearOutcome, yearsOf } from '#lib/review/year-guess/year-gues
 import { ORDER_SIZE, placedRight } from '#lib/review/order-guess/order-guess.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
+const MAX_REPEATS = 2;
+
 const EXTRA_MODES = new Set(['quiz_definition', 'quiz_symbol', 'note_gap', 'year', 'order']);
 
 function artworkItem(step: SessionStep | undefined): step is ReviewItem {
@@ -59,6 +61,7 @@ export class ReviewSession {
 	#shownAt: number;
 	#missed = new SvelteSet<string>();
 	#asked = new SvelteSet<string>();
+	#repeats = new SvelteMap<string, number>();
 	#now: () => Date;
 	#random: () => number;
 
@@ -249,7 +252,11 @@ export class ReviewSession {
 		wrongAnswer?: string
 	): Promise<boolean> {
 		const now = this.#now();
-		const card = scheduled ?? outcomes(item.artwork.id, item.card, now)[rating];
+		const repeats = this.#repeats.get(item.artwork.id);
+		const card =
+			repeats === undefined
+				? (scheduled ?? outcomes(item.artwork.id, item.card, now)[rating])
+				: (item.card ?? outcomes(item.artwork.id, null, now)[rating]);
 		if (!this.free) {
 			this.saving = true;
 			this.error = undefined;
@@ -268,7 +275,8 @@ export class ReviewSession {
 		}
 		this.cards.set(item.artwork.id, card);
 		this.answers.push({ item, rating });
-		if (rating === 1) {
+		if (rating === 1 && (repeats ?? 0) < MAX_REPEATS) {
+			this.#repeats.set(item.artwork.id, (repeats ?? 0) + 1);
 			const retry = item.quiz
 				? { ...item, card, quiz: shuffleQuiz(item.quiz, this.#random) }
 				: { ...item, card };

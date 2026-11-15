@@ -89,6 +89,39 @@ describe('ReviewSession', () => {
 		expect(artworkSteps(review)[4].card?.reps).toBe(1);
 	});
 
+	it('keeps the card of the first answer and asks an artwork at most three times', async () => {
+		const clock = { now: start };
+		const review = session(1, clock);
+
+		for (let shown = 0; shown < 3; shown += 1) {
+			review.reveal();
+			clock.now = new Date(start.getTime() + (shown + 1) * 60_000);
+			await review.rate(1);
+		}
+
+		expect(review.finished).toBe(true);
+		expect(review.queue).toHaveLength(3);
+		const saved = vi.mocked(recordReview).mock.calls.map(([card]) => card);
+		expect(saved.map((card) => card.reps)).toEqual([1, 1, 1]);
+		expect(saved[1]).toEqual(saved[0]);
+		expect(review.cards.get('artwork-1')).toEqual(saved[0]);
+	});
+
+	it('keeps the card of the first answer when the repeated question is right', async () => {
+		const clock = { now: start };
+		const review = session(1, clock);
+
+		review.reveal();
+		await review.rate(1);
+		review.reveal();
+		await review.rate(3);
+
+		const [first, repeated] = vi.mocked(recordReview).mock.calls;
+		expect(repeated[0]).toEqual(first[0]);
+		expect(repeated[1]).toEqual(expect.objectContaining({ rating: 3 }));
+		expect(review.cards.get('artwork-1')?.lastRating).toBe(1);
+	});
+
 	it('keeps the card on screen with the error when the answer is not saved', async () => {
 		vi.mocked(recordReview).mockResolvedValue({ error: 'Not saved.' });
 		const clock = { now: start };
