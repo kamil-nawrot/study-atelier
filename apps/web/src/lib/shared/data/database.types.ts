@@ -2071,6 +2071,7 @@ export type Database = {
         Returns: Json;
       };
       review_round_counts: { Args: { round: Json }; Returns: Json };
+      review_round_size: { Args: { round: Json }; Returns: number };
       review_session: {
         Args: {
           day_start: string;
