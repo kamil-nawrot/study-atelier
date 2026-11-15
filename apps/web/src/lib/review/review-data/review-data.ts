@@ -166,7 +166,9 @@ export async function recordFreeAnswers(dayStart: Date, answers: number): Promis
 }
 
 export async function loadConfusedPairs(): Promise<ConfusedPair[]> {
-	const { data, error } = await supabase.rpc('confused_pairs');
+	const { data, error } = await supabase.rpc('confused_pairs', {
+		time_zone: Intl.DateTimeFormat().resolvedOptions().timeZone
+	});
 	if (error || !data) return [];
 	return data.map((row) => ({
 		kind: row.kind === 'style' ? 'style' : 'author',

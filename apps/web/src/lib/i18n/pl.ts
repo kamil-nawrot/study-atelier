@@ -827,16 +827,12 @@ export const pl = {
 			},
 			noteTag: 'Pytanie dodatkowe z notatek',
 			pairTag: 'Pytanie dodatkowe z mylonych par',
-			pairQuestion: 'Które z tych dzieł pasuje?',
-			pairValue: {
-				author: (name: string): string => `Autor: ${name}`,
-				style: (name: string): string => `Styl: ${name}`
+			pairQuestion: {
+				author: (name: string): string => `Autorem którego z tych dzieł jest ${name}?`,
+				style: (name: string): string => `Styl którego z tych dzieł to ${name}?`
 			},
-			pairOther: {
-				author: (name: string): string => `Drugie dzieło to autor: ${name}.`,
-				style: (name: string): string => `Drugie dzieło to styl: ${name}.`
-			},
-			pairRetry: 'Wrócimy do tej pary za chwilę.',
+			pairOther: (name: string): string => `Drugie dzieło: ${name}.`,
+			pairRetry: 'Ta para wróci jeszcze w tej sesji.',
 			relationTag: 'Pytanie dodatkowe z powiązań',
 			relationQuestions: {
 				studyFrom: 'Do jakiego dzieła powstało to studium lub projekt?',

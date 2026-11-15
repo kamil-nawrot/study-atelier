@@ -100,7 +100,7 @@ declare
     'keep_alive', 'value_usage', 'card_index', 'period_era_usage', 'style_period_usage', 'merge_category_values',
     'set_period_eras', 'set_style_periods', 'delete_unused_value', 'value_page_content', 'save_era_details',
     'save_value_details', 'record_review', 'record_pair_answer', 'confused_pairs', 'review_counts', 'review_streak', 'term_mentions', 'review_session',
-    'review_round', 'review_round_counts', 'review_plan', 'review_likeness',
+    'review_round', 'review_round_counts', 'review_round_size', 'review_plan', 'review_likeness',
     'unused_images', 'move_artwork_field', 'artwork_field_usage', 'save_artwork', 'import_atelier', 'save_visit',
     'storage_usage', 'delete_account', 'storage_has_room', 'deleted_account_images', 'search_key',
     'duplicate_candidates', 'used_category_values', 'learner_points', 'unlock_exhibits', 'record_free_answers',

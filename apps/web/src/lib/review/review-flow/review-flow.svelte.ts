@@ -23,7 +23,11 @@ import { reviewedSince, streakWithToday } from '#lib/review/streak-week/streak-w
 import { ResolvedImages } from '#lib/review/resolved-images/resolved-images.svelte.ts';
 import { ReviewStop } from '#lib/review/review-stop/review-stop.svelte.ts';
 import { ReviewSession } from '#lib/review/review-session/review-session.svelte.ts';
-import { EMPTY_PLAN, loadReviewPlan } from '#lib/review/review-plan-data/review-plan-data.ts';
+import {
+	EMPTY_PLAN,
+	loadReviewPlan,
+	roundQuestions
+} from '#lib/review/review-plan-data/review-plan-data.ts';
 import type { PlannedScope } from '#lib/review/types/planned-scope.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewDetails } from '#lib/review/types/review-details.ts';
@@ -98,21 +102,24 @@ export class ReviewFlow {
 	allCounts = $derived(this.#planned(ALL_SCOPE));
 	freeOpen = $derived(
 		this.#data().preferences.reviewFree &&
-			this.allCounts.known + this.allCounts.fresh === 0 &&
+			roundQuestions(this.allCounts) === 0 &&
 			this.allCounts.artworks >= MIN_ARTWORKS &&
 			this.plan.free.length > 0
 	);
 	scopes = $derived<ScopeChoice[]>(
 		this.freeOpen
 			? this.plan.free
-			: this.plan.scopes.map(({ scope, known, fresh }) => ({ scope, count: known + fresh }))
+			: this.plan.scopes.map((planned) => ({
+					scope: planned.scope,
+					count: roundQuestions(planned)
+				}))
 	);
 	activeScope = $derived(
 		this.scopes.find((option) => sameScope(option.scope, this.scope))?.scope ?? ALL_SCOPE
 	);
 	scoped = $derived(scopeArtworks(this.#data().artworks, this.activeScope));
 	counts = $derived(this.#planned(this.activeScope));
-	waiting = $derived(this.counts.known + this.counts.fresh);
+	waiting = $derived(roundQuestions(this.counts));
 	missing = $derived(Math.max(0, MIN_ARTWORKS - this.counts.artworks));
 	nextDate = $derived(
 		this.waiting === 0 && this.missing === 0 ? nextWaiting(this.scoped, this.cards, this.now) : null
@@ -128,7 +135,15 @@ export class ReviewFlow {
 		const found = this.plan.scopes.find((option) => sameScope(option.scope, scope));
 		if (found) return found;
 		const free = this.plan.free.some((option) => sameScope(option.scope, scope));
-		return { scope, known: 0, fresh: 0, artworks: free ? MIN_ARTWORKS : 0 };
+		return {
+			scope,
+			known: 0,
+			fresh: 0,
+			styles: 0,
+			years: 0,
+			orders: 0,
+			artworks: free ? MIN_ARTWORKS : 0
+		};
 	}
 
 	async #replan(): Promise<void> {

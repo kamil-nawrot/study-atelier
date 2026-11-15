@@ -59,8 +59,9 @@
 	{#snippet body()}
 		<div class="intro">
 			<p class="overline">{m.review.quiz.pairTag}</p>
-			<h1 bind:this={heading} id="quiz-heading" tabindex="-1">{m.review.quiz.pairQuestion}</h1>
-			<p class="lead">{m.review.quiz.pairValue[item.kind](item.asked)}</p>
+			<h1 bind:this={heading} id="quiz-heading" tabindex="-1">
+				{m.review.quiz.pairQuestion[item.kind](item.asked)}
+			</h1>
 		</div>
 		<div class="feedback" role="status">
 			{#if answered}
@@ -68,7 +69,7 @@
 					{correct ? m.review.quiz.right : m.review.quiz.wrong}
 					<cite class="artwork-title">{quiz.options[quiz.answer].label}</cite>.
 				</p>
-				<p class="caption">{m.review.quiz.pairOther[item.kind](item.other)}</p>
+				<p class="caption">{m.review.quiz.pairOther(item.other)}</p>
 				{#if !correct}
 					<p class="caption">{m.review.quiz.pairRetry}</p>
 				{/if}
