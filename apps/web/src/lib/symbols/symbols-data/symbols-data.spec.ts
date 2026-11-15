@@ -12,7 +12,8 @@ import {
 	saveSymbol,
 	searchArtworkContexts,
 	assignMeaning,
-	setSymbolCover
+	setSymbolCover,
+	addSymbolMeaning
 } from './symbols-data.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
@@ -287,6 +288,38 @@ describe('symbols data', () => {
 		expect(supabase.rpc).toHaveBeenLastCalledWith('save_symbol', {
 			new_name: 'Keys',
 			new_meanings: []
+		});
+	});
+
+	it('creates a symbol with its first meaning for the pin dialog', async () => {
+		vi.mocked(supabase.rpc).mockResolvedValue({ data: 'new-id', error: null } as never);
+		for (const method of ['select', 'eq'] as const) query[method].mockReturnValue(query);
+		query.order.mockResolvedValue({ data: [{ id: 'meaning-1', text: 'Power' }], error: null });
+		vi.mocked(supabase.from).mockReturnValue(query as never);
+
+		await expect(createSymbolOption('Keys', ' Power ')).resolves.toEqual({
+			symbol: { id: 'new-id', name: 'Keys', meanings: [{ id: 'meaning-1', text: 'Power' }] }
+		});
+		expect(supabase.rpc).toHaveBeenLastCalledWith('save_symbol', {
+			new_name: 'Keys',
+			new_meanings: [{ text: 'Power', contexts: [] }]
+		});
+		expect(query.eq).toHaveBeenCalledWith('symbol_id', 'new-id');
+	});
+
+	it('adds a meaning at the end of a symbol', async () => {
+		const insert = { insert: vi.fn(), select: vi.fn(), single: vi.fn() };
+		insert.insert.mockReturnValue(insert);
+		insert.select.mockReturnValue(insert);
+		insert.single.mockResolvedValue({ data: { id: 'meaning-3' }, error: null });
+		vi.mocked(supabase.from).mockReturnValue(insert as never);
+
+		await expect(addSymbolMeaning(SKULL, 2, ' Vanity ')).resolves.toEqual({ id: 'meaning-3' });
+		expect(insert.insert).toHaveBeenCalledWith({ symbol_id: SKULL, position: 2, text: 'Vanity' });
+
+		insert.single.mockResolvedValue({ data: null, error: { message: 'Failed to fetch' } });
+		await expect(addSymbolMeaning(SKULL, 2, 'Vanity')).resolves.toEqual({
+			error: m.common.network
 		});
 	});
 

@@ -261,10 +261,37 @@ export async function assignMeaning(
 }
 
 export async function createSymbolOption(
-	name: string
+	name: string,
+	meaning = ''
 ): Promise<{ symbol?: SymbolOption; error?: string }> {
-	const result = await saveSymbol({ name, description: '', meanings: [] });
-	if (result.nameTaken) return { error: m.symbols.form.nameTaken(name) };
+	const text = meaning.trim();
+	const result = await saveSymbol({
+		name,
+		description: '',
+		meanings: text ? [{ key: 'new', text, contexts: [] }] : []
+	});
+	if (result.nameTaken) return { error: m.symbols.form.nameTaken(name.trim()) };
 	if (result.error || !result.id) return { error: result.error ?? m.common.unexpectedError };
-	return { symbol: { id: result.id, name: name.trim(), meanings: [] } };
+	const symbol = { id: result.id, name: name.trim(), meanings: [] };
+	if (!text) return { symbol };
+	const { data } = await supabase
+		.from('symbol_meanings')
+		.select('id, text')
+		.eq('symbol_id', result.id)
+		.order('position');
+	return { symbol: { ...symbol, meanings: data ?? [] } };
+}
+
+export async function addSymbolMeaning(
+	symbolId: string,
+	position: number,
+	text: string
+): Promise<{ id?: string; error?: string }> {
+	const { data, error } = await supabase
+		.from('symbol_meanings')
+		.insert({ symbol_id: symbolId, position, text: text.trim() })
+		.select('id')
+		.single();
+	if (error) return { error: await failureMessage(error, symbolErrorMessage) };
+	return { id: data.id };
 }

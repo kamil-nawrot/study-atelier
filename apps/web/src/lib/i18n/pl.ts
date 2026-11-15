@@ -1370,6 +1370,7 @@ export const pl = {
 		title: 'Pinezka',
 		term: 'Pojęcie ze Słowniczka',
 		termPlaceholder: 'Szukaj pojęcia',
+		createTerm: (name: string): string => `Dodaj pojęcie „${name}”`,
 		symbol: 'Symbol z atlasu',
 		symbolMeaning: 'Znaczenie na tym dziele',
 		text: 'Opis',
@@ -1495,6 +1496,10 @@ export const pl = {
 				' jest już w Kartotece jako autor. Możesz dodać tę osobę także tutaj albo opisać na stronie autora.',
 			errorTitle: 'Nie udało się zapisać pojęcia'
 		},
+		quick: {
+			add: 'Dodaj pojęcie',
+			errorTitle: 'Nie udało się dodać pojęcia'
+		},
 		articles: {
 			title: 'Który to artykuł?',
 			description: (name: string, category: string): string =>
@@ -1547,7 +1552,17 @@ export const pl = {
 		},
 		attributes: 'Atrybuty postaci',
 		pin: {
-			create: (name: string): string => `Dodaj symbol „${name}”`
+			create: (name: string): string => `Dodaj symbol „${name}”`,
+			createMeaning: (text: string): string => `Dodaj znaczenie „${text}”`,
+			meaningPlaceholder: 'Szukaj albo wpisz znaczenie',
+			newMeaningNote: 'Znaczenie zapisze się też w atlasie przy tym symbolu.'
+		},
+		quick: {
+			title: 'Nowy symbol',
+			meaning: 'Znaczenie',
+			meaningHint: 'Możesz zostawić puste i dopisać później.',
+			add: 'Dodaj symbol',
+			errorTitle: 'Nie udało się dodać symbolu'
 		},
 		meaningDialog: {
 			newTitle: 'Nowe znaczenie',
@@ -2879,7 +2894,8 @@ export const pl = {
 			searchTerm: 'Szukaj hasła',
 			searchTermPlaceholder: 'Nazwa albo synonim',
 			termsByName: 'Hasła od A do Z',
-			noTerm: 'Nic nie pasuje. Sprawdź pisownię albo dodaj hasło w Słowniczku.',
+			noTerm: 'Nic nie pasuje. Sprawdź pisownię albo dodaj nowe pojęcie.',
+			createTerm: (name: string): string => `Dodaj pojęcie „${name}”`,
 			noTerms: 'W Słowniczku nie ma jeszcze haseł.',
 			browseGlossary: 'Otwórz Słowniczek…',
 			glossaryAs: 'Dodaj jako',
@@ -2888,7 +2904,8 @@ export const pl = {
 			searchSymbol: 'Szukaj symbolu',
 			searchSymbolPlaceholder: 'Nazwa symbolu',
 			symbolsByName: 'Symbole od A do Z',
-			noSymbol: 'Nic nie pasuje. Sprawdź pisownię albo dodaj symbol w atlasie.',
+			noSymbol: 'Nic nie pasuje. Sprawdź pisownię albo dodaj nowy symbol.',
+			createSymbol: (name: string): string => `Dodaj symbol „${name}”`,
 			noSymbols: 'W atlasie nie ma jeszcze symboli.',
 			browseSymbols: 'Otwórz atlas symboli…',
 			empty: 'W atelier nie ma jeszcze dzieł.',
