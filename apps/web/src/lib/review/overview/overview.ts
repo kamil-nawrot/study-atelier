@@ -1,102 +1,22 @@
-import { ERA_CODES } from '#lib/catalogue/eras/eras.ts';
-
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import {
 	endOfDay,
-	isDueToday,
-	MIN_ARTWORKS,
 	reviewableArtworks,
 	SETTLED_STABILITY_DAYS,
-	sessionCounts,
 	startOfDay
 } from '#lib/review/queue/queue.ts';
-import type { SessionInput } from '#lib/review/types/session-input.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
 import type { ReviewRating } from '#lib/review/types/review-rating.ts';
 import type { ReviewScope } from '#lib/review/types/review-scope.ts';
-import type { ScopeChoice } from '#lib/review/types/scope-choice.ts';
 import type { AtelierKnowledge } from '#lib/review/types/atelier-knowledge.ts';
 import type { SummaryGroup } from '#lib/review/types/summary-group.ts';
 
-const MIN_DUE_IN_SCOPE = 10;
 const TROUBLES = 4;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 const relativeDays = new Intl.RelativeTimeFormat('pl', { numeric: 'auto' });
-
-function valuesWithEnough(
-	artworks: WallArtwork[],
-	valuesOf: (artwork: WallArtwork) => string[]
-): string[] {
-	const counts = new Map<string, number>();
-	for (const artwork of artworks) {
-		for (const value of valuesOf(artwork)) counts.set(value, (counts.get(value) ?? 0) + 1);
-	}
-	return [...counts]
-		.filter(([, count]) => count >= MIN_ARTWORKS)
-		.sort(([a, countA], [b, countB]) => countB - countA || a.localeCompare(b, 'pl'))
-		.map(([name]) => name);
-}
-
-function dueIn(artworks: WallArtwork[], cards: Map<string, ReviewCard>, now: Date): number {
-	return artworks.filter((artwork) => {
-		const card = cards.get(artwork.id);
-		return card !== undefined && isDueToday(card, now);
-	}).length;
-}
-
-export function scopeOptions(
-	artworks: WallArtwork[],
-	cards: Map<string, ReviewCard>,
-	now: Date
-): ReviewScope[] {
-	const pool = reviewableArtworks(artworks);
-	const narrower: ReviewScope[] = [
-		{ kind: 'seen' },
-		...ERA_CODES.map((code): ReviewScope => ({ kind: 'era', code })),
-		...valuesWithEnough(pool, (artwork) => (artwork.period ? [artwork.period] : [])).map(
-			(name): ReviewScope => ({ kind: 'period', name })
-		),
-		...valuesWithEnough(pool, (artwork) => artwork.styles).map((name): ReviewScope => ({
-			kind: 'style',
-			name
-		}))
-	];
-	return [
-		{ kind: 'all' },
-		...narrower.filter((scope) => {
-			const scoped = scopeArtworks(pool, scope);
-			return scoped.length >= MIN_ARTWORKS && dueIn(scoped, cards, now) >= MIN_DUE_IN_SCOPE;
-		})
-	];
-}
-
-export function freeScopeOptions(
-	artworks: WallArtwork[],
-	cards: Map<string, ReviewCard>
-): ScopeChoice[] {
-	const reviewed = reviewableArtworks(artworks).filter((artwork) => cards.has(artwork.id));
-	if (reviewed.length === 0) return [];
-	const narrower: ReviewScope[] = [
-		{ kind: 'seen' },
-		...ERA_CODES.map((code): ReviewScope => ({ kind: 'era', code })),
-		...valuesWithEnough(reviewed, (artwork) => (artwork.period ? [artwork.period] : [])).map(
-			(name): ReviewScope => ({ kind: 'period', name })
-		),
-		...valuesWithEnough(reviewed, (artwork) => artwork.styles).map((name): ReviewScope => ({
-			kind: 'style',
-			name
-		}))
-	];
-	return [
-		{ scope: { kind: 'all' }, count: reviewed.length },
-		...narrower
-			.map((scope) => ({ scope, count: scopeArtworks(reviewed, scope).length }))
-			.filter((choice) => choice.count >= MIN_ARTWORKS)
-	];
-}
 
 export function scopeKey(scope: ReviewScope): string {
 	switch (scope.kind) {
@@ -185,22 +105,6 @@ export function describeArtwork(artwork: WallArtwork): string {
 
 export function formatWhen(date: Date, now: Date): string {
 	return relativeDays.format(daysBetween(now, date), 'day');
-}
-
-export function waitingTomorrow(
-	artworks: WallArtwork[],
-	cards: Map<string, ReviewCard>,
-	now: Date,
-	limits: Pick<SessionInput, 'sessionSize' | 'newPerDay'> = {}
-): number {
-	const { known, fresh } = sessionCounts({
-		artworks,
-		cards,
-		now: endOfDay(now),
-		newToday: 0,
-		...limits
-	});
-	return known + fresh;
 }
 
 export function summaryGroups(

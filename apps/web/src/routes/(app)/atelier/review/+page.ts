@@ -8,19 +8,23 @@ import {
 	loadReviewCounts,
 	loadReviewStreak
 } from '#lib/review/review-data/review-data.ts';
-import { roundWaiting } from '#lib/review/style-places/style-places.ts';
+import { loadReviewPlan } from '#lib/review/review-plan-data/review-plan-data.ts';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ parent, untrack }) => {
 	const dayStart = startOfDay(new Date());
-	const [atelier, review, counts, streak, glossary, layout, termPins] = await Promise.all([
+	const layoutRead = untrack(() => parent());
+	const [atelier, review, counts, streak, glossary, layout, termPins, planned] = await Promise.all([
 		loadAtelier(),
 		loadReviewCards(),
 		loadReviewCounts(dayStart),
 		loadReviewStreak(dayStart),
 		loadTermIndex(),
-		untrack(() => parent()),
-		countTermPins()
+		layoutRead,
+		countTermPins(),
+		layoutRead.then((data) =>
+			loadReviewPlan(dayStart, (data.preferences ?? defaultPreferences).reviewForm)
+		)
 	]);
 	const preferences = layout.preferences ?? defaultPreferences;
 	return {
@@ -28,11 +32,12 @@ export const load: PageLoad = async ({ parent, untrack }) => {
 		cards: review.cards,
 		styleCards: review.styleCards,
 		newToday: counts.counts?.newToday ?? 0,
-		waiting: counts.counts ? roundWaiting(counts.counts, preferences) : undefined,
+		waiting: counts.counts?.waiting,
+		plan: planned.plan,
 		streak: streak.days,
 		preferences,
 		termPins,
 		glossary: glossary.terms,
-		error: atelier.error ?? review.error ?? counts.error
+		error: atelier.error ?? review.error ?? counts.error ?? planned.error
 	};
 };

@@ -213,12 +213,31 @@ function reviewCounts(dayStartText) {
 	const dayEnd = dayStart.getTime() + 24 * 60 * 60 * 1000;
 	const live = ARTWORKS.filter(hasImage).map((row) => row.id);
 	const cards = REVIEW_CARDS.filter((card) => live.includes(card.artwork_id));
+	const due = cards.filter((card) => new Date(card.due).getTime() < dayEnd).length;
+	const unseen = live.filter((id) => !cards.some((card) => card.artwork_id === id)).length;
+	const enough = live.length >= 20;
+	const known = enough ? Math.min(due, 20) : 0;
+	const fresh = enough ? Math.min(unseen, 10, 20 - known) : 0;
 	return {
-		due: cards.filter((card) => new Date(card.due).getTime() < dayEnd).length,
-		new_available: live.filter((id) => !cards.some((card) => card.artwork_id === id)).length,
+		due,
+		new_available: unseen,
 		new_today: 0,
 		with_image: live.length,
-		style_waiting: 0
+		waiting: known + fresh,
+		known,
+		fresh,
+		reviewed: cards.length
+	};
+}
+
+function reviewPlan(dayStartText) {
+	const counts = reviewCounts(dayStartText);
+	return {
+		scopes: [
+			{ kind: 'all', known: counts.known, fresh: counts.fresh, artworks: counts.with_image }
+		],
+		free: counts.reviewed > 0 ? [{ kind: 'all', count: counts.reviewed }] : [],
+		tomorrow: 0
 	};
 }
 
@@ -880,6 +899,9 @@ async function mockSupabase(context) {
 			return json(route, wantsObject ? counts : [counts]);
 		}
 		if (url.pathname === '/rest/v1/rpc/atelier_empty') return json(route, false);
+		if (url.pathname === '/rest/v1/rpc/review_plan') {
+			return json(route, reviewPlan(request.postDataJSON()?.day_start));
+		}
 		if (url.pathname === '/rest/v1/author_relations') {
 			const ids = (url.searchParams.get('or') ?? '').match(/eq\.([^,)]+)/g) ?? [];
 			const id = ids[0]?.slice(3);

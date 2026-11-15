@@ -1,20 +1,12 @@
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
-import type { SessionInput } from '#lib/review/types/session-input.ts';
 import type { SessionStep } from '#lib/review/types/session-step.ts';
 
-export const SESSION_SIZE = 20;
-export const NEW_PER_DAY = 10;
 export const MIN_ARTWORKS = 20;
 export const SETTLED_STABILITY_DAYS = 7;
 export const RETRY_GAP_MIN = 3;
 export const RETRY_GAP_MAX = 5;
-
-type SessionCounts = {
-	known: number;
-	fresh: number;
-};
 
 export function currentDate(): Date {
 	return new Date();
@@ -32,37 +24,8 @@ export function reviewableArtworks(artworks: WallArtwork[]): WallArtwork[] {
 	return artworks.filter((artwork) => artwork.hasImage);
 }
 
-export function missingArtworks(artworks: WallArtwork[]): number {
-	return Math.max(0, MIN_ARTWORKS - reviewableArtworks(artworks).length);
-}
-
-export function newAllowance(newToday: number, newPerDay: number = NEW_PER_DAY): number {
-	return Math.max(0, newPerDay - newToday);
-}
-
 export function isDueToday(card: ReviewCard, now: Date): boolean {
 	return card.due < endOfDay(now);
-}
-
-export function sessionCounts({
-	artworks,
-	cards,
-	now,
-	newToday,
-	sessionSize = SESSION_SIZE,
-	newPerDay = NEW_PER_DAY,
-	stylePlaces = 0
-}: SessionInput): SessionCounts {
-	const pool = reviewableArtworks(artworks);
-	if (pool.length < MIN_ARTWORKS) return { known: 0, fresh: 0 };
-	const due = pool.filter((artwork) => {
-		const card = cards.get(artwork.id);
-		return card !== undefined && isDueToday(card, now);
-	}).length;
-	const size = sessionSize - stylePlaces;
-	const known = Math.min(due, size);
-	const unseen = pool.filter((artwork) => !cards.has(artwork.id)).length;
-	return { known, fresh: Math.min(unseen, newAllowance(newToday, newPerDay), size - known) };
 }
 
 export function retryLater<T>(

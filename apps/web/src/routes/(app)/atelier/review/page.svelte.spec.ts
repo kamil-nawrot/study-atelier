@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
+import type { ReviewPlan } from '#lib/review/types/review-plan.ts';
+import { loadReviewPlan } from '#lib/review/review-plan-data/review-plan-data.ts';
+import { testReviewPlan } from '#lib/testing/review-plan/review-plan.ts';
 import { render } from 'vitest-browser-svelte';
 import { invalidate } from '$app/navigation';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -62,6 +65,10 @@ vi.mock('#lib/symbols/symbol-questions-data/symbol-questions-data.ts', () => ({
 vi.mock('#lib/symbols/symbols-data/symbols-data.ts', () => ({
 	loadSymbolOptions: vi.fn().mockResolvedValue({ symbols: [] })
 }));
+vi.mock('#lib/review/review-plan-data/review-plan-data.ts', async (importOriginal) => ({
+	...(await importOriginal<object>()),
+	loadReviewPlan: vi.fn().mockResolvedValue({})
+}));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
@@ -112,7 +119,8 @@ function renderReview(
 	menu: { reviewWaiting?: Promise<number>; waiting?: number } = {},
 	preferences: Preferences = defaultPreferences,
 	termPins?: number,
-	glossary: GlossaryEntry[] = []
+	glossary: GlossaryEntry[] = [],
+	plan?: ReviewPlan
 ): void {
 	render(ReviewPage, {
 		data: {
@@ -121,6 +129,13 @@ function renderReview(
 			cards: reviewCards,
 			styleCards: new Map(),
 			newToday,
+			plan:
+				plan ??
+				testReviewPlan(artworks, reviewCards, {
+					newToday,
+					sessionSize: preferences.reviewSessionSize,
+					newPerDay: preferences.reviewNewPerDay
+				}),
 			streak,
 			waiting: undefined,
 			...menu,
@@ -473,15 +488,20 @@ describe('review page', () => {
 			.toBeVisible();
 	});
 
-	it('offers a style with at least 10 artworks due, and describes the chosen form, behind a disclosure', async () => {
+	it('offers the scopes the database plans, and describes the chosen form, behind a disclosure', async () => {
 		const artworks = collection(25).map((artwork, index) => ({
 			...artwork,
 			styles: index < 21 ? ['Caravaggism'] : []
 		}));
-		renderReview(
-			artworks,
-			cards(artworks.slice(0, 12), () => -1)
-		);
+		const due = cards(artworks.slice(0, 12), () => -1);
+		const plan = testReviewPlan(artworks, due);
+		plan.scopes.push({
+			scope: { kind: 'style', name: 'Caravaggism' },
+			known: 12,
+			fresh: 8,
+			artworks: 21
+		});
+		renderReview(artworks, due, 0, undefined, 0, {}, defaultPreferences, undefined, [], plan);
 
 		const caravaggism = page.getByRole('button', { name: /^Caravaggism/ });
 		await expect.element(caravaggism).not.toBeInTheDocument();
@@ -524,6 +544,10 @@ describe('review page', () => {
 
 		await page.getByText(m.review.options).click();
 		await page.getByRole('button', { name: m.review.forms.flashcards }).click();
+		expect(loadReviewPlan).toHaveBeenLastCalledWith(expect.any(Date), 'flashcards');
+		vi.mocked(loadReviewPlan).mockResolvedValueOnce({
+			plan: { ...testReviewPlan(artworks, new Map()), tomorrow: 7 }
+		});
 		await page.getByRole('button', { name: m.review.start }).click();
 		await expect.element(page.getByText(m.review.progress(1, 4))).toBeVisible();
 		expect(loadSession).toHaveBeenCalledWith(
@@ -555,6 +579,7 @@ describe('review page', () => {
 			.element(page.getByRole('banner').getByRole('link', { name: m.artworkView.back }))
 			.not.toBeInTheDocument();
 		expect(invalidate).toHaveBeenCalledWith('review:counts');
+		await expect.element(page.getByText(m.review.tomorrowEnd(7))).toBeVisible();
 	});
 
 	it('asks the year and the order on top of the session and counts them in the summary', async () => {

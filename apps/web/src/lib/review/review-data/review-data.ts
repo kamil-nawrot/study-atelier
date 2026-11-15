@@ -78,11 +78,8 @@ type CardRow = {
 };
 
 type CountsRow = {
-	due: number;
-	new_available: number;
 	new_today: number;
-	with_image: number;
-	style_waiting: number;
+	waiting: number;
 };
 
 type DetailsRow = {
@@ -145,13 +142,7 @@ export async function loadReviewCounts(dayStart: Date): Promise<ReviewCountsResu
 	if (error || !data) return { error: collectionErrorMessage(error ?? {}) };
 	const row = data as CountsRow;
 	return {
-		counts: {
-			due: row.due,
-			newAvailable: row.new_available,
-			newToday: row.new_today,
-			withImage: row.with_image,
-			styleWaiting: row.style_waiting
-		}
+		counts: { newToday: row.new_today, waiting: row.waiting }
 	};
 }
 

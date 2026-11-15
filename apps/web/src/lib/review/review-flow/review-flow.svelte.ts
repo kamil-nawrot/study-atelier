@@ -1,26 +1,17 @@
 import { invalidate } from '$app/navigation';
-import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import {
 	atelierKnowledge,
-	freeScopeOptions,
 	nextWaiting,
 	sameScope,
 	scopeArtworks,
-	scopeOptions,
-	troubles,
-	waitingTomorrow
+	troubles
 } from '#lib/review/overview/overview.ts';
 import { FreeAnswers } from '#lib/review/free-answers/free-answers.ts';
 import { loadExtraSteps } from '#lib/review/extra-steps/extra-steps.ts';
 import { roundSummary } from '#lib/review/round-summary/round-summary.ts';
 import { offeredForms, quizzesPossible } from '#lib/review/forms/forms.ts';
-import {
-	currentDate,
-	missingArtworks,
-	startOfDay,
-	withExtraSteps
-} from '#lib/review/queue/queue.ts';
+import { currentDate, MIN_ARTWORKS, startOfDay, withExtraSteps } from '#lib/review/queue/queue.ts';
 import { quizArtworks, sessionItems } from '#lib/review/quiz/quiz.ts';
 import {
 	loadSession,
@@ -32,10 +23,12 @@ import { reviewedSince, streakWithToday } from '#lib/review/streak-week/streak-w
 import { ResolvedImages } from '#lib/review/resolved-images/resolved-images.svelte.ts';
 import { ReviewStop } from '#lib/review/review-stop/review-stop.svelte.ts';
 import { ReviewSession } from '#lib/review/review-session/review-session.svelte.ts';
-import { plannedCounts } from '#lib/review/style-places/style-places.ts';
+import { EMPTY_PLAN, loadReviewPlan } from '#lib/review/review-plan-data/review-plan-data.ts';
+import type { PlannedScope } from '#lib/review/types/planned-scope.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewDetails } from '#lib/review/types/review-details.ts';
 import type { ReviewForm } from '#lib/review/types/review-form.ts';
+import type { ReviewPlan } from '#lib/review/types/review-plan.ts';
 import type { ReviewRating } from '#lib/review/types/review-rating.ts';
 import type { ReviewScope } from '#lib/review/types/review-scope.ts';
 import type { ReviewSource } from '#lib/review/types/review-source.ts';
@@ -58,6 +51,7 @@ export class ReviewFlow {
 	cards = $state.raw(mapOf<string, ReviewCard>());
 	styleCards = $state.raw(mapOf<string, ReviewCard>());
 	newToday = $state(0);
+	plan = $state.raw<ReviewPlan>(EMPTY_PLAN);
 	now = $state(currentDate());
 	phase = $state<'start' | 'session' | 'summary'>('start');
 	session = $state<ReviewSession>();
@@ -68,10 +62,11 @@ export class ReviewFlow {
 	readonly images = new ResolvedImages();
 	readonly stop = new ReviewStop(
 		() => this.session,
-		() => this.#finish()
+		() => void this.#finish()
 	);
 
 	#free = new FreeAnswers();
+	#plannedForm: ReviewForm = 'mixed';
 	#outcomes = $state<Record<ReviewRating, ReviewCard>>();
 	readonly #source: () => ReviewSource;
 
@@ -82,6 +77,8 @@ export class ReviewFlow {
 		this.cards = data.cards;
 		this.styleCards = data.styleCards;
 		this.newToday = data.newToday;
+		this.plan = data.plan ?? EMPTY_PLAN;
+		this.#plannedForm = data.preferences.reviewForm;
 	}
 
 	#data(): ReviewSource {
@@ -98,33 +95,25 @@ export class ReviewFlow {
 		)
 	);
 	activeForm = $derived(this.forms.includes(this.form) ? this.form : 'mixed');
-	limits = $derived({
-		sessionSize: this.#data().preferences.reviewSessionSize,
-		newPerDay: this.#data().preferences.reviewNewPerDay
-	});
-	allCounts = $derived(this.#counts(scopeArtworks(this.#data().artworks, ALL_SCOPE), ALL_SCOPE));
-	freeScopes = $derived(freeScopeOptions(this.#data().artworks, this.cards));
+	allCounts = $derived(this.#planned(ALL_SCOPE));
 	freeOpen = $derived(
 		this.#data().preferences.reviewFree &&
 			this.allCounts.known + this.allCounts.fresh === 0 &&
-			missingArtworks(scopeArtworks(this.#data().artworks, ALL_SCOPE)) === 0 &&
-			this.freeScopes.length > 0
+			this.allCounts.artworks >= MIN_ARTWORKS &&
+			this.plan.free.length > 0
 	);
 	scopes = $derived<ScopeChoice[]>(
 		this.freeOpen
-			? this.freeScopes
-			: scopeOptions(this.#data().artworks, this.cards, this.now).map((option) => {
-					const planned = this.#counts(scopeArtworks(this.#data().artworks, option), option);
-					return { scope: option, count: planned.known + planned.fresh };
-				})
+			? this.plan.free
+			: this.plan.scopes.map(({ scope, known, fresh }) => ({ scope, count: known + fresh }))
 	);
 	activeScope = $derived(
 		this.scopes.find((option) => sameScope(option.scope, this.scope))?.scope ?? ALL_SCOPE
 	);
 	scoped = $derived(scopeArtworks(this.#data().artworks, this.activeScope));
-	counts = $derived(this.#counts(this.scoped, this.activeScope));
+	counts = $derived(this.#planned(this.activeScope));
 	waiting = $derived(this.counts.known + this.counts.fresh);
-	missing = $derived(missingArtworks(this.scoped));
+	missing = $derived(Math.max(0, MIN_ARTWORKS - this.counts.artworks));
 	nextDate = $derived(
 		this.waiting === 0 && this.missing === 0 ? nextWaiting(this.scoped, this.cards, this.now) : null
 	);
@@ -135,18 +124,24 @@ export class ReviewFlow {
 	hard = $derived(troubles(this.#data().artworks, this.cards).map(this.images.withImage));
 	current = $derived(this.session?.current);
 
-	#counts(artworks: WallArtwork[], scope: ReviewScope): ReturnType<typeof plannedCounts> {
-		return plannedCounts({
-			...this.limits,
-			artworks,
-			scope,
-			cards: this.cards,
-			styleCards: this.styleCards,
-			now: this.now,
-			newToday: this.newToday,
-			form: this.activeForm,
-			quizKinds: this.#data().preferences.reviewQuizKinds
-		});
+	#planned(scope: ReviewScope): PlannedScope {
+		const found = this.plan.scopes.find((option) => sameScope(option.scope, scope));
+		if (found) return found;
+		const free = this.plan.free.some((option) => sameScope(option.scope, scope));
+		return { scope, known: 0, fresh: 0, artworks: free ? MIN_ARTWORKS : 0 };
+	}
+
+	async #replan(): Promise<void> {
+		const form = this.activeForm;
+		const { plan } = await loadReviewPlan(startOfDay(currentDate()), form);
+		if (!plan) return;
+		this.#plannedForm = form;
+		this.plan = plan;
+	}
+
+	chooseForm(form: ReviewForm): void {
+		this.form = form;
+		if (this.activeForm !== this.#plannedForm) void this.#replan();
 	}
 
 	follow(): void {
@@ -242,7 +237,7 @@ export class ReviewFlow {
 		if (!active) return;
 		await active.rate(rating, this.#outcomes?.[rating]);
 		this.#free.record(active, startOfDay(currentDate()));
-		if (active === this.session && (active.finished || this.stop.afterSave)) this.#finish();
+		if (active === this.session && (active.finished || this.stop.afterSave)) void this.#finish();
 	}
 
 	async answer(choice: number): Promise<void> {
@@ -258,23 +253,23 @@ export class ReviewFlow {
 		if (!active) return;
 		await act(active);
 		this.#free.record(active, startOfDay(currentDate()));
-		if (active === this.session && this.stop.afterSave) this.#finish();
+		if (active === this.session && this.stop.afterSave) void this.#finish();
 	}
 
 	async guess(year: number): Promise<void> {
 		const active = this.session;
 		if (!active) return;
 		await active.guess(year);
-		if (active === this.session && this.stop.afterSave) this.#finish();
+		if (active === this.session && this.stop.afterSave) void this.#finish();
 	}
 
 	proceed(): void {
 		if (!this.session) return;
 		this.session.proceed();
-		if (this.session.finished) this.#finish();
+		if (this.session.finished) void this.#finish();
 	}
 
-	#finish(): void {
+	async #finish(): Promise<void> {
 		this.stop.reset();
 		const session = this.session;
 		if (!session) return;
@@ -285,12 +280,12 @@ export class ReviewFlow {
 		}
 		this.now = currentDate();
 		this.#free.record(session, startOfDay(this.now));
-		this.summary = roundSummary(
-			session,
-			session.free ? 0 : waitingTomorrow(this.scoped, this.cards, this.now, this.limits)
-		);
-		if (!session.free) void invalidate(REVIEW_COUNTS_DEPENDENCY);
+		this.summary = roundSummary(session, session.free ? 0 : this.plan.tomorrow);
 		this.session = undefined;
 		this.phase = session.anyAnswer ? 'summary' : 'start';
+		if (session.free) return;
+		void invalidate(REVIEW_COUNTS_DEPENDENCY);
+		await this.#replan();
+		if (this.summary) this.summary = { ...this.summary, tomorrow: this.plan.tomorrow };
 	}
 }

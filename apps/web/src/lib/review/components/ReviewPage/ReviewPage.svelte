@@ -156,7 +156,7 @@
 		known={flow.counts.known}
 		missing={flow.missing}
 		nextWhen={flow.nextDate ? formatWhen(flow.nextDate, flow.now) : undefined}
-		onform={(chosen) => (flow.form = chosen)}
+		onform={(chosen) => flow.chooseForm(chosen)}
 		onscope={(chosen) => flow.chooseScope(chosen)}
 		onstart={() => flow.start()}
 		reviewedToday={flow.reviewedToday}

@@ -115,10 +115,10 @@ describe('review data', () => {
 	});
 
 	it('counts the reviews from the start of the learner’s day', async () => {
-		countsCall({ due: 4, new_available: 30, new_today: 3, with_image: 40, style_waiting: 6 });
+		countsCall({ due: 4, new_available: 30, new_today: 3, with_image: 40, waiting: 16 });
 		const dayStart = new Date('2026-10-15T22:00:00.000Z');
 		await expect(loadReviewCounts(dayStart)).resolves.toEqual({
-			counts: { due: 4, newAvailable: 30, newToday: 3, withImage: 40, styleWaiting: 6 }
+			counts: { newToday: 3, waiting: 16 }
 		});
 		expect(rpc).toHaveBeenCalledWith('review_counts', { day_start: '2026-10-15T22:00:00.000Z' });
 	});

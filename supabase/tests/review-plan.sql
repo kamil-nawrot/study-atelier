@@ -1,0 +1,106 @@
+\set ON_ERROR_STOP on
+
+begin;
+
+insert into auth.users (id, email) values
+  ('00000000-0000-0000-0000-00000000000a', 'owner-a@example.test');
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-00000000000a", "role": "authenticated"}', true);
+
+create function pg_temp.card(due timestamptz)
+returns jsonb
+language sql
+as $$
+  select jsonb_build_object('due', due, 'stability', 20, 'difficulty', 4, 'state', 2,
+    'reps', 4, 'lapses', 0, 'scheduled_days', 20, 'learning_steps', 0, 'last_review', now() - interval '20 days');
+$$;
+
+create function pg_temp.scope(plan jsonb, wanted_kind text, wanted_value text default null)
+returns jsonb
+language sql
+as $$
+  select option.value
+    from jsonb_array_elements(plan -> 'scopes') as option
+    where option.value ->> 'kind' = wanted_kind
+      and option.value ->> 'value' is not distinct from wanted_value;
+$$;
+
+do $$
+declare
+  day_start constant timestamptz := date_trunc('day', now());
+  plan jsonb;
+begin
+  plan := public.review_plan(day_start);
+  assert plan -> 'scopes' = '[{"kind": "all", "known": 0, "fresh": 0, "artworks": 0}]'::jsonb,
+    'an empty atelier offers more than the whole atelier: ' || plan::text;
+  assert plan -> 'free' = '[]'::jsonb and (plan ->> 'tomorrow')::integer = 0,
+    'an empty atelier offers a free round or waits tomorrow';
+
+  for number in 1..45 loop
+    perform public.save_artwork(
+      jsonb_build_object(
+        'title', 'Work ' || number,
+        'author_unknown', true,
+        'era_code', case when number <= 30 then 'early_modern' else 'modern' end
+      ),
+      jsonb_build_object(
+        'style', jsonb_build_array(case when number <= 25 then 'Baroque' else 'Realism' end),
+        'period', jsonb_build_array('Period ' || (number % 3))
+      ),
+      null,
+      jsonb_build_array(jsonb_build_object(
+        'source_wikidata_id', 'Q' || number,
+        'source_image_file', 'Work_' || number || '.jpg'
+      ))
+    );
+  end loop;
+
+  plan := public.review_plan(day_start, 'flashcards');
+  assert pg_temp.scope(plan, 'all') @> '{"known": 0, "fresh": 10}',
+    'a new atelier does not plan the 10 new artworks of the day';
+  assert (pg_temp.scope(plan, 'all') ->> 'artworks')::integer = 45,
+    'the plan does not count the artworks with an image';
+  assert jsonb_array_length(plan -> 'scopes') = 1,
+    'a scope without 10 artworks due is offered';
+  assert (plan ->> 'tomorrow')::integer = 10, 'tomorrow does not bring 10 new artworks';
+
+  perform public.record_review(artwork.id, pg_temp.card(now() - interval '1 hour'),
+      '{"mode": "flashcard", "rating": 3}')
+    from public.artworks as artwork
+    where artwork.record_number <= 34;
+
+  plan := public.review_plan(day_start, 'flashcards');
+  assert pg_temp.scope(plan, 'all') @> '{"known": 20, "fresh": 0}',
+    'a round of flashcards does not take 20 of the 34 artworks due';
+  assert pg_temp.scope(plan, 'era', 'early_modern') is not null
+      and pg_temp.scope(plan, 'era', 'modern') is null,
+    'the eras offered do not follow the artworks due';
+  assert pg_temp.scope(plan, 'style', 'Baroque') is not null
+      and pg_temp.scope(plan, 'style', 'Realism') is null,
+    'the styles offered do not follow 20 artworks and 10 due';
+  assert (
+    select array_agg(option.value ->> 'kind' order by option.ordinality)
+      from jsonb_array_elements(plan -> 'scopes') with ordinality as option (value, ordinality)
+  ) = array['all', 'era', 'style'],
+    'the scopes are not in the order of the whole atelier, eras, periods and styles: ' || plan::text;
+
+  plan := public.review_plan(day_start, 'mixed');
+  assert pg_temp.scope(plan, 'all') @> '{"known": 16, "fresh": 0}',
+    'a mixed round of 20 does not keep 4 places for the style';
+  assert (select waiting from public.review_counts(day_start)) = 16,
+    'the menu counter does not follow the plan of the preferred form';
+  assert pg_temp.scope(plan, 'style', 'Baroque') @> '{"known": 20}',
+    'a round scoped to a style keeps places for the style';
+
+  assert (
+    select array_agg((option.value ->> 'kind') || coalesce(':' || (option.value ->> 'value'), '')
+        || '=' || (option.value ->> 'count') order by option.ordinality)
+      from jsonb_array_elements(plan -> 'free') with ordinality as option (value, ordinality)
+  ) = array['all=34', 'era:early_modern=30', 'style:Baroque=25'],
+    'the free round does not offer the reviewed artworks by scope: ' || (plan -> 'free')::text;
+end;
+$$;
+
+rollback;
