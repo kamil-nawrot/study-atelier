@@ -8,6 +8,7 @@ import {
 	loadRecentArtworks,
 	searchArtworks
 } from '#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts';
+import { saveGlossaryEntry } from '#lib/glossary/glossary-data/glossary-data.ts';
 import { createSymbolOption } from '#lib/symbols/symbols-data/symbols-data.ts';
 import AddPanel from './AddPanel.svelte';
 
@@ -181,5 +182,28 @@ describe('AddPanel', () => {
 		expect(createSymbolOption).toHaveBeenCalledWith('Kotwica', '');
 		expect(onsymboladded).toHaveBeenCalledWith(anchor);
 		expect(onadd).toHaveBeenCalledWith({ kind: 'symbol', symbolId: 'symbol-1', name: 'Kotwica' });
+	});
+
+	it('adds a new term in its dialog and puts it in the exhibition', async () => {
+		vi.mocked(saveGlossaryEntry).mockResolvedValue({ id: 'term-1' });
+		const onadd = vi.fn();
+		const ontermadded = vi.fn();
+		render(AddPanel, { open: true, lookup: new ArtworkLookup(), onadd, ontermadded });
+
+		await userEvent.fill(
+			page.getByRole('searchbox', { name: m.exhibitions.panel.searchTerm }),
+			'Impasto'
+		);
+		await userEvent.click(
+			page.getByRole('button', { name: m.exhibitions.panel.createTerm('Impasto') })
+		);
+		const dialog = page.getByRole('dialog', { name: m.glossary.form.newTitle });
+		await userEvent.click(dialog.getByRole('radio', { name: m.glossary.categoryNames.technique }));
+		await userEvent.click(dialog.getByRole('button', { name: m.glossary.quick.add }));
+
+		expect(ontermadded).toHaveBeenCalledWith(
+			expect.objectContaining({ id: 'term-1', name: 'Impasto', category: 'technique' })
+		);
+		expect(onadd).toHaveBeenCalledWith({ kind: 'term', termId: 'term-1', name: 'Impasto' });
 	});
 });
