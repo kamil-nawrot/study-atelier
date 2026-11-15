@@ -2,6 +2,7 @@ import {
 	loadExhibition,
 	loadExhibitionSummaries
 } from '#lib/exhibitions/exhibition-data/exhibition-data.ts';
+import { withPosterImages } from '#lib/exhibitions/exhibition-images-data/exhibition-images-data.ts';
 import { loadArtworksByIds } from '#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts';
 import { artworkIdsOf } from '#lib/exhibitions/exhibition-document/exhibition-document.ts';
 import { loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
@@ -44,8 +45,11 @@ async function summariesWithCovers(archived: boolean): Promise<{
 	const { exhibitions, error } = await loadExhibitionSummaries(archived);
 	if (error) return { exhibitions: [], covers: [], error };
 	const coverIds = [...new Set(exhibitions.flatMap((exhibition) => exhibition.coverId ?? []))];
-	const { artworks } = await loadArtworksByIds(coverIds);
-	return { exhibitions, covers: artworks };
+	const [{ artworks }, posters] = await Promise.all([
+		loadArtworksByIds(coverIds),
+		withPosterImages(exhibitions)
+	]);
+	return { exhibitions: posters, covers: artworks };
 }
 
 export async function loadExhibitionList(): Promise<ExhibitionListData> {

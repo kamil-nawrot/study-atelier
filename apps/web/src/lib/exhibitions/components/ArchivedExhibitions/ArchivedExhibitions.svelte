@@ -3,6 +3,7 @@
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { Alert, Button, Dialog, EmptyState, MetaLine, NoImage } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
+	import PosterImage from '#lib/exhibitions/components/PosterImage/PosterImage.svelte';
 	import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
 	import {
 		deleteExhibition,
@@ -90,16 +91,20 @@
 	<ul>
 		{#each shown as exhibition (exhibition.id)}
 			{@const cover = exhibition.coverId ? coverById.get(exhibition.coverId) : undefined}
+			{@const picture = exhibition.posterImage ?? cover?.image}
 			<li>
 				<div class="thumbnail">
-					{#if cover?.image?.src}
-						<img
-							alt=""
-							loading="lazy"
-							onerror={() => images.failed(cover)}
-							src={cover.image.src}
-							srcset={cover.image.srcset}
-						/>
+					{#if picture?.src}
+						<span class="frame">
+							<PosterImage
+								crop={exhibition.poster?.crop}
+								filters={exhibition.poster?.filters}
+								lazy
+								onerror={() => cover && !exhibition.posterImage && images.failed(cover)}
+								src={picture.src}
+								srcset={picture.srcset}
+							/>
+						</span>
 					{:else}
 						<NoImage />
 					{/if}
@@ -185,11 +190,11 @@
 		background: var(--color-mat-bg);
 	}
 
-	.thumbnail img {
+	.frame {
 		display: block;
 		width: 100%;
 		height: 100%;
-		object-fit: cover;
+		overflow: hidden;
 	}
 
 	.text {

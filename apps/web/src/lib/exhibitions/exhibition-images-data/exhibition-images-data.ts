@@ -1,6 +1,8 @@
 import { collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
+import { artworkImageSource } from '#lib/images/artwork-image/artwork-image.ts';
 import { IMAGE_COLUMNS, imageOf, withPreviews } from '#lib/images/image-record/image-record.ts';
+import type { ExhibitionSummary } from '#lib/exhibitions/types/exhibition-summary.ts';
 import type { ImageRow } from '#lib/images/types/image-row.ts';
 import type { Json } from '#lib/shared/data/database.types.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
@@ -35,4 +37,25 @@ export async function loadArtworkImages(ids: readonly string[]): Promise<ImagesR
 		images.set(row.artwork_id, [...(images.get(row.artwork_id) ?? []), image]);
 	});
 	return { images };
+}
+
+const POSTER_WIDTH = 800;
+
+export async function withPosterImages<Summary extends ExhibitionSummary>(
+	summaries: readonly Summary[]
+): Promise<Summary[]> {
+	const chosen = summaries.filter((summary) => summary.poster?.artworkId && summary.poster.imageId);
+	if (chosen.length === 0) return [...summaries];
+	const ids = [...new Set(chosen.flatMap((summary) => summary.poster?.artworkId ?? []))];
+	const { images, error } = await loadArtworkImages(ids);
+	if (error) return [...summaries];
+	return summaries.map((summary) => {
+		const { artworkId, imageId } = summary.poster ?? {};
+		if (!artworkId || !imageId) return summary;
+		const picture = images.get(artworkId)?.find((image) => image.id === imageId) ?? null;
+		const source = artworkImageSource(picture, POSTER_WIDTH);
+		return source
+			? { ...summary, posterImage: { src: source.src, srcset: source.srcset } }
+			: summary;
+	});
 }

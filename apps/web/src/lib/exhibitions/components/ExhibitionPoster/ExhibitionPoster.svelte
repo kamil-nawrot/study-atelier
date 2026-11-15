@@ -2,6 +2,7 @@
 	import { MetaLine, NoImage } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
+	import PosterImage from '#lib/exhibitions/components/PosterImage/PosterImage.svelte';
 	import { changedOn } from '#lib/exhibitions/exhibition-dates/exhibition-dates.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import type { ExhibitionSummary } from '#lib/exhibitions/types/exhibition-summary.ts';
@@ -13,18 +14,21 @@
 	};
 
 	let { exhibition, cover, onimagefailed }: Props = $props();
+
+	const picture = $derived(exhibition.posterImage ?? cover?.image);
 </script>
 
 <a class="poster" href={resolve('/(app)/atelier/exhibitions/[id]', { id: exhibition.id })}>
 	<span class="cover">
-		{#if cover?.image?.src}
-			<img
-				alt=""
-				loading="lazy"
-				onerror={() => onimagefailed?.(cover)}
+		{#if picture?.src}
+			<PosterImage
+				crop={exhibition.poster?.crop}
+				filters={exhibition.poster?.filters}
+				lazy
+				onerror={() => cover && !exhibition.posterImage && onimagefailed?.(cover)}
 				sizes="(min-width: 768px) 400px, 100vw"
-				src={cover.image.src}
-				srcset={cover.image.srcset}
+				src={picture.src}
+				srcset={picture.srcset}
 			/>
 		{:else}
 			<NoImage />
@@ -54,12 +58,6 @@
 		place-items: center;
 		overflow: hidden;
 		background: var(--color-mat-window);
-	}
-
-	.cover img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
 	}
 
 	.title {
