@@ -37,10 +37,9 @@ describe('PairQuiz', () => {
 
 		await expect.element(page.getByText(m.review.quiz.pairTag)).toBeVisible();
 		await expect
-			.element(page.getByRole('heading', { name: m.review.quiz.pairQuestion }))
-			.toBeVisible();
-		await expect
-			.element(page.getByText(m.review.quiz.pairValue.style('Impressionism')))
+			.element(
+				page.getByRole('heading', { name: m.review.quiz.pairQuestion.style('Impressionism') })
+			)
 			.toBeVisible();
 		await expect.element(page.getByRole('listitem')).toHaveLength(2);
 
@@ -58,7 +57,7 @@ describe('PairQuiz', () => {
 		await expect
 			.element(page.getByRole('status'))
 			.toHaveTextContent(
-				`${m.review.quiz.wrong} Impression. ${m.review.quiz.pairOther.style('Realism')} ${m.review.quiz.pairRetry}`
+				`${m.review.quiz.wrong} Impression. ${m.review.quiz.pairOther('Realism')} ${m.review.quiz.pairRetry}`
 			);
 
 		await page.getByRole('button', { name: m.review.quiz.next }).click();
