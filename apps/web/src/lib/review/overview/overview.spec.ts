@@ -40,11 +40,13 @@ describe('review scopes', () => {
 		period: ['Baroque', 'Baroque', 'Baroque', 'Renaissance', 'Renaissance', 'Gothic', null, null][
 			index
 		],
-		styles: index < 2 ? ['Caravaggism'] : index < 5 ? ['High Renaissance'] : []
+		styles: index < 2 ? ['Caravaggism'] : index < 5 ? ['High Renaissance'] : [],
+		seen: index === 3
 	}));
 
 	it('narrows the artworks to the chosen scope', () => {
 		expect(scopeArtworks(artworks, { kind: 'all' })).toHaveLength(8);
+		expect(scopeArtworks(artworks, { kind: 'seen' }).map((a) => a.number)).toEqual([4]);
 		expect(
 			scopeArtworks(artworks, { kind: 'era', code: 'middle_ages' }).map((a) => a.number)
 		).toEqual([6, 7, 8]);

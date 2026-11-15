@@ -1,5 +1,4 @@
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
-import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
 import type { SessionStep } from '#lib/review/types/session-step.ts';
 
@@ -22,10 +21,6 @@ export function endOfDay(now: Date): Date {
 
 export function reviewableArtworks(artworks: WallArtwork[]): WallArtwork[] {
 	return artworks.filter((artwork) => artwork.hasImage);
-}
-
-export function isDueToday(card: ReviewCard, now: Date): boolean {
-	return card.due < endOfDay(now);
 }
 
 export function retryLater<T>(
