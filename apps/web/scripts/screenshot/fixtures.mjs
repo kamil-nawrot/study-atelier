@@ -412,7 +412,8 @@ export function valueId(category, name) {
 export const AUTHOR_RELATIONS = [
 	{ from: 'Gustav Klimt', to: 'Leonardo da Vinci', kind: 'influence' },
 	{ from: 'Vincent van Gogh', to: 'Johannes Vermeer', kind: 'influence' },
-	{ from: 'Johannes Vermeer', to: 'Leonardo da Vinci', kind: 'related' }
+	{ from: 'Johannes Vermeer', to: 'Leonardo da Vinci', kind: 'related' },
+	{ from: 'Raphael', to: 'Pietro Perugino', kind: 'pupil' }
 ].map(({ from, to, kind }) => ({
 	kind,
 	from: { id: valueId('author', from), name: from },

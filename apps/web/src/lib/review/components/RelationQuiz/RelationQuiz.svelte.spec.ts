@@ -35,24 +35,25 @@ describe('RelationQuiz', () => {
 
 		await expect.element(page.getByText(m.review.quiz.relationTag)).toBeVisible();
 		await expect
-			.element(page.getByRole('heading', { name: m.review.quiz.relationQuestions.studyFrom }))
-			.toBeVisible();
-		await expect
-			.element(page.getByText(m.review.quiz.relationArtwork('Head of a Woman')))
+			.element(
+				page.getByRole('heading', {
+					name: `${m.review.quiz.relationQuestions.studyFrom} Head of a Woman?`
+				})
+			)
 			.toBeVisible();
 
 		await page.getByRole('button', { name: /The Kiss/ }).click();
 		expect(onanswer).toHaveBeenCalledWith(1);
 	});
 
-	it('names the author asked about and the right answer after a wrong one', async () => {
+	it('asks about the author of the artwork shown and names the right answer after a wrong one', async () => {
 		const { onnext } = renderQuiz(
 			item({ question: 'pupilFrom', author: 'Leonardo da Vinci', key: 'author:l|v' }),
 			2
 		);
 
 		await expect
-			.element(page.getByText(m.review.quiz.relationAuthor('Leonardo da Vinci')))
+			.element(page.getByRole('heading', { name: m.review.quiz.pupilQuestions.pupilFrom }))
 			.toBeVisible();
 		await expect
 			.element(page.getByRole('status'))

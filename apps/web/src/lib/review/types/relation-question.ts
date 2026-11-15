@@ -1,5 +1,4 @@
 import type { ArtworkRelationType } from '#lib/artwork-relations/types/artwork-relation-type.ts';
-import type { AuthorRelationType } from '#lib/author-relations/types/author-relation-type.ts';
+import type { PupilQuestion } from './pupil-question.ts';
 
-export type RelationQuestion =
-	Exclude<ArtworkRelationType, 'related'> | Exclude<AuthorRelationType, 'related'>;
+export type RelationQuestion = Exclude<ArtworkRelationType, 'related'> | PupilQuestion;
