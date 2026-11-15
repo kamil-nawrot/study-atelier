@@ -11,7 +11,6 @@ import {
 	recordFreeAnswers,
 	recordRightAnswer,
 	recordReview,
-	waitingToday,
 	withPinPreviews
 } from './review-data.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
@@ -114,10 +113,10 @@ describe('review data', () => {
 	});
 
 	it('counts the reviews from the start of the learner’s day', async () => {
-		countsCall({ due: 4, new_available: 30, new_today: 3, with_image: 40 });
+		countsCall({ due: 4, new_available: 30, new_today: 3, with_image: 40, style_waiting: 6 });
 		const dayStart = new Date('2026-10-15T22:00:00.000Z');
 		await expect(loadReviewCounts(dayStart)).resolves.toEqual({
-			counts: { due: 4, newAvailable: 30, newToday: 3, withImage: 40 }
+			counts: { due: 4, newAvailable: 30, newToday: 3, withImage: 40, styleWaiting: 6 }
 		});
 		expect(rpc).toHaveBeenCalledWith('review_counts', { day_start: '2026-10-15T22:00:00.000Z' });
 	});
@@ -148,21 +147,6 @@ describe('review data', () => {
 		await expect(loadReviewCounts(new Date())).resolves.toEqual({
 			error: m.collectionErrors.network
 		});
-	});
-
-	it('counts what waits today: due artworks and new ones up to the daily limit', () => {
-		expect(waitingToday({ due: 4, newAvailable: 30, newToday: 3, withImage: 40 })).toBe(11);
-		expect(waitingToday({ due: 4, newAvailable: 2, newToday: 0, withImage: 40 })).toBe(6);
-		expect(waitingToday({ due: 25, newAvailable: 30, newToday: 10, withImage: 40 })).toBe(25);
-	});
-
-	it('counts the new artworks up to the limit of the preferences', () => {
-		expect(waitingToday({ due: 4, newAvailable: 30, newToday: 3, withImage: 40 }, 20)).toBe(21);
-		expect(waitingToday({ due: 4, newAvailable: 30, newToday: 3, withImage: 40 }, 5)).toBe(6);
-	});
-
-	it('shows nothing waiting until the collection has 20 artworks with an image', () => {
-		expect(waitingToday({ due: 0, newAvailable: 19, newToday: 0, withImage: 19 })).toBe(0);
 	});
 
 	it('records a flashcard rating with the next state of the card and the day of the answer', async () => {

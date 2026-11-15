@@ -9,7 +9,7 @@ import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { noteWrite } from '#lib/shared/data/writes/writes.ts';
 import type { ReviewScope } from '#lib/review/types/review-scope.ts';
-import { MIN_ARTWORKS, newAllowance, startOfDay } from '#lib/review/queue/queue.ts';
+import { startOfDay } from '#lib/review/queue/queue.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewCounts } from '#lib/review/types/review-counts.ts';
 import type { ReviewForm } from '#lib/review/types/review-form.ts';
@@ -80,6 +80,7 @@ type CountsRow = {
 	new_available: number;
 	new_today: number;
 	with_image: number;
+	style_waiting: number;
 };
 
 type DetailsRow = {
@@ -146,7 +147,8 @@ export async function loadReviewCounts(dayStart: Date): Promise<ReviewCountsResu
 			due: row.due,
 			newAvailable: row.new_available,
 			newToday: row.new_today,
-			withImage: row.with_image
+			withImage: row.with_image,
+			styleWaiting: row.style_waiting
 		}
 	};
 }
@@ -175,12 +177,6 @@ export async function recordRightAnswer(dayStart: Date): Promise<void> {
 		day_start: dayStart.toISOString()
 	});
 	if (!error) noteWrite();
-}
-
-export function waitingToday(counts: ReviewCounts, newPerDay?: number): number {
-	if (counts.withImage < MIN_ARTWORKS) return 0;
-	const fresh = Math.min(counts.newAvailable, newAllowance(counts.newToday, newPerDay));
-	return counts.due + fresh;
 }
 
 export async function recordReview(

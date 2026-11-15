@@ -46,7 +46,7 @@ describe('(app) layout load', () => {
 		ownProfileData.loadOwnProfile.mockReset();
 		ownProfileData.loadOwnProfile.mockResolvedValue(own());
 		reviewData.loadReviewCounts.mockResolvedValue({
-			counts: { due: 4, newAvailable: 30, newToday: 3, withImage: 40 }
+			counts: { due: 4, newAvailable: 30, newToday: 3, withImage: 40, styleWaiting: 0 }
 		});
 	});
 
@@ -63,15 +63,15 @@ describe('(app) layout load', () => {
 		await expect(loadWith(session)).resolves.toMatchObject({ session });
 	});
 
-	it('counts the artworks waiting for review today without holding the page', async () => {
+	it('counts the artworks of the next round without holding the page', async () => {
 		const { reviewWaiting } = (await loadWith(testSession())) ?? {};
 
 		await expect(reviewWaiting).resolves.toBe(11);
 	});
 
-	it('counts the new artworks up to the limit of the preferences', async () => {
+	it('counts the round from the session size and the new artworks of the preferences', async () => {
 		ownProfileData.loadOwnProfile.mockResolvedValue(
-			own({ preferences: { ...defaultPreferences, reviewNewPerDay: 20 } })
+			own({ preferences: { ...defaultPreferences, reviewNewPerDay: 20, reviewSessionSize: 30 } })
 		);
 
 		const { reviewWaiting } = (await loadWith(testSession())) ?? {};
