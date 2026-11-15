@@ -34,7 +34,8 @@
 	import { refreshCareerOnFullImage } from '#lib/pins/full-image/full-image.ts';
 	import { pinsOfImage } from '#lib/pins/pin-layout/pin-layout.ts';
 	import type { Pin as PinRecord } from '#lib/pins/types/pin.ts';
-	import { createSymbolOption } from '#lib/symbols/symbols-data/symbols-data.ts';
+	import PinEntryDialogs from '#lib/artworks/components/PinEntryDialogs/PinEntryDialogs.svelte';
+	import { PinEntries } from '#lib/artworks/pin-entries/pin-entries.svelte.ts';
 	import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
 	import { swipe } from '#lib/wall/flip/flip.ts';
 	import type { FlipDirection } from '#lib/wall/types/flip-direction.ts';
@@ -66,17 +67,12 @@
 		onflip
 	}: Props = $props();
 
-	let createdSymbols = $state.raw<SymbolOption[]>([]);
-	const allSymbols = $derived([
-		...(symbols ?? []),
-		...createdSymbols.filter((created) => !symbols?.some((own) => own.id === created.id))
-	]);
-
-	async function createSymbol(name: string): Promise<{ symbol?: SymbolOption; error?: string }> {
-		const result = await createSymbolOption(name);
-		if (result.symbol) createdSymbols = [...createdSymbols, result.symbol];
-		return result;
-	}
+	const pinEntries = new PinEntries(
+		() => glossary ?? [],
+		() => symbols ?? []
+	);
+	const allSymbols = $derived(pinEntries.symbols);
+	const allTerms = $derived(pinEntries.terms);
 
 	const STAGE_WIDTH = 960;
 	const VIEWER_WIDTH = 1920;
@@ -107,9 +103,7 @@
 	let imagePins = $derived(pinsOfImage(allPins, imageId));
 	let newPin = $state<{ x: number; y: number; viewWidth: number }>();
 	let newPinOpen = $state(false);
-	let entryNames = $derived(
-		Object.fromEntries((glossary ?? []).map((entry) => [entry.id, entry.name]))
-	);
+	let entryNames = $derived(Object.fromEntries(allTerms.map((entry) => [entry.id, entry.name])));
 
 	$effect.pre(() => {
 		void artwork.id;
@@ -247,11 +241,13 @@
 
 {#if imageId !== undefined && newPin}
 	<PinDialog
-		entries={glossary ?? []}
+		entries={allTerms}
 		image={current}
 		{imageId}
-		oncreatesymbol={createSymbol}
+		onaddmeaning={pinEntries.addMeaning}
 		ondeleted={() => {}}
+		onnewsymbol={pinEntries.newSymbol}
+		onnewterm={pinEntries.newTerm}
 		onsaved={pinSaved}
 		shownWidth={frameWidth}
 		spot={newPin}
@@ -259,10 +255,11 @@
 		view={newPin.viewWidth}
 		bind:open={newPinOpen}
 	/>
+	<PinEntryDialogs entries={pinEntries} />
 {/if}
 {#snippet pinCard(pin: PinRecord)}
 	<PinCard
-		entry={glossary?.find((entry) => entry.id === pin.glossaryEntryId)}
+		entry={allTerms.find((entry) => entry.id === pin.glossaryEntryId)}
 		image={current}
 		{pin}
 		shownWidth={frameWidth}

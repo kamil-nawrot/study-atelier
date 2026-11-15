@@ -25,6 +25,8 @@
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
 	import PinLayer from '#lib/pins/components/PinLayer/PinLayer.svelte';
+	import PinEntryDialogs from '#lib/artworks/components/PinEntryDialogs/PinEntryDialogs.svelte';
+	import { PinEntries } from '#lib/artworks/pin-entries/pin-entries.svelte.ts';
 	import { pinsOfImage } from '#lib/pins/pin-layout/pin-layout.ts';
 	import type { Pin } from '#lib/pins/types/pin.ts';
 	import { autoFetch } from '#lib/profile/auto-fetch/auto-fetch.svelte.ts';
@@ -65,6 +67,11 @@
 	type MatchStatus = 'idle' | 'searching' | 'matched' | 'none' | 'failed';
 
 	const SLOT_WIDTH = 120;
+
+	const pinEntries = new PinEntries(
+		() => entries,
+		() => symbols
+	);
 
 	let selected = $state(0);
 	let matchStatus = $state<MatchStatus>('idle');
@@ -265,13 +272,17 @@
 {#snippet pinLayer()}
 	{#if pins !== undefined && pinImageId !== undefined}
 		<PinLayer
-			{entries}
+			entries={pinEntries.terms}
 			image={current()}
 			imageId={pinImageId}
+			onaddmeaning={pinEntries.addMeaning}
 			onfailure={(message) => (pinFailure = message)}
-			{symbols}
+			onnewsymbol={pinEntries.newSymbol}
+			onnewterm={pinEntries.newTerm}
+			symbols={pinEntries.symbols}
 			bind:pins
 		/>
+		<PinEntryDialogs entries={pinEntries} />
 	{/if}
 {/snippet}
 

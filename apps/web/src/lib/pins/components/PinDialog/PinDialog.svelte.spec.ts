@@ -190,7 +190,8 @@ describe('PinDialog', () => {
 
 		await userEvent.click(page.getByRole('combobox', { name: 'Symbol' }));
 		await page.getByRole('option', { name: 'Keys' }).click();
-		await page.getByLabelText('Znaczenie na tym dziele').selectOptions('meaning-2');
+		await userEvent.click(page.getByRole('combobox', { name: 'Znaczenie na tym dziele' }));
+		await page.getByRole('option', { name: 'Heaven' }).click();
 		await page.getByRole('button', { name: 'Zapisz' }).click();
 
 		expect(createPin).toHaveBeenCalledWith(
@@ -242,42 +243,99 @@ describe('PinDialog', () => {
 		);
 	});
 
-	it('offers no meaning for a symbol with a single one', async () => {
+	it('picks the only meaning of a symbol by itself', async () => {
+		vi.mocked(createPin).mockResolvedValue({ pin: SAVED });
 		open({
 			symbols: [{ id: 'symbol-1', name: 'Keys', meanings: [{ id: 'meaning-1', text: 'Heaven' }] }]
 		});
 
 		await userEvent.click(page.getByRole('combobox', { name: 'Symbol' }));
 		await page.getByRole('option', { name: 'Keys' }).click();
+		await expect
+			.element(page.getByRole('combobox', { name: 'Znaczenie na tym dziele' }))
+			.toHaveValue('Heaven');
+		await page.getByRole('button', { name: 'Zapisz' }).click();
 
-		expect(page.getByLabelText('Znaczenie na tym dziele').elements()).toHaveLength(0);
+		expect(createPin).toHaveBeenCalledWith(
+			'image-1',
+			expect.objectContaining({ symbolId: 'symbol-1', symbolMeaningId: 'meaning-1' })
+		);
+	});
+
+	it('adds a new meaning to the symbol when the pin is saved', async () => {
+		vi.mocked(createPin).mockResolvedValue({ pin: SAVED });
+		const onaddmeaning = vi.fn().mockResolvedValue({ id: 'meaning-new' });
+		open({
+			onaddmeaning,
+			symbols: [{ id: 'symbol-1', name: 'Keys', meanings: [{ id: 'meaning-1', text: 'Heaven' }] }]
+		});
+
+		await userEvent.click(page.getByRole('combobox', { name: 'Symbol' }));
+		await page.getByRole('option', { name: 'Keys' }).click();
+		const meaning = page.getByRole('combobox', { name: 'Znaczenie na tym dziele' });
+		await userEvent.clear(meaning);
+		await userEvent.fill(meaning, 'Power');
+		await page.getByRole('option', { name: m.symbols.pin.createMeaning('Power') }).click();
+		await expect.element(page.getByText(m.symbols.pin.newMeaningNote)).toBeVisible();
+		await page.getByRole('button', { name: 'Zapisz' }).click();
+
+		expect(onaddmeaning).toHaveBeenCalledWith('symbol-1', 1, 'Power');
+		expect(createPin).toHaveBeenCalledWith(
+			'image-1',
+			expect.objectContaining({ symbolId: 'symbol-1', symbolMeaningId: 'meaning-new' })
+		);
+	});
+
+	it('keeps the pin open when the new meaning cannot be added', async () => {
+		const onaddmeaning = vi.fn().mockResolvedValue({ error: 'Offline.' });
+		open({ onaddmeaning, symbols: [{ id: 'symbol-1', name: 'Keys', meanings: [] }] });
+
+		await userEvent.click(page.getByRole('combobox', { name: 'Symbol' }));
+		await page.getByRole('option', { name: 'Keys' }).click();
+		await userEvent.fill(page.getByRole('combobox', { name: 'Znaczenie na tym dziele' }), 'Power');
+		await page.getByRole('option', { name: m.symbols.pin.createMeaning('Power') }).click();
+		await page.getByRole('button', { name: 'Zapisz' }).click();
+
+		await expect.element(page.getByText('Offline.')).toBeVisible();
+		expect(createPin).not.toHaveBeenCalled();
 	});
 
 	it('creates a symbol from the symbol field and points the pin at it', async () => {
 		vi.mocked(createPin).mockResolvedValue({ pin: SAVED });
-		const oncreatesymbol = vi
-			.fn()
-			.mockResolvedValue({ symbol: { id: 'symbol-new', name: 'Anchor', meanings: [] } });
-		open({ oncreatesymbol, symbols: [] });
+		const onnewsymbol = vi.fn().mockResolvedValue({
+			id: 'symbol-new',
+			name: 'Anchor',
+			meanings: [{ id: 'meaning-new', text: 'Hope' }]
+		});
+		open({ onnewsymbol, symbols: [] });
 
 		await userEvent.fill(page.getByRole('combobox', { name: 'Symbol' }), 'Anchor');
 		await page.getByRole('option', { name: m.symbols.pin.create('Anchor') }).click();
+		await expect
+			.element(page.getByRole('combobox', { name: 'Znaczenie na tym dziele' }))
+			.toHaveValue('Hope');
 		await page.getByRole('button', { name: 'Zapisz' }).click();
 
-		expect(oncreatesymbol).toHaveBeenCalledWith('Anchor');
+		expect(onnewsymbol).toHaveBeenCalledWith('Anchor');
 		expect(createPin).toHaveBeenCalledWith(
 			'image-1',
-			expect.objectContaining({ symbolId: 'symbol-new' })
+			expect.objectContaining({ symbolId: 'symbol-new', symbolMeaningId: 'meaning-new' })
 		);
 	});
 
-	it('shows why a symbol could not be created', async () => {
-		const oncreatesymbol = vi.fn().mockResolvedValue({ error: 'Offline.' });
-		open({ oncreatesymbol, symbols: [] });
+	it('creates a glossary term from the term field and points the pin at it', async () => {
+		vi.mocked(createPin).mockResolvedValue({ pin: SAVED });
+		const onnewterm = vi.fn().mockResolvedValue(testEntry('entry-new', 'Contrapposto'));
+		open({ onnewterm });
 
-		await userEvent.fill(page.getByRole('combobox', { name: 'Symbol' }), 'Anchor');
-		await page.getByRole('option', { name: m.symbols.pin.create('Anchor') }).click();
+		await userEvent.fill(page.getByRole('combobox', { name: 'Pojęcie' }), 'Contrapposto');
+		await page.getByRole('option', { name: m.pins.createTerm('Contrapposto') }).click();
+		await page.getByRole('button', { name: 'Zapisz' }).click();
 
-		await expect.element(page.getByText('Offline.')).toBeVisible();
+		expect(onnewterm).toHaveBeenCalledWith('Contrapposto');
+		expect(createPin).toHaveBeenCalledWith(
+			'image-1',
+			expect.objectContaining({ glossaryEntryId: 'entry-new' })
+		);
 	});
 });
