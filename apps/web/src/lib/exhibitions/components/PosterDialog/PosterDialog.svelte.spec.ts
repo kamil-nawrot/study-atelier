@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/i18n.ts';
+import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
 import { saveExhibitionPoster } from '#lib/exhibitions/exhibition-data/exhibition-data.ts';
@@ -41,8 +42,8 @@ const images = vi.mocked(loadArtworkImages);
 
 const judith = testArtwork(1, 'Judith');
 const olympia = testArtwork(2, 'Olympia');
-const url = (name: string) => ({
-	kind: 'url' as const,
+const url = (name: string): ArtworkImageInput => ({
+	kind: 'url',
 	url: `https://images.example.test/${name}.jpg`,
 	width: 400,
 	height: 500
@@ -54,7 +55,7 @@ function lookup(): ArtworkLookup {
 	return known;
 }
 
-function open(stored = NO_POSTER, onsaved = vi.fn()) {
+function open(stored = NO_POSTER, onsaved = vi.fn()): typeof onsaved {
 	render(PosterDialog, {
 		open: true,
 		exhibitionId: 'exhibition',
@@ -121,8 +122,10 @@ describe('PosterDialog', () => {
 	it('moves the crop with the arrow keys and zooms with the slider', async () => {
 		open({ ...NO_POSTER, artworkId: judith.id });
 
-		page.getByRole('button', { name: m.exhibitions.poster.crop }).element().focus();
-		await userEvent.keyboard('{ArrowRight}');
+		page
+			.getByRole('button', { name: m.exhibitions.poster.crop })
+			.element()
+			.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
 		await userEvent.fill(page.getByRole('slider', { name: m.exhibitions.poster.zoom }), '2');
 		await userEvent.click(page.getByRole('button', { name: m.common.save }));
 

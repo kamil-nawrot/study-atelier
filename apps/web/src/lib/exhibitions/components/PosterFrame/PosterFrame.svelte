@@ -32,12 +32,13 @@
 
 	let width = $state(0);
 	let height = $state(0);
-	let natural = $state<Size>();
 	let pointer: { id: number; x: number; y: number } | undefined;
 
-	function loaded(event: Event): void {
-		const image = (event.currentTarget as HTMLElement).querySelector('img');
-		if (image) natural = { width: image.naturalWidth, height: image.naturalHeight };
+	function naturalOf(frame: HTMLElement): Size | undefined {
+		const image = frame.querySelector('img');
+		return image?.naturalWidth
+			? { width: image.naturalWidth, height: image.naturalHeight }
+			: undefined;
 	}
 
 	function down(event: PointerEvent): void {
@@ -47,6 +48,7 @@
 	}
 
 	function move(event: PointerEvent): void {
+		const natural = naturalOf(event.currentTarget as HTMLElement);
 		if (!pointer || pointer.id !== event.pointerId || !natural) return;
 		const dx = event.clientX - pointer.x;
 		const dy = event.clientY - pointer.y;
@@ -71,7 +73,6 @@
 	aria-describedby={hintId}
 	aria-label={label}
 	onkeydown={key}
-	onloadcapture={loaded}
 	onlostpointercapture={up}
 	onpointercancel={up}
 	onpointerdown={down}

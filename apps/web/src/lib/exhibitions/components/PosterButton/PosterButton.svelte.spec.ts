@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/i18n.ts';
+import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { ArtworkLookup } from '#lib/exhibitions/artwork-lookup/artwork-lookup.svelte.ts';
 import { saveExhibitionPoster } from '#lib/exhibitions/exhibition-data/exhibition-data.ts';
@@ -39,7 +40,7 @@ vi.mock('#lib/notes/note-link-data/note-link-data.ts', () => ({
 const save = vi.mocked(saveExhibitionPoster);
 const judith = testArtwork(1, 'Judith');
 
-function documentWith(...ids: string[]) {
+function documentWith(...ids: string[]): ExhibitionDocument {
 	return {
 		type: 'doc',
 		content: ids.map((artworkId) => ({ type: 'artwork', attrs: { artworkId } }))

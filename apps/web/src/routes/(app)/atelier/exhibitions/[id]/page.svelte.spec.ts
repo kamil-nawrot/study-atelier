@@ -48,6 +48,7 @@ vi.mock('#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts',
 }));
 vi.mock('#lib/exhibitions/exhibition-data/exhibition-data.ts', () => ({
 	saveExhibition: vi.fn().mockResolvedValue({ revision: 2 }),
+	saveExhibitionPoster: vi.fn(),
 	archiveExhibition: vi.fn().mockResolvedValue({})
 }));
 
