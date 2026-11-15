@@ -92,4 +92,16 @@ describe('NewTermDialog', () => {
 		await expect.element(page.getByText(m.common.network)).toBeVisible();
 		expect(onadded).not.toHaveBeenCalled();
 	});
+
+	it('says when the glossary already took the name', async () => {
+		vi.mocked(saveGlossaryEntry).mockResolvedValue({ nameTaken: true });
+		const onadded = openDialog('Nawa');
+
+		await page.getByRole('radio', { name: m.glossary.categoryNames.architecture }).click();
+		await vi.advanceTimersByTimeAsync(700);
+		await addButton().click();
+
+		await expect.element(page.getByText(m.glossary.form.nameTaken('Nawa'))).toBeVisible();
+		expect(onadded).not.toHaveBeenCalled();
+	});
 });

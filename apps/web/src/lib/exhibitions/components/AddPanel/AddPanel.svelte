@@ -7,6 +7,8 @@
 	import SymbolSearch from '#lib/exhibitions/components/SymbolSearch/SymbolSearch.svelte';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
+	import NewTermDialog from '#lib/glossary/components/NewTermDialog/NewTermDialog.svelte';
+	import NewSymbolDialog from '#lib/symbols/components/NewSymbolDialog/NewSymbolDialog.svelte';
 	import FilterSidePanel from '#lib/wall/components/FilterSidePanel/FilterSidePanel.svelte';
 	import type {
 		ArtworkKind,
@@ -21,6 +23,8 @@
 		terms?: readonly GlossaryTerm[];
 		symbols?: readonly SymbolOption[];
 		onadd: (block: NewBlock) => void;
+		ontermadded?: (term: GlossaryTerm) => void;
+		onsymboladded?: (symbol: SymbolOption) => void;
 		ondrag?: (event: PointerEvent, block: NewBlock) => void;
 		addHref?: ResolvedPathname;
 	};
@@ -31,6 +35,8 @@
 		terms = [],
 		symbols = [],
 		onadd,
+		ontermadded,
+		onsymboladded,
 		ondrag,
 		addHref
 	}: Props = $props();
@@ -63,6 +69,29 @@
 
 	let artworkKind = $state<ArtworkKind>('artwork');
 	let glossaryKind = $state<'term' | 'symbol'>('term');
+	let newName = $state('');
+	let termOpen = $state(false);
+	let symbolOpen = $state(false);
+
+	function newTerm(name: string): void {
+		newName = name;
+		termOpen = true;
+	}
+
+	function newSymbol(name: string): void {
+		newName = name;
+		symbolOpen = true;
+	}
+
+	function termAdded(term: GlossaryTerm): void {
+		ontermadded?.(term);
+		onadd(termBlock(term));
+	}
+
+	function symbolAdded(symbol: SymbolOption): void {
+		onsymboladded?.(symbol);
+		onadd(symbolBlock(symbol));
+	}
 </script>
 
 <FilterSidePanel
@@ -123,12 +152,14 @@
 		</div>
 		{#if glossaryKind === 'symbol'}
 			<SymbolSearch
+				oncreate={newSymbol}
 				ondrag={(event, symbol) => ondrag?.(event, symbolBlock(symbol))}
 				onpick={(symbol) => onadd(symbolBlock(symbol))}
 				{symbols}
 			/>
 		{:else}
 			<TermSearch
+				oncreate={newTerm}
 				ondrag={(event, term) => ondrag?.(event, termBlock(term))}
 				onpick={(term) => onadd(termBlock(term))}
 				{terms}
@@ -136,6 +167,8 @@
 		{/if}
 	</section>
 </FilterSidePanel>
+<NewTermDialog name={newName} entries={terms} onadded={termAdded} bind:open={termOpen} />
+<NewSymbolDialog name={newName} onadded={symbolAdded} bind:open={symbolOpen} />
 
 <style>
 	.section {

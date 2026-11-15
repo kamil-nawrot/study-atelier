@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { Icon, SearchField } from '@study-atelier/ui';
+	import { Icon, SearchField, TextButton } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import {
 		glossaryCategoryIcon,
@@ -13,21 +13,22 @@
 		terms: readonly GlossaryTerm[];
 		onpick: (term: GlossaryTerm) => void;
 		ondrag?: (event: PointerEvent, term: GlossaryTerm) => void;
+		oncreate?: (name: string) => void;
 	};
 
-	let { terms, onpick, ondrag }: Props = $props();
+	let { terms, onpick, ondrag, oncreate }: Props = $props();
 
 	let query = $state('');
 
 	let shown = $derived(matchingTerms(terms, query));
 	let status = $derived.by(() => {
-		if (terms.length === 0) return m.exhibitions.panel.noTerms;
-		if (query.trim() === '') return m.exhibitions.panel.termsByName;
+		if (query.trim() === '')
+			return terms.length === 0 ? m.exhibitions.panel.noTerms : m.exhibitions.panel.termsByName;
 		return shown.length > 0 ? m.exhibitions.panel.found(shown.length) : m.exhibitions.panel.noTerm;
 	});
 </script>
 
-{#if terms.length > 0}
+{#if terms.length > 0 || oncreate}
 	<SearchField
 		label={m.exhibitions.panel.searchTerm}
 		placeholder={m.exhibitions.panel.searchTermPlaceholder}
@@ -35,6 +36,13 @@
 	/>
 {/if}
 <p class="caption">{status}</p>
+{#if oncreate && query.trim() !== '' && shown.length === 0}
+	<span>
+		<TextButton inline onclick={() => oncreate(query.trim())}>
+			{m.exhibitions.panel.createTerm(query.trim())}
+		</TextButton>
+	</span>
+{/if}
 {#if shown.length > 0}
 	<ul class="terms">
 		{#each shown as term (term.id)}

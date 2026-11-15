@@ -24,6 +24,8 @@
 	import { ExhibitionSession } from '#lib/exhibitions/exhibition-session/exhibition-session.svelte.ts';
 	import { ExhibitionLeave } from '#lib/exhibitions/exhibition-leave/exhibition-leave.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
+	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
+	import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
 	import type { PageProps } from './$types';
 
 	const PANEL_KEY = 'exhibition-panel';
@@ -38,6 +40,10 @@
 	let deleteOpen = $state(false);
 	let panelOpen = $state(readStored('local', PANEL_KEY) !== 'closed');
 	let pane = $state<ReturnType<typeof ExhibitionEditorPane>>();
+	let addedTerms = $state.raw<GlossaryTerm[]>([]);
+	let addedSymbols = $state.raw<SymbolOption[]>([]);
+	let terms = $derived([...data.glossary, ...addedTerms]);
+	let symbols = $derived([...data.symbols, ...addedSymbols]);
 
 	let session = $derived(data.exhibition ? new ExhibitionSession(data.exhibition) : undefined);
 	let editing = $derived(session !== undefined && page.url.searchParams.has('edit'));
@@ -130,8 +136,10 @@
 				{lookup}
 				onadd={(block) => pane?.add(block)}
 				ondrag={(event, block) => pane?.dragNew(event, block)}
-				symbols={data.symbols}
-				terms={data.glossary}
+				onsymboladded={(symbol) => (addedSymbols = [...addedSymbols, symbol])}
+				ontermadded={(term) => (addedTerms = [...addedTerms, term])}
+				{symbols}
+				{terms}
 				bind:open={panelOpen}
 			/>
 		{/if}
@@ -139,26 +147,14 @@
 
 	{#if session && data.exhibition}
 		{#if editing}
-			<ExhibitionEditorPane
-				bind:this={pane}
-				{barHeight}
-				{lookup}
-				{session}
-				symbols={data.symbols}
-				terms={data.glossary}
-			/>
+			<ExhibitionEditorPane bind:this={pane} {barHeight} {lookup} {session} {symbols} {terms} />
 		{:else}
 			<article>
 				<header>
 					<p class="overline">{m.exhibitions.kind}</p>
 					<h1>{title}</h1>
 				</header>
-				<ExhibitionBody
-					document={session.document}
-					entries={data.glossary}
-					{lookup}
-					symbols={data.symbols}
-				/>
+				<ExhibitionBody document={session.document} entries={terms} {lookup} {symbols} />
 			</article>
 		{/if}
 	{:else}
