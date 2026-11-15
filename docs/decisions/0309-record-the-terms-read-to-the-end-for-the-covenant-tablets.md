@@ -24,7 +24,7 @@ For the time: 3 minutes for both documents; a time scaled to the length of each.
 
 ## Decision outcome
 
-Assumed in ATL-783, to be confirmed by the owner in the review of 0.24.
+Assumed in ATL-783 and confirmed by the owner in the review of 0.24.
 
 - A marker after the last paragraph of the terms or the privacy policy is watched. The find counts when the marker is in view at any moment after the page has been visible for 3 minutes in a row; reaching the end earlier counts only if the end is still, or again, in view once the time is up. Either document counts, with the same 3 minutes for both.
 - Hiding the tab, leaving the page or reloading starts the 3 minutes again. Input is not tracked: the learner is trusted, as with the other hidden exhibits.
