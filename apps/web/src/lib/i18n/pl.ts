@@ -1930,6 +1930,9 @@ export const pl = {
 			],
 			giotto_fly: [
 				'Giorgio Vasari, by wysławić nowatorską sztukę Giotta, pisze, że malarz potrafił odręcznie narysować idealne koło. Opowiada też, że Giotto jako uczeń namalował na obrazie swojego mistrza Cimabuego muchę, żeby z niego zakpić, a Cimabue próbował ją potem odgonić z deski.'
+			],
+			covenant_tablets: [
+				'Mojżesz w dawnej sztuce europejskiej często ma na głowie rogi. Zwyczaj ten zaczął się w XII wieku od złego odczytania Księgi Wyjścia (34,30): hebrajskie słowo oznaczające promienie światła, bijące od twarzy Mojżesza schodzącego z Synaju, przetłumaczono tak, jakby jego twarz była „rogata”.'
 			]
 		},
 		ranks: {
@@ -2225,6 +2228,13 @@ export const pl = {
 					'Robert Hooke w „Mikrografii” (Londyn, 1665) pokazał muchę plujkę powiększoną pod mikroskopem.',
 				hint: 'Kolekcja taka, że mucha nie siada. Zazwyczaj.',
 				awarded: 'Za muchę, która jednak usiadła.'
+			},
+			covenant_tablets: {
+				name: 'Tablice przymierza',
+				about:
+					'Johann Sadeler wyrył w 1575 roku według Crispijna van den Broecka Mojżesza z tablicami prawa, a w tle Izraelitów tańczących wokół złotego cielca.',
+				hint: 'Ignorantia iuris nocet, lectio certa prodest.',
+				awarded: 'Za przeczytanie tego, co wszyscy tylko akceptują.'
 			}
 		}
 	},

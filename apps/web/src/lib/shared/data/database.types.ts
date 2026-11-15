@@ -1326,6 +1326,7 @@ export type Database = {
           fetch_image: boolean;
           giotto_fly_at: string | null;
           legal_accepted_at: string | null;
+          legal_read_at: string | null;
           legal_version: string | null;
           long_look_at: string | null;
           night_light_at: string | null;
@@ -1366,6 +1367,7 @@ export type Database = {
           fetch_image?: boolean;
           giotto_fly_at?: string | null;
           legal_accepted_at?: string | null;
+          legal_read_at?: string | null;
           legal_version?: string | null;
           long_look_at?: string | null;
           night_light_at?: string | null;
@@ -1405,6 +1407,7 @@ export type Database = {
           fetch_image?: boolean;
           giotto_fly_at?: string | null;
           legal_accepted_at?: string | null;
+          legal_read_at?: string | null;
           legal_version?: string | null;
           long_look_at?: string | null;
           night_light_at?: string | null;
@@ -2055,6 +2058,10 @@ export type Database = {
         Returns: undefined;
       };
       record_giotto_fly: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
+      record_legal_read: {
         Args: Record<PropertyKey, never>;
         Returns: undefined;
       };

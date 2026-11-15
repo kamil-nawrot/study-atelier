@@ -216,7 +216,8 @@ const SOURCES: Readonly<Record<string, readonly string[]>> = {
 	amateur_magnifier: ['https://www.clevelandart.org/art/1927.208'],
 	giotto_fly: [
 		'https://www.treccani.it/magazine/lingua_italiana/speciali/Trame/AG_Mercadante_30.html'
-	]
+	],
+	covenant_tablets: ['https://collections.vam.ac.uk/item/O179050/moses-panel-unknown/']
 };
 
 export function curiosityOf(exhibit: string, tier: number): Curiosity | undefined {

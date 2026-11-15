@@ -48,13 +48,13 @@ begin
     'map_room:chronicle', 'map_room:grand_tour', 'map_room:seen_live', 'map_room:trevi_fountain',
     'map_room:seven_league_boots', 'map_room:pilgrim_shell', 'pavilion:crystal_palace', 'pavilion:lenoir_chapel', 'pavilion:kircher_ark',
     'crypt:mouth_of_truth',
-    'crypt:candle_moths', 'crypt:giotto_fly'
-  ], 'the exhibits are not the agreed thirty-nine in their rooms and order';
+    'crypt:candle_moths', 'crypt:giotto_fly', 'crypt:covenant_tablets'
+  ], 'the exhibits are not the agreed forty in their rooms and order';
   assert (select array_agg(exhibit order by exhibit) from public.unlock_exhibits('UTC') where hidden) = array[
-    'amateur_magnifier', 'back_from_storage', 'candle_moths', 'figure_alphabet', 'giotto_fly', 'kircher_ark', 'lenoir_chapel', 'marathon',
+    'amateur_magnifier', 'back_from_storage', 'candle_moths', 'covenant_tablets', 'figure_alphabet', 'giotto_fly', 'kircher_ark', 'lenoir_chapel', 'marathon',
     'mouth_of_truth', 'night_watch', 'pelican_serpent', 'pilgrim_shell', 'pinacotheca', 'seven_league_boots', 'trevi_fountain',
     'van_eyck_easel'
-  ], 'the hidden exhibits are not the agreed sixteen';
+  ], 'the hidden exhibits are not the agreed seventeen';
   assert (select value from public.unlock_exhibits('UTC') where exhibit = 'early_modern') = 5,
     'an era exhibit does not count the artworks of its era';
   assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'modern') = array[1]::smallint[],
@@ -1103,6 +1103,34 @@ begin
     'one swat does not unlock the fly';
   assert (select count(*) from public.point_events where kind = 'easter_egg' and code = 'giotto_fly') = 1,
     'the fly does not give its bonus';
+end;
+$$;
+
+reset role;
+
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000023', 'owner-t@example.test');
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-000000000023", "role": "authenticated"}', true);
+
+do $$
+declare
+  first_read timestamptz;
+begin
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'covenant_tablets') = 0,
+    'a learner who never read the terms to the end counts for the tablets';
+  perform public.record_legal_read();
+  select legal_read_at into first_read from public.profiles;
+  assert first_read is not null, 'record_legal_read does not record the reading for a learner without a profile';
+  perform public.record_legal_read();
+  assert (select legal_read_at from public.profiles) = first_read, 'a later reading replaces the first one';
+  assert (select thresholds from public.unlock_exhibits('UTC') where exhibit = 'covenant_tablets') = array[1],
+    'the tablets do not have one tier';
+  assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'covenant_tablets') = array[1]::smallint[],
+    'one reading does not unlock the tablets';
+  assert (select count(*) from public.point_events where kind = 'easter_egg' and code = 'covenant_tablets') = 1,
+    'the tablets do not give their bonus';
 end;
 $$;
 
