@@ -183,12 +183,10 @@ export class ReviewFlow {
 
 	async #prepareSession(): Promise<string | undefined> {
 		const free = this.freeOpen;
-		const { reviewTimeQuestions } = this.#data().preferences;
 		const loaded = await loadSession(
 			startOfDay(currentDate()),
 			this.activeForm,
 			this.activeScope,
-			reviewTimeQuestions,
 			free ? this.freeRound : undefined
 		);
 		const items = await withPinPreviews(sessionItems(loaded.rows, this.artworksById, this.cards));

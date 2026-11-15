@@ -2,14 +2,14 @@ import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { loadTermDefinitions } from '#lib/glossary/glossary-data/glossary-data.ts';
 import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 import type { Preferences } from '#lib/profile/types/preferences.ts';
-import { pairArtworks, pairCount, pairItems } from '#lib/review/confused-pairs/confused-pairs.ts';
+import { pairArtworks, pairItems } from '#lib/review/confused-pairs/confused-pairs.ts';
 import {
 	definitionCount,
 	definitionItems,
 	drawnTerms,
 	withDefinitionsOf
 } from '#lib/review/definitions/definitions.ts';
-import { relationCount, relationItems } from '#lib/review/relation-questions/relation-questions.ts';
+import { relationItems } from '#lib/review/relation-questions/relation-questions.ts';
 import { loadReviewRelations } from '#lib/review/relation-questions-data/relation-questions-data.ts';
 import { drawNoteGap } from '#lib/review/note-gap/note-gap.ts';
 import type { ResolvedImages } from '#lib/review/resolved-images/resolved-images.svelte.ts';
@@ -43,21 +43,23 @@ export async function loadExtraSteps(input: ExtraInput): Promise<ExtraSteps> {
 	const drawn = drawnTerms(glossary, definitionCount(preferences, glossary));
 	const shownImages = images.resolve(input.shown);
 	const definedRead = loadTermDefinitions(drawn.map((term) => term.id));
-	const pairsRead = loadConfusedPairs();
-	const relationsRead = loadReviewRelations();
+	const pairsRead = preferences.reviewPairsOn ? loadConfusedPairs() : Promise.resolve([]);
+	const relationsRead = preferences.reviewRelationsOn
+		? loadReviewRelations()
+		: Promise.resolve({ artworks: [], authors: [] });
 	const gaps = await drawNoteGap(
-		preferences.reviewNoteQuestions,
+		preferences.reviewNotesOn ? preferences.reviewNoteQuestions : 0,
 		input.scope,
 		input.shown,
 		input.artworksById,
 		glossary
 	);
 	const gapArtworks = gaps.map((gap) => gap.artwork);
-	const pairs = pairItems(await pairsRead, input.atelier, pairCount(preferences.reviewSessionSize));
+	const pairs = pairItems(await pairsRead, input.atelier, preferences.reviewPairQuestions);
 	const relations = relationItems(
 		await relationsRead,
 		input.atelier,
-		relationCount(preferences.reviewSessionSize)
+		preferences.reviewRelationQuestions
 	);
 	const relationArtworks = relations.map((item) => item.artwork);
 	const [, , , , found, defined, symbolSteps] = await Promise.all([
@@ -69,7 +71,7 @@ export async function loadExtraSteps(input: ExtraInput): Promise<ExtraSteps> {
 			[...input.asked, ...gapArtworks, ...relationArtworks].map((artwork) => artwork.id)
 		),
 		definedRead,
-		loadSymbolSteps(preferences.reviewSymbolQuestions, glossary)
+		loadSymbolSteps(preferences.reviewSymbolsOn ? preferences.reviewSymbolQuestions : 0, glossary)
 	]);
 	return {
 		details: found.details,

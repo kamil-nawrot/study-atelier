@@ -71,12 +71,14 @@ begin
       '{"mode": "flashcard", "rating": 3}');
   end loop;
 
-  insert into public.profiles (era_bounds) values (array[-3000, 476, 1560, 1789, 1945])
-    on conflict (owner_id) do update set era_bounds = excluded.era_bounds;
+  insert into public.profiles (era_bounds, review_year_questions, review_order_questions)
+    values (array[-3000, 476, 1560, 1789, 1945], true, true)
+    on conflict (owner_id) do update
+      set era_bounds = excluded.era_bounds, review_year_questions = true, review_order_questions = true;
   outside := array[pg_temp.work(1), pg_temp.work(2), pg_temp.work(3), pg_temp.work(21)];
 
   for attempt in 1..20 loop
-    session := public.review_session(day_start, 'mixed', 'all', null, null, true);
+    session := public.review_session(day_start, 'mixed');
     assert exists (select 1 from pg_temp.time_items(session) as item where item ->> 'mode' = 'year'),
       'a session with the learner bounds asks no year question';
     assert not exists (

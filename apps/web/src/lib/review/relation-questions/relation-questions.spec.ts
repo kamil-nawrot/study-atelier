@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import type { ReviewRelations } from '#lib/review/types/review-relations.ts';
-import { relationCount, relationItems } from './relation-questions.ts';
+import { relationItems } from './relation-questions.ts';
 
 const study = testArtwork(1, 'Head of a Woman', { authors: ['Leonardo da Vinci'] });
 const painting = testArtwork(2, 'Madonna Litta', { authors: ['Leonardo da Vinci'] });
@@ -19,12 +19,6 @@ function first(): number {
 function relations(overrides: Partial<ReviewRelations> = {}): ReviewRelations {
 	return { artworks: [], authors: [], ...overrides };
 }
-
-describe('relationCount', () => {
-	it('asks one relation per 20 places, from one to two', () => {
-		expect([10, 20, 30, 40, 60].map(relationCount)).toEqual([1, 1, 1, 2, 2]);
-	});
-});
 
 describe('relationItems', () => {
 	it('asks for the other end of an artwork relation among artworks not related to it', () => {

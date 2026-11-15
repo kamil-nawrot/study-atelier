@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import type { ConfusedPair } from '#lib/review/types/confused-pair.ts';
-import { pairArtworks, pairCount, pairItems } from './confused-pairs.ts';
+import { pairArtworks, pairItems } from './confused-pairs.ts';
 
 const monet = testArtwork(1, 'Impression', {
 	authors: ['Claude Monet'],
@@ -18,12 +18,6 @@ const courbetStyle = testArtwork(5, 'Stones', {
 const authors: ConfusedPair = { kind: 'author', first: 'Claude Monet', second: 'Édouard Manet' };
 
 describe('confused pairs', () => {
-	it('asks 2 to 4 pairs, one for every 10 questions of a round', () => {
-		expect(pairCount(10)).toBe(2);
-		expect(pairCount(30)).toBe(3);
-		expect(pairCount(60)).toBe(4);
-	});
-
 	it('shows an artwork of each value side by side and asks for one of them', () => {
 		const [item] = pairItems([authors], [monet, manet, both], 2, () => 0);
 		expect(item).toMatchObject({

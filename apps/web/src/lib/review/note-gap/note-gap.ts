@@ -53,21 +53,23 @@ export function noteGapItem(
 }
 
 export async function drawNoteGap(
-	enabled: boolean,
+	count: number,
 	scope: ReviewScope,
 	shown: readonly WallArtwork[],
 	artworks: ReadonlyMap<string, WallArtwork>,
 	glossary: readonly GlossaryTerm[]
 ): Promise<NoteGapItem[]> {
-	if (!enabled || glossary.length < 4) return [];
+	if (count <= 0 || glossary.length < 4) return [];
 	const candidates = await loadNoteGap(
 		scope,
 		shown.map((artwork) => artwork.id)
 	);
+	const items: NoteGapItem[] = [];
 	for (const candidate of candidates) {
 		const artwork = artworks.get(candidate.id);
 		const item = artwork && noteGapItem(artwork, candidate.notes, glossary);
-		if (item) return [item];
+		if (item) items.push(item);
+		if (items.length === count) break;
 	}
-	return [];
+	return items;
 }

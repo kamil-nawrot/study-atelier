@@ -286,15 +286,13 @@ export async function loadSession(
 	dayStart: Date,
 	form: ReviewForm,
 	scope: ReviewScope,
-	timeQuestions: boolean,
 	freeRound?: number
 ): Promise<ReviewSessionResult> {
 	const { data, error } = await supabase.rpc('review_session', {
 		day_start: dayStart.toISOString(),
 		session_form: form,
 		...scopeArgs(scope),
-		...(freeRound === undefined ? {} : { free_round: freeRound }),
-		time_questions: timeQuestions
+		...(freeRound === undefined ? {} : { free_round: freeRound })
 	});
 	if (error || !Array.isArray(data)) {
 		return { rows: [], error: await failureMessage(error ?? {}, collectionErrorMessage) };
