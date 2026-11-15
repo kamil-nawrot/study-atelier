@@ -1995,8 +1995,8 @@ export type Database = {
           due: number;
           new_available: number;
           new_today: number;
-          with_image: number;
           style_waiting: number;
+          with_image: number;
         }[];
       };
       review_session: {
