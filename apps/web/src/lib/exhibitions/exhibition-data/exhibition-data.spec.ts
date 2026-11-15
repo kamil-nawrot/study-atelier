@@ -9,8 +9,13 @@ import {
 	loadExhibition,
 	loadExhibitionSummaries,
 	restoreExhibition,
-	saveExhibition
+	saveExhibition,
+	saveExhibitionPoster
 } from './exhibition-data.ts';
+import {
+	NEUTRAL_FILTERS,
+	NO_POSTER
+} from '#lib/exhibitions/exhibition-poster/exhibition-poster.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { from: vi.fn(), rpc: vi.fn(), auth: { signOut: vi.fn() } }
@@ -20,6 +25,21 @@ const from = vi.mocked(supabase.from);
 const rpc = vi.mocked(supabase.rpc);
 
 const ID = '3f2c1d4e-5a6b-4c7d-8e9f-0a1b2c3d4e5f';
+
+const NO_POSTER_COLUMNS = {
+	cover_artwork_id: null,
+	cover_image_id: null,
+	cover_x: null,
+	cover_y: null,
+	cover_zoom: null,
+	cover_grayscale: 0,
+	cover_sepia: 0,
+	cover_brightness: 100,
+	cover_contrast: 100,
+	cover_saturate: 100
+};
+
+const TONED = { grayscale: 30, sepia: 0, brightness: 100, contrast: 110, saturate: 100 };
 
 function chain(result: unknown): Record<string, ReturnType<typeof vi.fn>> {
 	const query: Record<string, ReturnType<typeof vi.fn>> = {};
@@ -47,6 +67,14 @@ describe('loadExhibitionSummaries', () => {
 					title: 'Light',
 					updated_at: '2026-11-01T10:00:00Z',
 					deleted_at: null,
+					...NO_POSTER_COLUMNS,
+					cover_artwork_id: 'c',
+					cover_image_id: 'c-detail',
+					cover_x: 0.3,
+					cover_y: 0.6,
+					cover_zoom: 1.5,
+					cover_grayscale: 30,
+					cover_contrast: 110,
 					exhibition_artworks: [
 						{ artwork_id: 'c', position: 2, artworks: { deleted_at: null } },
 						{ artwork_id: 'b', position: 1, artworks: { deleted_at: null } },
@@ -67,7 +95,13 @@ describe('loadExhibitionSummaries', () => {
 				updatedAt: '2026-11-01T10:00:00Z',
 				deletedAt: null,
 				artworkCount: 2,
-				coverId: 'b'
+				coverId: 'c',
+				poster: {
+					artworkId: 'c',
+					imageId: 'c-detail',
+					crop: { x: 0.3, y: 0.6, zoom: 1.5 },
+					filters: TONED
+				}
 			}
 		]);
 		expect(query.is).toHaveBeenCalledWith('deleted_at', null);
@@ -99,7 +133,8 @@ describe('loadExhibition', () => {
 				title: 'Light',
 				document: BLANK_DOCUMENT,
 				revision: 4,
-				updated_at: '2026-11-01T10:00:00Z'
+				updated_at: '2026-11-01T10:00:00Z',
+				...NO_POSTER_COLUMNS
 			},
 			error: null
 		});
@@ -111,7 +146,8 @@ describe('loadExhibition', () => {
 			title: 'Light',
 			document: BLANK_DOCUMENT,
 			revision: 4,
-			updatedAt: '2026-11-01T10:00:00Z'
+			updatedAt: '2026-11-01T10:00:00Z',
+			poster: NO_POSTER
 		});
 	});
 
@@ -237,5 +273,46 @@ describe('createExhibition', () => {
 
 		expect(id).toBeUndefined();
 		expect(error).toBeTruthy();
+	});
+});
+
+describe('saveExhibitionPoster', () => {
+	it('saves the chosen artwork, image, crop and filters', async () => {
+		rpc.mockResolvedValue({ data: null, error: null } as never);
+
+		const result = await saveExhibitionPoster(ID, {
+			artworkId: 'b',
+			imageId: 'b-detail',
+			crop: { x: 0.3, y: 0.6, zoom: 1.5 },
+			filters: TONED
+		});
+
+		expect(result).toEqual({});
+		expect(rpc).toHaveBeenCalledWith('set_exhibition_cover', {
+			exhibition_id: ID,
+			artwork_id: 'b',
+			image_id: 'b-detail',
+			x: 0.3,
+			y: 0.6,
+			zoom: 1.5,
+			...TONED
+		});
+	});
+
+	it('starts over with only neutral filters', async () => {
+		rpc.mockResolvedValue({ data: null, error: null } as never);
+
+		await saveExhibitionPoster(ID, NO_POSTER);
+
+		expect(rpc).toHaveBeenCalledWith('set_exhibition_cover', {
+			exhibition_id: ID,
+			...NEUTRAL_FILTERS
+		});
+	});
+
+	it('reports a failure', async () => {
+		rpc.mockResolvedValue({ data: null, error: { message: 'Failed to fetch' } } as never);
+
+		expect((await saveExhibitionPoster(ID, NO_POSTER)).error).toBeTruthy();
 	});
 });

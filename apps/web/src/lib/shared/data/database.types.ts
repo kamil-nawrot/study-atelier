@@ -788,6 +788,16 @@ export type Database = {
       };
       exhibitions: {
         Row: {
+          cover_artwork_id: string | null;
+          cover_brightness: number;
+          cover_contrast: number;
+          cover_grayscale: number;
+          cover_image_id: string | null;
+          cover_saturate: number;
+          cover_sepia: number;
+          cover_x: number | null;
+          cover_y: number | null;
+          cover_zoom: number | null;
           created_at: string;
           deleted_at: string | null;
           document: NonNullable<Json>;
@@ -800,6 +810,16 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          cover_artwork_id?: string | null;
+          cover_brightness?: number;
+          cover_contrast?: number;
+          cover_grayscale?: number;
+          cover_image_id?: string | null;
+          cover_saturate?: number;
+          cover_sepia?: number;
+          cover_x?: number | null;
+          cover_y?: number | null;
+          cover_zoom?: number | null;
           created_at?: string;
           deleted_at?: string | null;
           document?: NonNullable<Json>;
@@ -811,6 +831,16 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          cover_artwork_id?: string | null;
+          cover_brightness?: number;
+          cover_contrast?: number;
+          cover_grayscale?: number;
+          cover_image_id?: string | null;
+          cover_saturate?: number;
+          cover_sepia?: number;
+          cover_x?: number | null;
+          cover_y?: number | null;
+          cover_zoom?: number | null;
           created_at?: string;
           deleted_at?: string | null;
           document?: NonNullable<Json>;
@@ -821,7 +851,22 @@ export type Database = {
           title?: string;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "exhibitions_cover_artwork_id_owner_id_fkey";
+            columns: ["cover_artwork_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "exhibitions_cover_image_id_owner_id_fkey";
+            columns: ["cover_image_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artwork_images";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
       };
       exhibits: {
         Row: {
@@ -2136,6 +2181,22 @@ export type Database = {
         Returns: string;
       };
       search_key: { Args: { value: string }; Returns: string };
+      set_exhibition_cover: {
+        Args: {
+          artwork_id?: string;
+          brightness?: number;
+          contrast?: number;
+          exhibition_id: string;
+          grayscale?: number;
+          image_id?: string;
+          saturate?: number;
+          sepia?: number;
+          x?: number;
+          y?: number;
+          zoom?: number;
+        };
+        Returns: undefined;
+      };
       set_period_eras: {
         Args: { era_codes: string[]; move_to?: string; target_period: string };
         Returns: number;

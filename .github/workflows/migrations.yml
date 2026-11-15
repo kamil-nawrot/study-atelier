@@ -96,6 +96,9 @@ jobs:
       - name: Check exhibitions
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/exhibitions.sql
 
+      - name: Check exhibition posters
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/exhibition-poster.sql
+
       - name: Check duplicates and used values
         run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" --file supabase/tests/values-and-duplicates.sql
 

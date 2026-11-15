@@ -25,6 +25,7 @@ import {
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
 import ExhibitionEditorPane from './ExhibitionEditorPane.svelte';
+import { NO_POSTER } from '#lib/exhibitions/exhibition-poster/exhibition-poster.ts';
 
 const loadArtworkPins = vi.hoisted(() => vi.fn());
 
@@ -69,6 +70,7 @@ function session(document: ExhibitionDocument = doc(textBlock('Soft glow'))): Ex
 		title: 'Light',
 		revision: 1,
 		updatedAt: '2026-11-01T10:00:00Z',
+		poster: NO_POSTER,
 		document
 	});
 }

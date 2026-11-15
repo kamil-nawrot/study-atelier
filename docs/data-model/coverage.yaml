@@ -525,6 +525,32 @@ alternatives:
     loses:
       - 'A place in a city stands at the city centre on the map; the own points of places that get a city are dropped.'
 
+  - id: M12
+    name: Keep the poster of an exhibition in columns of the exhibition
+    status: 'designed in 0.24 (ATL-772); stored in ATL-773, chosen and shown in ATL-774'
+    kind: schema
+    tables: [exhibitions]
+    serves: [R22, R25, W33]
+    pull_requests: 2
+    risk: low
+    risk_because: 'new columns with defaults on one table; an exhibition without a poster keeps the first artwork as before'
+    how: >
+      exhibitions gains cover_artwork_id and cover_image_id, references to artworks and artwork_images on
+      (id, owner_id) with on delete set null of the reference only, the crop cover_x, cover_y and cover_zoom, and
+      five filters as small integers with range checks. set_exhibition_cover writes them apart from save_exhibition,
+      so the revision of the document is untouched. The summaries read the columns with the rows of
+      exhibition_artworks and pick the shown artwork in the browser.
+    design:
+      - 'The chosen artwork stays stored when the document no longer shows it; the first artwork stands in with the filters and without the crop.'
+      - 'The filters are numbers; the app composes the CSS filter, so nothing but these five functions can reach the page.'
+      - 'The export reads the columns with the row and the import inserts them; an older export has none.'
+    cost:
+      - 'migration: columns, checks, references, indexes, set_exhibition_cover'
+      - 'SQL tests: storing, ranges, an artwork or image of another owner or artwork refused, deleting the image or purging the artwork'
+      - 'database.types.ts, screenshot mocks for an exhibition with a poster'
+    loses:
+      - 'One poster per exhibition; the poster cannot come from an image outside the atelier.'
+
 patterns:
   - { id: R01, today: 10, target: 5, model: none, also: [T1, T2] }
   - { id: R02, today: 2, target: 2, model: none, also: [T13] }
@@ -586,14 +612,14 @@ patterns:
   - { id: R18, today: 1, target: 1, model: none, also: [] }
   - { id: R19, today: 1, target: 1, model: none, also: [] }
   - { id: R20, today: 4, target: 1, model: none, also: [T2] }
-  - { id: R22, today: 'new', target: 1, model: [M5], also: [] }
+  - { id: R22, today: 'new', target: 1, model: [M5, M12], also: [] }
   - { id: R23, today: 'new', target: '2-3', model: [M5], also: [] }
   - { id: R24, today: 'new', target: 'R23 + 1 recent + 1 per search pause', model: [M5], also: [] }
   - {
       id: R25,
       today: 'new',
       target: '0 inside the artwork page RPC, else 1',
-      model: [M5],
+      model: [M5, M12],
       also: []
     }
   - { id: R26, today: 'new', target: '1 RPC symbol_atlas', model: [M7] }
@@ -744,6 +770,7 @@ writes:
       after: 'save_value_details sets city_id, creating the city place in the same call',
       model: [M11]
     }
+  - { id: W33, today: 'new', after: 'set_exhibition_cover updates the cover columns', model: [M12] }
 
 decisions:
   - id: D1

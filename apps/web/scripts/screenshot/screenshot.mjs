@@ -1023,6 +1023,7 @@ async function mockSupabase(context) {
 		if (url.pathname === '/rest/v1/exhibition_artworks') return exhibitionArtworksRoute(route, url);
 		if (url.pathname === '/rest/v1/artwork_images') return artworkImagesRoute(route, url);
 		if (url.pathname === '/rest/v1/rpc/save_exhibition') return json(route, 4);
+		if (url.pathname === '/rest/v1/rpc/set_exhibition_cover') return json(route, null);
 		if (url.pathname === '/rest/v1/rpc/save_visit') return json(route, VISITS[0].id);
 		if (url.pathname === '/rest/v1/catalogue_museums') return json(route, CATALOGUE_MUSEUMS);
 		if (
