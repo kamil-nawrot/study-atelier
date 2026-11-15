@@ -9,9 +9,16 @@ export type Preferences = {
 	reviewFree: boolean;
 	reviewGlossaryOn: boolean;
 	reviewGlossaryQuestions: number;
+	reviewSymbolsOn: boolean;
 	reviewSymbolQuestions: number;
-	reviewNoteQuestions: boolean;
-	reviewTimeQuestions: boolean;
+	reviewNotesOn: boolean;
+	reviewNoteQuestions: number;
+	reviewPairsOn: boolean;
+	reviewPairQuestions: number;
+	reviewRelationsOn: boolean;
+	reviewRelationQuestions: number;
+	reviewYearQuestions: boolean;
+	reviewOrderQuestions: boolean;
 	viewShowPins: boolean;
 	viewLoupeOn: boolean;
 	fetchImage: boolean;

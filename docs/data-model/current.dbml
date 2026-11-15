@@ -457,11 +457,18 @@ Table profiles {
   legal_accepted_at "timestamp with time zone"
   review_glossary_questions smallint [not null, default: `1`]
   review_symbol_questions smallint [not null, default: `1`]
+  review_symbols_on boolean [not null, default: `true`]
   rank_form text [not null, default: `'masculine'::text`]
   career_shown boolean [not null, default: `true`]
   rank_seen smallint [not null, default: `0`]
-  review_time_questions boolean [not null, default: `false`]
-  review_note_questions boolean [not null, default: `false`]
+  review_notes_on boolean [not null, default: `false`]
+  review_note_questions smallint [not null, default: `1`]
+  review_year_questions boolean [not null, default: `false`]
+  review_order_questions boolean [not null, default: `false`]
+  review_pairs_on boolean [not null, default: `true`]
+  review_pair_questions smallint [not null, default: `1`]
+  review_relations_on boolean [not null, default: `true`]
+  review_relation_questions smallint [not null, default: `1`]
   review_glossary_on boolean [not null, default: `true`]
   Note: 'RLS on'
 }

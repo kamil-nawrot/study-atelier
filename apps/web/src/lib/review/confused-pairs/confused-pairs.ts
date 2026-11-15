@@ -5,14 +5,6 @@ import type { ConfusedPair } from '#lib/review/types/confused-pair.ts';
 import type { PairItem } from '#lib/review/types/pair-item.ts';
 import type { PairKind } from '#lib/review/types/pair-kind.ts';
 
-export const PAIR_SHARE = 10;
-export const MIN_PAIRS = 2;
-export const MAX_PAIRS = 4;
-
-export function pairCount(sessionSize: number): number {
-	return Math.min(MAX_PAIRS, Math.max(MIN_PAIRS, Math.floor(sessionSize / PAIR_SHARE)));
-}
-
 function key(text: string): string {
 	return text.trim().toLocaleLowerCase('pl');
 }

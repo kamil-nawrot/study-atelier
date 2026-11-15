@@ -4,8 +4,8 @@
 	import { SaveQueue } from '#lib/shared/forms/save-queue/save-queue.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import {
-		GLOSSARY_QUESTION_CHOICES,
-		SYMBOL_QUESTION_CHOICES,
+		EXTRA_KINDS,
+		EXTRA_QUESTION_CHOICES,
 		NEW_PER_DAY_CHOICES,
 		preferencesChanged,
 		QUIZ_KINDS,
@@ -131,6 +131,7 @@
 				</div>
 			</SettingsSection>
 			<SettingsSection rule title={m.settings.preferences.quizzesTitle}>
+				<p class="hint">{m.settings.preferences.quizzesHint}</p>
 				<div class="kinds">
 					{#each QUIZ_KINDS as kind (kind)}
 						<Checkbox
@@ -140,62 +141,53 @@
 							bind:checked={() => draft.reviewQuizKinds.includes(kind), (on) => setKind(kind, on)}
 						/>
 					{/each}
+					<Checkbox
+						label={m.settings.preferences.yearQuestions}
+						bind:checked={draft.reviewYearQuestions}
+					/>
+					<Checkbox
+						label={m.settings.preferences.orderQuestions}
+						bind:checked={draft.reviewOrderQuestions}
+					/>
 					<span id={kindsHintId} class="hint" class:error={kindsError}>
 						{m.settings.preferences.kindsHint}
 					</span>
 				</div>
 			</SettingsSection>
 			<SettingsSection rule title={m.settings.preferences.extraTitle}>
+				<p class="hint">{m.settings.preferences.extraHint}</p>
 				<div class="items">
-					<div class="governed">
-						<Switch
-							label={m.settings.preferences.glossaryOn}
-							bind:checked={draft.reviewGlossaryOn}
-						/>
-						<div class="group" aria-labelledby="{formId}-glossary" role="group">
-							<span id="{formId}-glossary" class="label" class:off={!draft.reviewGlossaryOn}>
-								{m.settings.preferences.glossaryQuestions}
-							</span>
-							<div class="tags">
-								{#each GLOSSARY_QUESTION_CHOICES as option (option)}
-									<ToggleTag
-										disabled={!draft.reviewGlossaryOn}
-										bind:pressed={
-											() => draft.reviewGlossaryQuestions === option,
-											(pressed) => pressed && (draft.reviewGlossaryQuestions = option)
-										}
-									>
-										{option}
-									</ToggleTag>
-								{/each}
+					{#each EXTRA_KINDS as extra (extra.on)}
+						<div class="governed">
+							<Switch
+								label={m.settings.preferences.extraLabels[extra.on]}
+								bind:checked={() => draft[extra.on], (on) => (draft[extra.on] = on)}
+							/>
+							<div
+								class="group"
+								aria-label="{m.settings.preferences.extraLabels[extra.on]}: {m.settings.preferences
+									.extraCount}"
+								role="group"
+							>
+								<span class="count" class:off={!draft[extra.on]} aria-hidden="true">
+									{m.settings.preferences.extraCount}
+								</span>
+								<div class="tags">
+									{#each EXTRA_QUESTION_CHOICES as option (option)}
+										<ToggleTag
+											disabled={!draft[extra.on]}
+											bind:pressed={
+												() => draft[extra.count] === option,
+												(pressed) => pressed && (draft[extra.count] = option)
+											}
+										>
+											{option}
+										</ToggleTag>
+									{/each}
+								</div>
 							</div>
 						</div>
-					</div>
-					<div class="group" aria-labelledby="{formId}-symbols" role="group">
-						<span id="{formId}-symbols" class="label">
-							{m.settings.preferences.symbolQuestions}
-						</span>
-						<div class="tags">
-							{#each SYMBOL_QUESTION_CHOICES as option (option)}
-								<ToggleTag
-									bind:pressed={
-										() => draft.reviewSymbolQuestions === option,
-										(pressed) => pressed && (draft.reviewSymbolQuestions = option)
-									}
-								>
-									{option}
-								</ToggleTag>
-							{/each}
-						</div>
-					</div>
-					<Switch
-						label={m.settings.preferences.noteQuestions}
-						bind:checked={draft.reviewNoteQuestions}
-					/>
-					<Switch
-						label={m.settings.preferences.timeQuestions}
-						bind:checked={draft.reviewTimeQuestions}
-					/>
+					{/each}
 				</div>
 			</SettingsSection>
 		{:else if part === 'sources'}
@@ -269,6 +261,12 @@
 	.label {
 		font-size: var(--font-size-sm);
 		font-weight: var(--font-weight-medium);
+		line-height: var(--line-height-sm);
+	}
+
+	.count {
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-sm);
 		line-height: var(--line-height-sm);
 	}
 

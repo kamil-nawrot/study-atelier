@@ -175,16 +175,26 @@ describe('settings page', () => {
 				expect.objectContaining({ reviewSessionSize: 30 })
 			)
 		);
-		await page.getByRole('switch', { name: m.settings.preferences.timeQuestions }).click();
-		await page.getByRole('switch', { name: m.settings.preferences.noteQuestions }).click();
+		await page.getByRole('checkbox', { name: m.settings.preferences.yearQuestions }).click();
+		await page
+			.getByRole('switch', { name: m.settings.preferences.extraLabels.reviewNotesOn })
+			.click();
+		await page
+			.getByRole('group', {
+				name: `${m.settings.preferences.extraLabels.reviewPairsOn}: ${m.settings.preferences.extraCount}`
+			})
+			.getByRole('button', { name: '3' })
+			.click();
 
 		await vi.waitFor(() =>
 			expect(savePreferences).toHaveBeenLastCalledWith(
 				'review',
 				expect.objectContaining({
 					reviewSessionSize: 30,
-					reviewTimeQuestions: true,
-					reviewNoteQuestions: true
+					reviewYearQuestions: true,
+					reviewOrderQuestions: false,
+					reviewNotesOn: true,
+					reviewPairQuestions: 3
 				})
 			)
 		);
@@ -218,9 +228,12 @@ describe('settings page', () => {
 		]) {
 			await expect.element(page.getByRole('heading', { name: title })).toBeVisible();
 		}
-		const counts = page.getByRole('group', { name: m.settings.preferences.glossaryQuestions });
+		const glossary = m.settings.preferences.extraLabels.reviewGlossaryOn;
+		const counts = page.getByRole('group', {
+			name: `${glossary}: ${m.settings.preferences.extraCount}`
+		});
 		await expect.element(counts.getByRole('button', { name: '2' })).toBeEnabled();
-		await page.getByRole('switch', { name: m.settings.preferences.glossaryOn }).click();
+		await page.getByRole('switch', { name: glossary }).click();
 		await expect.element(counts.getByRole('button', { name: '2' })).toBeDisabled();
 
 		await vi.waitFor(() =>
