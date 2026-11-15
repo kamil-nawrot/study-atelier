@@ -471,7 +471,7 @@ describe('review data', () => {
 			{ kind: 'style', first: 'Baroque', second: 'Mannerism' },
 			{ kind: 'author', first: 'Claude Monet', second: 'Édouard Manet' }
 		]);
-		expect(rpc).toHaveBeenCalledWith('confused_pairs');
+		expect(rpc).toHaveBeenCalledWith('confused_pairs', { time_zone: expect.any(String) });
 		rpc.mockResolvedValueOnce({ data: null, error: { message: 'boom' } } as never);
 		await expect(loadConfusedPairs()).resolves.toEqual([]);
 	});

@@ -1,6 +1,6 @@
 # 0300. Ask about pairs the learner confuses
 
-- Status: accepted
+- Status: accepted; the end of a pair is superseded by [0306](0306-close-a-confused-pair-after-right-answers-on-three-days.md)
 - Date: 2026-11-15
 
 ## Context and problem statement

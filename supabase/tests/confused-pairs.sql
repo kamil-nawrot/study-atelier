@@ -67,6 +67,10 @@ begin
     'right answers before a wrong pair answer still count';
   assert (select confused_at from public.confused_pairs()) = '2026-11-05 10:00+00',
     'a wrong pair answer is not the last confusion';
+  perform pg_temp.pair_answer(manet, 'author', 'Édouard Manet', 'Claude Monet', true, '2026-11-06 12:00+00');
+  perform pg_temp.pair_answer(monet, 'author', 'Claude Monet', 'Édouard Manet', true, '2026-11-06 14:00+00');
+  assert (select count(*) from public.confused_pairs()) = 1,
+    'three right answers on one day settle a pair';
   perform pg_temp.pair_answer(monet, 'author', 'Claude Monet', 'Édouard Manet', true, '2026-11-07 10:00+00');
   perform pg_temp.pair_answer(manet, 'author', 'Édouard Manet', 'Claude Monet', true, '2026-11-08 10:00+00');
   assert not exists (select 1 from public.confused_pairs()), 'three right answers do not settle a pair';
@@ -100,7 +104,7 @@ do $$
 begin
   perform public.record_pair_answer((select id from public.artworks where title = 'Olympia'), 'style', 'Realism',
     'Impressionism', true);
-  assert (select count(*) from public.review_log where facet = 'pair') = 7, 'the learner cannot log a pair answer';
+  assert (select count(*) from public.review_log where facet = 'pair') = 9, 'the learner cannot log a pair answer';
   assert (select count(*) from public.confused_pairs()) = 1, 'the learner cannot read their own pairs';
 end;
 $$;
