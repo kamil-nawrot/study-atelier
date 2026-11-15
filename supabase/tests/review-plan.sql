@@ -169,4 +169,24 @@ begin
 end;
 $$;
 
+reset role;
+update public.review_cards set due = now() + interval '10 days' where facet = 'recognise';
+set local role authenticated;
+
+do $$
+declare
+  day_start constant timestamptz := date_trunc('day', now());
+  plan jsonb;
+begin
+  plan := public.review_plan(day_start, 'mixed');
+  assert pg_temp.scope(plan, 'all') @> '{"known": 0, "fresh": 0, "styles": 0, "years": 0, "orders": 0}',
+    'the year and order questions are planned while nothing else waits: ' || pg_temp.scope(plan, 'all')::text;
+  assert (select waiting from public.review_counts(day_start)) = 0,
+    'the menu counter counts the year and order questions while nothing else waits';
+  assert jsonb_array_length(public.review_session(day_start, 'mixed')) = 0,
+    'a session is asked while nothing waits';
+  assert jsonb_array_length(plan -> 'free') > 0, 'the free round is not offered while nothing waits';
+end;
+$$;
+
 rollback;
