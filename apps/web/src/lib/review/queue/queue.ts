@@ -4,6 +4,7 @@ import type { SessionStep } from '#lib/review/types/session-step.ts';
 
 export const MIN_ARTWORKS = 20;
 export const SETTLED_STABILITY_DAYS = 7;
+export const MAX_REPEATS = 2;
 export const RETRY_GAP_MIN = 3;
 export const RETRY_GAP_MAX = 5;
 

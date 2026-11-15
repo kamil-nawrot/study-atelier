@@ -186,7 +186,7 @@ describe('ReviewSession', () => {
 		expect(review.chosen).toBeUndefined();
 	});
 
-	it('rates a style answer on the style card alone and never asks it again', async () => {
+	it('rates a style answer on the style card alone and asks a wrong one again on the same card', async () => {
 		const clock = { now: start };
 		const recognition = new Map([['artwork-1', testReviewCard('artwork-1', start)]]);
 		const style: ReviewItem = { ...quizItems(1)[0], mode: 'quiz_style', facet: 'style' };
@@ -212,9 +212,23 @@ describe('ReviewSession', () => {
 		expect(review.cards.get('artwork-1')).toEqual(recognition.get('artwork-1'));
 		expect(review.styleCards.get('artwork-1')?.reps).toBe(1);
 		expect(review.answers).toHaveLength(0);
-		expect(review.queue).toHaveLength(5);
+		expect(review.queue).toHaveLength(6);
 		expect(review.styles).toEqual({ asked: 1, right: 0 });
 		expect(review.anyAnswer).toBe(true);
+
+		review.proceed();
+		review.position = review.queue.findIndex(
+			(step, index) => index > 0 && 'facet' in step && step.facet === 'style'
+		);
+		const current = review.current;
+		const answer = current && 'quiz' in current ? (current.quiz?.answer ?? 0) : 0;
+		await review.answer(answer);
+
+		expect(recordReview).toHaveBeenLastCalledWith(
+			expect.objectContaining({ artworkId: 'artwork-1', reps: 1 }),
+			expect.objectContaining({ facet: 'style', correct: true })
+		);
+		expect(review.styles).toEqual({ asked: 1, right: 0 });
 	});
 
 	it('counts a style answer of a free round without saving it', async () => {
