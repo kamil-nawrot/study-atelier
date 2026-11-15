@@ -5,6 +5,7 @@ import {
 	loadDisplayCase,
 	loadUnlockedTiers,
 	markTiersSeen,
+	recordGiottoFly,
 	unlockExhibits
 } from './career-data.ts';
 
@@ -161,5 +162,16 @@ describe('career data', () => {
 			error: m.collectionErrors.network
 		});
 		expect(from).not.toHaveBeenCalled();
+	});
+
+	it('records the swatted fly and gives a message when it cannot', async () => {
+		rpc.mockResolvedValueOnce({ data: null, error: null } as never);
+		await expect(recordGiottoFly()).resolves.toEqual({});
+		expect(rpc).toHaveBeenCalledWith('record_giotto_fly');
+		rpc.mockResolvedValueOnce({
+			data: null,
+			error: { message: 'TypeError: Failed to fetch' }
+		} as never);
+		await expect(recordGiottoFly()).resolves.toEqual({ error: m.collectionErrors.network });
 	});
 });

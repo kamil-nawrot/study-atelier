@@ -48,13 +48,13 @@ begin
     'map_room:chronicle', 'map_room:grand_tour', 'map_room:seen_live', 'map_room:trevi_fountain',
     'map_room:seven_league_boots', 'map_room:pilgrim_shell', 'pavilion:crystal_palace', 'pavilion:lenoir_chapel', 'pavilion:kircher_ark',
     'crypt:mouth_of_truth',
-    'crypt:candle_moths'
-  ], 'the exhibits are not the agreed thirty-eight in their rooms and order';
+    'crypt:candle_moths', 'crypt:giotto_fly'
+  ], 'the exhibits are not the agreed thirty-nine in their rooms and order';
   assert (select array_agg(exhibit order by exhibit) from public.unlock_exhibits('UTC') where hidden) = array[
-    'amateur_magnifier', 'back_from_storage', 'candle_moths', 'figure_alphabet', 'kircher_ark', 'lenoir_chapel', 'marathon',
+    'amateur_magnifier', 'back_from_storage', 'candle_moths', 'figure_alphabet', 'giotto_fly', 'kircher_ark', 'lenoir_chapel', 'marathon',
     'mouth_of_truth', 'night_watch', 'pelican_serpent', 'pilgrim_shell', 'pinacotheca', 'seven_league_boots', 'trevi_fountain',
     'van_eyck_easel'
-  ], 'the hidden exhibits are not the agreed fifteen';
+  ], 'the hidden exhibits are not the agreed sixteen';
   assert (select value from public.unlock_exhibits('UTC') where exhibit = 'early_modern') = 5,
     'an era exhibit does not count the artworks of its era';
   assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'modern') = array[1]::smallint[],
@@ -1077,5 +1077,35 @@ begin
     'a found hidden exhibit is counted again instead of keeping its threshold';
 end;
 $$;
+
+reset role;
+
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-000000000022', 'owner-s@example.test');
+
+set local role authenticated;
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-000000000022", "role": "authenticated"}', true);
+
+do $$
+declare
+  first_swat timestamptz;
+begin
+  assert (select value from public.unlock_exhibits('UTC') where exhibit = 'giotto_fly') = 0,
+    'a learner who never swatted the painted fly counts for it';
+  perform public.record_giotto_fly();
+  select giotto_fly_at into first_swat from public.profiles;
+  assert first_swat is not null, 'record_giotto_fly does not record the swat for a learner without a profile';
+  perform public.record_giotto_fly();
+  assert (select giotto_fly_at from public.profiles) = first_swat, 'a later swat replaces the first one';
+  assert (select thresholds from public.unlock_exhibits('UTC') where exhibit = 'giotto_fly') = array[1],
+    'the fly does not have one tier';
+  assert (select array_agg(tier) from public.exhibit_tiers where exhibit = 'giotto_fly') = array[1]::smallint[],
+    'one swat does not unlock the fly';
+  assert (select count(*) from public.point_events where kind = 'easter_egg' and code = 'giotto_fly') = 1,
+    'the fly does not give its bonus';
+end;
+$$;
+
+reset role;
 
 rollback;

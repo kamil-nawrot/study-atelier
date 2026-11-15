@@ -12,6 +12,7 @@
 	import { MediaQuery } from 'svelte/reactivity';
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
+	import GiottoFly from '#lib/career/components/GiottoFly/GiottoFly.svelte';
 	import FlipLinks from '#lib/artworks/components/FlipLinks/FlipLinks.svelte';
 	import StageActions from '#lib/artworks/components/StageActions/StageActions.svelte';
 	import StageGallery from '#lib/artworks/components/StageGallery/StageGallery.svelte';
@@ -190,6 +191,7 @@
 						width={image.width}
 					/>
 				</button>
+				<GiottoFly artwork={artwork.id} />
 				{#if showPins}
 					<PinMarkers card={pinCard} names={entryNames} pins={imagePins} />
 				{/if}
