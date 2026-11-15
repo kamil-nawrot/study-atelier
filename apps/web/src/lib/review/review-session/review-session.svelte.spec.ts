@@ -340,6 +340,36 @@ describe('ReviewSession', () => {
 		expect(first.extraScore('quiz_definition')).toEqual({ asked: 0, right: 0 });
 	});
 
+	it('asks a missed extra question again at most twice', async () => {
+		const gap: NoteGapItem = {
+			mode: 'note_gap',
+			artwork: testArtwork(9, 'Portal'),
+			term: definition('Tympanon').term,
+			segments: [{ text: 'Tympanon', masked: true }],
+			quiz: {
+				answer: 0,
+				options: ['Tympanon', 'Nave', 'Choir', 'Portal'].map((label) => ({ label }))
+			}
+		};
+		const review = new ReviewSession(
+			[gap, ...items(5)],
+			new Map(),
+			() => start,
+			() => 0
+		);
+		const gaps = (): number => review.queue.filter((step) => step.mode === 'note_gap').length;
+
+		for (let miss = 0; miss < 3; miss += 1) {
+			review.position = review.queue.findIndex(
+				(step, index) => index >= review.position && step.mode === 'note_gap'
+			);
+			await review.answer(1);
+			review.proceed();
+		}
+
+		expect(gaps()).toBe(3);
+	});
+
 	it('records the first answer to a confused pair once and asks it again after a wrong one', async () => {
 		vi.mocked(recordRightAnswer).mockClear();
 		const monet = testArtwork(7, 'Impression', { authors: ['Claude Monet'] });

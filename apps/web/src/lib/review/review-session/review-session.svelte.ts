@@ -60,7 +60,7 @@ export class ReviewSession {
 	readonly startedAt: number;
 	readonly free: boolean;
 	#shownAt: number;
-	#missed = new SvelteSet<string>();
+	#missed = new SvelteMap<string, number>();
 	#asked = new SvelteSet<string>();
 	#repeats = new SvelteMap<string, number>();
 	#now: () => Date;
@@ -177,8 +177,10 @@ export class ReviewSession {
 			if (item.mode === 'quiz_pair' && !this.free) void recordPairAnswer(item, correct);
 		}
 		if (!correct) {
-			this.#missed.add(key);
-			this.#retry({ ...item, quiz: shuffleQuiz(item.quiz, this.#random) });
+			const missed = this.#missed.get(key) ?? 0;
+			this.#missed.set(key, missed + 1);
+			if (missed < MAX_REPEATS)
+				this.#retry({ ...item, quiz: shuffleQuiz(item.quiz, this.#random) });
 		} else if (!this.free && !this.#missed.has(key)) {
 			void recordRightAnswer(startOfDay(this.#now()));
 		}
