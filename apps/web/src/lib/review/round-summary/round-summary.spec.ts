@@ -40,6 +40,7 @@ describe('roundSummary', () => {
 			free: false,
 			years: { asked: 1, hit: 1 },
 			orders: { asked: 1, right: 1 },
+			styles: { asked: 0, right: 0 },
 			definitions: { asked: 0, right: 0 },
 			symbols: { asked: 0, right: 0 },
 			notes: { asked: 0, right: 0 }

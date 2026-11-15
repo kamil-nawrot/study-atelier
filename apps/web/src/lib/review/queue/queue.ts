@@ -50,7 +50,8 @@ export function sessionCounts({
 	now,
 	newToday,
 	sessionSize = SESSION_SIZE,
-	newPerDay = NEW_PER_DAY
+	newPerDay = NEW_PER_DAY,
+	stylePlaces = 0
 }: SessionInput): SessionCounts {
 	const pool = reviewableArtworks(artworks);
 	if (pool.length < MIN_ARTWORKS) return { known: 0, fresh: 0 };
@@ -58,9 +59,10 @@ export function sessionCounts({
 		const card = cards.get(artwork.id);
 		return card !== undefined && isDueToday(card, now);
 	}).length;
-	const known = Math.min(due, sessionSize);
+	const size = sessionSize - stylePlaces;
+	const known = Math.min(due, size);
 	const unseen = pool.filter((artwork) => !cards.has(artwork.id)).length;
-	return { known, fresh: Math.min(unseen, newAllowance(newToday, newPerDay), sessionSize - known) };
+	return { known, fresh: Math.min(unseen, newAllowance(newToday, newPerDay), size - known) };
 }
 
 export function retryLater<T>(

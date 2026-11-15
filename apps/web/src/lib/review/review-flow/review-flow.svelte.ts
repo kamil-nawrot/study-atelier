@@ -15,15 +15,15 @@ import { FreeAnswers } from '#lib/review/free-answers/free-answers.ts';
 import { roundSummary } from '#lib/review/round-summary/round-summary.ts';
 import {
 	definitionItems,
-	definitionsOffered,
+	definitionCount,
 	drawnTerms,
 	withDefinitionsOf
 } from '#lib/review/definitions/definitions.ts';
 import { loadTermDefinitions } from '#lib/glossary/glossary-data/glossary-data.ts';
 import { offeredForms, quizzesPossible } from '#lib/review/forms/forms.ts';
 import {
+	currentDate,
 	missingArtworks,
-	sessionCounts,
 	startOfDay,
 	withExtraSteps
 } from '#lib/review/queue/queue.ts';
@@ -41,6 +41,7 @@ import { reviewedSince, streakWithToday } from '#lib/review/streak-week/streak-w
 import { ResolvedImages } from '#lib/review/resolved-images/resolved-images.svelte.ts';
 import { ReviewStop } from '#lib/review/review-stop/review-stop.svelte.ts';
 import { ReviewSession } from '#lib/review/review-session/review-session.svelte.ts';
+import { plannedCounts } from '#lib/review/style-places/style-places.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewDetails } from '#lib/review/types/review-details.ts';
 import type { ReviewForm } from '#lib/review/types/review-form.ts';
@@ -59,10 +60,6 @@ import {
 const PRELOAD_AHEAD = 2;
 const ALL_SCOPE: ReviewScope = { kind: 'all' };
 
-function currentDate(): Date {
-	return new Date();
-}
-
 function mapOf<K, V>(entries: Iterable<readonly [K, V]> = []): Map<K, V> {
 	return new Map(entries);
 }
@@ -72,6 +69,7 @@ export class ReviewFlow {
 	form = $state<ReviewForm>('mixed');
 	freeRound = $state(0);
 	cards = $state.raw(mapOf<string, ReviewCard>());
+	styleCards = $state.raw(mapOf<string, ReviewCard>());
 	newToday = $state(0);
 	now = $state(currentDate());
 	phase = $state<'start' | 'session' | 'summary'>('start');
@@ -95,6 +93,7 @@ export class ReviewFlow {
 		const data = source();
 		this.form = data.preferences.reviewForm;
 		this.cards = data.cards;
+		this.styleCards = data.styleCards;
 		this.newToday = data.newToday;
 	}
 
@@ -111,17 +110,12 @@ export class ReviewFlow {
 			)
 		)
 	);
-	definitionCount = $derived(
-		this.#data().preferences.reviewGlossaryOn && definitionsOffered(this.#data().glossary)
-			? this.#data().preferences.reviewGlossaryQuestions
-			: undefined
-	);
 	activeForm = $derived(this.forms.includes(this.form) ? this.form : 'mixed');
 	limits = $derived({
 		sessionSize: this.#data().preferences.reviewSessionSize,
 		newPerDay: this.#data().preferences.reviewNewPerDay
 	});
-	allCounts = $derived(this.#counts(scopeArtworks(this.#data().artworks, ALL_SCOPE)));
+	allCounts = $derived(this.#counts(scopeArtworks(this.#data().artworks, ALL_SCOPE), ALL_SCOPE));
 	freeScopes = $derived(freeScopeOptions(this.#data().artworks, this.cards));
 	freeOpen = $derived(
 		this.#data().preferences.reviewFree &&
@@ -133,7 +127,7 @@ export class ReviewFlow {
 		this.freeOpen
 			? this.freeScopes
 			: scopeOptions(this.#data().artworks, this.cards, this.now).map((option) => {
-					const planned = this.#counts(scopeArtworks(this.#data().artworks, option));
+					const planned = this.#counts(scopeArtworks(this.#data().artworks, option), option);
 					return { scope: option, count: planned.known + planned.fresh };
 				})
 	);
@@ -141,7 +135,7 @@ export class ReviewFlow {
 		this.scopes.find((option) => sameScope(option.scope, this.scope))?.scope ?? ALL_SCOPE
 	);
 	scoped = $derived(scopeArtworks(this.#data().artworks, this.activeScope));
-	counts = $derived(this.#counts(this.scoped));
+	counts = $derived(this.#counts(this.scoped, this.activeScope));
 	waiting = $derived(this.counts.known + this.counts.fresh);
 	missing = $derived(missingArtworks(this.scoped));
 	nextDate = $derived(
@@ -154,13 +148,17 @@ export class ReviewFlow {
 	hard = $derived(troubles(this.#data().artworks, this.cards).map(this.images.withImage));
 	current = $derived(this.session?.current);
 
-	#counts(artworks: WallArtwork[]): ReturnType<typeof sessionCounts> {
-		return sessionCounts({
+	#counts(artworks: WallArtwork[], scope: ReviewScope): ReturnType<typeof plannedCounts> {
+		return plannedCounts({
+			...this.limits,
 			artworks,
+			scope,
 			cards: this.cards,
+			styleCards: this.styleCards,
 			now: this.now,
 			newToday: this.newToday,
-			...this.limits
+			form: this.activeForm,
+			quizKinds: this.#data().preferences.reviewQuizKinds
 		});
 	}
 
@@ -217,7 +215,7 @@ export class ReviewFlow {
 		const artworks = [...items.map((item) => item.artwork), ...timeArtworks(times)];
 		const shown = [...artworks, ...quizArtworks(items)];
 		const glossary = this.#data().glossary;
-		const drawn = drawnTerms(glossary, this.definitionCount ?? 0);
+		const drawn = drawnTerms(glossary, definitionCount(this.#data().preferences, glossary));
 		const shownImages = this.images.resolve(shown);
 		const definedRead = loadTermDefinitions(drawn.map((term) => term.id));
 		const gaps = await drawNoteGap(
@@ -308,6 +306,7 @@ export class ReviewFlow {
 		if (!session) return;
 		if (!session.free) {
 			this.cards = mapOf(session.cards);
+			this.styleCards = mapOf([...this.styleCards, ...session.styleCards]);
 			this.newToday += session.started;
 		}
 		this.now = currentDate();

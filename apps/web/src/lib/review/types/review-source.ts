@@ -6,6 +6,7 @@ import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 export type ReviewSource = {
 	artworks: WallArtwork[];
 	cards: Map<string, ReviewCard>;
+	styleCards: Map<string, ReviewCard>;
 	newToday: number;
 	streak: number;
 	preferences: Preferences;

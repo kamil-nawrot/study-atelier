@@ -10,4 +10,5 @@ export type ReviewItem = {
 	mode: ReviewMode;
 	quiz?: Quiz;
 	pin?: ReviewPin;
+	facet?: 'style';
 };

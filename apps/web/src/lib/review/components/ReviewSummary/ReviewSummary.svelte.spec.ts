@@ -54,6 +54,7 @@ describe('ReviewSummary', () => {
 		await renderSummary([], {
 			years: { asked: 3, hit: 2 },
 			orders: { asked: 0, right: 0 },
+			styles: { asked: 4, right: 3 },
 			definitions: { asked: 3, right: 1 },
 			symbols: { asked: 2, right: 2 },
 			notes: { asked: 1, right: 1 },
@@ -65,6 +66,7 @@ describe('ReviewSummary', () => {
 		);
 		expect(lines).toEqual([
 			`${m.review.roundLines.years} 2/3`,
+			`${m.review.roundLines.styles} 3/4`,
 			`${m.review.roundLines.definitions} 1/3`,
 			`${m.review.roundLines.symbols} 2/2`,
 			`${m.review.roundLines.notes} 1/1`,

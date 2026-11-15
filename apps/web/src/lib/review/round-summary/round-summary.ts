@@ -12,6 +12,7 @@ export function roundSummary(session: ReviewSession, tomorrow: number): SessionS
 		free: session.free,
 		years: session.years,
 		orders: session.orders,
+		styles: session.styles,
 		definitions: session.extraScore('quiz_definition'),
 		symbols: session.extraScore('quiz_symbol'),
 		notes: session.extraScore('note_gap')

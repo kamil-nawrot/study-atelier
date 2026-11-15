@@ -70,6 +70,7 @@ function renderReview(dueInDays: number): void {
 			session: testSession(),
 			artworks,
 			cards,
+			styleCards: new Map(),
 			newToday: 0,
 			streak: 0,
 			waiting: undefined,

@@ -8,6 +8,7 @@ export type SessionSummary = {
 	free: boolean;
 	years: { asked: number; hit: number };
 	orders: { asked: number; right: number };
+	styles: { asked: number; right: number };
 	definitions: { asked: number; right: number };
 	symbols: { asked: number; right: number };
 	notes: { asked: number; right: number };
