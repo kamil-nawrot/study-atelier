@@ -818,6 +818,17 @@ export const pl = {
 				attribute: 'Do kogo należy ten atrybut?'
 			},
 			noteTag: 'Pytanie dodatkowe z notatek',
+			pairTag: 'Pytanie dodatkowe z mylonych par',
+			pairQuestion: 'Które z tych dzieł pasuje?',
+			pairValue: {
+				author: (name: string): string => `Autor: ${name}`,
+				style: (name: string): string => `Styl: ${name}`
+			},
+			pairOther: {
+				author: (name: string): string => `Drugie dzieło to autor: ${name}.`,
+				style: (name: string): string => `Drugie dzieło to styl: ${name}.`
+			},
+			pairRetry: 'Wrócimy do tej pary za chwilę.',
 			noteQuestion: 'Jakiego pojęcia brakuje w Twojej notatce?',
 			noteSource: 'Z notatki do dzieła',
 			showArtwork: 'Pokaż dzieło',
@@ -910,7 +921,8 @@ export const pl = {
 			styles: 'Poprawnie dopasowane style:',
 			definitions: 'Poprawnie odgadnięte pojęcia:',
 			symbols: 'Poprawnie rozpoznane symbole:',
-			notes: 'Poprawnie uzupełnione luki w notatkach:'
+			notes: 'Poprawnie uzupełnione luki w notatkach:',
+			pairs: 'Poprawnie rozróżnione pary:'
 		},
 		roundScore: (right: number, asked: number): string => `${right}/${asked}`,
 		tomorrowStart: (count: number): string =>

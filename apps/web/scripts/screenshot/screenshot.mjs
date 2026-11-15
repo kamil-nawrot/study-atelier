@@ -472,6 +472,21 @@ function noteLinkMentions(args) {
 		.map(({ kind, id, record_number, title }) => ({ kind, id, record_number, title }));
 }
 
+const CONFUSED_PAIRS = [
+	{
+		kind: 'author',
+		first_value: 'Leonardo da Vinci',
+		second_value: 'Sandro Botticelli',
+		confused_at: '2026-11-14T10:00:00Z'
+	},
+	{
+		kind: 'author',
+		first_value: 'Johannes Vermeer',
+		second_value: 'Vincent van Gogh',
+		confused_at: '2026-11-13T10:00:00Z'
+	}
+];
+
 const SUGGESTED_KINDS = ['period', 'style', 'material', 'author', 'location'];
 
 function searchKey(text) {
@@ -888,6 +903,10 @@ async function mockSupabase(context) {
 		}
 		if (url.pathname === '/rest/v1/rpc/review_session') {
 			return json(route, reviewSession(request.postDataJSON() ?? {}));
+		}
+		if (url.pathname === '/rest/v1/rpc/confused_pairs') return json(route, CONFUSED_PAIRS);
+		if (url.pathname === '/rest/v1/rpc/record_pair_answer') {
+			return route.fulfill({ status: 204, headers: corsHeaders() });
 		}
 		if (url.pathname === '/rest/v1/rpc/review_streak') {
 			return json(route, REVIEW_CARDS.length > 0 ? 5 : 0);

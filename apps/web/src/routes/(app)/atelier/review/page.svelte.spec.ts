@@ -44,6 +44,8 @@ vi.mock('#lib/glossary/glossary-data/glossary-data.ts', async (importOriginal) =
 	loadTermDefinitions: vi.fn()
 }));
 vi.mock('#lib/review/review-data/review-data.ts', () => ({
+	loadConfusedPairs: vi.fn().mockResolvedValue([]),
+	recordPairAnswer: vi.fn(),
 	REVIEW_COUNTS_DEPENDENCY: 'review:counts',
 	loadReviewDetails: vi.fn().mockResolvedValue({ details: new Map() }),
 	loadNoteGap: vi.fn(),

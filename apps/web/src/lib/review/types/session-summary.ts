@@ -12,4 +12,5 @@ export type SessionSummary = {
 	definitions: { asked: number; right: number };
 	symbols: { asked: number; right: number };
 	notes: { asked: number; right: number };
+	pairs: { asked: number; right: number };
 };

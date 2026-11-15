@@ -2,6 +2,7 @@
 	import { Alert } from '@study-atelier/ui';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import SymbolQuiz from '#lib/review/components/SymbolQuiz/SymbolQuiz.svelte';
+	import PairQuiz from '#lib/review/components/PairQuiz/PairQuiz.svelte';
 	import DefinitionQuiz from '#lib/review/components/DefinitionQuiz/DefinitionQuiz.svelte';
 	import NoteGapQuiz from '#lib/review/components/NoteGapQuiz/NoteGapQuiz.svelte';
 	import Flashcard from '#lib/review/components/Flashcard/Flashcard.svelte';
@@ -36,7 +37,7 @@
 			? current.artworks[0].id
 			: current.mode === 'quiz_definition'
 				? current.term.id
-				: current.mode === 'quiz_symbol'
+				: current.mode === 'quiz_symbol' || current.mode === 'quiz_pair'
 					? current.key
 					: current.artwork.id}
 	{#key `${session.position}:${id}`}
@@ -56,6 +57,13 @@
 			/>
 		{:else if current.mode === 'quiz_symbol'}
 			<SymbolQuiz
+				chosen={session.chosen}
+				item={current}
+				onanswer={(choice) => flow.answer(choice)}
+				onnext={() => flow.proceed()}
+			/>
+		{:else if current.mode === 'quiz_pair'}
+			<PairQuiz
 				chosen={session.chosen}
 				item={current}
 				onanswer={(choice) => flow.answer(choice)}
@@ -129,6 +137,7 @@
 		onfree={() => flow.start()}
 		onnext={() => flow.start()}
 		orders={flow.summary.orders}
+		pairs={flow.summary.pairs}
 		{rankForm}
 		starting={flow.starting}
 		styles={flow.summary.styles}

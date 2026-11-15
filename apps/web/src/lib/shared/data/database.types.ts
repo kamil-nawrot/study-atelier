@@ -1436,6 +1436,7 @@ export type Database = {
           id: number;
           mode: string;
           owner_id: string;
+          pair: string[] | null;
           practice: boolean;
           rating: number;
           reviewed_at: string;
@@ -1453,6 +1454,7 @@ export type Database = {
           id?: never;
           mode: string;
           owner_id?: string;
+          pair?: string[] | null;
           practice?: boolean;
           rating: number;
           reviewed_at?: string;
@@ -1469,6 +1471,7 @@ export type Database = {
           id?: never;
           mode?: string;
           owner_id?: string;
+          pair?: string[] | null;
           practice?: boolean;
           rating?: number;
           reviewed_at?: string;
@@ -1878,6 +1881,15 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: Json;
       };
+      confused_pairs: {
+        Args: Record<PropertyKey, never>;
+        Returns: {
+          confused_at: string;
+          first_value: string;
+          kind: string;
+          second_value: string;
+        }[];
+      };
       delete_account: { Args: Record<PropertyKey, never>; Returns: undefined };
       delete_unused_value: {
         Args: { target_value: string };
@@ -1978,6 +1990,16 @@ export type Database = {
         Returns: undefined;
       };
       record_night_light: { Args: { time_zone: string }; Returns: boolean };
+      record_pair_answer: {
+        Args: {
+          asked: string;
+          correct: boolean;
+          kind: string;
+          other: string;
+          target_artwork: string;
+        };
+        Returns: undefined;
+      };
       record_review: {
         Args: {
           answer: Json;

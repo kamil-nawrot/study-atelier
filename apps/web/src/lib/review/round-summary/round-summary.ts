@@ -15,6 +15,7 @@ export function roundSummary(session: ReviewSession, tomorrow: number): SessionS
 		styles: session.styles,
 		definitions: session.extraScore('quiz_definition'),
 		symbols: session.extraScore('quiz_symbol'),
-		notes: session.extraScore('note_gap')
+		notes: session.extraScore('note_gap'),
+		pairs: session.extraScore('quiz_pair')
 	};
 }
