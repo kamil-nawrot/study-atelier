@@ -84,24 +84,24 @@
 			disabled={disabled || value <= bounds[0]}
 			icon={Minus}
 			label={m.review.year.earlier}
-			variant="plain"
 			onclick={(event) => press(-1, event)}
 			onpointercancel={release}
 			onpointerdown={(event) => hold(-1, event)}
 			onpointerleave={release}
 			onpointerup={release}
+			variant="plain"
 		/>
 		<output class="year" for="year-slider">{text}</output>
 		<IconButton
 			disabled={disabled || value >= bounds[1]}
 			icon={Plus}
 			label={m.review.year.later}
-			variant="plain"
 			onclick={(event) => press(1, event)}
 			onpointercancel={release}
 			onpointerdown={(event) => hold(1, event)}
 			onpointerleave={release}
 			onpointerup={release}
+			variant="plain"
 		/>
 	</div>
 	<input
