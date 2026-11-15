@@ -187,6 +187,16 @@ describe('review overview', () => {
 		expect(troubles(artworks, cards).map((artwork) => artwork.number)).toEqual([2, 3, 4, 5]);
 	});
 
+	it('lists an artwork whose last scheduling answer was not known', () => {
+		const artworks = collection(2);
+		const cards = cardsFor([
+			['artwork-1', testReviewCard('artwork-1', days(1), { lastRating: 1 })],
+			['artwork-2', testReviewCard('artwork-2', days(1))]
+		]);
+
+		expect(troubles(artworks, cards).map((artwork) => artwork.number)).toEqual([1]);
+	});
+
 	it('says when the next artworks wait once everything for today is done', () => {
 		const artworks = collection(2);
 		const cards = cardsFor([

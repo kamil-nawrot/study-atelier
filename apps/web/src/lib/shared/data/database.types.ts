@@ -1373,6 +1373,7 @@ export type Database = {
           due: string;
           facet: string;
           lapses: number;
+          last_rating: number | null;
           last_review: string | null;
           learning_steps: number;
           owner_id: string;
@@ -1389,6 +1390,7 @@ export type Database = {
           due: string;
           facet?: string;
           lapses?: number;
+          last_rating?: number | null;
           last_review?: string | null;
           learning_steps?: number;
           owner_id?: string;
@@ -1404,6 +1406,7 @@ export type Database = {
           due?: string;
           facet?: string;
           lapses?: number;
+          last_rating?: number | null;
           last_review?: string | null;
           learning_steps?: number;
           owner_id?: string;
@@ -1433,6 +1436,7 @@ export type Database = {
           id: number;
           mode: string;
           owner_id: string;
+          practice: boolean;
           rating: number;
           reviewed_at: string;
           wrong_answer: string | null;
@@ -1449,6 +1453,7 @@ export type Database = {
           id?: never;
           mode: string;
           owner_id?: string;
+          practice?: boolean;
           rating: number;
           reviewed_at?: string;
           wrong_answer?: string | null;
@@ -1464,6 +1469,7 @@ export type Database = {
           id?: never;
           mode?: string;
           owner_id?: string;
+          practice?: boolean;
           rating?: number;
           reviewed_at?: string;
           wrong_answer?: string | null;

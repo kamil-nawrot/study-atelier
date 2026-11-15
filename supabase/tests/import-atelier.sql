@@ -189,6 +189,9 @@ begin
   assert (select stability from public.review_cards where facet = 'date') = 4
     and (select mode from public.review_log where facet = 'date') = 'year',
     'the date card or its answer does not survive the import';
+  assert (select last_rating from public.review_cards where facet = 'recognise') = 3
+    and (select count(*) from public.review_log where practice) = 0,
+    'the last rating or the practice mark does not survive the import';
   assert (select place.name from public.visits as visit
       join public.category_values as place on place.id = visit.place_id) = 'Louvre',
     'a visit does not keep its place';

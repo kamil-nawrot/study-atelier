@@ -16,6 +16,7 @@ export function testReviewCard(
 		scheduledDays: 10,
 		learningSteps: 0,
 		lastReview: null,
+		lastRating: 3,
 		...overrides
 	};
 }

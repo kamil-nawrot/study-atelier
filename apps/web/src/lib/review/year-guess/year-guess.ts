@@ -88,7 +88,8 @@ function cardOf(artworkId: string, row: SessionCardRow): ReviewCard {
 		lapses: row.lapses,
 		scheduledDays: row.scheduled_days,
 		learningSteps: row.learning_steps,
-		lastReview: row.last_review ? new Date(row.last_review) : null
+		lastReview: row.last_review ? new Date(row.last_review) : null,
+		lastRating: null
 	};
 }
 
