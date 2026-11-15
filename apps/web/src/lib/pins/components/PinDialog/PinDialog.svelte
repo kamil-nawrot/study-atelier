@@ -137,6 +137,7 @@
 		if (!symbolId || !onaddmeaning) return null;
 		const result = await onaddmeaning(symbolId, meanings.length, newMeaning);
 		if (result.error || !result.id) {
+			failureTitle = m.pins.errorTitle;
 			failure = result.error ?? m.common.unexpectedError;
 			return undefined;
 		}
