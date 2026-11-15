@@ -213,6 +213,11 @@ export const EXHIBIT_ART: Readonly<Record<string, ExhibitArt>> = {
 		credit: 'Robert Hooke, „Mucha plujka pod mikroskopem”, 1665',
 		licence: 'domena publiczna',
 		commonsFile: 'Hooke-bluefly.jpg'
+	},
+	covenant_tablets: {
+		credit: 'Johann Sadeler według Crispijna van den Broecka, „Mojżesz z tablicami prawa”, 1575',
+		licence: 'CC0',
+		commonsFile: 'Mozes met de tafelen der wet, RP-P-OB-5451.jpg'
 	}
 };
 

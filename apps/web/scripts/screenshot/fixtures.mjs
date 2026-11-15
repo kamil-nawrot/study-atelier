@@ -1740,7 +1740,8 @@ export const EXHIBITS = [
 	{ exhibit: 'kircher_ark', room: 'pavilion', hidden: true, value: 0, thresholds: [1] },
 	{ exhibit: 'mouth_of_truth', room: 'crypt', hidden: true, value: 0, thresholds: [1] },
 	{ exhibit: 'candle_moths', room: 'crypt', hidden: true, value: 1, thresholds: [1] },
-	{ exhibit: 'giotto_fly', room: 'crypt', hidden: true, value: 0, thresholds: [1] }
+	{ exhibit: 'giotto_fly', room: 'crypt', hidden: true, value: 0, thresholds: [1] },
+	{ exhibit: 'covenant_tablets', room: 'crypt', hidden: true, value: 0, thresholds: [1] }
 ];
 
 export const EXHIBIT_TIERS = EXHIBITS.flatMap(({ exhibit, value, thresholds }) =>

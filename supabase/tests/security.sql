@@ -107,6 +107,7 @@ declare
     'career_standing', 'note_link_mentions', 'note_link_labels', 'note_link_suggestions', 'atelier_empty',
     'collection_statistics', 'record_right_answer', 'note_gap_artwork', 'artwork_field_type_impact',
     'mastered_artworks', 'save_exhibition', 'record_night_light', 'record_long_look', 'record_giotto_fly',
+    'record_legal_read',
     'save_symbol', 'symbol_atlas',
     'set_place_point', 'set_symbol_cover', 'assign_symbol_meaning', 'ensure_city_place',
     'set_exhibition_cover'
@@ -396,7 +397,7 @@ begin
   assert not (select has_content from public.value_page_content(a_value)),
     'B sees the page content of a value of A';
   assert (select count(*) from public.eras) = 6, 'B cannot read the shared eras';
-  assert (select count(*) from public.exhibit_rooms) = 7 and (select count(*) from public.exhibits) = 39,
+  assert (select count(*) from public.exhibit_rooms) = 7 and (select count(*) from public.exhibits) = 40,
     'B cannot read the shared exhibit catalogue';
   assert (select count(*) from public.review_cards) = 0, 'B reads review cards of A';
   assert (select count(*) from public.review_log) = 0, 'B reads the review log of A';
@@ -1004,6 +1005,7 @@ begin
   assert security_test.denied('select public.record_night_light(''UTC'')'), 'anon executes record_night_light';
   assert security_test.denied('select public.record_long_look()'), 'anon executes record_long_look';
   assert security_test.denied('select public.record_giotto_fly()'), 'anon executes record_giotto_fly';
+  assert security_test.denied('select public.record_legal_read()'), 'anon executes record_legal_read';
   assert security_test.denied(format('select public.set_place_point(%L, 0, 0)', gen_random_uuid())),
     'anon executes set_place_point';
   assert security_test.denied('select public.ensure_city_place(''Paryż'')'), 'anon executes ensure_city_place';

@@ -6,6 +6,7 @@ import {
 	loadUnlockedTiers,
 	markTiersSeen,
 	recordGiottoFly,
+	recordLegalRead,
 	unlockExhibits
 } from './career-data.ts';
 
@@ -173,5 +174,16 @@ describe('career data', () => {
 			error: { message: 'TypeError: Failed to fetch' }
 		} as never);
 		await expect(recordGiottoFly()).resolves.toEqual({ error: m.collectionErrors.network });
+	});
+
+	it('records the terms read to the end and gives a message when it cannot', async () => {
+		rpc.mockResolvedValueOnce({ data: null, error: null } as never);
+		await expect(recordLegalRead()).resolves.toEqual({});
+		expect(rpc).toHaveBeenCalledWith('record_legal_read');
+		rpc.mockResolvedValueOnce({
+			data: null,
+			error: { message: 'TypeError: Failed to fetch' }
+		} as never);
+		await expect(recordLegalRead()).resolves.toEqual({ error: m.collectionErrors.network });
 	});
 });
