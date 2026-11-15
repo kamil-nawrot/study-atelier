@@ -5,6 +5,7 @@ import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { reviewableArtworks } from '#lib/review/queue/queue.ts';
 import { shuffle } from '#lib/review/quiz/quiz.ts';
 import type { RelationItem } from '#lib/review/types/relation-item.ts';
+import type { PupilQuestion } from '#lib/review/types/pupil-question.ts';
 import type { RelationQuestion } from '#lib/review/types/relation-question.ts';
 import type { ReviewRelations } from '#lib/review/types/review-relations.ts';
 
@@ -96,10 +97,11 @@ function authorCandidates(
 			const subject = side === 'from' ? link.from : link.to;
 			const other = side === 'from' ? link.to : link.from;
 			const question = authorRelationTypeOf(link.kind, side);
+			if (!isPupilQuestion(question)) return [];
 			const works = pool.filter((artwork) =>
 				artwork.authors.some((name) => label(name) === label(subject))
 			);
-			if (!question || question === 'related' || works.length === 0) return [];
+			if (works.length === 0) return [];
 			const related = near.get(label(subject)) ?? new Set();
 			return [
 				{
@@ -113,6 +115,10 @@ function authorCandidates(
 			];
 		})
 	);
+}
+
+function isPupilQuestion(question: string | undefined): question is PupilQuestion {
+	return question === 'pupilFrom' || question === 'pupilTo';
 }
 
 function relationItem(candidate: Candidate, random: () => number): RelationItem {

@@ -57,6 +57,19 @@ describe('relationItems', () => {
 		expect(labels).toHaveLength(4);
 	});
 
+	it('asks only about pupils and teachers among author relations', () => {
+		const kinds = ['influence', 'collaboration', 'family', 'related'];
+		expect(
+			relationItems(
+				relations({
+					authors: kinds.map((kind) => ({ kind, from: 'Leonardo da Vinci', to: 'Gustav Klimt' }))
+				}),
+				atelier,
+				4
+			)
+		).toEqual([]);
+	});
+
 	it('skips a relation without three other answers or without an image to show', () => {
 		const small = [study, painting, others[0]];
 		expect(
