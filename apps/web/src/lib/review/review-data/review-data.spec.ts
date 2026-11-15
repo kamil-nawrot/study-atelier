@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import {
+	loadConfusedPairs,
 	loadReviewCards,
 	loadReviewCounts,
 	loadReviewDetails,
@@ -9,9 +10,9 @@ import {
 	loadNoteGap,
 	loadSession,
 	recordFreeAnswers,
+	recordPairAnswer,
 	recordRightAnswer,
 	recordReview,
-	waitingToday,
 	withPinPreviews
 } from './review-data.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
@@ -26,6 +27,7 @@ const rpc = vi.mocked(supabase.rpc);
 
 const row = {
 	artwork_id: 'artwork-1',
+	facet: 'recognise',
 	due: '2026-10-17T08:00:00.000Z',
 	stability: 4.2,
 	difficulty: 5.5,
@@ -34,7 +36,8 @@ const row = {
 	lapses: 1,
 	scheduled_days: 4,
 	learning_steps: 0,
-	last_review: '2026-10-13T08:00:00.000Z'
+	last_review: '2026-10-13T08:00:00.000Z',
+	last_rating: 1
 };
 
 const card: ReviewCard = {
@@ -47,21 +50,22 @@ const card: ReviewCard = {
 	lapses: 1,
 	scheduledDays: 4,
 	learningSteps: 0,
-	lastReview: new Date('2026-10-13T08:00:00.000Z')
+	lastReview: new Date('2026-10-13T08:00:00.000Z'),
+	lastRating: 1
 };
 
 function cardsQuery(
 	rows: unknown[],
 	error: unknown = null
-): { range: ReturnType<typeof vi.fn>; eq: ReturnType<typeof vi.fn> } {
+): { range: ReturnType<typeof vi.fn>; in: ReturnType<typeof vi.fn> } {
 	const query = {
 		select: vi.fn(),
-		eq: vi.fn(),
+		in: vi.fn(),
 		order: vi.fn(),
 		range: vi.fn().mockResolvedValue({ data: rows, error })
 	};
 	query.select.mockReturnValue(query);
-	query.eq.mockReturnValue(query);
+	query.in.mockReturnValue(query);
 	query.order.mockReturnValue(query);
 	vi.mocked(supabase.from).mockReturnValue(query as never);
 	return query;
@@ -80,13 +84,14 @@ describe('review data', () => {
 		vi.useRealTimers();
 	});
 
-	it('loads the recognition cards by artwork, without the cards of the year questions', async () => {
-		const query = cardsQuery([row]);
-		const { cards, error } = await loadReviewCards();
+	it('loads the recognition and style cards by artwork, without the cards of the year questions', async () => {
+		const query = cardsQuery([row, { ...row, facet: 'style', stability: 2, last_rating: 2 }]);
+		const { cards, styleCards, error } = await loadReviewCards();
 		expect(error).toBeUndefined();
 		expect(supabase.from).toHaveBeenCalledWith('review_cards');
-		expect(query.eq).toHaveBeenCalledWith('facet', 'recognise');
+		expect(query.in).toHaveBeenCalledWith('facet', ['recognise', 'style']);
 		expect(cards.get('artwork-1')).toEqual(card);
+		expect(styleCards.get('artwork-1')).toEqual({ ...card, stability: 2, lastRating: 2 });
 	});
 
 	it('loads every page of review cards', async () => {
@@ -110,10 +115,10 @@ describe('review data', () => {
 	});
 
 	it('counts the reviews from the start of the learner’s day', async () => {
-		countsCall({ due: 4, new_available: 30, new_today: 3, with_image: 40 });
+		countsCall({ due: 4, new_available: 30, new_today: 3, with_image: 40, waiting: 16 });
 		const dayStart = new Date('2026-10-15T22:00:00.000Z');
 		await expect(loadReviewCounts(dayStart)).resolves.toEqual({
-			counts: { due: 4, newAvailable: 30, newToday: 3, withImage: 40 }
+			counts: { newToday: 3, waiting: 16 }
 		});
 		expect(rpc).toHaveBeenCalledWith('review_counts', { day_start: '2026-10-15T22:00:00.000Z' });
 	});
@@ -144,21 +149,6 @@ describe('review data', () => {
 		await expect(loadReviewCounts(new Date())).resolves.toEqual({
 			error: m.collectionErrors.network
 		});
-	});
-
-	it('counts what waits today: due artworks and new ones up to the daily limit', () => {
-		expect(waitingToday({ due: 4, newAvailable: 30, newToday: 3, withImage: 40 })).toBe(11);
-		expect(waitingToday({ due: 4, newAvailable: 2, newToday: 0, withImage: 40 })).toBe(6);
-		expect(waitingToday({ due: 25, newAvailable: 30, newToday: 10, withImage: 40 })).toBe(25);
-	});
-
-	it('counts the new artworks up to the limit of the preferences', () => {
-		expect(waitingToday({ due: 4, newAvailable: 30, newToday: 3, withImage: 40 }, 20)).toBe(21);
-		expect(waitingToday({ due: 4, newAvailable: 30, newToday: 3, withImage: 40 }, 5)).toBe(6);
-	});
-
-	it('shows nothing waiting until the collection has 20 artworks with an image', () => {
-		expect(waitingToday({ due: 0, newAvailable: 19, newToday: 0, withImage: 19 })).toBe(0);
 	});
 
 	it('records a flashcard rating with the next state of the card and the day of the answer', async () => {
@@ -225,6 +215,17 @@ describe('review data', () => {
 		);
 	});
 
+	it('saves a style answer on the style facet', async () => {
+		rpc.mockResolvedValue({ error: null } as never);
+		await recordReview(card, { mode: 'quiz_style', facet: 'style', rating: 2, correct: true });
+		expect(rpc).toHaveBeenCalledWith(
+			'record_review',
+			expect.objectContaining({
+				answer: { facet: 'style', mode: 'quiz_style', rating: 2, correct: true, answer_ms: null }
+			})
+		);
+	});
+
 	it('saves the option picked in a wrong quiz answer', async () => {
 		rpc.mockResolvedValue({ error: null } as never);
 		await recordReview(card, {
@@ -274,45 +275,32 @@ describe('review data', () => {
 		rpc.mockResolvedValue({ data: rows, error: null } as never);
 
 		await expect(
-			loadSession(
-				new Date('2026-10-15T22:00:00.000Z'),
-				'quizzes',
-				{ kind: 'style', name: 'Caravaggism' },
-				true
-			)
+			loadSession(new Date('2026-10-15T22:00:00.000Z'), 'quizzes', {
+				kind: 'style',
+				name: 'Caravaggism'
+			})
 		).resolves.toEqual({ rows });
 		expect(rpc).toHaveBeenCalledWith('review_session', {
 			day_start: '2026-10-15T22:00:00.000Z',
 			session_form: 'quizzes',
 			scope_kind: 'style',
-			scope_value: 'Caravaggism',
-			time_questions: true
+			scope_value: 'Caravaggism'
 		});
 
-		await loadSession(
-			new Date('2026-10-15T22:00:00.000Z'),
-			'mixed',
-			{ kind: 'era', code: 'modern' },
-			true
-		);
+		await loadSession(new Date('2026-10-15T22:00:00.000Z'), 'mixed', {
+			kind: 'era',
+			code: 'modern'
+		});
 		expect(rpc).toHaveBeenLastCalledWith(
 			'review_session',
 			expect.objectContaining({ scope_kind: 'era', scope_value: 'modern' })
 		);
-		await loadSession(new Date('2026-10-15T22:00:00.000Z'), 'mixed', { kind: 'all' }, false);
-		expect(rpc).toHaveBeenLastCalledWith('review_session', {
-			day_start: '2026-10-15T22:00:00.000Z',
-			session_form: 'mixed',
-			scope_kind: 'all',
-			time_questions: false
-		});
-		await loadSession(new Date('2026-10-15T22:00:00.000Z'), 'flashcards', { kind: 'all' }, true, 2);
+		await loadSession(new Date('2026-10-15T22:00:00.000Z'), 'flashcards', { kind: 'all' }, 2);
 		expect(rpc).toHaveBeenLastCalledWith('review_session', {
 			day_start: '2026-10-15T22:00:00.000Z',
 			session_form: 'flashcards',
 			scope_kind: 'all',
-			free_round: 2,
-			time_questions: true
+			free_round: 2
 		});
 	});
 
@@ -342,7 +330,7 @@ describe('review data', () => {
 			data: null,
 			error: { message: 'TypeError: Failed to fetch' }
 		} as never);
-		await expect(loadSession(new Date(), 'mixed', { kind: 'all' }, false)).resolves.toEqual({
+		await expect(loadSession(new Date(), 'mixed', { kind: 'all' })).resolves.toEqual({
 			rows: [],
 			error: m.collectionErrors.network
 		});
@@ -464,5 +452,56 @@ describe('review data', () => {
 			previewUrl: 'https://signed.test/pin.jpg'
 		});
 		expect(createSignedUrls).toHaveBeenCalledWith(['owner/pin.jpg'], expect.any(Number));
+	});
+
+	it('reads the confused pairs and gives none when they cannot be read', async () => {
+		rpc.mockResolvedValueOnce({
+			data: [
+				{ kind: 'style', first_value: 'Baroque', second_value: 'Mannerism', confused_at: 'x' },
+				{
+					kind: 'author',
+					first_value: 'Claude Monet',
+					second_value: 'Édouard Manet',
+					confused_at: 'x'
+				}
+			],
+			error: null
+		} as never);
+		await expect(loadConfusedPairs()).resolves.toEqual([
+			{ kind: 'style', first: 'Baroque', second: 'Mannerism' },
+			{ kind: 'author', first: 'Claude Monet', second: 'Édouard Manet' }
+		]);
+		expect(rpc).toHaveBeenCalledWith('confused_pairs', { time_zone: expect.any(String) });
+		rpc.mockResolvedValueOnce({ data: null, error: { message: 'boom' } } as never);
+		await expect(loadConfusedPairs()).resolves.toEqual([]);
+	});
+
+	it('records the answer to a pair on the artwork that was asked for', async () => {
+		rpc.mockResolvedValue({ data: null, error: null } as never);
+		const monet = testArtwork(1, 'Impression');
+		const manet = testArtwork(2, 'Olympia');
+		const quiz = {
+			answer: 1,
+			options: [manet, monet].map((artwork) => ({ label: artwork.title, artwork }))
+		};
+		const item = {
+			mode: 'quiz_pair' as const,
+			kind: 'author' as const,
+			key: 'k',
+			asked: 'Claude Monet',
+			other: 'Édouard Manet',
+			quiz
+		};
+		await recordPairAnswer(item, false);
+		expect(rpc).toHaveBeenCalledWith('record_pair_answer', {
+			target_artwork: monet.id,
+			kind: 'author',
+			asked: 'Claude Monet',
+			other: 'Édouard Manet',
+			correct: false
+		});
+		rpc.mockClear();
+		await recordPairAnswer({ ...item, quiz: { ...quiz, options: [] } }, true);
+		expect(rpc).not.toHaveBeenCalled();
 	});
 });

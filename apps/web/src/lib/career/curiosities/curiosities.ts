@@ -213,7 +213,11 @@ const SOURCES: Readonly<Record<string, readonly string[]>> = {
 	figure_alphabet: ['https://www.metmuseum.org/art/collection/search/428829'],
 	pelican_serpent: ['https://www.rijksmuseum.nl/nl/collectie/RP-P-1878-A-2587'],
 	candle_moths: ['https://www.rijksmuseum.nl/en/collection/RP-P-OB-62.370'],
-	amateur_magnifier: ['https://www.clevelandart.org/art/1927.208']
+	amateur_magnifier: ['https://www.clevelandart.org/art/1927.208'],
+	giotto_fly: [
+		'https://www.treccani.it/magazine/lingua_italiana/speciali/Trame/AG_Mercadante_30.html'
+	],
+	covenant_tablets: ['https://collections.vam.ac.uk/item/O179050/moses-panel-unknown/']
 };
 
 export function curiosityOf(exhibit: string, tier: number): Curiosity | undefined {

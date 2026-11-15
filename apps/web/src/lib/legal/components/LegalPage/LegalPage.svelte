@@ -2,6 +2,8 @@
 	import { Notes, TextButton } from '@study-atelier/ui';
 	import { afterNavigate, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
+	import { watchLegalRead } from '#lib/career/legal-read/legal-read.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { arrivedFromApp } from '#lib/shared/navigation/history/history.ts';
 	import { legalText } from '#lib/legal/documents/documents.ts';
@@ -19,6 +21,11 @@
 	let text = $derived(legalText(document));
 
 	let cameFromApp = false;
+	let end = $state<HTMLElement>();
+
+	$effect(() => {
+		if (end) return watchLegalRead(page.data.session?.user.id, end);
+	});
 
 	afterNavigate(({ from }) => {
 		cameFromApp = arrivedFromApp(from);
@@ -42,6 +49,7 @@
 		<h1>{title}</h1>
 		<p class="version">{m.legal.version(legalVersionDate(LEGAL_VERSION))}</p>
 		<Notes value={text} />
+		<div bind:this={end}></div>
 	</main>
 	<footer>
 		<LegalLinks />

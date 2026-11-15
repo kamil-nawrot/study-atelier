@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { loadArtworksByIds } from '#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts';
 import { loadArtworkExhibitions } from './artwork-exhibitions-data.ts';
+import { NO_POSTER } from '#lib/exhibitions/exhibition-poster/exhibition-poster.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { from: vi.fn(), auth: { signOut: vi.fn() } }
@@ -24,6 +25,16 @@ const light = {
 	title: 'Light',
 	updated_at: '2026-11-01T10:00:00Z',
 	deleted_at: null,
+	cover_artwork_id: null,
+	cover_image_id: null,
+	cover_x: null,
+	cover_y: null,
+	cover_zoom: null,
+	cover_grayscale: 0,
+	cover_sepia: 0,
+	cover_brightness: 100,
+	cover_contrast: 100,
+	cover_saturate: 100,
 	exhibition_artworks: [
 		{ artwork_id: 'a1', position: 0, artworks: { deleted_at: null } },
 		{ artwork_id: 'a2', position: 1, artworks: { deleted_at: null } }
@@ -46,7 +57,8 @@ describe('loadArtworkExhibitions', () => {
 				title: 'Light',
 				updatedAt: '2026-11-01T10:00:00Z',
 				artworkCount: 2,
-				coverId: 'a1'
+				coverId: 'a1',
+				poster: { ...NO_POSTER, artworkId: 'a1' }
 			}
 		]);
 		expect(result.covers).toHaveLength(1);

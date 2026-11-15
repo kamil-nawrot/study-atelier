@@ -1,13 +1,5 @@
 <script lang="ts">
-	import {
-		Alert,
-		Button,
-		Dialog,
-		SearchSelect,
-		Select,
-		TextArea,
-		TextButton
-	} from '@study-atelier/ui';
+	import { Alert, Button, Dialog, SearchSelect, TextArea, TextButton } from '@study-atelier/ui';
 	import { loupeLevel } from '#lib/images/loupe/loupe.ts';
 	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
@@ -17,6 +9,7 @@
 	import type { Pin } from '#lib/pins/types/pin.ts';
 	import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
 	import { MAX_PIN_TEXT } from '#lib/pins/pin-limits/pin-limits.ts';
+	import { MAX_MEANINGS } from '#lib/symbols/symbol-draft/symbol-draft.ts';
 	import PinView from '#lib/pins/components/PinView/PinView.svelte';
 
 	type Props = {
@@ -29,7 +22,13 @@
 		image?: ArtworkImageInput | null;
 		view?: number;
 		shownWidth?: number;
-		oncreatesymbol?: (name: string) => Promise<{ symbol?: SymbolOption; error?: string }>;
+		onnewterm?: (name: string) => Promise<GlossaryTerm | undefined>;
+		onnewsymbol?: (name: string) => Promise<SymbolOption | undefined>;
+		onaddmeaning?: (
+			symbolId: string,
+			position: number,
+			text: string
+		) => Promise<{ id?: string; error?: string }>;
 		onsaved: (pin: Pin) => void;
 		ondeleted: (pin: Pin) => void;
 	};
@@ -41,7 +40,9 @@
 		spot,
 		entries,
 		symbols = [],
-		oncreatesymbol,
+		onnewterm,
+		onnewsymbol,
+		onaddmeaning,
 		image,
 		view,
 		shownWidth,
@@ -49,30 +50,51 @@
 		ondeleted
 	}: Props = $props();
 
+	const NEW_MEANING = '\u0000new';
+
 	let entryId = $state<string | null>(null);
 	let symbolId = $state<string | null>(null);
 	let meaningId = $state('');
+	let newMeaning = $state('');
 	let text = $state('');
 	let viewWidth = $state<number>();
 	let failure = $state<string>();
 	let failureTitle = $state(m.pins.errorTitle);
 	let busy = $state<'saving' | 'deleting'>();
+	let addedTerms = $state.raw<GlossaryTerm[]>([]);
+	let addedSymbols = $state.raw<SymbolOption[]>([]);
 
+	let allTerms = $derived([
+		...entries,
+		...addedTerms.filter((term) => !entries.some((entry) => entry.id === term.id))
+	]);
+	let allSymbols = $derived([
+		...addedSymbols.filter((added) => !symbols.some((symbol) => symbol.id === added.id)),
+		...symbols
+	]);
 	let options = $derived(
-		entries
+		allTerms
 			.map((entry) => ({ value: entry.id, label: entry.name }))
 			.sort((first, second) => first.label.localeCompare(second.label, 'pl'))
 	);
-
-	let symbolOptions = $derived(symbols.map((symbol) => ({ value: symbol.id, label: symbol.name })));
-	let meanings = $derived(symbols.find((symbol) => symbol.id === symbolId)?.meanings ?? []);
-	let meaningOptions = $derived(meanings.map(({ id, text }) => ({ value: id, label: text })));
+	let symbolOptions = $derived(
+		allSymbols
+			.map((symbol) => ({ value: symbol.id, label: symbol.name }))
+			.sort((first, second) => first.label.localeCompare(second.label, 'pl'))
+	);
+	let meanings = $derived(allSymbols.find((symbol) => symbol.id === symbolId)?.meanings ?? []);
+	let meaningOptions = $derived([
+		...meanings.map(({ id, text }) => ({ value: id, label: text })),
+		...(meaningId === NEW_MEANING ? [{ value: NEW_MEANING, label: newMeaning }] : [])
+	]);
+	let canAddMeaning = $derived(onaddmeaning !== undefined && meanings.length < MAX_MEANINGS);
 
 	$effect(() => {
 		if (!open) return;
 		entryId = pin?.glossaryEntryId ?? null;
 		symbolId = pin?.symbolId ?? null;
 		meaningId = pin?.symbolMeaningId ?? '';
+		newMeaning = '';
 		text = pin?.text ?? '';
 		viewWidth = pin ? pin.viewWidth : view;
 		failure = undefined;
@@ -82,17 +104,50 @@
 	function chooseSymbol(value: string | null): void {
 		if (value !== symbolId) meaningId = '';
 		symbolId = value;
+		const only = allSymbols.find((symbol) => symbol.id === value)?.meanings ?? [];
+		if (value && !meaningId && only.length === 1) meaningId = only[0].id;
 	}
 
-	async function createSymbol(name: string): Promise<void> {
-		const result = await oncreatesymbol?.(name);
-		if (result?.symbol) {
-			chooseSymbol(result.symbol.id);
-			failure = undefined;
-		} else if (result?.error) {
+	function chooseMeaning(value: string | null): void {
+		meaningId = value ?? '';
+		if (value !== NEW_MEANING) newMeaning = '';
+	}
+
+	function addMeaning(query: string): void {
+		newMeaning = query.trim();
+		meaningId = NEW_MEANING;
+	}
+
+	async function newTerm(name: string): Promise<void> {
+		const term = await onnewterm?.(name);
+		if (!term) return;
+		addedTerms = [...addedTerms, term];
+		entryId = term.id;
+	}
+
+	async function newSymbol(name: string): Promise<void> {
+		const symbol = await onnewsymbol?.(name);
+		if (!symbol) return;
+		addedSymbols = [...addedSymbols, symbol];
+		chooseSymbol(symbol.id);
+	}
+
+	async function storeMeaning(): Promise<string | null | undefined> {
+		if (meaningId !== NEW_MEANING) return meaningId || null;
+		if (!symbolId || !onaddmeaning) return null;
+		const result = await onaddmeaning(symbolId, meanings.length, newMeaning);
+		if (result.error || !result.id) {
 			failureTitle = m.pins.errorTitle;
-			failure = result.error;
+			failure = result.error ?? m.common.unexpectedError;
+			return undefined;
 		}
+		const stored = { id: result.id, text: newMeaning };
+		addedSymbols = allSymbols.map((symbol) =>
+			symbol.id === symbolId ? { ...symbol, meanings: [...symbol.meanings, stored] } : symbol
+		);
+		meaningId = result.id;
+		newMeaning = '';
+		return result.id;
 	}
 
 	async function submit(): Promise<void> {
@@ -102,7 +157,7 @@
 			y: pin?.y ?? spot.y,
 			glossaryEntryId: entryId,
 			symbolId,
-			symbolMeaningId: meaningId || null,
+			symbolMeaningId: null as string | null,
 			text,
 			...(viewWidth !== undefined ? { viewWidth } : {})
 		};
@@ -110,6 +165,12 @@
 		failure = pinDraftError(draft);
 		if (failure) return;
 		busy = 'saving';
+		const storedMeaning = await storeMeaning();
+		if (storedMeaning === undefined) {
+			busy = undefined;
+			return;
+		}
+		draft.symbolMeaningId = storedMeaning;
 		const result = pin ? await updatePin(pin.id, draft) : await createPin(imageId, draft);
 		busy = undefined;
 		if (result.error || !result.pin) {
@@ -155,27 +216,30 @@
 			</figure>
 		{/if}
 		<SearchSelect
+			create={onnewterm ? { label: m.pins.createTerm, onselect: newTerm } : undefined}
 			label={m.pins.term}
 			{options}
 			placeholder={m.pins.termPlaceholder}
 			bind:value={entryId}
 		/>
-		{#if symbols.length > 0 || oncreatesymbol}
+		{#if allSymbols.length > 0 || onnewsymbol}
 			<SearchSelect
-				create={oncreatesymbol
-					? { label: m.symbols.pin.create, onselect: createSymbol }
-					: undefined}
+				create={onnewsymbol ? { label: m.symbols.pin.create, onselect: newSymbol } : undefined}
 				label={m.pins.symbol}
 				options={symbolOptions}
 				placeholder={m.symbols.search}
 				bind:value={() => symbolId, chooseSymbol}
 			/>
-			{#if meanings.length >= 2}
-				<Select
+			{#if symbolId && (meanings.length > 0 || canAddMeaning)}
+				<SearchSelect
+					create={canAddMeaning
+						? { label: m.symbols.pin.createMeaning, onselect: addMeaning }
+						: undefined}
+					hint={meaningId === NEW_MEANING ? m.symbols.pin.newMeaningNote : undefined}
 					label={m.pins.symbolMeaning}
 					options={meaningOptions}
-					placeholder={m.symbols.view.withoutMeaning}
-					bind:value={meaningId}
+					placeholder={m.symbols.pin.meaningPlaceholder}
+					bind:value={() => meaningId || null, chooseMeaning}
 				/>
 			{/if}
 		{/if}

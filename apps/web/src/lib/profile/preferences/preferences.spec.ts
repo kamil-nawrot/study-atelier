@@ -49,16 +49,18 @@ describe('preferences', () => {
 		]);
 	});
 
-	it('needs a quiz kind other than the typed title', () => {
+	it('needs a recognition quiz other than the typed title, and the style is none', () => {
 		expect(hasArtworkQuiz(['quiz_typed'])).toBe(false);
 		expect(hasArtworkQuiz([])).toBe(false);
-		expect(hasArtworkQuiz(['quiz_typed', 'quiz_style'])).toBe(true);
+		expect(hasArtworkQuiz(['quiz_typed', 'quiz_style'])).toBe(false);
+		expect(hasArtworkQuiz(['quiz_typed', 'quiz_author'])).toBe(true);
 	});
 
-	it('finds the last quiz kind other than the typed title, which may not be switched off', () => {
-		expect(lastArtworkQuiz(['quiz_style', 'quiz_typed'], 'quiz_style')).toBe(true);
-		expect(lastArtworkQuiz(['quiz_style', 'quiz_typed'], 'quiz_typed')).toBe(false);
-		expect(lastArtworkQuiz(['quiz_style', 'quiz_pin'], 'quiz_style')).toBe(false);
-		expect(lastArtworkQuiz(['quiz_style'], 'quiz_pin')).toBe(false);
+	it('finds the last recognition quiz other than the typed title, which may not be switched off', () => {
+		expect(lastArtworkQuiz(['quiz_author', 'quiz_typed'], 'quiz_author')).toBe(true);
+		expect(lastArtworkQuiz(['quiz_author', 'quiz_typed'], 'quiz_typed')).toBe(false);
+		expect(lastArtworkQuiz(['quiz_author', 'quiz_style'], 'quiz_style')).toBe(false);
+		expect(lastArtworkQuiz(['quiz_author', 'quiz_pin'], 'quiz_author')).toBe(false);
+		expect(lastArtworkQuiz(['quiz_author'], 'quiz_pin')).toBe(false);
 	});
 });

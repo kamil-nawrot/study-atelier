@@ -7,6 +7,7 @@ import { chromium } from 'playwright';
 import {
 	ARTWORK_PINS,
 	ARTWORKS,
+	ARTWORK_RELATIONS,
 	AUTHOR_RELATIONS,
 	CATALOGUE_MUSEUMS,
 	MAP_PLACES,
@@ -73,7 +74,7 @@ const USAGE = `Usage: pnpm screenshot <path> [options]
   --steps <file>     run the default export of this module with the Playwright page before capturing,
                      for a flow across navigations (clicks, history.back())
   --repeat <n>       show every sample artwork n times, to have more to scroll through
-  --empty            show an atelier with no artworks, values, entries, events or visits
+  --empty            show an atelier with no artworks, values, entries, events, visits or exhibitions
   --scroll           also record a GIF of scrolling the page from top to bottom (needs ffmpeg)
   --log-requests     write the Supabase requests of each viewport to <name>-<viewport>-requests.json
                      and print them per phase (load, steps), shell and view, with their payload sizes
@@ -213,11 +214,39 @@ function reviewCounts(dayStartText) {
 	const dayEnd = dayStart.getTime() + 24 * 60 * 60 * 1000;
 	const live = ARTWORKS.filter(hasImage).map((row) => row.id);
 	const cards = REVIEW_CARDS.filter((card) => live.includes(card.artwork_id));
+	const due = cards.filter((card) => new Date(card.due).getTime() < dayEnd).length;
+	const unseen = live.filter((id) => !cards.some((card) => card.artwork_id === id)).length;
+	const enough = live.length >= 20;
+	const known = enough ? Math.min(due, 20) : 0;
+	const fresh = enough ? Math.min(unseen, 10, 20 - known) : 0;
 	return {
-		due: cards.filter((card) => new Date(card.due).getTime() < dayEnd).length,
-		new_available: live.filter((id) => !cards.some((card) => card.artwork_id === id)).length,
+		due,
+		new_available: unseen,
 		new_today: 0,
-		with_image: live.length
+		with_image: live.length,
+		waiting: known + fresh,
+		known,
+		fresh,
+		reviewed: cards.length
+	};
+}
+
+function reviewPlan(dayStartText) {
+	const counts = reviewCounts(dayStartText);
+	const extras =
+		counts.known > 7 ? { styles: 4, years: 2, orders: 1 } : { styles: 0, years: 0, orders: 0 };
+	return {
+		scopes: [
+			{
+				kind: 'all',
+				known: counts.known - extras.styles - extras.years - extras.orders,
+				fresh: counts.fresh,
+				...extras,
+				artworks: counts.with_image
+			}
+		],
+		free: counts.reviewed > 0 ? [{ kind: 'all', count: counts.reviewed }] : [],
+		tomorrow: 0
 	};
 }
 
@@ -324,16 +353,29 @@ function reviewSession({
 	const pool = ARTWORKS.filter((row) => hasImage(row) && inScope(row, kind, value));
 	if (pool.length < 20) return [];
 	const cardOf = (row) => REVIEW_CARDS.find((card) => card.artwork_id === row.id);
+	const styled =
+		form === 'flashcards' || kind === 'style'
+			? []
+			: pool
+					.filter((row) => cardOf(row) && valuesOf(row, 'style').length > 0)
+					.slice(0, 4)
+					.flatMap((row) => {
+						const options = quizFor(row, 'quiz_style', pool);
+						return options
+							? [{ artwork_id: row.id, mode: 'quiz_style', facet: 'style', options, card: null }]
+							: [];
+					});
+	const size = 20 - styled.length;
 	const due = pool
 		.filter((row) => cardOf(row) && new Date(cardOf(row).due).getTime() < dayEnd)
 		.sort((a, b) => new Date(cardOf(a).due).getTime() - new Date(cardOf(b).due).getTime())
-		.slice(0, 20);
-	const fresh = pool.filter((row) => !cardOf(row)).slice(0, Math.min(10, 20 - due.length));
+		.slice(0, size);
+	const fresh = pool.filter((row) => !cardOf(row)).slice(0, Math.min(10, size - due.length));
 	const known = pool
 		.filter((row) => cardOf(row))
 		.sort((a, b) => cardOf(a).stability - cardOf(b).stability);
 	const free = Array.from(
-		{ length: Math.min(20, known.length) },
+		{ length: Math.min(size, known.length) },
 		(_, index) => known[(index + (freeRound ?? 0) * 20) % known.length]
 	);
 	let settled = 0;
@@ -349,7 +391,7 @@ function reviewSession({
 			form === 'flashcards'
 				? []
 				: form === 'quizzes'
-					? rotated(['quiz_title', 'quiz_image', 'quiz_author', 'quiz_style'], slot)
+					? rotated(['quiz_title', 'quiz_image', 'quiz_author'], slot)
 					: !card || card.state !== 2
 						? rotated(['quiz_title', 'quiz_image', 'quiz_author'], slot)
 						: [];
@@ -358,6 +400,11 @@ function reviewSession({
 			if (options) return { artwork_id: row.id, mode, options };
 		}
 		return { artwork_id: row.id, mode: 'flashcard' };
+	});
+	styled.forEach((item, index) => {
+		const spot = Math.min(items.length, (index + 1) * 4 + index);
+		const neighbours = [items[spot - 1], items[spot]].map((step) => step?.artwork_id);
+		items.splice(neighbours.includes(item.artwork_id) ? spot + 1 : spot, 0, item);
 	});
 	if (!timeQuestions || items.length === 0) return items;
 	const asked = new Set(items.map((item) => item.artwork_id));
@@ -453,6 +500,21 @@ function noteLinkMentions(args) {
 		.filter((row) => row.notes && linkTargets(row.notes).some((target) => linksTo(target, args)))
 		.map(({ kind, id, record_number, title }) => ({ kind, id, record_number, title }));
 }
+
+const CONFUSED_PAIRS = [
+	{
+		kind: 'author',
+		first_value: 'Leonardo da Vinci',
+		second_value: 'Sandro Botticelli',
+		confused_at: '2026-11-14T10:00:00Z'
+	},
+	{
+		kind: 'author',
+		first_value: 'Johannes Vermeer',
+		second_value: 'Vincent van Gogh',
+		confused_at: '2026-11-13T10:00:00Z'
+	}
+];
 
 const SUGGESTED_KINDS = ['period', 'style', 'material', 'author', 'location'];
 
@@ -846,6 +908,21 @@ async function mockSupabase(context) {
 			return json(route, wantsObject ? counts : [counts]);
 		}
 		if (url.pathname === '/rest/v1/rpc/atelier_empty') return json(route, false);
+		if (url.pathname === '/rest/v1/rpc/review_plan') {
+			return json(route, reviewPlan(request.postDataJSON()?.day_start));
+		}
+		if (url.pathname === '/rest/v1/artwork_relations') {
+			return json(
+				route,
+				ARTWORK_RELATIONS.filter((relation) => relation.kind !== 'related')
+			);
+		}
+		if (url.pathname === '/rest/v1/author_relations' && !url.searchParams.has('or')) {
+			return json(
+				route,
+				AUTHOR_RELATIONS.filter((relation) => relation.kind !== 'related')
+			);
+		}
 		if (url.pathname === '/rest/v1/author_relations') {
 			const ids = (url.searchParams.get('or') ?? '').match(/eq\.([^,)]+)/g) ?? [];
 			const id = ids[0]?.slice(3);
@@ -870,6 +947,10 @@ async function mockSupabase(context) {
 		}
 		if (url.pathname === '/rest/v1/rpc/review_session') {
 			return json(route, reviewSession(request.postDataJSON() ?? {}));
+		}
+		if (url.pathname === '/rest/v1/rpc/confused_pairs') return json(route, CONFUSED_PAIRS);
+		if (url.pathname === '/rest/v1/rpc/record_pair_answer') {
+			return route.fulfill({ status: 204, headers: corsHeaders() });
 		}
 		if (url.pathname === '/rest/v1/rpc/review_streak') {
 			return json(route, REVIEW_CARDS.length > 0 ? 5 : 0);
@@ -942,6 +1023,7 @@ async function mockSupabase(context) {
 		if (url.pathname === '/rest/v1/exhibition_artworks') return exhibitionArtworksRoute(route, url);
 		if (url.pathname === '/rest/v1/artwork_images') return artworkImagesRoute(route, url);
 		if (url.pathname === '/rest/v1/rpc/save_exhibition') return json(route, 4);
+		if (url.pathname === '/rest/v1/rpc/set_exhibition_cover') return json(route, null);
 		if (url.pathname === '/rest/v1/rpc/save_visit') return json(route, VISITS[0].id);
 		if (url.pathname === '/rest/v1/catalogue_museums') return json(route, CATALOGUE_MUSEUMS);
 		if (
@@ -1395,6 +1477,7 @@ function emptyAtelier() {
 	for (const rows of [
 		ARTWORKS,
 		ARTWORK_PINS,
+		EXHIBITIONS,
 		GLOSSARY_ENTRIES,
 		OWN_FIELD_USAGE,
 		OWN_FIELDS,

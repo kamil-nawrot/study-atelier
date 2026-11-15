@@ -30,9 +30,16 @@ const row = {
 	review_free: false,
 	review_glossary_on: true,
 	review_glossary_questions: 2,
+	review_symbols_on: true,
 	review_symbol_questions: 1,
-	review_note_questions: false,
-	review_time_questions: false,
+	review_notes_on: false,
+	review_note_questions: 1,
+	review_pairs_on: true,
+	review_pair_questions: 1,
+	review_relations_on: true,
+	review_relation_questions: 1,
+	review_year_questions: false,
+	review_order_questions: false,
 	career_shown: false,
 	view_show_pins: true,
 	view_loupe_on: false,
@@ -46,7 +53,8 @@ const row = {
 	legal_version: '2026-10-27',
 	era_bounds: [-3000, 476, 1560, 1789, 1945],
 	night_light_at: '2026-11-07T22:40:00Z',
-	long_look_at: null
+	long_look_at: null,
+	giotto_fly_at: '2026-11-15T10:00:00Z'
 };
 
 describe('loadOwnProfile', () => {
@@ -71,6 +79,7 @@ describe('loadOwnProfile', () => {
 		expect(own.eraBounds).toEqual([-3000, 476, 1560, 1789, 1945]);
 		expect(own.nightLightRecorded).toBe(true);
 		expect(own.longLookRecorded).toBe(false);
+		expect(own.giottoFlyRecorded).toBe(true);
 		expect(own.error).toBeUndefined();
 	});
 
@@ -83,7 +92,8 @@ describe('loadOwnProfile', () => {
 			legalVersion: null,
 			eraBounds: null,
 			nightLightRecorded: false,
-			longLookRecorded: false
+			longLookRecorded: false,
+			giottoFlyRecorded: false
 		});
 	});
 

@@ -38,7 +38,8 @@
     "van_eyck_easel": "galle-master-pupils-centre-right",
     "kircher_ark": "kircher-entry-noah",
     "pelican_serpent": "bolswert-pelican-scene",
-    "giotto_fly": "hooke-blue-fly-whole"
+    "giotto_fly": "hooke-blue-fly-whole",
+    "covenant_tablets": "sadeler-moses-inner"
   },
   "variants": [
     {
@@ -1762,6 +1763,48 @@
       ],
       "gamma": 1.6,
       "cap": 0.9
+    },
+    {
+      "exhibit": "covenant_tablets",
+      "status": "alternative",
+      "commons_file": "Mozes met de tafelen der wet, RP-P-OB-5451.jpg",
+      "licence": "CC0",
+      "credit": "Johann Sadeler (I) after Crispijn van den Broeck, Moses with the tablets of the law, from Personen uit het Oude Testament, 1575, Rijksmuseum RP-P-OB-5451",
+      "variant": "sadeler-moses-whole",
+      "crop": [
+        0.0,
+        0.006,
+        1.0,
+        0.994
+      ]
+    },
+    {
+      "exhibit": "covenant_tablets",
+      "status": "chosen",
+      "commons_file": "Mozes met de tafelen der wet, RP-P-OB-5451.jpg",
+      "licence": "CC0",
+      "credit": "Johann Sadeler (I) after Crispijn van den Broeck, Moses with the tablets of the law, from Personen uit het Oude Testament, 1575, Rijksmuseum RP-P-OB-5451",
+      "variant": "sadeler-moses-inner",
+      "crop": [
+        0.06,
+        0.065,
+        0.94,
+        0.934
+      ]
+    },
+    {
+      "exhibit": "covenant_tablets",
+      "status": "alternative",
+      "commons_file": "Mozes met de tafelen der wet, RP-P-OB-5451.jpg",
+      "licence": "CC0",
+      "credit": "Johann Sadeler (I) after Crispijn van den Broeck, Moses with the tablets of the law, from Personen uit het Oude Testament, 1575, Rijksmuseum RP-P-OB-5451",
+      "variant": "sadeler-moses-tablets",
+      "crop": [
+        0.25,
+        0.37,
+        0.82,
+        0.933
+      ]
     }
   ]
 }

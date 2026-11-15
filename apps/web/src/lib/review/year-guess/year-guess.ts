@@ -1,10 +1,8 @@
 import { eraYears } from '#lib/catalogue/eras/eras.ts';
 import { yearsBetween } from '#lib/catalogue/years/years.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
-import type { ReviewCard } from '#lib/review/types/review-card.ts';
+import { sessionCard } from '#lib/review/session-card/session-card.ts';
 import type { ReviewRating } from '#lib/review/types/review-rating.ts';
-import type { ReviewState } from '#lib/review/types/review-state.ts';
-import type { SessionCardRow } from '#lib/review/types/session-card-row.ts';
 import type { SessionRow } from '#lib/review/types/session-row.ts';
 import type { YearItem } from '#lib/review/types/year-item.ts';
 import type { YearOutcome } from '#lib/review/types/year-outcome.ts';
@@ -77,21 +75,6 @@ export function placeOf(year: number, bounds: Years): number {
 	return span === 0 ? 0 : (clamp(year, bounds) - bounds[0]) / span;
 }
 
-function cardOf(artworkId: string, row: SessionCardRow): ReviewCard {
-	return {
-		artworkId,
-		due: new Date(row.due),
-		stability: row.stability,
-		difficulty: row.difficulty,
-		state: row.state as ReviewState,
-		reps: row.reps,
-		lapses: row.lapses,
-		scheduledDays: row.scheduled_days,
-		learningSteps: row.learning_steps,
-		lastReview: row.last_review ? new Date(row.last_review) : null
-	};
-}
-
 export function yearItems(
 	rows: SessionRow[],
 	artworks: Map<string, WallArtwork>,
@@ -101,7 +84,7 @@ export function yearItems(
 		if (row.mode !== 'year') return [];
 		const artwork = artworks.get(row.artwork_id);
 		if (!artwork || !yearsOf(artwork) || !boundsOf(artwork, today)) return [];
-		const card = row.card ? cardOf(row.artwork_id, row.card) : null;
+		const card = row.card ? sessionCard(row.artwork_id, row.card) : null;
 		return [{ mode: 'year', artwork, card }];
 	});
 }

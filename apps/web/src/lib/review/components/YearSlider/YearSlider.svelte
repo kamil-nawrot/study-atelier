@@ -89,6 +89,7 @@
 			onpointerdown={(event) => hold(-1, event)}
 			onpointerleave={release}
 			onpointerup={release}
+			variant="plain"
 		/>
 		<output class="year" for="year-slider">{text}</output>
 		<IconButton
@@ -100,6 +101,7 @@
 			onpointerdown={(event) => hold(1, event)}
 			onpointerleave={release}
 			onpointerup={release}
+			variant="plain"
 		/>
 	</div>
 	<input
@@ -150,7 +152,6 @@
 	input {
 		width: 100%;
 		margin: 0;
-		accent-color: var(--color-fg);
 	}
 
 	.ticks {

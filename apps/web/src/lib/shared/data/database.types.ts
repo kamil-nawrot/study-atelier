@@ -788,6 +788,16 @@ export type Database = {
       };
       exhibitions: {
         Row: {
+          cover_artwork_id: string | null;
+          cover_brightness: number;
+          cover_contrast: number;
+          cover_grayscale: number;
+          cover_image_id: string | null;
+          cover_saturate: number;
+          cover_sepia: number;
+          cover_x: number | null;
+          cover_y: number | null;
+          cover_zoom: number | null;
           created_at: string;
           deleted_at: string | null;
           document: NonNullable<Json>;
@@ -800,6 +810,16 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          cover_artwork_id?: string | null;
+          cover_brightness?: number;
+          cover_contrast?: number;
+          cover_grayscale?: number;
+          cover_image_id?: string | null;
+          cover_saturate?: number;
+          cover_sepia?: number;
+          cover_x?: number | null;
+          cover_y?: number | null;
+          cover_zoom?: number | null;
           created_at?: string;
           deleted_at?: string | null;
           document?: NonNullable<Json>;
@@ -811,6 +831,16 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          cover_artwork_id?: string | null;
+          cover_brightness?: number;
+          cover_contrast?: number;
+          cover_grayscale?: number;
+          cover_image_id?: string | null;
+          cover_saturate?: number;
+          cover_sepia?: number;
+          cover_x?: number | null;
+          cover_y?: number | null;
+          cover_zoom?: number | null;
           created_at?: string;
           deleted_at?: string | null;
           document?: NonNullable<Json>;
@@ -821,7 +851,22 @@ export type Database = {
           title?: string;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "exhibitions_cover_artwork_id_owner_id_fkey";
+            columns: ["cover_artwork_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "exhibitions_cover_image_id_owner_id_fkey";
+            columns: ["cover_image_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artwork_images";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
       };
       exhibits: {
         Row: {
@@ -1279,7 +1324,9 @@ export type Database = {
           fetch_event: boolean;
           fetch_forms: boolean;
           fetch_image: boolean;
+          giotto_fly_at: string | null;
           legal_accepted_at: string | null;
+          legal_read_at: string | null;
           legal_version: string | null;
           long_look_at: string | null;
           night_light_at: string | null;
@@ -1291,11 +1338,18 @@ export type Database = {
           review_glossary_on: boolean;
           review_glossary_questions: number;
           review_new_per_day: number;
-          review_note_questions: boolean;
+          review_note_questions: number;
+          review_notes_on: boolean;
+          review_order_questions: boolean;
+          review_pair_questions: number;
+          review_pairs_on: boolean;
           review_quiz_kinds: string[];
+          review_relation_questions: number;
+          review_relations_on: boolean;
           review_session_size: number;
           review_symbol_questions: number;
-          review_time_questions: boolean;
+          review_symbols_on: boolean;
+          review_year_questions: boolean;
           updated_at: string;
           view_loupe_on: boolean;
           view_show_pins: boolean;
@@ -1311,7 +1365,9 @@ export type Database = {
           fetch_event?: boolean;
           fetch_forms?: boolean;
           fetch_image?: boolean;
+          giotto_fly_at?: string | null;
           legal_accepted_at?: string | null;
+          legal_read_at?: string | null;
           legal_version?: string | null;
           long_look_at?: string | null;
           night_light_at?: string | null;
@@ -1323,11 +1379,18 @@ export type Database = {
           review_glossary_on?: boolean;
           review_glossary_questions?: number;
           review_new_per_day?: number;
-          review_note_questions?: boolean;
+          review_note_questions?: number;
+          review_notes_on?: boolean;
+          review_order_questions?: boolean;
+          review_pair_questions?: number;
+          review_pairs_on?: boolean;
           review_quiz_kinds?: string[];
+          review_relation_questions?: number;
+          review_relations_on?: boolean;
           review_session_size?: number;
           review_symbol_questions?: number;
-          review_time_questions?: boolean;
+          review_symbols_on?: boolean;
+          review_year_questions?: boolean;
           updated_at?: string;
           view_loupe_on?: boolean;
           view_show_pins?: boolean;
@@ -1342,7 +1405,9 @@ export type Database = {
           fetch_event?: boolean;
           fetch_forms?: boolean;
           fetch_image?: boolean;
+          giotto_fly_at?: string | null;
           legal_accepted_at?: string | null;
+          legal_read_at?: string | null;
           legal_version?: string | null;
           long_look_at?: string | null;
           night_light_at?: string | null;
@@ -1354,11 +1419,18 @@ export type Database = {
           review_glossary_on?: boolean;
           review_glossary_questions?: number;
           review_new_per_day?: number;
-          review_note_questions?: boolean;
+          review_note_questions?: number;
+          review_notes_on?: boolean;
+          review_order_questions?: boolean;
+          review_pair_questions?: number;
+          review_pairs_on?: boolean;
           review_quiz_kinds?: string[];
+          review_relation_questions?: number;
+          review_relations_on?: boolean;
           review_session_size?: number;
           review_symbol_questions?: number;
-          review_time_questions?: boolean;
+          review_symbols_on?: boolean;
+          review_year_questions?: boolean;
           updated_at?: string;
           view_loupe_on?: boolean;
           view_show_pins?: boolean;
@@ -1373,6 +1445,7 @@ export type Database = {
           due: string;
           facet: string;
           lapses: number;
+          last_rating: number | null;
           last_review: string | null;
           learning_steps: number;
           owner_id: string;
@@ -1389,6 +1462,7 @@ export type Database = {
           due: string;
           facet?: string;
           lapses?: number;
+          last_rating?: number | null;
           last_review?: string | null;
           learning_steps?: number;
           owner_id?: string;
@@ -1404,6 +1478,7 @@ export type Database = {
           due?: string;
           facet?: string;
           lapses?: number;
+          last_rating?: number | null;
           last_review?: string | null;
           learning_steps?: number;
           owner_id?: string;
@@ -1433,6 +1508,8 @@ export type Database = {
           id: number;
           mode: string;
           owner_id: string;
+          pair: string[] | null;
+          practice: boolean;
           rating: number;
           reviewed_at: string;
           wrong_answer: string | null;
@@ -1449,6 +1526,8 @@ export type Database = {
           id?: never;
           mode: string;
           owner_id?: string;
+          pair?: string[] | null;
+          practice?: boolean;
           rating: number;
           reviewed_at?: string;
           wrong_answer?: string | null;
@@ -1464,6 +1543,8 @@ export type Database = {
           id?: never;
           mode?: string;
           owner_id?: string;
+          pair?: string[] | null;
+          practice?: boolean;
           rating?: number;
           reviewed_at?: string;
           wrong_answer?: string | null;
@@ -1872,6 +1953,15 @@ export type Database = {
         Args: Record<PropertyKey, never>;
         Returns: Json;
       };
+      confused_pairs: {
+        Args: { time_zone?: string };
+        Returns: {
+          confused_at: string;
+          first_value: string;
+          kind: string;
+          second_value: string;
+        }[];
+      };
       delete_account: { Args: Record<PropertyKey, never>; Returns: undefined };
       delete_unused_value: {
         Args: { target_value: string };
@@ -1967,11 +2057,29 @@ export type Database = {
         Args: { answers: number; day_start: string };
         Returns: undefined;
       };
+      record_giotto_fly: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
+      record_legal_read: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
       record_long_look: {
         Args: Record<PropertyKey, never>;
         Returns: undefined;
       };
       record_night_light: { Args: { time_zone: string }; Returns: boolean };
+      record_pair_answer: {
+        Args: {
+          asked: string;
+          correct: boolean;
+          kind: string;
+          other: string;
+          target_artwork: string;
+        };
+        Returns: undefined;
+      };
       record_review: {
         Args: {
           answer: Json;
@@ -1989,9 +2097,33 @@ export type Database = {
           due: number;
           new_available: number;
           new_today: number;
+          waiting: number;
           with_image: number;
         }[];
       };
+      review_likeness: {
+        Args: {
+          answer: Database["public"]["CompositeTypes"]["review_likeness_facts"];
+          other: Database["public"]["CompositeTypes"]["review_likeness_facts"];
+        };
+        Returns: number;
+      };
+      review_plan: {
+        Args: { day_start: string; session_form?: string };
+        Returns: Json;
+      };
+      review_round: {
+        Args: {
+          day_start: string;
+          free_round?: number;
+          scope_kind?: string;
+          scope_value?: string;
+          session_form?: string;
+        };
+        Returns: Json;
+      };
+      review_round_counts: { Args: { round: Json }; Returns: Json };
+      review_round_size: { Args: { round: Json }; Returns: number };
       review_session: {
         Args: {
           day_start: string;
@@ -1999,7 +2131,6 @@ export type Database = {
           scope_kind?: string;
           scope_value?: string;
           session_form?: string;
-          time_questions?: boolean;
         };
         Returns: Json;
       };
@@ -2057,6 +2188,22 @@ export type Database = {
         Returns: string;
       };
       search_key: { Args: { value: string }; Returns: string };
+      set_exhibition_cover: {
+        Args: {
+          artwork_id?: string;
+          brightness?: number;
+          contrast?: number;
+          exhibition_id: string;
+          grayscale?: number;
+          image_id?: string;
+          saturate?: number;
+          sepia?: number;
+          x?: number;
+          y?: number;
+          zoom?: number;
+        };
+        Returns: undefined;
+      };
       set_period_eras: {
         Args: { era_codes: string[]; move_to?: string; target_period: string };
         Returns: number;
@@ -2155,7 +2302,15 @@ export type Database = {
       [_ in never]: never;
     };
     CompositeTypes: {
-      [_ in never]: never;
+      review_likeness_facts: {
+        authors: string[] | null;
+        styles: string[] | null;
+        period: string | null;
+        type: string | null;
+        era: string | null;
+        year: number | null;
+        place: string | null;
+      };
     };
   };
 };

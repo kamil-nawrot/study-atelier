@@ -8,6 +8,7 @@ import { loadArtworksWithNotes } from '#lib/exhibitions/exhibition-artworks-data
 import { artwork, doc, textBlock } from '#lib/testing/exhibitions/exhibitions.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import ExhibitionPage from './+page.svelte';
+import { NO_POSTER } from '#lib/exhibitions/exhibition-poster/exhibition-poster.ts';
 
 const ID = '3f2c1d4e-5a6b-4c7d-8e9f-0a1b2c3d4e5f';
 
@@ -47,6 +48,7 @@ vi.mock('#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts',
 }));
 vi.mock('#lib/exhibitions/exhibition-data/exhibition-data.ts', () => ({
 	saveExhibition: vi.fn().mockResolvedValue({ revision: 2 }),
+	saveExhibitionPoster: vi.fn(),
 	archiveExhibition: vi.fn().mockResolvedValue({})
 }));
 
@@ -55,6 +57,7 @@ const exhibition = {
 	title: 'Light',
 	revision: 1,
 	updatedAt: '2026-11-01T10:00:00Z',
+	poster: NO_POSTER,
 	document: {
 		type: 'doc',
 		content: [

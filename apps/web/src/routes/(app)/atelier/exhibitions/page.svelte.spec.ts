@@ -80,6 +80,28 @@ describe('exhibitions page', () => {
 		renderList([]);
 
 		await expect.element(page.getByText(m.exhibitions.emptyTitle)).toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: m.exhibitions.addFirst }))
+			.toBeInTheDocument();
+	});
+
+	it('names the first exhibition from the empty view', async () => {
+		vi.mocked(createExhibition).mockResolvedValue({ id: 'first-id' });
+		renderList([]);
+
+		await userEvent.click(page.getByRole('button', { name: m.exhibitions.addFirst }));
+		await userEvent.type(page.getByLabelText(m.exhibitions.nameLabel), 'Light');
+		await userEvent.click(page.getByRole('button', { name: m.exhibitions.add }).last());
+
+		await vi.waitFor(() => expect(goto).toHaveBeenCalledWith('/atelier/exhibitions/first-id?edit'));
+	});
+
+	it('offers no first exhibition on a phone', async () => {
+		await page.viewport(390, 844);
+		renderList([]);
+
+		await expect.element(page.getByText(m.exhibitions.emptyTitle)).toBeInTheDocument();
+		expect(page.getByRole('button', { name: m.exhibitions.addFirst }).query()).toBeNull();
 	});
 
 	it('creates an exhibition and opens it for editing', async () => {

@@ -1,10 +1,13 @@
 <script lang="ts">
 	import BookA from '@lucide/svelte/icons/book-a';
+	import Brush from '@lucide/svelte/icons/brush';
 	import CalendarClock from '@lucide/svelte/icons/calendar-clock';
 	import FastForward from '@lucide/svelte/icons/fast-forward';
 	import KeyRound from '@lucide/svelte/icons/key-round';
 	import ListOrdered from '@lucide/svelte/icons/list-ordered';
 	import NotebookPen from '@lucide/svelte/icons/notebook-pen';
+	import Split from '@lucide/svelte/icons/split';
+	import Waypoints from '@lucide/svelte/icons/waypoints';
 	import Target from '@lucide/svelte/icons/target';
 	import { Button, Disclosure, Icon } from '@study-atelier/ui';
 	import ArtworkWall from '#lib/wall/components/ArtworkWall/ArtworkWall.svelte';
@@ -23,9 +26,12 @@
 		groups: SummaryGroup[];
 		years?: { asked: number; hit: number };
 		orders?: Score;
+		styles?: Score;
 		definitions?: Score;
 		symbols?: Score;
 		notes?: Score;
+		pairs?: Score;
+		relations?: Score;
 		nextRound: number;
 		free?: boolean;
 		rankForm?: RankForm;
@@ -42,9 +48,12 @@
 		groups,
 		years = { asked: 0, hit: 0 },
 		orders = { asked: 0, right: 0 },
+		styles = { asked: 0, right: 0 },
 		definitions = { asked: 0, right: 0 },
 		symbols = { asked: 0, right: 0 },
 		notes = { asked: 0, right: 0 },
+		pairs = { asked: 0, right: 0 },
+		relations = { asked: 0, right: 0 },
 		nextRound,
 		free = false,
 		rankForm,
@@ -64,11 +73,14 @@
 	);
 	let scores = $derived(
 		[
+			{ icon: Brush, label: m.review.roundLines.styles, ...styles },
 			{ icon: Target, label: m.review.roundLines.years, right: years.hit, asked: years.asked },
 			{ icon: ListOrdered, label: m.review.roundLines.orders, ...orders },
 			{ icon: BookA, label: m.review.roundLines.definitions, ...definitions },
 			{ icon: KeyRound, label: m.review.roundLines.symbols, ...symbols },
-			{ icon: NotebookPen, label: m.review.roundLines.notes, ...notes }
+			{ icon: NotebookPen, label: m.review.roundLines.notes, ...notes },
+			{ icon: Split, label: m.review.roundLines.pairs, ...pairs },
+			{ icon: Waypoints, label: m.review.roundLines.relations, ...relations }
 		].filter((score) => score.asked > 0)
 	);
 </script>

@@ -12,8 +12,11 @@ export function roundSummary(session: ReviewSession, tomorrow: number): SessionS
 		free: session.free,
 		years: session.years,
 		orders: session.orders,
+		styles: session.styles,
 		definitions: session.extraScore('quiz_definition'),
 		symbols: session.extraScore('quiz_symbol'),
-		notes: session.extraScore('note_gap')
+		notes: session.extraScore('note_gap'),
+		pairs: session.extraScore('quiz_pair'),
+		relations: session.extraScore('quiz_relation')
 	};
 }

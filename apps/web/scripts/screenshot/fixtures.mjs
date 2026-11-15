@@ -334,7 +334,8 @@ function reviewCard(number, dueInDays, stability, state, lapses = 0) {
 		lapses,
 		scheduled_days: Math.max(0, Math.round(stability)),
 		learning_steps: 0,
-		last_review: new Date(now - (lapses > 0 ? 1 : 6) * DAY).toISOString()
+		last_review: new Date(now - (lapses > 0 ? 1 : 6) * DAY).toISOString(),
+		last_rating: state === 3 ? 1 : 3
 	};
 }
 
@@ -398,6 +399,12 @@ for (const row of [...ARTWORKS, ...TRASHED]) {
 	);
 }
 
+export const ARTWORK_RELATIONS = RELATIONS.map(({ from, to, kind }) => ({
+	kind,
+	from_id: relatedRow(from).id,
+	to_id: relatedRow(to).id
+}));
+
 export function valueId(category, name) {
 	return `${category}-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 }
@@ -405,7 +412,8 @@ export function valueId(category, name) {
 export const AUTHOR_RELATIONS = [
 	{ from: 'Gustav Klimt', to: 'Leonardo da Vinci', kind: 'influence' },
 	{ from: 'Vincent van Gogh', to: 'Johannes Vermeer', kind: 'influence' },
-	{ from: 'Johannes Vermeer', to: 'Leonardo da Vinci', kind: 'related' }
+	{ from: 'Johannes Vermeer', to: 'Leonardo da Vinci', kind: 'related' },
+	{ from: 'Raphael', to: 'Pietro Perugino', kind: 'pupil' }
 ].map(({ from, to, kind }) => ({
 	kind,
 	from: { id: valueId('author', from), name: from },
@@ -628,9 +636,16 @@ export const PROFILE = {
 	review_free: true,
 	review_glossary_on: true,
 	review_glossary_questions: 2,
+	review_symbols_on: true,
 	review_symbol_questions: 1,
-	review_note_questions: true,
-	review_time_questions: true,
+	review_notes_on: true,
+	review_note_questions: 1,
+	review_pairs_on: true,
+	review_pair_questions: 1,
+	review_relations_on: true,
+	review_relation_questions: 1,
+	review_year_questions: true,
+	review_order_questions: true,
 	career_shown: true,
 	rank_form: 'masculine',
 	rank_seen: 5,
@@ -840,7 +855,20 @@ function row(...blocks) {
 	};
 }
 
-function exhibition(index, title, blocks, numbers, deletedAt = null) {
+const NO_POSTER = {
+	cover_artwork_id: null,
+	cover_image_id: null,
+	cover_x: null,
+	cover_y: null,
+	cover_zoom: null,
+	cover_grayscale: 0,
+	cover_sepia: 0,
+	cover_brightness: 100,
+	cover_contrast: 100,
+	cover_saturate: 100
+};
+
+function exhibition(index, title, blocks, numbers, deletedAt = null, poster = {}) {
 	return {
 		id: `00000000-0000-4000-8000-0000000004${String(index).padStart(2, '0')}`,
 		owner_id: USER.id,
@@ -854,6 +882,8 @@ function exhibition(index, title, blocks, numbers, deletedAt = null) {
 		deleted_at: deletedAt,
 		created_at: '2026-11-01T10:00:00Z',
 		updated_at: '2026-11-0' + index + 'T10:00:00Z',
+		...NO_POSTER,
+		...poster,
 		exhibition_artworks: numbers.map((number, position) => ({
 			artwork_id: artworkId(number),
 			position
@@ -931,7 +961,16 @@ export const EXHIBITIONS = [
 		6,
 		'Barok rzymski',
 		[textBlock('Szkic wystawy.'), artworkBlock(26, 'Wysoki zwój.')],
-		[3, 26]
+		[3, 26],
+		null,
+		{
+			cover_artwork_id: artworkId(26),
+			cover_x: 0.5,
+			cover_y: 0.3,
+			cover_zoom: 1.6,
+			cover_sepia: 40,
+			cover_contrast: 115
+		}
 	)
 ];
 
@@ -1701,7 +1740,9 @@ export const EXHIBITS = [
 	{ exhibit: 'lenoir_chapel', room: 'pavilion', hidden: true, value: 6, thresholds: [6] },
 	{ exhibit: 'kircher_ark', room: 'pavilion', hidden: true, value: 0, thresholds: [1] },
 	{ exhibit: 'mouth_of_truth', room: 'crypt', hidden: true, value: 0, thresholds: [1] },
-	{ exhibit: 'candle_moths', room: 'crypt', hidden: true, value: 1, thresholds: [1] }
+	{ exhibit: 'candle_moths', room: 'crypt', hidden: true, value: 1, thresholds: [1] },
+	{ exhibit: 'giotto_fly', room: 'crypt', hidden: true, value: 0, thresholds: [1] },
+	{ exhibit: 'covenant_tablets', room: 'crypt', hidden: true, value: 0, thresholds: [1] }
 ];
 
 export const EXHIBIT_TIERS = EXHIBITS.flatMap(({ exhibit, value, thresholds }) =>

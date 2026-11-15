@@ -19,10 +19,27 @@
 		entries: readonly GlossaryTerm[];
 		symbols?: readonly SymbolOption[];
 		image?: ArtworkImageInput | null;
+		onnewterm?: (name: string) => Promise<GlossaryTerm | undefined>;
+		onnewsymbol?: (name: string) => Promise<SymbolOption | undefined>;
+		onaddmeaning?: (
+			symbolId: string,
+			position: number,
+			text: string
+		) => Promise<{ id?: string; error?: string }>;
 		onfailure: (message?: string) => void;
 	};
 
-	let { imageId, pins = $bindable(), entries, symbols = [], image, onfailure }: Props = $props();
+	let {
+		imageId,
+		pins = $bindable(),
+		entries,
+		symbols = [],
+		image,
+		onnewterm,
+		onnewsymbol,
+		onaddmeaning,
+		onfailure
+	}: Props = $props();
 
 	let shownWidth = $state(0);
 
@@ -99,7 +116,10 @@
 	{entries}
 	{image}
 	{imageId}
+	{onaddmeaning}
 	ondeleted={deleted}
+	{onnewsymbol}
+	{onnewterm}
 	onsaved={saved}
 	pin={dialogPin}
 	shownWidth={shownWidth || undefined}

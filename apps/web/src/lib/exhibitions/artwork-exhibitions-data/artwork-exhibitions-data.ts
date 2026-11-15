@@ -1,4 +1,5 @@
 import { exhibitionErrorMessage } from '#lib/exhibitions/errors/errors.ts';
+import { withPosterImages } from '#lib/exhibitions/exhibition-images-data/exhibition-images-data.ts';
 import { loadArtworksByIds } from '#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts';
 import {
 	SUMMARY_COLUMNS,
@@ -23,16 +24,20 @@ export async function loadArtworkExhibitions(artworkId: string): Promise<Artwork
 		.is('deleted_at', null)
 		.order('updated_at', { ascending: false });
 	if (error) return { exhibitions: [], covers: [], error: exhibitionErrorMessage(error) };
-	const exhibitions = (data as unknown as ExhibitionRow[]).map(summaryOf).map((summary) => ({
+	const summaries = (data as unknown as ExhibitionRow[]).map(summaryOf).map((summary) => ({
 		id: summary.id,
 		title: summary.title,
 		updatedAt: summary.updatedAt,
 		artworkCount: summary.artworkCount,
-		coverId: summary.coverId
+		coverId: summary.coverId,
+		poster: summary.poster
 	}));
-	if (exhibitions.length === 0) return { exhibitions, covers: [] };
-	const coverIds = [...new Set(exhibitions.flatMap((exhibition) => exhibition.coverId ?? []))];
-	const covers = await loadArtworksByIds(coverIds);
+	if (summaries.length === 0) return { exhibitions: summaries, covers: [] };
+	const coverIds = [...new Set(summaries.flatMap((exhibition) => exhibition.coverId ?? []))];
+	const [covers, exhibitions] = await Promise.all([
+		loadArtworksByIds(coverIds),
+		withPosterImages(summaries)
+	]);
 	return covers.error
 		? { exhibitions, covers: [], error: covers.error }
 		: { exhibitions, covers: covers.artworks };

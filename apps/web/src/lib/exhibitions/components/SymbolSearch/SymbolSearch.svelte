@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { Icon, SearchField } from '@study-atelier/ui';
+	import { Icon, SearchField, TextButton } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import KeyRound from '@lucide/svelte/icons/key-round';
 	import { matchingSymbols } from '#lib/exhibitions/editor/symbol-search/symbol-search.ts';
@@ -10,23 +10,26 @@
 		symbols: readonly SymbolOption[];
 		onpick: (symbol: SymbolOption) => void;
 		ondrag?: (event: PointerEvent, symbol: SymbolOption) => void;
+		oncreate?: (name: string) => void;
 	};
 
-	let { symbols, onpick, ondrag }: Props = $props();
+	let { symbols, onpick, ondrag, oncreate }: Props = $props();
 
 	let query = $state('');
 
 	let shown = $derived(matchingSymbols(symbols, query));
 	let status = $derived.by(() => {
-		if (symbols.length === 0) return m.exhibitions.panel.noSymbols;
-		if (query.trim() === '') return m.exhibitions.panel.symbolsByName;
+		if (query.trim() === '')
+			return symbols.length === 0
+				? m.exhibitions.panel.noSymbols
+				: m.exhibitions.panel.symbolsByName;
 		return shown.length > 0
 			? m.exhibitions.panel.found(shown.length)
 			: m.exhibitions.panel.noSymbol;
 	});
 </script>
 
-{#if symbols.length > 0}
+{#if symbols.length > 0 || oncreate}
 	<SearchField
 		label={m.exhibitions.panel.searchSymbol}
 		placeholder={m.exhibitions.panel.searchSymbolPlaceholder}
@@ -34,6 +37,13 @@
 	/>
 {/if}
 <p class="caption">{status}</p>
+{#if oncreate && query.trim() !== '' && shown.length === 0}
+	<span>
+		<TextButton inline onclick={() => oncreate(query.trim())}>
+			{m.exhibitions.panel.createSymbol(query.trim())}
+		</TextButton>
+	</span>
+{/if}
 {#if shown.length > 0}
 	<ul class="terms">
 		{#each shown as symbol (symbol.id)}

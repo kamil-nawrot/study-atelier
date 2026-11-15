@@ -17,7 +17,6 @@
 			autocomplete="off"
 			hint={m.valueForm.sortNameHint}
 			label={m.valueForm.sortName}
-			placeholder={m.valueForm.sortNamePlaceholder}
 			bind:value={author.sortName}
 		/>
 	{/if}

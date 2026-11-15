@@ -26,9 +26,16 @@ type Row = Pick<
 	| 'review_free'
 	| 'review_glossary_on'
 	| 'review_glossary_questions'
+	| 'review_symbols_on'
 	| 'review_symbol_questions'
+	| 'review_notes_on'
 	| 'review_note_questions'
-	| 'review_time_questions'
+	| 'review_pairs_on'
+	| 'review_pair_questions'
+	| 'review_relations_on'
+	| 'review_relation_questions'
+	| 'review_year_questions'
+	| 'review_order_questions'
 	| 'view_show_pins'
 	| 'view_loupe_on'
 	| 'fetch_image'
@@ -38,7 +45,7 @@ type Row = Pick<
 >;
 
 export const PREFERENCES_COLUMNS =
-	'review_session_size, review_new_per_day, review_form, review_quiz_kinds, review_free, review_glossary_on, review_glossary_questions, review_symbol_questions, review_note_questions, review_time_questions, view_show_pins, view_loupe_on, fetch_image, fetch_definition, fetch_forms, fetch_event';
+	'review_session_size, review_new_per_day, review_form, review_quiz_kinds, review_free, review_glossary_on, review_glossary_questions, review_symbols_on, review_symbol_questions, review_notes_on, review_note_questions, review_pairs_on, review_pair_questions, review_relations_on, review_relation_questions, review_year_questions, review_order_questions, view_show_pins, view_loupe_on, fetch_image, fetch_definition, fetch_forms, fetch_event';
 
 export function preferencesOf(row: Row | null): Preferences {
 	if (!row) return defaultPreferences;
@@ -55,9 +62,16 @@ export function preferencesOf(row: Row | null): Preferences {
 		reviewFree: row.review_free,
 		reviewGlossaryOn: row.review_glossary_on,
 		reviewGlossaryQuestions: row.review_glossary_questions,
+		reviewSymbolsOn: row.review_symbols_on,
 		reviewSymbolQuestions: row.review_symbol_questions,
+		reviewNotesOn: row.review_notes_on,
 		reviewNoteQuestions: row.review_note_questions,
-		reviewTimeQuestions: row.review_time_questions,
+		reviewPairsOn: row.review_pairs_on,
+		reviewPairQuestions: row.review_pair_questions,
+		reviewRelationsOn: row.review_relations_on,
+		reviewRelationQuestions: row.review_relation_questions,
+		reviewYearQuestions: row.review_year_questions,
+		reviewOrderQuestions: row.review_order_questions,
 		viewShowPins: row.view_show_pins,
 		viewLoupeOn: row.view_loupe_on,
 		fetchImage: row.fetch_image,
@@ -87,9 +101,16 @@ function columnsOf(part: PreferencesPart, preferences: Preferences): Partial<Row
 		review_free: preferences.reviewFree,
 		review_glossary_on: preferences.reviewGlossaryOn,
 		review_glossary_questions: preferences.reviewGlossaryQuestions,
+		review_symbols_on: preferences.reviewSymbolsOn,
 		review_symbol_questions: preferences.reviewSymbolQuestions,
+		review_notes_on: preferences.reviewNotesOn,
 		review_note_questions: preferences.reviewNoteQuestions,
-		review_time_questions: preferences.reviewTimeQuestions
+		review_pairs_on: preferences.reviewPairsOn,
+		review_pair_questions: preferences.reviewPairQuestions,
+		review_relations_on: preferences.reviewRelationsOn,
+		review_relation_questions: preferences.reviewRelationQuestions,
+		review_year_questions: preferences.reviewYearQuestions,
+		review_order_questions: preferences.reviewOrderQuestions
 	};
 }
 

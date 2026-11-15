@@ -2,11 +2,7 @@ import { redirect } from '@sveltejs/kit';
 import type { Session } from '@supabase/supabase-js';
 import { resolve } from '$app/paths';
 import { startOfDay } from '#lib/review/queue/queue.ts';
-import {
-	loadReviewCounts,
-	REVIEW_COUNTS_DEPENDENCY,
-	waitingToday
-} from '#lib/review/review-data/review-data.ts';
+import { loadReviewCounts, REVIEW_COUNTS_DEPENDENCY } from '#lib/review/review-data/review-data.ts';
 import { applyAutoFetch } from '#lib/profile/auto-fetch/auto-fetch.svelte.ts';
 import { applyEraBounds } from '#lib/catalogue/era-bounds/era-bounds.svelte.ts';
 import {
@@ -27,13 +23,14 @@ type AppLayoutData = {
 	careerShown?: boolean;
 	nightLightRecorded?: boolean;
 	longLookRecorded?: boolean;
+	giottoFlyRecorded?: boolean;
 	preferences?: Preferences;
 	ownProfile?: OwnProfileResult;
 };
 
-async function reviewWaiting(newPerDay: number): Promise<number> {
+async function reviewWaiting(): Promise<number> {
 	const { counts } = await loadReviewCounts(startOfDay(new Date()));
-	return counts ? waitingToday(counts, newPerDay) : 0;
+	return counts?.waiting ?? 0;
 }
 
 export const load: LayoutLoad = async ({ parent, depends }): Promise<AppLayoutData> => {
@@ -46,12 +43,13 @@ export const load: LayoutLoad = async ({ parent, depends }): Promise<AppLayoutDa
 	applyEraBounds(own.eraBounds);
 	return {
 		session,
-		reviewWaiting: reviewWaiting(loaded.reviewNewPerDay),
+		reviewWaiting: reviewWaiting(),
 		menuProfile: Promise.resolve(own.error ? undefined : own.profile),
 		acceptedLegalVersion: Promise.resolve(own.legalVersion),
 		careerShown: own.profile.careerShown,
 		nightLightRecorded: own.nightLightRecorded,
 		longLookRecorded: own.longLookRecorded,
+		giottoFlyRecorded: own.giottoFlyRecorded,
 		preferences: loaded,
 		ownProfile: own
 	};

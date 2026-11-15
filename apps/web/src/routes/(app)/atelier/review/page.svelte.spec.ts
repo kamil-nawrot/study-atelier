@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
+import type { ReviewPlan } from '#lib/review/types/review-plan.ts';
+import { loadReviewPlan } from '#lib/review/review-plan-data/review-plan-data.ts';
+import { testReviewPlan } from '#lib/testing/review-plan/review-plan.ts';
 import { render } from 'vitest-browser-svelte';
 import { invalidate } from '$app/navigation';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -39,11 +42,16 @@ vi.mock('$app/navigation', () => ({ beforeNavigate: vi.fn(), goto: vi.fn(), inva
 vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({
 	resolveImages: vi.fn().mockResolvedValue([])
 }));
+vi.mock('#lib/review/relation-questions-data/relation-questions-data.ts', () => ({
+	loadReviewRelations: vi.fn().mockResolvedValue({ artworks: [], authors: [] })
+}));
 vi.mock('#lib/glossary/glossary-data/glossary-data.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/glossary/glossary-data/glossary-data.ts')>()),
 	loadTermDefinitions: vi.fn()
 }));
 vi.mock('#lib/review/review-data/review-data.ts', () => ({
+	loadConfusedPairs: vi.fn().mockResolvedValue([]),
+	recordPairAnswer: vi.fn(),
 	REVIEW_COUNTS_DEPENDENCY: 'review:counts',
 	loadReviewDetails: vi.fn().mockResolvedValue({ details: new Map() }),
 	loadNoteGap: vi.fn(),
@@ -59,6 +67,10 @@ vi.mock('#lib/symbols/symbol-questions-data/symbol-questions-data.ts', () => ({
 }));
 vi.mock('#lib/symbols/symbols-data/symbols-data.ts', () => ({
 	loadSymbolOptions: vi.fn().mockResolvedValue({ symbols: [] })
+}));
+vi.mock('#lib/review/review-plan-data/review-plan-data.ts', async (importOriginal) => ({
+	...(await importOriginal<object>()),
+	loadReviewPlan: vi.fn().mockResolvedValue({})
 }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
@@ -110,14 +122,23 @@ function renderReview(
 	menu: { reviewWaiting?: Promise<number>; waiting?: number } = {},
 	preferences: Preferences = defaultPreferences,
 	termPins?: number,
-	glossary: GlossaryEntry[] = []
+	glossary: GlossaryEntry[] = [],
+	plan?: ReviewPlan
 ): void {
 	render(ReviewPage, {
 		data: {
 			session: testSession(),
 			artworks,
 			cards: reviewCards,
+			styleCards: new Map(),
 			newToday,
+			plan:
+				plan ??
+				testReviewPlan(artworks, reviewCards, {
+					newToday,
+					sessionSize: preferences.reviewSessionSize,
+					newPerDay: preferences.reviewNewPerDay
+				}),
 			streak,
 			waiting: undefined,
 			...menu,
@@ -171,6 +192,29 @@ describe('review page', () => {
 		await expect
 			.element(page.getByRole('banner').getByRole('link', { name: m.artworkView.back }))
 			.not.toBeInTheDocument();
+	});
+
+	it('counts the style, year and order questions with the returning artworks', async () => {
+		const artworks = collection(25);
+		const reviewCards = cards(artworks.slice(0, 20), (index) => (index < 9 ? -1 : 5));
+		const plan = testReviewPlan(artworks, reviewCards);
+		plan.scopes[0] = { ...plan.scopes[0], known: 9, fresh: 4, styles: 4, years: 2, orders: 1 };
+		renderReview(
+			artworks,
+			reviewCards,
+			0,
+			undefined,
+			0,
+			{},
+			defaultPreferences,
+			undefined,
+			[],
+			plan
+		);
+
+		await expect.element(page.getByRole('heading', { name: m.review.waiting(20) })).toBeVisible();
+		await expect.element(page.getByText(m.review.planKnown(16))).toBeVisible();
+		await expect.element(page.getByText(m.review.planFresh(4))).toBeVisible();
 	});
 
 	it('tells how many days in a row there were reviews', async () => {
@@ -268,13 +312,7 @@ describe('review page', () => {
 
 		await expect.element(page.getByText(m.review.freeHint)).toBeVisible();
 		await page.getByRole('button', { name: m.review.free }).click();
-		expect(loadSession).toHaveBeenLastCalledWith(
-			expect.any(Date),
-			'mixed',
-			{ kind: 'all' },
-			false,
-			0
-		);
+		expect(loadSession).toHaveBeenLastCalledWith(expect.any(Date), 'mixed', { kind: 'all' }, 0);
 		await expect.element(page.getByText(m.review.freeTag)).toBeVisible();
 
 		for (const rating of [3, 3] as const) {
@@ -290,13 +328,7 @@ describe('review page', () => {
 		expect(vi.mocked(recordFreeAnswers).mock.calls.map(([, answers]) => answers)).toEqual([1, 1]);
 		expect(invalidate).not.toHaveBeenCalled();
 		await page.getByRole('button', { name: m.review.freeNextRound }).click();
-		expect(loadSession).toHaveBeenLastCalledWith(
-			expect.any(Date),
-			'mixed',
-			{ kind: 'all' },
-			false,
-			1
-		);
+		expect(loadSession).toHaveBeenLastCalledWith(expect.any(Date), 'mixed', { kind: 'all' }, 1);
 	});
 
 	it('does not offer a free review when the preferences switch it off', async () => {
@@ -355,36 +387,7 @@ describe('review page', () => {
 			.element(page.getByRole('button', { name: m.review.forms.quizzes }))
 			.not.toBeInTheDocument();
 		await page.getByRole('button', { name: m.review.start }).click();
-		expect(loadSession).toHaveBeenCalledWith(
-			expect.any(Date),
-			'mixed',
-			{ kind: 'all' },
-			false,
-			undefined
-		);
-	});
-
-	it('asks for the questions about time only when the preferences turn them on', async () => {
-		const artworks = collection(25);
-		renderReview(
-			artworks,
-			cards(artworks.slice(0, 20), () => 5),
-			0,
-			undefined,
-			0,
-			{},
-			{ ...defaultPreferences, reviewTimeQuestions: true }
-		);
-
-		await page.getByRole('button', { name: m.review.start }).click();
-
-		expect(loadSession).toHaveBeenCalledWith(
-			expect.any(Date),
-			'mixed',
-			{ kind: 'all' },
-			true,
-			undefined
-		);
+		expect(loadSession).toHaveBeenCalledWith(expect.any(Date), 'mixed', { kind: 'all' }, undefined);
 	});
 
 	it('adds as many definitions to a session as the preferences ask for', async () => {
@@ -470,15 +473,23 @@ describe('review page', () => {
 			.toBeVisible();
 	});
 
-	it('offers a style with at least 10 artworks due, and describes the chosen form, behind a disclosure', async () => {
+	it('offers the scopes the database plans, and describes the chosen form, behind a disclosure', async () => {
 		const artworks = collection(25).map((artwork, index) => ({
 			...artwork,
 			styles: index < 21 ? ['Caravaggism'] : []
 		}));
-		renderReview(
-			artworks,
-			cards(artworks.slice(0, 12), () => -1)
-		);
+		const due = cards(artworks.slice(0, 12), () => -1);
+		const plan = testReviewPlan(artworks, due);
+		plan.scopes.push({
+			scope: { kind: 'style', name: 'Caravaggism' },
+			known: 12,
+			fresh: 8,
+			styles: 0,
+			years: 0,
+			orders: 0,
+			artworks: 21
+		});
+		renderReview(artworks, due, 0, undefined, 0, {}, defaultPreferences, undefined, [], plan);
 
 		const caravaggism = page.getByRole('button', { name: /^Caravaggism/ });
 		await expect.element(caravaggism).not.toBeInTheDocument();
@@ -521,13 +532,16 @@ describe('review page', () => {
 
 		await page.getByText(m.review.options).click();
 		await page.getByRole('button', { name: m.review.forms.flashcards }).click();
+		expect(loadReviewPlan).toHaveBeenLastCalledWith(expect.any(Date), 'flashcards');
+		vi.mocked(loadReviewPlan).mockResolvedValueOnce({
+			plan: { ...testReviewPlan(artworks, new Map()), tomorrow: 7 }
+		});
 		await page.getByRole('button', { name: m.review.start }).click();
 		await expect.element(page.getByText(m.review.progress(1, 4))).toBeVisible();
 		expect(loadSession).toHaveBeenCalledWith(
 			expect.any(Date),
 			'flashcards',
 			{ kind: 'all' },
-			false,
 			undefined
 		);
 
@@ -552,6 +566,7 @@ describe('review page', () => {
 			.element(page.getByRole('banner').getByRole('link', { name: m.artworkView.back }))
 			.not.toBeInTheDocument();
 		expect(invalidate).toHaveBeenCalledWith('review:counts');
+		await expect.element(page.getByText(m.review.tomorrowEnd(7))).toBeVisible();
 	});
 
 	it('asks the year and the order on top of the session and counts them in the summary', async () => {
@@ -645,7 +660,7 @@ describe('review page', () => {
 			undefined,
 			0,
 			{},
-			{ ...defaultPreferences, reviewNoteQuestions: true },
+			{ ...defaultPreferences, reviewNotesOn: true },
 			0,
 			terms.map((term) => ({ ...term, hasDefinition: false }))
 		);

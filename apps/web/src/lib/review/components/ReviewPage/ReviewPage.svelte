@@ -2,6 +2,8 @@
 	import { Alert } from '@study-atelier/ui';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import SymbolQuiz from '#lib/review/components/SymbolQuiz/SymbolQuiz.svelte';
+	import PairQuiz from '#lib/review/components/PairQuiz/PairQuiz.svelte';
+	import RelationQuiz from '#lib/review/components/RelationQuiz/RelationQuiz.svelte';
 	import DefinitionQuiz from '#lib/review/components/DefinitionQuiz/DefinitionQuiz.svelte';
 	import NoteGapQuiz from '#lib/review/components/NoteGapQuiz/NoteGapQuiz.svelte';
 	import Flashcard from '#lib/review/components/Flashcard/Flashcard.svelte';
@@ -36,7 +38,9 @@
 			? current.artworks[0].id
 			: current.mode === 'quiz_definition'
 				? current.term.id
-				: current.mode === 'quiz_symbol'
+				: current.mode === 'quiz_symbol' ||
+					  current.mode === 'quiz_pair' ||
+					  current.mode === 'quiz_relation'
 					? current.key
 					: current.artwork.id}
 	{#key `${session.position}:${id}`}
@@ -57,6 +61,21 @@
 		{:else if current.mode === 'quiz_symbol'}
 			<SymbolQuiz
 				chosen={session.chosen}
+				item={current}
+				onanswer={(choice) => flow.answer(choice)}
+				onnext={() => flow.proceed()}
+			/>
+		{:else if current.mode === 'quiz_pair'}
+			<PairQuiz
+				chosen={session.chosen}
+				item={current}
+				onanswer={(choice) => flow.answer(choice)}
+				onnext={() => flow.proceed()}
+			/>
+		{:else if current.mode === 'quiz_relation'}
+			<RelationQuiz
+				chosen={session.chosen}
+				details={flow.details.get(current.artwork.id)}
 				item={current}
 				onanswer={(choice) => flow.answer(choice)}
 				onnext={() => flow.proceed()}
@@ -129,8 +148,11 @@
 		onfree={() => flow.start()}
 		onnext={() => flow.start()}
 		orders={flow.summary.orders}
+		pairs={flow.summary.pairs}
 		{rankForm}
+		relations={flow.summary.relations}
 		starting={flow.starting}
+		styles={flow.summary.styles}
 		symbols={flow.summary.symbols}
 		tomorrow={flow.summary.tomorrow}
 		years={flow.summary.years}
@@ -143,10 +165,10 @@
 		free={flow.freeOpen}
 		fresh={flow.counts.fresh}
 		knowledge={flow.knowledge}
-		known={flow.counts.known}
+		known={flow.counts.known + flow.counts.styles + flow.counts.years + flow.counts.orders}
 		missing={flow.missing}
 		nextWhen={flow.nextDate ? formatWhen(flow.nextDate, flow.now) : undefined}
-		onform={(chosen) => (flow.form = chosen)}
+		onform={(chosen) => flow.chooseForm(chosen)}
 		onscope={(chosen) => flow.chooseScope(chosen)}
 		onstart={() => flow.start()}
 		reviewedToday={flow.reviewedToday}

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
+import { testReviewPlan } from '#lib/testing/review-plan/review-plan.ts';
 import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -27,11 +28,16 @@ vi.mock('$app/navigation', () => ({
 vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({
 	resolveImages: vi.fn().mockResolvedValue([])
 }));
+vi.mock('#lib/review/relation-questions-data/relation-questions-data.ts', () => ({
+	loadReviewRelations: vi.fn().mockResolvedValue({ artworks: [], authors: [] })
+}));
 vi.mock('#lib/glossary/glossary-data/glossary-data.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/glossary/glossary-data/glossary-data.ts')>()),
 	loadTermDefinitions: vi.fn().mockResolvedValue({ definitions: new Map() })
 }));
 vi.mock('#lib/review/review-data/review-data.ts', () => ({
+	loadConfusedPairs: vi.fn().mockResolvedValue([]),
+	recordPairAnswer: vi.fn(),
 	REVIEW_COUNTS_DEPENDENCY: 'review:counts',
 	loadReviewDetails: vi.fn().mockResolvedValue({ details: new Map() }),
 	loadNoteGap: vi.fn(),
@@ -47,6 +53,10 @@ vi.mock('#lib/symbols/symbol-questions-data/symbol-questions-data.ts', () => ({
 }));
 vi.mock('#lib/symbols/symbols-data/symbols-data.ts', () => ({
 	loadSymbolOptions: vi.fn().mockResolvedValue({ symbols: [] })
+}));
+vi.mock('#lib/review/review-plan-data/review-plan-data.ts', async (importOriginal) => ({
+	...(await importOriginal<object>()),
+	loadReviewPlan: vi.fn().mockResolvedValue({})
 }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
@@ -70,7 +80,9 @@ function renderReview(dueInDays: number): void {
 			session: testSession(),
 			artworks,
 			cards,
+			styleCards: new Map(),
 			newToday: 0,
+			plan: testReviewPlan(artworks, cards),
 			streak: 0,
 			waiting: undefined,
 			glossary: [],

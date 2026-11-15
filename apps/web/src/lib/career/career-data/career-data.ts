@@ -47,6 +47,16 @@ export async function recordLongLook(): Promise<{ error?: string }> {
 	return error ? { error: collectionErrorMessage(error) } : {};
 }
 
+export async function recordGiottoFly(): Promise<{ error?: string }> {
+	const { error } = await supabase.rpc('record_giotto_fly');
+	return error ? { error: collectionErrorMessage(error) } : {};
+}
+
+export async function recordLegalRead(): Promise<{ error?: string }> {
+	const { error } = await supabase.rpc('record_legal_read');
+	return error ? { error: collectionErrorMessage(error) } : {};
+}
+
 export async function recordNightLight(): Promise<{ recorded: boolean; error?: string }> {
 	const { data, error } = await supabase.rpc('record_night_light', {
 		time_zone: Intl.DateTimeFormat().resolvedOptions().timeZone

@@ -9,8 +9,10 @@ import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { noteWrite } from '#lib/shared/data/writes/writes.ts';
 import type { ReviewScope } from '#lib/review/types/review-scope.ts';
-import { MIN_ARTWORKS, newAllowance, startOfDay } from '#lib/review/queue/queue.ts';
+import { startOfDay } from '#lib/review/queue/queue.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
+import type { ConfusedPair } from '#lib/review/types/confused-pair.ts';
+import type { PairItem } from '#lib/review/types/pair-item.ts';
 import type { ReviewCounts } from '#lib/review/types/review-counts.ts';
 import type { ReviewForm } from '#lib/review/types/review-form.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
@@ -27,6 +29,7 @@ type ReviewSessionResult = {
 
 type ReviewAnswer = {
 	mode: ReviewMode | 'year';
+	facet?: 'style';
 	rating: ReviewRating;
 	correct?: boolean;
 	answerMs?: number;
@@ -36,6 +39,7 @@ type ReviewAnswer = {
 
 type ReviewCardsResult = {
 	cards: Map<string, ReviewCard>;
+	styleCards: Map<string, ReviewCard>;
 	error?: string;
 };
 
@@ -60,6 +64,7 @@ type ReviewDetailsResult = {
 
 type CardRow = {
 	artwork_id: string;
+	facet?: string;
 	due: string;
 	stability: number;
 	difficulty: number;
@@ -69,13 +74,12 @@ type CardRow = {
 	scheduled_days: number;
 	learning_steps: number;
 	last_review: string | null;
+	last_rating: number | null;
 };
 
 type CountsRow = {
-	due: number;
-	new_available: number;
 	new_today: number;
-	with_image: number;
+	waiting: number;
 };
 
 type DetailsRow = {
@@ -89,7 +93,11 @@ const DETAILS_COLUMNS = `id, notes, artwork_images(${IMAGE_COLUMNS.join(', ')})`
 export const REVIEW_COUNTS_DEPENDENCY = 'review:counts';
 
 const CARD_COLUMNS =
-	'artwork_id, due, stability, difficulty, state, reps, lapses, scheduled_days, learning_steps, last_review';
+	'artwork_id, due, stability, difficulty, state, reps, lapses, scheduled_days, learning_steps, last_review, last_rating';
+
+function ratingOf(value: number | null | undefined): ReviewRating | null {
+	return value === 1 || value === 2 || value === 3 ? value : null;
+}
 
 function reviewCard(row: CardRow): ReviewCard {
 	return {
@@ -102,7 +110,8 @@ function reviewCard(row: CardRow): ReviewCard {
 		lapses: row.lapses,
 		scheduledDays: row.scheduled_days,
 		learningSteps: row.learning_steps,
-		lastReview: row.last_review ? new Date(row.last_review) : null
+		lastReview: row.last_review ? new Date(row.last_review) : null,
+		lastRating: ratingOf(row.last_rating)
 	};
 }
 
@@ -110,13 +119,20 @@ export async function loadReviewCards(): Promise<ReviewCardsResult> {
 	const { rows, error } = await fetchAll<CardRow>((from, to) =>
 		supabase
 			.from('review_cards')
-			.select(CARD_COLUMNS)
-			.eq('facet', 'recognise')
+			.select(`facet, ${CARD_COLUMNS}`)
+			.in('facet', ['recognise', 'style'])
 			.order('artwork_id')
+			.order('facet')
 			.range(from, to)
 	);
-	if (error) return { cards: new Map(), error: collectionErrorMessage(error) };
-	return { cards: new Map(rows.map((row) => [row.artwork_id, reviewCard(row)])) };
+	if (error) {
+		return { cards: new Map(), styleCards: new Map(), error: collectionErrorMessage(error) };
+	}
+	const cardsOf = (facet: string): Map<string, ReviewCard> =>
+		new Map(
+			rows.filter((row) => row.facet === facet).map((row) => [row.artwork_id, reviewCard(row)])
+		);
+	return { cards: cardsOf('recognise'), styleCards: cardsOf('style') };
 }
 
 export async function loadReviewCounts(dayStart: Date): Promise<ReviewCountsResult> {
@@ -126,12 +142,7 @@ export async function loadReviewCounts(dayStart: Date): Promise<ReviewCountsResu
 	if (error || !data) return { error: collectionErrorMessage(error ?? {}) };
 	const row = data as CountsRow;
 	return {
-		counts: {
-			due: row.due,
-			newAvailable: row.new_available,
-			newToday: row.new_today,
-			withImage: row.with_image
-		}
+		counts: { newToday: row.new_today, waiting: row.waiting }
 	};
 }
 
@@ -154,17 +165,36 @@ export async function recordFreeAnswers(dayStart: Date, answers: number): Promis
 	if (!error) noteWrite();
 }
 
+export async function loadConfusedPairs(): Promise<ConfusedPair[]> {
+	const { data, error } = await supabase.rpc('confused_pairs', {
+		time_zone: Intl.DateTimeFormat().resolvedOptions().timeZone
+	});
+	if (error || !data) return [];
+	return data.map((row) => ({
+		kind: row.kind === 'style' ? 'style' : 'author',
+		first: row.first_value,
+		second: row.second_value
+	}));
+}
+
+export async function recordPairAnswer(item: PairItem, correct: boolean): Promise<void> {
+	const asked = item.quiz.options[item.quiz.answer]?.artwork;
+	if (!asked) return;
+	const { error } = await supabase.rpc('record_pair_answer', {
+		target_artwork: asked.id,
+		kind: item.kind,
+		asked: item.asked,
+		other: item.other,
+		correct
+	});
+	if (!error) noteWrite();
+}
+
 export async function recordRightAnswer(dayStart: Date): Promise<void> {
 	const { error } = await supabase.rpc('record_right_answer', {
 		day_start: dayStart.toISOString()
 	});
 	if (!error) noteWrite();
-}
-
-export function waitingToday(counts: ReviewCounts, newPerDay?: number): number {
-	if (counts.withImage < MIN_ARTWORKS) return 0;
-	const fresh = Math.min(counts.newAvailable, newAllowance(counts.newToday, newPerDay));
-	return counts.due + fresh;
 }
 
 export async function recordReview(
@@ -186,6 +216,7 @@ export async function recordReview(
 		},
 		answer: {
 			...(answer.mode === 'year' ? { facet: 'date' } : {}),
+			...(answer.facet ? { facet: answer.facet } : {}),
 			mode: answer.mode,
 			rating: answer.rating,
 			correct: answer.mode === 'flashcard' ? null : (answer.correct ?? false),
@@ -257,15 +288,13 @@ export async function loadSession(
 	dayStart: Date,
 	form: ReviewForm,
 	scope: ReviewScope,
-	timeQuestions: boolean,
 	freeRound?: number
 ): Promise<ReviewSessionResult> {
 	const { data, error } = await supabase.rpc('review_session', {
 		day_start: dayStart.toISOString(),
 		session_form: form,
 		...scopeArgs(scope),
-		...(freeRound === undefined ? {} : { free_round: freeRound }),
-		time_questions: timeQuestions
+		...(freeRound === undefined ? {} : { free_round: freeRound })
 	});
 	if (error || !Array.isArray(data)) {
 		return { rows: [], error: await failureMessage(error ?? {}, collectionErrorMessage) };

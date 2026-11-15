@@ -54,4 +54,20 @@ describe('SymbolSearch', () => {
 			.element(page.getByRole('link', { name: m.exhibitions.panel.browseSymbols }))
 			.toHaveAttribute('href', '/atelier/glossary?tab=symbols');
 	});
+
+	it('offers a new symbol when nothing matches', async () => {
+		const oncreate = vi.fn();
+		render(SymbolSearch, { symbols, onpick: vi.fn(), oncreate });
+
+		await userEvent.fill(
+			page.getByRole('searchbox', { name: m.exhibitions.panel.searchSymbol }),
+			'Kotwica'
+		);
+		await expect.element(page.getByText(m.exhibitions.panel.noSymbol)).toBeInTheDocument();
+		await userEvent.click(
+			page.getByRole('button', { name: m.exhibitions.panel.createSymbol('Kotwica') })
+		);
+
+		expect(oncreate).toHaveBeenCalledWith('Kotwica');
+	});
 });

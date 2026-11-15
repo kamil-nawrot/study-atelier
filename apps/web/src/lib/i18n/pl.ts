@@ -86,7 +86,7 @@ export const pl = {
 		invalidCredentials:
 			'E-mail albo hasło się nie zgadzają. Sprawdź oba pola albo ustaw nowe hasło.',
 		emailNotConfirmed:
-			'Ten adres nie jest jeszcze potwierdzony. Kliknij link z wiadomości, którą wysłaliśmy po rejestracji.',
+			'Ten adres nie jest jeszcze potwierdzony. Kliknij link z wiadomości wysłanej po rejestracji.',
 		weakPassword: 'To hasło łatwo odgadnąć. Wybierz dłuższe, najlepiej z cyframi i znakami.',
 		samePassword: 'Nowe hasło musi być inne niż obecne.',
 		emailTaken: 'Ten adres jest już przypisany do innego konta.',
@@ -127,21 +127,21 @@ export const pl = {
 	},
 	checkEmail: {
 		title: 'Sprawdź skrzynkę',
-		lead: 'Jeszcze tylko potwierdzenie adresu i możemy zaczynać.',
-		sentTitle: 'Wysłaliśmy link',
+		lead: 'Jeszcze tylko potwierdzenie adresu i można zaczynać.',
+		sentTitle: 'Link wysłany',
 		sent: (email: string): string => `Na adres ${email}. Kliknij go, żeby potwierdzić konto.`,
 		sentNoEmail: 'Kliknij link z wiadomości, żeby potwierdzić konto.',
 		notReceived: 'Nic nie dotarło? Zajrzyj do spamu albo poproś o nowy link.',
 		resend: 'Wyślij link ponownie',
-		resent: 'Wysłaliśmy nowy link.'
+		resent: 'Nowy link wysłany.'
 	},
 	forgotPassword: {
 		title: 'Nie pamiętasz hasła?',
-		lead: 'Zdarza się. Podaj e-mail konta, a wyślemy link do ustawienia nowego hasła.',
+		lead: 'Zdarza się. Podaj e-mail konta, na który przyjdzie link do ustawienia nowego hasła.',
 		submit: 'Wyślij link',
 		sentTitle: 'Sprawdź skrzynkę',
 		sent: (email: string): string =>
-			`Jeśli konto ${email} istnieje, wysłaliśmy na nie link do ustawienia nowego hasła.`,
+			`Jeśli konto ${email} istnieje, link do ustawienia nowego hasła został na nie wysłany.`,
 		errorTitle: 'Nie udało się wysłać linku'
 	},
 	updatePassword: {
@@ -318,21 +318,28 @@ export const pl = {
 			free: 'Powtórka swobodna',
 			freeHint: 'Gdy skończysz powtórki na dziś, pojawi się propozycja kolejnej rundy.',
 			quizzesTitle: 'Quizy',
+			quizzesHint: 'Wliczają się do podstawowej puli powtórki.',
 			kindLabels: {
 				quiz_image: 'Dopasowywanie dzieła do tytułu',
 				quiz_title: 'Dopasowywanie tytułu do dzieła',
 				quiz_author: 'Dopasowywanie autora do dzieła',
-				quiz_style: 'Dopasowywanie stylu do dzieła',
+				quiz_style: 'Określanie stylu dzieła',
 				quiz_pin: 'Dopasowywanie detalu do definicji',
 				quiz_typed: 'Wpisywanie tytułu dzieła z pamięci'
 			},
+			yearQuestions: 'Szacowanie daty powstania dzieła',
+			orderQuestions: 'Ustawianie dzieł w kolejności chronologicznej',
 			kindsHint: 'Zostaw zaznaczony przynajmniej jeden rodzaj dopasowywania.',
 			extraTitle: 'Pytania dodatkowe',
-			glossaryOn: 'Pytania ze Słowniczka',
-			glossaryQuestions: 'Liczba pytań w sesji',
-			symbolQuestions: 'Ile pytań o symbole dołączać do sesji?',
-			noteQuestions: 'Luka w Twoich notatkach',
-			timeQuestions: 'Rok powstania i kolejność dzieł',
+			extraHint: 'Nie wliczają się do podstawowej puli powtórki, zwiększają liczbę pytań w sesji.',
+			extraLabels: {
+				reviewGlossaryOn: 'Pytania ze Słowniczka',
+				reviewSymbolsOn: 'Pytania z atlasu symboli',
+				reviewNotesOn: 'Pytania z notatek',
+				reviewPairsOn: 'Pytania z mylonych par',
+				reviewRelationsOn: 'Pytania z powiązań'
+			},
+			extraCount: 'Liczba pytań w sesji',
 			viewHint:
 				'Ustaw, co powinno być widoczne w widoku dzieła zaraz po otwarciu. Pinezki i lupę możesz też zawsze włączyć, korzystając z przycisków w prawym górnym rogu głównego panelu dzieła.',
 			showPins: 'Pokazuj pinezki od razu po otwarciu dzieła',
@@ -678,6 +685,7 @@ export const pl = {
 		showInformation: 'Pokaż informacje',
 		hideInformation: 'Zwiń informacje',
 		openImage: 'Powiększ obraz',
+		swatFly: 'Odgoń muchę',
 		closeImage: 'Zamknij powiększenie',
 		empty: 'Nie wpisano',
 		previous: 'Poprzednie dzieło',
@@ -818,18 +826,42 @@ export const pl = {
 				attribute: 'Do kogo należy ten atrybut?'
 			},
 			noteTag: 'Pytanie dodatkowe z notatek',
+			pairTag: 'Pytanie dodatkowe z mylonych par',
+			pairQuestion: {
+				author: (name: string): string => `Autorem którego z tych dzieł jest ${name}?`,
+				style: (name: string): string => `Styl którego z tych dzieł to ${name}?`
+			},
+			pairOther: (name: string): string => `Drugie dzieło: ${name}.`,
+			pairRetry: 'Ta para wróci jeszcze w tej sesji.',
+			relationTag: 'Pytanie dodatkowe z powiązań',
+			relationQuestions: {
+				studyFrom: 'Do jakiego dzieła powstało studium lub projekt',
+				studyTo: 'Które dzieło jest studium lub projektem do dzieła',
+				copyFrom: 'Kopią lub reprodukcją jakiego dzieła jest',
+				copyTo: 'Które dzieło jest kopią lub reprodukcją dzieła',
+				version: 'Które dzieło jest inną wersją dzieła',
+				partFrom: 'Częścią jakiego dzieła jest',
+				partTo: 'Które dzieło jest częścią dzieła',
+				referenceFrom: 'Do jakiego dzieła nawiązuje',
+				referenceTo: 'Które dzieło nawiązuje do dzieła'
+			},
+			pupilQuestions: {
+				pupilFrom: 'Kto był nauczycielem autora tego dzieła?',
+				pupilTo: 'Kto był uczniem autora tego dzieła?'
+			},
+			relationRetry: 'To powiązanie wróci jeszcze w tej sesji.',
 			noteQuestion: 'Jakiego pojęcia brakuje w Twojej notatce?',
 			noteSource: 'Z notatki do dzieła',
 			showArtwork: 'Pokaż dzieło',
 			definitionQuestion: 'Jakie pojęcie opisuje ta definicja?',
 			maskedTerm: 'ukryte pojęcie',
-			definitionRetry: 'Wrócimy do niej za chwilę.',
-			symbolRetry: 'Wrócimy do tego detalu za chwilę.',
+			definitionRetry: 'To pytanie wróci jeszcze w tej sesji.',
+			symbolRetry: 'Ten detal wróci jeszcze w tej sesji.',
 			pinHint: 'Wybierz pojęcie, które pasuje do zaznaczonego na zdjęciu miejsca.',
 			options: 'Odpowiedzi',
 			right: 'Tak, to',
 			wrong: 'Nie, to',
-			retry: 'Wrócimy do niego za chwilę.',
+			retry: 'To dzieło wróci jeszcze w tej sesji.',
 			rightOption: 'dobra odpowiedź',
 			chosenOption: 'Twój wybór',
 			next: 'Następne',
@@ -907,9 +939,12 @@ export const pl = {
 		roundLines: {
 			years: 'Trafiony rok powstania:',
 			orders: 'Poprawnie chronologicznie ułożone dzieła:',
+			styles: 'Poprawnie dopasowane style:',
 			definitions: 'Poprawnie odgadnięte pojęcia:',
 			symbols: 'Poprawnie rozpoznane symbole:',
-			notes: 'Poprawnie uzupełnione luki w notatkach:'
+			notes: 'Poprawnie uzupełnione luki w notatkach:',
+			pairs: 'Poprawnie rozróżnione pary:',
+			relations: 'Poprawnie wskazane powiązania:'
 		},
 		roundScore: (right: number, asked: number): string => `${right}/${asked}`,
 		tomorrowStart: (count: number): string =>
@@ -1369,6 +1404,7 @@ export const pl = {
 		title: 'Pinezka',
 		term: 'Pojęcie ze Słowniczka',
 		termPlaceholder: 'Szukaj pojęcia',
+		createTerm: (name: string): string => `Dodaj pojęcie „${name}”`,
 		symbol: 'Symbol z atlasu',
 		symbolMeaning: 'Znaczenie na tym dziele',
 		text: 'Opis',
@@ -1466,7 +1502,6 @@ export const pl = {
 			removeSource: 'Usuń źródło',
 			sortByOther: 'Sortuj inaczej niż po nazwie',
 			sortName: 'Sortuj jako',
-			sortNamePlaceholder: 'np. Medici, Lorenzo',
 			sortNameHint: 'Według tej wartości pojęcie trafi pod właściwą literę.',
 			synonyms: 'Synonimy',
 			synonymsHint: 'Inne nazwy tego pojęcia będą używane przy wyszukiwaniu wystąpień w notatkach.',
@@ -1493,6 +1528,10 @@ export const pl = {
 			authorWarningSuffix:
 				' jest już w Kartotece jako autor. Możesz dodać tę osobę także tutaj albo opisać na stronie autora.',
 			errorTitle: 'Nie udało się zapisać pojęcia'
+		},
+		quick: {
+			add: 'Dodaj pojęcie',
+			errorTitle: 'Nie udało się dodać pojęcia'
 		},
 		articles: {
 			title: 'Który to artykuł?',
@@ -1546,7 +1585,17 @@ export const pl = {
 		},
 		attributes: 'Atrybuty postaci',
 		pin: {
-			create: (name: string): string => `Dodaj symbol „${name}”`
+			create: (name: string): string => `Dodaj symbol „${name}”`,
+			createMeaning: (text: string): string => `Dodaj znaczenie „${text}”`,
+			meaningPlaceholder: 'Szukaj albo wpisz znaczenie',
+			newMeaningNote: 'Znaczenie zapisze się też w atlasie przy tym symbolu.'
+		},
+		quick: {
+			title: 'Nowy symbol',
+			meaning: 'Znaczenie',
+			meaningHint: 'Możesz zostawić puste i dopisać później.',
+			add: 'Dodaj symbol',
+			errorTitle: 'Nie udało się dodać symbolu'
 		},
 		meaningDialog: {
 			newTitle: 'Nowe znaczenie',
@@ -1877,6 +1926,12 @@ export const pl = {
 			],
 			amateur_magnifier: [
 				'Daumier wracał do paryskich znawców sztuki i kilkanaście lat później: w serii akwarel pokazał kolekcjonerów, którzy z bliska studiują dzieła. Akwarele robił głównie dla kolekcjonerów swoich prac, więc te obrazki trafiały, nieco ironicznie, do tych samych ludzi, których przedstawiały.'
+			],
+			giotto_fly: [
+				'Giorgio Vasari, by wysławić nowatorską sztukę Giotta, pisze, że malarz potrafił odręcznie narysować idealne koło. Opowiada też, że Giotto jako uczeń namalował na obrazie swojego mistrza Cimabuego muchę, żeby z niego zakpić, a Cimabue próbował ją potem odgonić z deski.'
+			],
+			covenant_tablets: [
+				'Mojżesz w dawnej sztuce europejskiej często ma na głowie rogi. Zwyczaj ten zaczął się w XII wieku od złego odczytania Księgi Wyjścia (34,30): hebrajskie słowo oznaczające promienie światła, bijące od twarzy Mojżesza schodzącego z Synaju, przetłumaczono tak, jakby jego twarz była „rogata”.'
 			]
 		},
 		ranks: {
@@ -2165,6 +2220,20 @@ export const pl = {
 					'Honoré Daumier narysował w 1847 roku dla „Le Charivari” znawcę, który ogląda obraz przez lupę, podczas gdy jego towarzysz rozgląda się po sali.',
 				hint: 'Kto patrzy z bliska, nie patrzy na zegarek.',
 				awarded: 'Za godzinę spędzoną z jednym dziełem.'
+			},
+			giotto_fly: {
+				name: 'Mucha Giotta',
+				about:
+					'Robert Hooke w „Mikrografii” (Londyn, 1665) pokazał muchę plujkę powiększoną pod mikroskopem.',
+				hint: 'Kolekcja taka, że mucha nie siada. Zazwyczaj.',
+				awarded: 'Za muchę, która jednak usiadła.'
+			},
+			covenant_tablets: {
+				name: 'Tablice przymierza',
+				about:
+					'Johann Sadeler wyrył w 1575 roku według Crispijna van den Broecka Mojżesza z tablicami prawa, a w tle Izraelitów tańczących wokół złotego cielca.',
+				hint: 'Ignorantia iuris nocet, lectio certa prodest.',
+				awarded: 'Za przeczytanie tego, co wszyscy tylko akceptują.'
 			}
 		}
 	},
@@ -2627,10 +2696,10 @@ export const pl = {
 		types: {
 			studyFrom: 'Studium lub projekt do',
 			studyTo: 'Ma studium lub projekt',
-			copyFrom: 'Kopia lub reprodukcja',
+			copyFrom: 'Jest kopią lub reprodukcją',
 			copyTo: 'Ma kopię lub reprodukcję',
 			version: 'Inna wersja',
-			partFrom: 'Część',
+			partFrom: 'Jest częścią',
 			partTo: 'Składa się z',
 			referenceFrom: 'Nawiązuje do',
 			referenceTo: 'Jest punktem odniesienia dla',
@@ -2650,8 +2719,8 @@ export const pl = {
 		title: 'Powiązania',
 		band: 'Inni artyści',
 		types: {
-			pupilFrom: 'Nauczyciel',
-			pupilTo: 'Uczeń',
+			pupilFrom: 'Jest uczniem',
+			pupilTo: 'Jest nauczycielem',
 			influenceFrom: 'Pod wpływem',
 			influenceTo: 'Wpływ na',
 			collaboration: 'Współpraca',
@@ -2779,7 +2848,6 @@ export const pl = {
 		lifeYearsOrder: 'Rok śmierci nie może być wcześniejszy niż rok urodzenia.',
 		sortByOther: 'Sortuj inaczej niż po nazwie',
 		sortName: 'Sortuj jako',
-		sortNamePlaceholder: 'np. Vinci, Leonardo da',
 		sortNameHint: 'Po tej wartości będą sortowani autorzy.',
 		country: 'Kraj',
 		countryPlaceholder: 'Zacznij wpisywać nazwę kraju, żeby zobaczyć listę opcji',
@@ -2806,6 +2874,7 @@ export const pl = {
 		count: (count: number): string =>
 			`${count} ${plural(count, { one: 'wystawa', few: 'wystawy', many: 'wystaw' })}`,
 		add: 'Dodaj wystawę',
+		addFirst: 'Dodaj pierwszą wystawę',
 		adding: 'Dodawanie…',
 		search: 'Szukaj wystawy',
 		sortLabel: 'Sortuj',
@@ -2849,12 +2918,38 @@ export const pl = {
 			saving: 'Zapisywanie…',
 			saved: 'Zapisano',
 			untitled: 'Wpisz tytuł, żeby zapisać zmiany',
-			failed: 'Nie udało się zapisać. Spróbujemy ponownie za chwilę.',
+			failed: 'Nie udało się zapisać. Kolejna próba za chwilę.',
 			conflict:
 				'Ta wystawa w międzyczasie zmieniła swój kształt, więc Twoich ostatnich zmian nie udało się zapisać. Odśwież stronę, żeby zobaczyć najnowszą wersję.',
 			conflictTitle: 'Nie zapisano zmian',
 			limitTitle: 'Nie zapisano zmian',
 			keepEditing: 'Wróć do wystawy'
+		},
+		poster: {
+			open: 'Zmień afisz',
+			title: 'Afisz wystawy',
+			description:
+				'Wybierz dzieło, które ma stać się afiszem wystawy, wykadruj je i dopasuj za pomocą filtrów.',
+			artwork: 'Dzieło na afiszu',
+			image: 'Obraz',
+			imageLabel: (position: number, count: number): string => `Obraz ${position} z ${count}`,
+			crop: 'Kadr',
+			zoom: 'Przybliżenie',
+			dragHint: 'Przeciągnij obraz, żeby przesunąć kadr.',
+			filters: 'Barwy i światło',
+			filterLabels: {
+				grayscale: 'Szarość',
+				sepia: 'Sepia',
+				brightness: 'Jasność',
+				contrast: 'Kontrast',
+				saturate: 'Nasycenie'
+			},
+			reset: 'Zacznij od nowa',
+			resetHint: 'Afiszem znów będzie pierwsze dzieło wystawy, bez kadru i filtrów.',
+			saved: 'Zapisano afisz.',
+			missing: 'Dzieło z afisza zniknęło z wystawy. Do jego powrotu afisz tworzy pierwsze dzieło.',
+			noArtworks: 'Dodaj do wystawy pierwsze dzieło, aby móc stworzyć afisz.',
+			saveErrorTitle: 'Nie udało się zapisać afisza. Spróbuj jeszcze raz.'
 		},
 		panel: {
 			title: 'Przybornik',
@@ -2878,7 +2973,8 @@ export const pl = {
 			searchTerm: 'Szukaj hasła',
 			searchTermPlaceholder: 'Nazwa albo synonim',
 			termsByName: 'Hasła od A do Z',
-			noTerm: 'Nic nie pasuje. Sprawdź pisownię albo dodaj hasło w Słowniczku.',
+			noTerm: 'Nic nie pasuje. Sprawdź pisownię albo dodaj nowe pojęcie.',
+			createTerm: (name: string): string => `Dodaj pojęcie „${name}”`,
 			noTerms: 'W Słowniczku nie ma jeszcze haseł.',
 			browseGlossary: 'Otwórz Słowniczek…',
 			glossaryAs: 'Dodaj jako',
@@ -2887,7 +2983,8 @@ export const pl = {
 			searchSymbol: 'Szukaj symbolu',
 			searchSymbolPlaceholder: 'Nazwa symbolu',
 			symbolsByName: 'Symbole od A do Z',
-			noSymbol: 'Nic nie pasuje. Sprawdź pisownię albo dodaj symbol w atlasie.',
+			noSymbol: 'Nic nie pasuje. Sprawdź pisownię albo dodaj nowy symbol.',
+			createSymbol: (name: string): string => `Dodaj symbol „${name}”`,
 			noSymbols: 'W atlasie nie ma jeszcze symboli.',
 			browseSymbols: 'Otwórz atlas symboli…',
 			empty: 'W atelier nie ma jeszcze dzieł.',
@@ -2966,7 +3063,7 @@ export const pl = {
 		},
 		errors: {
 			notFound: 'Nie ma takiej wystawy.',
-			invalid: 'Wystawa ma w sobie coś, czego nie umiemy zapisać.',
+			invalid: 'Tej wystawy nie da się zapisać w obecnym kształcie.',
 			tooBig: 'Ta wystawa jest za duża, żeby ją zapisać. Może warto podzielić ją na dwie?'
 		}
 	},

@@ -99,14 +99,18 @@ declare
   covered constant text[] := array[
     'keep_alive', 'value_usage', 'card_index', 'period_era_usage', 'style_period_usage', 'merge_category_values',
     'set_period_eras', 'set_style_periods', 'delete_unused_value', 'value_page_content', 'save_era_details',
-    'save_value_details', 'record_review', 'review_counts', 'review_streak', 'term_mentions', 'review_session',
+    'save_value_details', 'record_review', 'record_pair_answer', 'confused_pairs', 'review_counts', 'review_streak', 'term_mentions', 'review_session',
+    'review_round', 'review_round_counts', 'review_round_size', 'review_plan', 'review_likeness',
     'unused_images', 'move_artwork_field', 'artwork_field_usage', 'save_artwork', 'import_atelier', 'save_visit',
     'storage_usage', 'delete_account', 'storage_has_room', 'deleted_account_images', 'search_key',
     'duplicate_candidates', 'used_category_values', 'learner_points', 'unlock_exhibits', 'record_free_answers',
     'career_standing', 'note_link_mentions', 'note_link_labels', 'note_link_suggestions', 'atelier_empty',
     'collection_statistics', 'record_right_answer', 'note_gap_artwork', 'artwork_field_type_impact',
-    'mastered_artworks', 'save_exhibition', 'record_night_light', 'record_long_look', 'save_symbol', 'symbol_atlas',
-    'set_place_point', 'set_symbol_cover', 'assign_symbol_meaning', 'ensure_city_place'
+    'mastered_artworks', 'save_exhibition', 'record_night_light', 'record_long_look', 'record_giotto_fly',
+    'record_legal_read',
+    'save_symbol', 'symbol_atlas',
+    'set_place_point', 'set_symbol_cover', 'assign_symbol_meaning', 'ensure_city_place',
+    'set_exhibition_cover'
   ];
   table_name text;
   routine record;
@@ -393,7 +397,7 @@ begin
   assert not (select has_content from public.value_page_content(a_value)),
     'B sees the page content of a value of A';
   assert (select count(*) from public.eras) = 6, 'B cannot read the shared eras';
-  assert (select count(*) from public.exhibit_rooms) = 7 and (select count(*) from public.exhibits) = 38,
+  assert (select count(*) from public.exhibit_rooms) = 7 and (select count(*) from public.exhibits) = 40,
     'B cannot read the shared exhibit catalogue';
   assert (select count(*) from public.review_cards) = 0, 'B reads review cards of A';
   assert (select count(*) from public.review_log) = 0, 'B reads the review log of A';
@@ -404,6 +408,8 @@ begin
   assert (select value from public.unlock_exhibits('UTC') where exhibit = 'collection') = 0,
     'B counts the exhibits of A';
   assert public.review_session('2026-10-16T00:00:00Z') = '[]'::jsonb, 'B builds a session of A';
+  assert (public.review_round('2026-10-16T00:00:00Z') ->> 'artworks')::integer = 0, 'B plans a round of A';
+  assert public.review_plan('2026-10-16T00:00:00Z') -> 'free' = '[]'::jsonb, 'B plans a free round of A';
   assert public.review_session('2026-10-16T00:00:00Z', 'mixed', 'all', null, 0) = '[]'::jsonb,
     'B builds a free session of A';
   assert public.note_gap_artwork() = '[]', 'B draws a note gap of A';
@@ -555,6 +561,8 @@ begin
   assert security_test.denied(format(
     'select public.save_exhibition(%L, ''Mine'', ''{"type": "doc", "content": []}'')', a_exhibition)),
     'B creates an exhibition over one of A through save_exhibition';
+  assert security_test.denied(format('select public.set_exhibition_cover(%L)', a_exhibition)),
+    'B changes the poster of an exhibition of A through set_exhibition_cover';
   assert security_test.denied(format(
     'select public.save_symbol(''Mine'', ''[]'', %L)', a_symbol)),
     'B renames a symbol of A through save_symbol';
@@ -983,7 +991,12 @@ begin
   assert security_test.denied('select public.save_artwork(''{}'', ''{}'')'), 'anon executes save_artwork';
   assert security_test.denied('select * from public.review_cards'), 'anon reads review cards';
   assert security_test.denied('select public.review_counts(now())'), 'anon executes review_counts';
+  assert security_test.denied('select public.confused_pairs()'), 'anon executes confused_pairs';
+  assert security_test.denied(format('select public.record_pair_answer(%L, ''author'', ''a'', ''b'', true)',
+    gen_random_uuid())), 'anon executes record_pair_answer';
   assert security_test.denied('select public.review_session(now())'), 'anon executes review_session';
+  assert security_test.denied('select public.review_round(now())'), 'anon executes review_round';
+  assert security_test.denied('select public.review_plan(now())'), 'anon executes review_plan';
   assert security_test.denied('select public.note_gap_artwork()'), 'anon executes note_gap_artwork';
   assert security_test.denied('select public.review_streak(now(), ''UTC'')'), 'anon executes review_streak';
   assert security_test.denied('select public.learner_points()'), 'anon executes learner_points';
@@ -991,6 +1004,8 @@ begin
   assert security_test.denied('select public.record_free_answers(now(), 1)'), 'anon executes record_free_answers';
   assert security_test.denied('select public.record_night_light(''UTC'')'), 'anon executes record_night_light';
   assert security_test.denied('select public.record_long_look()'), 'anon executes record_long_look';
+  assert security_test.denied('select public.record_giotto_fly()'), 'anon executes record_giotto_fly';
+  assert security_test.denied('select public.record_legal_read()'), 'anon executes record_legal_read';
   assert security_test.denied(format('select public.set_place_point(%L, 0, 0)', gen_random_uuid())),
     'anon executes set_place_point';
   assert security_test.denied('select public.ensure_city_place(''Paryż'')'), 'anon executes ensure_city_place';

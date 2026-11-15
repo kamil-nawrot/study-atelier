@@ -60,4 +60,19 @@ describe('TermSearch', () => {
 			.element(page.getByRole('link', { name: m.exhibitions.panel.browseGlossary }))
 			.toBeInTheDocument();
 	});
+
+	it('offers a new term when nothing matches', async () => {
+		const oncreate = vi.fn();
+		render(TermSearch, { terms: [], onpick: vi.fn(), oncreate });
+
+		await userEvent.fill(
+			page.getByRole('searchbox', { name: m.exhibitions.panel.searchTerm }),
+			' Impasto '
+		);
+		await userEvent.click(
+			page.getByRole('button', { name: m.exhibitions.panel.createTerm('Impasto') })
+		);
+
+		expect(oncreate).toHaveBeenCalledWith('Impasto');
+	});
 });
