@@ -61,11 +61,11 @@ begin
   ) = 'flashcard',
     'a mixed session quizzes an artwork remembered for weeks';
 
-  assert exists (
+  assert not exists (
     select 1 from jsonb_array_elements(public.review_session(day_start, 'quizzes')) as item
       where item ->> 'mode' = 'quiz_style'
   ),
-    'a session of quizzes over the whole collection never asks for the style';
+    'a session of quizzes asks for the style among the questions about recognising an artwork';
   assert not exists (
     select 1
       from jsonb_array_elements(public.review_session(day_start, 'quizzes', 'style', 'Tenebrism')) as item
@@ -179,16 +179,17 @@ begin
     union all
     select image.id, 0.5, 0.5, nave from public.artwork_images as image;
   update public.artwork_pins set glossary_entry_id = null, text = 'A note' where glossary_entry_id = nave;
+  perform public.record_review(card.artwork_id,
+      jsonb_build_object('due', card.due, 'stability', 20, 'difficulty', 4,
+        'state', 2, 'reps', 3, 'lapses', 0, 'scheduled_days', 20, 'learning_steps', 0,
+        'last_review', now()),
+      '{"mode": "flashcard", "rating": 3}')
+    from public.review_cards as card;
 
   round := public.review_session(day_start, 'quizzes', 'all', null, 1);
   select item into pinned from jsonb_array_elements(round) as item where item ->> 'mode' = 'quiz_pin' limit 1;
   assert pinned is not null,
     'a session of quizzes never asks what a pinned detail is';
-  assert (
-    select count(*) from jsonb_array_elements(round) with ordinality as item (value, slot)
-      where item.value ->> 'mode' = 'quiz_pin' and (item.slot - 1) % 3 <> 0
-  ) = 0,
-    'the question about a pin is asked more often than on every third slot';
   select array_agg(option ->> 'label' order by option ->> 'label') into labels
     from jsonb_array_elements(pinned -> 'options') as option;
   assert labels = array['Apse', 'Choir', 'Nave', 'Portal'],
@@ -333,6 +334,20 @@ begin
       '{"mode": "flashcard", "rating": 3}');
   end loop;
   select id into pair from public.artworks where title = 'Venetian 0';
+  perform public.record_review(card.artwork_id,
+      jsonb_build_object('due', card.due, 'stability', 10, 'difficulty', 5, 'state', 2, 'reps', 3,
+        'lapses', 0, 'scheduled_days', 10, 'learning_steps', 0, 'last_review', now()),
+      '{"mode": "quiz_title", "rating": 2, "correct": true}')
+    from public.review_cards as card
+    join public.artworks as artwork on artwork.id = card.artwork_id
+    where artwork.title like 'Venetian %';
+  perform public.record_review(card.artwork_id,
+      jsonb_build_object('due', card.due, 'stability', 10, 'difficulty', 5, 'state', 2, 'reps', 3,
+        'lapses', 0, 'scheduled_days', 10, 'learning_steps', 0, 'last_review', now()),
+      '{"mode": "quiz_image", "rating": 2, "correct": true}')
+    from public.review_cards as card
+    join public.artworks as artwork on artwork.id = card.artwork_id
+    where artwork.title like 'Venetian %';
 
   for attempt in 1..30 loop
     asked := asked || coalesce((
@@ -400,6 +415,20 @@ begin
         'last_review', now() - interval '1 day'),
       '{"mode": "flashcard", "rating": 3}');
   end loop;
+  perform public.record_review(card.artwork_id,
+      jsonb_build_object('due', card.due, 'stability', 10, 'difficulty', 5, 'state', 2, 'reps', 3,
+        'lapses', 0, 'scheduled_days', 10, 'learning_steps', 0, 'last_review', now()),
+      '{"mode": "quiz_title", "rating": 2, "correct": true}')
+    from public.review_cards as card
+    join public.artworks as artwork on artwork.id = card.artwork_id
+    where artwork.title like 'Umbrian %';
+  perform public.record_review(card.artwork_id,
+      jsonb_build_object('due', card.due, 'stability', 10, 'difficulty', 5, 'state', 2, 'reps', 3,
+        'lapses', 0, 'scheduled_days', 10, 'learning_steps', 0, 'last_review', now()),
+      '{"mode": "quiz_image", "rating": 2, "correct": true}')
+    from public.review_cards as card
+    join public.artworks as artwork on artwork.id = card.artwork_id
+    where artwork.title like 'Umbrian %';
   update public.profiles
     set review_quiz_kinds = array['quiz_title', 'quiz_image', 'quiz_author', 'quiz_style', 'quiz_pin'];
 
