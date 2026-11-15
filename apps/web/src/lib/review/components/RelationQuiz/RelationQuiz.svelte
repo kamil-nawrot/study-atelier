@@ -67,13 +67,13 @@
 		<div class="intro">
 			<p class="overline">{m.review.quiz.relationTag}</p>
 			<h1 bind:this={heading} id="quiz-heading" tabindex="-1">
-				{m.review.quiz.relationQuestions[item.question]}
+				{#if item.question === 'pupilFrom' || item.question === 'pupilTo'}
+					{m.review.quiz.pupilQuestions[item.question]}
+				{:else}
+					{m.review.quiz.relationQuestions[item.question]}
+					<cite class="artwork-title">{item.artwork.title}</cite>?
+				{/if}
 			</h1>
-			<p class="lead">
-				{item.author
-					? m.review.quiz.relationAuthor(item.author)
-					: m.review.quiz.relationArtwork(item.artwork.title)}
-			</p>
 		</div>
 		<div class="answers">
 			<QuizOptions {chosen} {onanswer} {quiz} saving={false} />
@@ -82,7 +82,11 @@
 			{#if answered}
 				<p class="verdict">
 					{correct ? m.review.quiz.right : m.review.quiz.wrong}
-					{quiz.options[quiz.answer].label}.
+					{#if item.author}
+						{quiz.options[quiz.answer].label}.
+					{:else}
+						<cite class="artwork-title">{quiz.options[quiz.answer].label}</cite>.
+					{/if}
 				</p>
 				{#if !correct}
 					<p class="caption">{m.review.quiz.relationRetry}</p>
@@ -95,6 +99,11 @@
 <style>
 	h1:focus {
 		outline: none;
+	}
+
+	h1 .artwork-title {
+		font-size: inherit;
+		line-height: inherit;
 	}
 
 	.intro,
