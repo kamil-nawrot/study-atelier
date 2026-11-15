@@ -108,7 +108,8 @@ declare
     'collection_statistics', 'record_right_answer', 'note_gap_artwork', 'artwork_field_type_impact',
     'mastered_artworks', 'save_exhibition', 'record_night_light', 'record_long_look', 'record_giotto_fly',
     'save_symbol', 'symbol_atlas',
-    'set_place_point', 'set_symbol_cover', 'assign_symbol_meaning', 'ensure_city_place'
+    'set_place_point', 'set_symbol_cover', 'assign_symbol_meaning', 'ensure_city_place',
+    'set_exhibition_cover'
   ];
   table_name text;
   routine record;
@@ -559,6 +560,8 @@ begin
   assert security_test.denied(format(
     'select public.save_exhibition(%L, ''Mine'', ''{"type": "doc", "content": []}'')', a_exhibition)),
     'B creates an exhibition over one of A through save_exhibition';
+  assert security_test.denied(format('select public.set_exhibition_cover(%L)', a_exhibition)),
+    'B changes the poster of an exhibition of A through set_exhibition_cover';
   assert security_test.denied(format(
     'select public.save_symbol(''Mine'', ''[]'', %L)', a_symbol)),
     'B renames a symbol of A through save_symbol';

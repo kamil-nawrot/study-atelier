@@ -854,7 +854,20 @@ function row(...blocks) {
 	};
 }
 
-function exhibition(index, title, blocks, numbers, deletedAt = null) {
+const NO_POSTER = {
+	cover_artwork_id: null,
+	cover_image_id: null,
+	cover_x: null,
+	cover_y: null,
+	cover_zoom: null,
+	cover_grayscale: 0,
+	cover_sepia: 0,
+	cover_brightness: 100,
+	cover_contrast: 100,
+	cover_saturate: 100
+};
+
+function exhibition(index, title, blocks, numbers, deletedAt = null, poster = {}) {
 	return {
 		id: `00000000-0000-4000-8000-0000000004${String(index).padStart(2, '0')}`,
 		owner_id: USER.id,
@@ -868,6 +881,8 @@ function exhibition(index, title, blocks, numbers, deletedAt = null) {
 		deleted_at: deletedAt,
 		created_at: '2026-11-01T10:00:00Z',
 		updated_at: '2026-11-0' + index + 'T10:00:00Z',
+		...NO_POSTER,
+		...poster,
 		exhibition_artworks: numbers.map((number, position) => ({
 			artwork_id: artworkId(number),
 			position
@@ -945,7 +960,16 @@ export const EXHIBITIONS = [
 		6,
 		'Barok rzymski',
 		[textBlock('Szkic wystawy.'), artworkBlock(26, 'Wysoki zwój.')],
-		[3, 26]
+		[3, 26],
+		null,
+		{
+			cover_artwork_id: artworkId(26),
+			cover_x: 0.5,
+			cover_y: 0.3,
+			cover_zoom: 1.6,
+			cover_sepia: 40,
+			cover_contrast: 115
+		}
 	)
 ];
 

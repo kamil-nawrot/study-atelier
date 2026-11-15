@@ -6,6 +6,7 @@ import {
 } from '#lib/exhibitions/exhibition-session/exhibition-session.svelte.ts';
 import { saveExhibition } from '#lib/exhibitions/exhibition-data/exhibition-data.ts';
 import type { Exhibition } from '#lib/exhibitions/types/exhibition.ts';
+import { NO_POSTER } from '#lib/exhibitions/exhibition-poster/exhibition-poster.ts';
 
 vi.mock('#lib/exhibitions/exhibition-data/exhibition-data.ts', () => ({
 	saveExhibition: vi.fn()
@@ -16,7 +17,8 @@ const exhibition: Exhibition = {
 	title: 'Light',
 	document: { type: 'doc', content: [] },
 	revision: 3,
-	updatedAt: '2026-11-06T10:00:00Z'
+	updatedAt: '2026-11-06T10:00:00Z',
+	poster: NO_POSTER
 };
 
 const changed = { type: 'doc', content: [{ type: 'textBlock' }] };

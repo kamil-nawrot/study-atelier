@@ -30,6 +30,7 @@ vi.mock('#lib/symbols/symbols-data/symbols-data.ts', () => ({
 const skull = { id: 's1', name: 'Skull', meanings: [] };
 
 import type { ExhibitionSummary } from '#lib/exhibitions/types/exhibition-summary.ts';
+import { NO_POSTER } from '#lib/exhibitions/exhibition-poster/exhibition-poster.ts';
 
 const ID = '3f2c1d4e-5a6b-4c7d-8e9f-0a1b2c3d4e5f';
 const cover = testArtwork(1, 'Judith');
@@ -112,6 +113,7 @@ describe('loadExhibitionPage', () => {
 			title: 'Light',
 			revision: 1,
 			updatedAt: '2026-11-01T10:00:00Z',
+			poster: NO_POSTER,
 			document: {
 				type: 'doc',
 				content: [{ type: 'artwork', attrs: { artworkId: cover.id } }]

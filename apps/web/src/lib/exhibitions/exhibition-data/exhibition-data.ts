@@ -4,15 +4,22 @@ import {
 	isLastingSaveError,
 	isRevisionConflict
 } from '#lib/exhibitions/errors/errors.ts';
+import {
+	POSTER_COLUMNS,
+	shownPoster,
+	storedPoster,
+	type PosterColumns
+} from '#lib/exhibitions/exhibition-poster/exhibition-poster.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import type { Json } from '#lib/shared/data/database.types.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import type { Exhibition } from '#lib/exhibitions/types/exhibition.ts';
+import type { ExhibitionPoster } from '#lib/exhibitions/types/exhibition-poster.ts';
 import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
 import type { ExhibitionSummary } from '#lib/exhibitions/types/exhibition-summary.ts';
 import type { SaveResult } from '#lib/exhibitions/types/save-result.ts';
 
-export type ExhibitionRow = {
+export type ExhibitionRow = PosterColumns & {
 	id: string;
 	title: string;
 	updated_at: string;
@@ -26,8 +33,7 @@ type ExhibitionArtworkRow = {
 	artworks: { deleted_at: string | null } | null;
 };
 
-export const SUMMARY_COLUMNS =
-	'id, title, updated_at, deleted_at, exhibition_artworks(artwork_id, position, artworks(deleted_at))';
+export const SUMMARY_COLUMNS = `id, title, updated_at, deleted_at, ${POSTER_COLUMNS}, exhibition_artworks(artwork_id, position, artworks(deleted_at))`;
 
 type SummariesResult = {
 	exhibitions: (ExhibitionSummary & { deletedAt: string | null })[];
@@ -49,14 +55,18 @@ export function summaryOf(row: ExhibitionRow): SummariesResult['exhibitions'][nu
 	const artworks = (row.exhibition_artworks ?? [])
 		.filter((artwork) => artwork.artworks?.deleted_at === null)
 		.sort((a, b) => a.position - b.position);
-	const cover = artworks[0];
+	const poster = shownPoster(
+		storedPoster(row),
+		artworks.map((artwork) => artwork.artwork_id)
+	);
 	return {
 		id: row.id,
 		title: row.title,
 		updatedAt: row.updated_at,
 		deletedAt: row.deleted_at,
 		artworkCount: artworks.length,
-		coverId: cover?.artwork_id ?? null
+		coverId: poster.artworkId,
+		poster
 	};
 }
 
@@ -76,7 +86,7 @@ export async function loadExhibitionSummaries(archived: boolean): Promise<Summar
 export async function loadExhibition(id: string): Promise<LoadResult> {
 	const { data, error } = await supabase
 		.from('exhibitions')
-		.select('id, title, document, revision, updated_at')
+		.select(`id, title, document, revision, updated_at, ${POSTER_COLUMNS}`)
 		.eq('id', id)
 		.is('deleted_at', null)
 		.maybeSingle();
@@ -88,7 +98,8 @@ export async function loadExhibition(id: string): Promise<LoadResult> {
 			title: data.title,
 			document: data.document as ExhibitionDocument,
 			revision: data.revision,
-			updatedAt: data.updated_at
+			updatedAt: data.updated_at,
+			poster: storedPoster(data)
 		}
 	};
 }
@@ -131,6 +142,22 @@ export function restoreExhibition(id: string): Promise<ActionResult> {
 
 export async function deleteExhibition(id: string): Promise<ActionResult> {
 	const { error } = await supabase.from('exhibitions').delete().eq('id', id);
+	return error ? { error: await failureMessage(error, exhibitionErrorMessage) } : {};
+}
+
+export async function saveExhibitionPoster(
+	id: string,
+	poster: ExhibitionPoster
+): Promise<ActionResult> {
+	const { error } = await supabase.rpc('set_exhibition_cover', {
+		exhibition_id: id,
+		...(poster.artworkId ? { artwork_id: poster.artworkId } : {}),
+		...(poster.artworkId && poster.imageId ? { image_id: poster.imageId } : {}),
+		...(poster.artworkId && poster.crop
+			? { x: poster.crop.x, y: poster.crop.y, zoom: poster.crop.zoom }
+			: {}),
+		...poster.filters
+	});
 	return error ? { error: await failureMessage(error, exhibitionErrorMessage) } : {};
 }
 

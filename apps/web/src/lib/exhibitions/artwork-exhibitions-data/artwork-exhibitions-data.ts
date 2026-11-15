@@ -28,7 +28,8 @@ export async function loadArtworkExhibitions(artworkId: string): Promise<Artwork
 		title: summary.title,
 		updatedAt: summary.updatedAt,
 		artworkCount: summary.artworkCount,
-		coverId: summary.coverId
+		coverId: summary.coverId,
+		poster: summary.poster
 	}));
 	if (exhibitions.length === 0) return { exhibitions, covers: [] };
 	const coverIds = [...new Set(exhibitions.flatMap((exhibition) => exhibition.coverId ?? []))];

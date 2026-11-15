@@ -373,7 +373,7 @@ reads:
     shows: every exhibition outside Archiwum as a poster with its cover, title, number of artworks and last change
     needs:
       - 'exhibitions: all outside Archiwum, light (id, title, updated_at), never the document'
-      - 'cover: the artwork at position 0 of exhibition_artworks, its first image'
+      - 'poster: the chosen artwork (cover_* columns of exhibitions) when exhibition_artworks holds it outside Archiwum, otherwise the artwork at position 0; its chosen or first image, crop and filters (ADR-0307)'
       - 'count: artworks per exhibition'
     scope: all
     frequency: view
@@ -781,6 +781,12 @@ writes:
     side_effects: [tab "Miejsca", city page, map, trip form preticks]
     frequency: 'write, with the place form; choosing a catalogue town the atelier lacks, or "+ Dodaj", creates the city place in the same save'
     note: 'save_value_details takes city_id or the catalogue town (name, country, point, Wikidata id) and clears the point and country of the place; a check keeps city_id apart from a point and a country, a trigger keeps city_id pointing at a place of the type city; merge_category_values moves the places of a merged city and refuses a city with places into another type (ADR-0282)'
+
+  - id: W33
+    name: Set the poster of an exhibition
+    changes: [exhibitions.cover_*]
+    side_effects: [list, Archiwum, '"Na wystawach"']
+    frequency: 'write, from the dialog "Afisz wystawy" (set_exhibition_cover), apart from the document autosave and its revision'
 
 relations:
   # Every relation the app shows, whether stored or computed today.
