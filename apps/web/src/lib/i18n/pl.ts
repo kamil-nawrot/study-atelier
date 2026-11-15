@@ -2867,6 +2867,7 @@ export const pl = {
 		count: (count: number): string =>
 			`${count} ${plural(count, { one: 'wystawa', few: 'wystawy', many: 'wystaw' })}`,
 		add: 'Dodaj wystawę',
+		addFirst: 'Dodaj pierwszą wystawę',
 		adding: 'Dodawanie…',
 		search: 'Szukaj wystawy',
 		sortLabel: 'Sortuj',
