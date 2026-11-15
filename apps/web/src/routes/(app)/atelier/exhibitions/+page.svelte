@@ -87,7 +87,14 @@
 		</Alert>
 	{:else}
 		{#if data.exhibitions.length === 0}
-			<EmptyState icon={ScrollText} text={m.exhibitions.empty} title={m.exhibitions.emptyTitle} />
+			<EmptyState icon={ScrollText} text={m.exhibitions.empty} title={m.exhibitions.emptyTitle}>
+				{#if wide.current}
+					<Button disabled={adding} onclick={() => (naming = true)}>
+						<Icon icon={Plus} />
+						{adding ? m.exhibitions.adding : m.exhibitions.addFirst}
+					</Button>
+				{/if}
+			</EmptyState>
 		{:else}
 			<ExhibitionList
 				{covers}

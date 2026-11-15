@@ -74,7 +74,7 @@ const USAGE = `Usage: pnpm screenshot <path> [options]
   --steps <file>     run the default export of this module with the Playwright page before capturing,
                      for a flow across navigations (clicks, history.back())
   --repeat <n>       show every sample artwork n times, to have more to scroll through
-  --empty            show an atelier with no artworks, values, entries, events or visits
+  --empty            show an atelier with no artworks, values, entries, events, visits or exhibitions
   --scroll           also record a GIF of scrolling the page from top to bottom (needs ffmpeg)
   --log-requests     write the Supabase requests of each viewport to <name>-<viewport>-requests.json
                      and print them per phase (load, steps), shell and view, with their payload sizes
@@ -1468,6 +1468,7 @@ function emptyAtelier() {
 	for (const rows of [
 		ARTWORKS,
 		ARTWORK_PINS,
+		EXHIBITIONS,
 		GLOSSARY_ENTRIES,
 		OWN_FIELD_USAGE,
 		OWN_FIELDS,
