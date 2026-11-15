@@ -8,6 +8,7 @@ import {
 	loadRecentArtworks,
 	searchArtworks
 } from '#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts';
+import { createSymbolOption } from '#lib/symbols/symbols-data/symbols-data.ts';
 import AddPanel from './AddPanel.svelte';
 
 vi.mock('#lib/wall/wall-images/wall-images.svelte.ts', () => ({
@@ -24,6 +25,12 @@ vi.mock('#lib/exhibitions/exhibition-artworks-data/exhibition-artworks-data.ts',
 	loadRecentArtworks: vi.fn(),
 	searchArtworks: vi.fn(),
 	loadArtworkNotes: vi.fn()
+}));
+
+vi.mock('#lib/symbols/symbols-data/symbols-data.ts', () => ({ createSymbolOption: vi.fn() }));
+vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({ saveGlossaryEntry: vi.fn() }));
+vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
+	supabase: { auth: { signOut: vi.fn() } }
 }));
 
 const recent = vi.mocked(loadRecentArtworks);
@@ -124,11 +131,11 @@ describe('AddPanel', () => {
 		search.mockResolvedValueOnce({ artworks: [olympia] }).mockResolvedValueOnce({ artworks: [] });
 		render(AddPanel, { open: true, lookup: new ArtworkLookup(), onadd: vi.fn() });
 
-		await userEvent.fill(page.getByRole('searchbox'), 'oly');
+		await userEvent.fill(page.getByRole('searchbox', { name: m.exhibitions.panel.search }), 'oly');
 		await expect.element(page.getByRole('button', { name: 'Olympia' })).toBeInTheDocument();
 		await expect.element(page.getByText(m.exhibitions.panel.found(1))).toBeInTheDocument();
 
-		await userEvent.fill(page.getByRole('searchbox'), 'zzz');
+		await userEvent.fill(page.getByRole('searchbox', { name: m.exhibitions.panel.search }), 'zzz');
 		await expect.element(page.getByText(m.exhibitions.panel.noMatch)).toBeInTheDocument();
 	});
 
@@ -150,5 +157,29 @@ describe('AddPanel', () => {
 		await expect
 			.element(page.getByRole('link', { name: m.exhibitions.panel.addMissing }))
 			.toHaveAttribute('href', '/atelier/new?return=x');
+	});
+
+	it('adds a new symbol in a small dialog and puts it in the exhibition', async () => {
+		const anchor = { id: 'symbol-1', name: 'Kotwica', meanings: [] };
+		vi.mocked(createSymbolOption).mockResolvedValue({ symbol: anchor });
+		const onadd = vi.fn();
+		const onsymboladded = vi.fn();
+		render(AddPanel, { open: true, lookup: new ArtworkLookup(), onadd, onsymboladded });
+
+		await userEvent.click(page.getByRole('radio', { name: m.exhibitions.panel.symbolKind }));
+		await userEvent.fill(
+			page.getByRole('searchbox', { name: m.exhibitions.panel.searchSymbol }),
+			'Kotwica'
+		);
+		await userEvent.click(
+			page.getByRole('button', { name: m.exhibitions.panel.createSymbol('Kotwica') })
+		);
+		const dialog = page.getByRole('alertdialog', { name: m.symbols.quick.title });
+		await expect.element(dialog.getByLabelText(m.common.name)).toHaveValue('Kotwica');
+		await userEvent.click(dialog.getByRole('button', { name: m.symbols.quick.add }));
+
+		expect(createSymbolOption).toHaveBeenCalledWith('Kotwica', '');
+		expect(onsymboladded).toHaveBeenCalledWith(anchor);
+		expect(onadd).toHaveBeenCalledWith({ kind: 'symbol', symbolId: 'symbol-1', name: 'Kotwica' });
 	});
 });
