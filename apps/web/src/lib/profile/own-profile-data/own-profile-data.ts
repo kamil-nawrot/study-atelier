@@ -17,11 +17,12 @@ export type OwnProfileResult = {
 	eraBounds: number[] | null;
 	nightLightRecorded: boolean;
 	longLookRecorded: boolean;
+	giottoFlyRecorded: boolean;
 	error?: string;
 };
 
 const COLUMNS =
-	`${PREFERENCES_COLUMNS}, ${PROFILE_COLUMNS}, legal_version, era_bounds, night_light_at, long_look_at` as const;
+	`${PREFERENCES_COLUMNS}, ${PROFILE_COLUMNS}, legal_version, era_bounds, night_light_at, long_look_at, giotto_fly_at` as const;
 
 export async function loadOwnProfile(): Promise<OwnProfileResult> {
 	const { data, error } = await supabase.from('profiles').select(COLUMNS).maybeSingle();
@@ -33,6 +34,7 @@ export async function loadOwnProfile(): Promise<OwnProfileResult> {
 			eraBounds: null,
 			nightLightRecorded: false,
 			longLookRecorded: false,
+			giottoFlyRecorded: false,
 			error: profileErrorMessage(error)
 		};
 	}
@@ -42,6 +44,7 @@ export async function loadOwnProfile(): Promise<OwnProfileResult> {
 		legalVersion: data?.legal_version ?? null,
 		eraBounds: data?.era_bounds ?? null,
 		nightLightRecorded: Boolean(data?.night_light_at),
-		longLookRecorded: Boolean(data?.long_look_at)
+		longLookRecorded: Boolean(data?.long_look_at),
+		giottoFlyRecorded: Boolean(data?.giotto_fly_at)
 	};
 }
