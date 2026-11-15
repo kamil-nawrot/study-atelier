@@ -47,11 +47,21 @@
 		type="button"
 	>
 		<svg aria-hidden="true" viewBox="0 0 24 24">
-			<path class="legs" d="M9 10 5 8M9 13H4M9 16l-4 3M15 10l4-2M15 13h5M15 16l4 3" />
-			<ellipse class="wing" cx="8" cy="9" rx="5" ry="2.5" transform="rotate(-35 8 9)" />
-			<ellipse class="wing" cx="16" cy="9" rx="5" ry="2.5" transform="rotate(35 16 9)" />
-			<ellipse class="body" cx="12" cy="14" rx="3" ry="5" />
-			<circle class="body" cx="12" cy="7.5" r="2.5" />
+			<path
+				class="legs"
+				d="M10.4 9.8 7.4 8M13.6 9.8l3-1.8M10.2 11.4 6.6 12.4M13.8 11.4l3.6 1M10.6 12.8 8.8 16.2M13.4 12.8l1.8 3.4"
+			/>
+			<path
+				class="wing"
+				d="M11.2 11.2C8.4 12.6 5.4 16 5.6 19.2c.1 1.2 1.6 1.4 2.6.4 1.8-1.8 3.4-4.8 3.8-7.4z"
+			/>
+			<path
+				class="wing"
+				d="M12.8 11.2c2.8 1.4 5.8 4.8 5.6 8-.1 1.2-1.6 1.4-2.6.4-1.8-1.8-3.4-4.8-3.8-7.4z"
+			/>
+			<ellipse class="body" cx="12" cy="15.2" rx="2.4" ry="2.9" />
+			<ellipse class="body" cx="12" cy="11" rx="2.7" ry="2.4" />
+			<ellipse class="body" cx="12" cy="7.8" rx="2.5" ry="1.5" />
 		</svg>
 	</button>
 {/if}
@@ -85,14 +95,15 @@
 	}
 
 	.wing {
-		fill: var(--color-stage-fg-muted);
-		opacity: 0.5;
+		fill: var(--color-stage-bg);
+		opacity: 0.55;
 	}
 
 	.legs {
 		fill: none;
 		stroke: var(--color-stage-bg);
-		stroke-width: 1;
+		stroke-width: 0.8;
+		stroke-linecap: round;
 	}
 
 	.away {
