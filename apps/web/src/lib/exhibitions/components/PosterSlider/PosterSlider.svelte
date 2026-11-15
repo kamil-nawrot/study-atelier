@@ -37,7 +37,6 @@
 
 	input {
 		width: 100%;
-		accent-color: var(--color-fg);
 	}
 
 	output {
