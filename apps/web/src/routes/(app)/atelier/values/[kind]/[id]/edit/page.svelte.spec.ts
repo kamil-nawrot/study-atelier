@@ -71,6 +71,11 @@ function saveButton(): ReturnType<typeof page.getByRole> {
 	return page.getByRole('button', { name: m.common.save, exact: true });
 }
 
+async function pressInDialog(button: ReturnType<typeof page.getByRole>): Promise<void> {
+	await expect.element(button).toBeEnabled();
+	(button.element() as HTMLElement).click();
+}
+
 function nameField(): ReturnType<typeof page.getByRole> {
 	return page.getByLabelText(m.common.name);
 }
@@ -509,14 +514,15 @@ describe('edit value page', () => {
 			await saveButton().click();
 
 			const confirm = page.getByRole('alertdialog', { name: m.cardIndex.moveConfirm.title });
-			await expect.element(confirm.getByLabelText(m.cardIndex.moveConfirm.pick)).toBeVisible();
-			await confirm.getByRole('button', { name: m.cardIndex.moveConfirm.confirm }).click();
+			const pick = confirm.getByLabelText(m.cardIndex.moveConfirm.pick);
+			const move = confirm.getByRole('button', { name: m.cardIndex.moveConfirm.confirm });
+			await expect.element(pick).toHaveValue('');
+			await pressInDialog(move);
 			await expect.element(confirm.getByText(m.cardIndex.moveConfirm.pickRequired)).toBeVisible();
 			expect(saveValue).not.toHaveBeenCalled();
-			await confirm
-				.getByLabelText(m.cardIndex.moveConfirm.pick)
-				.selectOptions(m.eras.middle_ages.name);
-			await confirm.getByRole('button', { name: m.cardIndex.moveConfirm.confirm }).click();
+			await pick.selectOptions(m.eras.middle_ages.name);
+			await expect.element(pick).toHaveValue('middle_ages');
+			await pressInDialog(move);
 
 			await vi.waitFor(() =>
 				expect(saveValue).toHaveBeenCalledWith(
