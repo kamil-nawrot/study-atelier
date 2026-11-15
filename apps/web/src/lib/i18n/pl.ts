@@ -678,6 +678,7 @@ export const pl = {
 		showInformation: 'Pokaż informacje',
 		hideInformation: 'Zwiń informacje',
 		openImage: 'Powiększ obraz',
+		swatFly: 'Odgoń muchę',
 		closeImage: 'Zamknij powiększenie',
 		empty: 'Nie wpisano',
 		previous: 'Poprzednie dzieło',
@@ -1905,6 +1906,9 @@ export const pl = {
 			],
 			amateur_magnifier: [
 				'Daumier wracał do paryskich znawców sztuki i kilkanaście lat później: w serii akwarel pokazał kolekcjonerów, którzy z bliska studiują dzieła. Akwarele robił głównie dla kolekcjonerów swoich prac, więc te obrazki trafiały, nieco ironicznie, do tych samych ludzi, których przedstawiały.'
+			],
+			giotto_fly: [
+				'Giorgio Vasari, by wysławić nowatorską sztukę Giotta, pisze, że malarz potrafił odręcznie narysować idealne koło. Opowiada też, że Giotto jako uczeń namalował na obrazie swojego mistrza Cimabuego muchę, żeby z niego zakpić, a Cimabue próbował ją potem odgonić z deski.'
 			]
 		},
 		ranks: {
@@ -2193,6 +2197,13 @@ export const pl = {
 					'Honoré Daumier narysował w 1847 roku dla „Le Charivari” znawcę, który ogląda obraz przez lupę, podczas gdy jego towarzysz rozgląda się po sali.',
 				hint: 'Kto patrzy z bliska, nie patrzy na zegarek.',
 				awarded: 'Za godzinę spędzoną z jednym dziełem.'
+			},
+			giotto_fly: {
+				name: 'Mucha Giotta',
+				about:
+					'Robert Hooke w „Mikrografii” (Londyn, 1665) pokazał muchę plujkę powiększoną pod mikroskopem.',
+				hint: 'Kolekcja taka, że mucha nie siada. Zazwyczaj.',
+				awarded: 'Za muchę, która jednak usiadła.'
 			}
 		}
 	},
