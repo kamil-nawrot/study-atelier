@@ -1369,6 +1369,7 @@ export const pl = {
 		title: 'Pinezka',
 		term: 'Pojęcie ze Słowniczka',
 		termPlaceholder: 'Szukaj pojęcia',
+		createTerm: (name: string): string => `Dodaj pojęcie „${name}”`,
 		symbol: 'Symbol z atlasu',
 		symbolMeaning: 'Znaczenie na tym dziele',
 		text: 'Opis',
@@ -1494,6 +1495,10 @@ export const pl = {
 				' jest już w Kartotece jako autor. Możesz dodać tę osobę także tutaj albo opisać na stronie autora.',
 			errorTitle: 'Nie udało się zapisać pojęcia'
 		},
+		quick: {
+			add: 'Dodaj pojęcie',
+			errorTitle: 'Nie udało się dodać pojęcia'
+		},
 		articles: {
 			title: 'Który to artykuł?',
 			description: (name: string, category: string): string =>
@@ -1546,7 +1551,17 @@ export const pl = {
 		},
 		attributes: 'Atrybuty postaci',
 		pin: {
-			create: (name: string): string => `Dodaj symbol „${name}”`
+			create: (name: string): string => `Dodaj symbol „${name}”`,
+			createMeaning: (text: string): string => `Dodaj znaczenie „${text}”`,
+			meaningPlaceholder: 'Szukaj albo wpisz znaczenie',
+			newMeaningNote: 'Znaczenie zapisze się też w atlasie przy tym symbolu.'
+		},
+		quick: {
+			title: 'Nowy symbol',
+			meaning: 'Znaczenie',
+			meaningHint: 'Możesz zostawić puste i dopisać później.',
+			add: 'Dodaj symbol',
+			errorTitle: 'Nie udało się dodać symbolu'
 		},
 		meaningDialog: {
 			newTitle: 'Nowe znaczenie',
