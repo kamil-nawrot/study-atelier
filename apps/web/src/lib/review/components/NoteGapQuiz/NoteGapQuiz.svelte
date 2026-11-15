@@ -82,9 +82,9 @@
 {/snippet}
 
 <ReviewCard
-	answersLast
 	actions={next}
 	alt={item.artwork.title}
+	answersLast
 	artwork={item.artwork}
 	compact
 	credit={details?.credit}

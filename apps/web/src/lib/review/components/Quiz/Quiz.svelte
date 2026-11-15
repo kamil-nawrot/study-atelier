@@ -128,13 +128,13 @@
 <ReviewCard
 	actions={next}
 	{alt}
+	answersLast={item.mode !== 'quiz_image'}
 	{artwork}
 	compact
 	credit={answered ? credit : undefined}
 	image={pin ? artworkImageSource(pin.image, STAGE_WIDTH) : artwork.image}
 	labelledby="quiz-heading"
 	overlay={pin ? pinMark : undefined}
-	answersLast={item.mode !== 'quiz_image'}
 	questionFirst={item.mode === 'quiz_image'}
 	stage={item.mode === 'quiz_image' ? tiles : undefined}
 >

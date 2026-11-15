@@ -67,7 +67,7 @@
 	</div>
 {/snippet}
 
-<ReviewCard answersLast actions={next} alt="" compact labelledby="quiz-heading" stage={definition}>
+<ReviewCard actions={next} alt="" answersLast compact labelledby="quiz-heading" stage={definition}>
 	{#snippet body()}
 		<div class="intro">
 			<p class="overline">{m.review.quiz.definitionTag}</p>
