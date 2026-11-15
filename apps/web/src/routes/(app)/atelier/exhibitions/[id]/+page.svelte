@@ -17,6 +17,7 @@
 	import ExhibitionBody from '#lib/exhibitions/components/ExhibitionBody/ExhibitionBody.svelte';
 	import ExhibitionDeleteDialog from '#lib/exhibitions/components/ExhibitionDeleteDialog/ExhibitionDeleteDialog.svelte';
 	import ExhibitionEditorPane from '#lib/exhibitions/components/ExhibitionEditorPane/ExhibitionEditorPane.svelte';
+	import PosterButton from '#lib/exhibitions/components/PosterButton/PosterButton.svelte';
 	import SaveStatusText from '#lib/exhibitions/components/SaveStatusText/SaveStatusText.svelte';
 	import { addArtworkHref } from '#lib/exhibitions/exhibition-return/exhibition-return.ts';
 	import { artworkIdsOf } from '#lib/exhibitions/exhibition-document/exhibition-document.ts';
@@ -87,6 +88,13 @@
 		{#if session && data.exhibition}
 			{#if editing}
 				<SaveStatusText status={session.status} />
+				<PosterButton
+					document={session.document}
+					exhibitionId={data.exhibition.id}
+					{lookup}
+					poster={data.exhibition.poster}
+					title={session.title}
+				/>
 				<Button
 					aria-label={m.exhibitions.view.done}
 					compact

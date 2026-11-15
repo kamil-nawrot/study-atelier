@@ -3,6 +3,7 @@
 	import { Disclosure, NoImage } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
+	import PosterImage from '#lib/exhibitions/components/PosterImage/PosterImage.svelte';
 	import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import type { ExhibitionSummary } from '#lib/exhibitions/types/exhibition-summary.ts';
@@ -33,15 +34,17 @@
 		<ul>
 			{#each exhibitions as exhibition (exhibition.id)}
 				{@const cover = exhibition.coverId ? ready.get(exhibition.coverId) : undefined}
+				{@const picture = exhibition.posterImage ?? cover?.image}
 				<li>
 					<a class="row" href={resolve('/(app)/atelier/exhibitions/[id]', { id: exhibition.id })}>
 						<span class="cover">
-							{#if cover?.image?.src}
-								<img
-									alt=""
-									loading="lazy"
-									onerror={() => cover && images.failed(cover)}
-									src={cover.image.src}
+							{#if picture?.src}
+								<PosterImage
+									crop={exhibition.poster?.crop}
+									filters={exhibition.poster?.filters}
+									lazy
+									onerror={() => cover && !exhibition.posterImage && images.failed(cover)}
+									src={picture.src}
 								/>
 							{:else}
 								<NoImage />
@@ -78,12 +81,6 @@
 		aspect-ratio: 4 / 5;
 		overflow: hidden;
 		background: var(--color-mat-bg);
-	}
-
-	.cover img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
 	}
 
 	.title {

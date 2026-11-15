@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import {
+	CENTRED_CROP,
 	NEUTRAL_FILTERS,
+	NO_POSTER,
+	draftPoster,
+	draggedCrop,
+	movedCrop,
 	posterChoiceMissing,
+	posterFilter,
+	posterToSave,
+	zoomedCrop,
 	shownPoster,
 	storedPoster,
 	type PosterColumns
@@ -92,5 +100,64 @@ describe('posterChoiceMissing', () => {
 		expect(posterChoiceMissing(stored, ['a'])).toBe(true);
 		expect(posterChoiceMissing(stored, ['a', 'b'])).toBe(false);
 		expect(posterChoiceMissing(storedPoster(NEUTRAL_COLUMNS), ['a'])).toBe(false);
+	});
+});
+
+describe('posterFilter', () => {
+	it('composes only the filters that change the image', () => {
+		expect(posterFilter(NEUTRAL_FILTERS)).toBeUndefined();
+		expect(posterFilter(TONED)).toBe(
+			'grayscale(40%) sepia(10%) brightness(120%) contrast(80%) saturate(150%)'
+		);
+		expect(posterFilter({ ...NEUTRAL_FILTERS, sepia: 30 })).toBe('sepia(30%)');
+	});
+});
+
+describe('movedCrop and zoomedCrop', () => {
+	it('keeps the crop inside the image and the zoom inside its range', () => {
+		expect(movedCrop(CENTRED_CROP, 0.7, -0.2)).toEqual({ x: 1, y: 0.3, zoom: 1 });
+		expect(movedCrop(CENTRED_CROP, -0.6, 0)).toEqual({ x: 0, y: 0.5, zoom: 1 });
+		expect(zoomedCrop(CENTRED_CROP, 4).zoom).toBe(3);
+		expect(zoomedCrop(CENTRED_CROP, 0.5).zoom).toBe(1);
+	});
+});
+
+describe('draggedCrop', () => {
+	const frame = { width: 400, height: 500 };
+
+	it('moves a wide image sideways by as much as the pointer moved', () => {
+		const wide = { width: 1600, height: 1000 };
+		expect(draggedCrop(CENTRED_CROP, -100, 0, frame, wide).x).toBeCloseTo(0.5 + 100 / 400);
+		expect(draggedCrop(CENTRED_CROP, 0, 80, frame, wide).y).toBe(0.5);
+	});
+
+	it('lets a zoomed image move in both directions', () => {
+		const square = { width: 1000, height: 1000 };
+		const moved = draggedCrop({ x: 0.5, y: 0.5, zoom: 2 }, 100, 100, frame, square);
+		expect(moved.x).toBeCloseTo(0.5 - 100 / 600);
+		expect(moved.y).toBeCloseTo(0.5 - 100 / 500);
+	});
+});
+
+describe('draftPoster and posterToSave', () => {
+	const stored = {
+		artworkId: 'gone',
+		imageId: 'detail',
+		crop: { x: 0.2, y: 0.4, zoom: 2 },
+		filters: { ...NEUTRAL_FILTERS, sepia: 40 }
+	};
+
+	it('starts from the first artwork with the chosen filters when the choice left', () => {
+		expect(draftPoster(stored, ['first'])).toEqual({ ...NO_POSTER, filters: stored.filters });
+		expect(draftPoster(stored, ['first', 'gone'])).toBe(stored);
+	});
+
+	it('keeps the remembered choice when only the filters changed', () => {
+		const draft = { ...NO_POSTER, filters: { ...NEUTRAL_FILTERS, contrast: 120 } };
+		expect(posterToSave(draft, stored, ['first'], false)).toEqual({
+			...stored,
+			filters: draft.filters
+		});
+		expect(posterToSave(draft, stored, ['first'], true)).toBe(draft);
 	});
 });

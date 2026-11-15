@@ -13,7 +13,7 @@ export class ExhibitionSession {
 	error = $state<string>();
 	#id: string;
 	#revision: number;
-	#document: ExhibitionDocument;
+	#document = $state.raw<ExhibitionDocument>({ type: 'doc' });
 	#dirty = false;
 	#saving = false;
 	#running: Promise<void> | undefined;

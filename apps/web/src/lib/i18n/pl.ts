@@ -2921,6 +2921,32 @@ export const pl = {
 			limitTitle: 'Nie zapisano zmian',
 			keepEditing: 'Wróć do wystawy'
 		},
+		poster: {
+			open: 'Zmień afisz',
+			title: 'Afisz wystawy',
+			description:
+				'Wybierz dzieło, które ma stać się afiszem wystawy, wykadruj je i dopasuj za pomocą filtrów.',
+			artwork: 'Dzieło na afiszu',
+			image: 'Obraz',
+			imageLabel: (position: number, count: number): string => `Obraz ${position} z ${count}`,
+			crop: 'Kadr',
+			zoom: 'Przybliżenie',
+			dragHint: 'Przeciągnij obraz, żeby przesunąć kadr.',
+			filters: 'Barwy i światło',
+			filterLabels: {
+				grayscale: 'Szarość',
+				sepia: 'Sepia',
+				brightness: 'Jasność',
+				contrast: 'Kontrast',
+				saturate: 'Nasycenie'
+			},
+			reset: 'Zacznij od nowa',
+			resetHint: 'Afiszem znów będzie pierwsze dzieło wystawy, bez kadru i filtrów.',
+			saved: 'Zapisano afisz.',
+			missing: 'Dzieło z afisza zniknęło z wystawy. Do jego powrotu afisz tworzy pierwsze dzieło.',
+			noArtworks: 'Dodaj do wystawy pierwsze dzieło, aby móc stworzyć afisz.',
+			saveErrorTitle: 'Nie udało się zapisać afisza. Spróbuj jeszcze raz.'
+		},
 		panel: {
 			title: 'Przybornik',
 			open: 'Rozwiń Przybornik',

@@ -89,6 +89,17 @@ test('builds an exhibition from blocks that typing or dragging cannot break', as
 	const row = page.locator('[data-row-id]').filter({ has: page.locator('[data-kind="artwork"]') });
 	await expect(row.locator('[data-kind="quote"]')).toHaveCount(1);
 
+	await page.getByRole('button', { name: m.exhibitions.poster.open }).click();
+	const poster = page.getByRole('dialog', { name: m.exhibitions.poster.title });
+	await poster.getByRole('slider', { name: m.exhibitions.poster.filterLabels.sepia }).fill('40');
+	await poster.getByRole('button', { name: m.common.save }).click();
+	await expect(page.getByText(m.exhibitions.poster.saved)).toBeVisible();
+	await page.getByRole('button', { name: m.exhibitions.poster.open }).click();
+	await expect(
+		poster.getByRole('slider', { name: m.exhibitions.poster.filterLabels.sepia })
+	).toHaveValue('40');
+	await poster.getByRole('button', { name: m.common.cancel }).click();
+
 	await page.getByRole('button', { name: m.exhibitions.view.done }).click();
 	await page.waitForURL(/\/atelier\/exhibitions\/[^?]+$/);
 	const heading = page.getByRole('heading', { name: 'Sala pierwsza' });
