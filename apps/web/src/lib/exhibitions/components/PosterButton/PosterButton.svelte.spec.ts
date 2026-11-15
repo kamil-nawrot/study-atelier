@@ -69,12 +69,10 @@ describe('PosterButton', () => {
 			poster: NO_POSTER
 		});
 
-		await expect
-			.element(page.getByRole('button', { name: m.exhibitions.poster.open }))
-			.toBeDisabled();
-		expect(document.querySelector('[role="tooltip"]')?.textContent).toBe(
-			m.exhibitions.poster.noArtworks
-		);
+		const button = page.getByRole('button', { name: m.exhibitions.poster.open });
+		await expect.element(button).toHaveAttribute('aria-disabled', 'true');
+		await expect.element(button).not.toHaveAttribute('disabled');
+		await expect.element(button).toHaveAccessibleDescription(m.exhibitions.poster.noArtworks);
 	});
 
 	it('opens the poster, saves it and confirms', async () => {

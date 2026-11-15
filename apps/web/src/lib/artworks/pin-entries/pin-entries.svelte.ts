@@ -9,10 +9,11 @@ function merged<T extends { id: string }>(base: readonly T[], local: readonly T[
 }
 
 export class PinEntries {
-	termOpen = $state(false);
 	termName = $state('');
-	symbolOpen = $state(false);
 	symbolName = $state('');
+
+	#termOpen = $state(false);
+	#symbolOpen = $state(false);
 
 	#terms = $state.raw<GlossaryTerm[]>([]);
 	#symbols = $state.raw<SymbolOption[]>([]);
@@ -24,6 +25,36 @@ export class PinEntries {
 	constructor(terms: () => readonly GlossaryTerm[], symbols: () => readonly SymbolOption[]) {
 		this.#baseTerms = terms;
 		this.#baseSymbols = symbols;
+	}
+
+	get termOpen(): boolean {
+		return this.#termOpen;
+	}
+
+	set termOpen(open: boolean) {
+		this.#termOpen = open;
+		const pending = this.#pendingTerm;
+		if (open || !pending) return;
+		queueMicrotask(() => {
+			if (this.#pendingTerm !== pending) return;
+			this.#pendingTerm = undefined;
+			pending(undefined);
+		});
+	}
+
+	get symbolOpen(): boolean {
+		return this.#symbolOpen;
+	}
+
+	set symbolOpen(open: boolean) {
+		this.#symbolOpen = open;
+		const pending = this.#pendingSymbol;
+		if (open || !pending) return;
+		queueMicrotask(() => {
+			if (this.#pendingSymbol !== pending) return;
+			this.#pendingSymbol = undefined;
+			pending(undefined);
+		});
 	}
 
 	terms = $derived.by(() => merged(this.#baseTerms(), this.#terms));
