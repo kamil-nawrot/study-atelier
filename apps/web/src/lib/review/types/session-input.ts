@@ -8,4 +8,5 @@ export type SessionInput = {
 	newToday: number;
 	sessionSize?: number;
 	newPerDay?: number;
+	stylePlaces?: number;
 };

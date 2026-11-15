@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
+import { testReviewCard } from '#lib/testing/review/review.ts';
 import { recordReview, recordRightAnswer } from '#lib/review/review-data/review-data.ts';
 import { ReviewSession } from './review-session.svelte.ts';
 import type { DefinitionItem } from '#lib/review/types/definition-item.ts';
@@ -177,6 +178,55 @@ describe('ReviewSession', () => {
 		review.proceed();
 		expect(review.position).toBe(1);
 		expect(review.chosen).toBeUndefined();
+	});
+
+	it('rates a style answer on the style card alone and never asks it again', async () => {
+		const clock = { now: start };
+		const recognition = new Map([['artwork-1', testReviewCard('artwork-1', start)]]);
+		const style: ReviewItem = { ...quizItems(1)[0], mode: 'quiz_style', facet: 'style' };
+		const review = new ReviewSession(
+			[style, ...quizItems(5).slice(1)],
+			recognition,
+			() => clock.now,
+			() => 0
+		);
+
+		await review.answer(0);
+
+		expect(recordReview).toHaveBeenCalledWith(
+			expect.objectContaining({ artworkId: 'artwork-1', reps: 1 }),
+			expect.objectContaining({
+				mode: 'quiz_style',
+				facet: 'style',
+				rating: 1,
+				correct: false,
+				wrongAnswer: 'Other A'
+			})
+		);
+		expect(review.cards.get('artwork-1')).toEqual(recognition.get('artwork-1'));
+		expect(review.styleCards.get('artwork-1')?.reps).toBe(1);
+		expect(review.answers).toHaveLength(0);
+		expect(review.queue).toHaveLength(5);
+		expect(review.styles).toEqual({ asked: 1, right: 0 });
+		expect(review.anyAnswer).toBe(true);
+	});
+
+	it('counts a style answer of a free round without saving it', async () => {
+		const clock = { now: start };
+		const style: ReviewItem = { ...quizItems(1)[0], mode: 'quiz_style', facet: 'style' };
+		const review = new ReviewSession(
+			[style],
+			new Map(),
+			() => clock.now,
+			() => 0,
+			true
+		);
+
+		await review.answer(1);
+
+		expect(recordReview).not.toHaveBeenCalled();
+		expect(review.styleCards.size).toBe(0);
+		expect(review.styles).toEqual({ asked: 1, right: 1 });
 	});
 
 	it('counts a wrong quiz answer as not known and asks it again later', async () => {

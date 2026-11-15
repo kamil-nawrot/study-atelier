@@ -117,6 +117,7 @@ function renderReview(
 			session: testSession(),
 			artworks,
 			cards: reviewCards,
+			styleCards: new Map(),
 			newToday,
 			streak,
 			waiting: undefined,
