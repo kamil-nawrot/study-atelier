@@ -103,4 +103,44 @@ begin
 end;
 $$;
 
+reset role;
+update public.artworks set year_to = 1790 + 15 * (record_number - 35) where record_number > 34;
+set local role authenticated;
+
+do $$
+declare
+  day_start constant timestamptz := date_trunc('day', now());
+  session jsonb;
+begin
+  perform public.record_review(artwork.id, pg_temp.card(now() + interval '10 days'),
+      '{"mode": "flashcard", "rating": 3}')
+    from public.artworks as artwork
+    where artwork.record_number > 34;
+  insert into public.profiles (review_year_questions, review_order_questions) values (true, true)
+    on conflict (owner_id) do update set review_year_questions = true, review_order_questions = true;
+
+  assert pg_temp.scope(public.review_plan(day_start, 'mixed'), 'all') @> '{"known": 13}',
+    'a mixed round of 20 does not keep 4 places for the style, 2 for the year and 1 for the order';
+  assert (select waiting from public.review_counts(day_start)) = 13,
+    'the menu counter does not leave the places of the year and the order';
+
+  session := public.review_session(day_start, 'mixed');
+  assert jsonb_array_length(session) = 16,
+    'a round of 20 without style quizzes to build does not hold 13 artworks, 2 years and 1 order: '
+      || jsonb_array_length(session);
+  assert (select count(*) from jsonb_array_elements(session) as item where item ->> 'mode' = 'year') = 2,
+    'a round of 20 does not ask 2 years';
+  assert (select count(*) from jsonb_array_elements(session) as item where item ->> 'mode' = 'order') = 1,
+    'a round does not ask 1 order';
+
+  update public.profiles set review_order_questions = false;
+  assert (select waiting from public.review_counts(day_start)) = 14,
+    'the order keeps its place while it is switched off';
+  assert not exists (
+    select 1 from jsonb_array_elements(public.review_session(day_start, 'mixed')) as item
+      where item ->> 'mode' = 'order'
+  ), 'the order is asked while it is switched off';
+end;
+$$;
+
 rollback;

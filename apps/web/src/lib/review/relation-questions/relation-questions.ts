@@ -8,8 +8,6 @@ import type { RelationItem } from '#lib/review/types/relation-item.ts';
 import type { RelationQuestion } from '#lib/review/types/relation-question.ts';
 import type { ReviewRelations } from '#lib/review/types/review-relations.ts';
 
-export const RELATION_SHARE = 20;
-export const MAX_RELATIONS = 2;
 const DISTRACTORS = 3;
 const SIDES: readonly RelationSide[] = ['from', 'to'];
 
@@ -21,10 +19,6 @@ type Candidate = {
 	answer: string;
 	others: string[];
 };
-
-export function relationCount(sessionSize: number): number {
-	return Math.min(MAX_RELATIONS, Math.max(1, Math.floor(sessionSize / RELATION_SHARE)));
-}
 
 function label(text: string): string {
 	return text.trim().toLocaleLowerCase('pl');

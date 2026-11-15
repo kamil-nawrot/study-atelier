@@ -289,13 +289,7 @@ describe('review page', () => {
 
 		await expect.element(page.getByText(m.review.freeHint)).toBeVisible();
 		await page.getByRole('button', { name: m.review.free }).click();
-		expect(loadSession).toHaveBeenLastCalledWith(
-			expect.any(Date),
-			'mixed',
-			{ kind: 'all' },
-			false,
-			0
-		);
+		expect(loadSession).toHaveBeenLastCalledWith(expect.any(Date), 'mixed', { kind: 'all' }, 0);
 		await expect.element(page.getByText(m.review.freeTag)).toBeVisible();
 
 		for (const rating of [3, 3] as const) {
@@ -311,13 +305,7 @@ describe('review page', () => {
 		expect(vi.mocked(recordFreeAnswers).mock.calls.map(([, answers]) => answers)).toEqual([1, 1]);
 		expect(invalidate).not.toHaveBeenCalled();
 		await page.getByRole('button', { name: m.review.freeNextRound }).click();
-		expect(loadSession).toHaveBeenLastCalledWith(
-			expect.any(Date),
-			'mixed',
-			{ kind: 'all' },
-			false,
-			1
-		);
+		expect(loadSession).toHaveBeenLastCalledWith(expect.any(Date), 'mixed', { kind: 'all' }, 1);
 	});
 
 	it('does not offer a free review when the preferences switch it off', async () => {
@@ -376,36 +364,7 @@ describe('review page', () => {
 			.element(page.getByRole('button', { name: m.review.forms.quizzes }))
 			.not.toBeInTheDocument();
 		await page.getByRole('button', { name: m.review.start }).click();
-		expect(loadSession).toHaveBeenCalledWith(
-			expect.any(Date),
-			'mixed',
-			{ kind: 'all' },
-			false,
-			undefined
-		);
-	});
-
-	it('asks for the questions about time only when the preferences turn them on', async () => {
-		const artworks = collection(25);
-		renderReview(
-			artworks,
-			cards(artworks.slice(0, 20), () => 5),
-			0,
-			undefined,
-			0,
-			{},
-			{ ...defaultPreferences, reviewTimeQuestions: true }
-		);
-
-		await page.getByRole('button', { name: m.review.start }).click();
-
-		expect(loadSession).toHaveBeenCalledWith(
-			expect.any(Date),
-			'mixed',
-			{ kind: 'all' },
-			true,
-			undefined
-		);
+		expect(loadSession).toHaveBeenCalledWith(expect.any(Date), 'mixed', { kind: 'all' }, undefined);
 	});
 
 	it('adds as many definitions to a session as the preferences ask for', async () => {
@@ -557,7 +516,6 @@ describe('review page', () => {
 			expect.any(Date),
 			'flashcards',
 			{ kind: 'all' },
-			false,
 			undefined
 		);
 
@@ -676,7 +634,7 @@ describe('review page', () => {
 			undefined,
 			0,
 			{},
-			{ ...defaultPreferences, reviewNoteQuestions: true },
+			{ ...defaultPreferences, reviewNotesOn: true },
 			0,
 			terms.map((term) => ({ ...term, hasDefinition: false }))
 		);

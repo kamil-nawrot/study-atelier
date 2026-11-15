@@ -88,20 +88,22 @@ begin
   eligible := array(select pg_temp.work(n) from generate_series(1, 12) as n) || pg_temp.work(21);
 
   assert not exists (select 1 from pg_temp.time_items(public.review_session(day_start, 'mixed'))),
-    'a session asks about time when the app did not ask for it';
+    'a session asks about time when the learner did not ask for it';
+
+  insert into public.profiles (review_year_questions, review_order_questions) values (true, true);
 
   for attempt in 1..20 loop
-    session := public.review_session(day_start, 'mixed', 'all', null, null, true);
+    session := public.review_session(day_start, 'mixed');
     select count(*), count(*) filter (where item ->> 'mode' = 'order')
       into asked, orders
       from pg_temp.time_items(session) as item;
 
-    assert asked between 2 and 4, format('a session asks %s questions about time, not 2 to 4', asked);
-    assert orders between 1 and 2, format('a session asks %s order questions, not 1 or 2', orders);
+    assert asked = 3, format('a round of 20 asks %s questions about time, not 2 years and 1 order', asked);
+    assert orders = 1, format('a session asks %s order questions, not 1', orders);
     assert session -> 0 ->> 'mode' not in ('year', 'order'), 'a session starts with a question about time';
     assert (
       select count(*) from jsonb_array_elements(session) as item where item ->> 'mode' not in ('year', 'order')
-    ) = 3, 'the questions about time take the place of artworks of the session';
+    ) = 3, 'the questions about time do not leave the due artworks their places';
     assert not exists (
       select 1 from pg_temp.time_items(session) as item
         where item ->> 'mode' = 'year' and not (item ->> 'artwork_id')::uuid = any (eligible)
@@ -141,7 +143,7 @@ begin
     '{"facet": "date", "mode": "year", "rating": 3, "correct": true}');
 
   for attempt in 1..10 loop
-    session := public.review_session(day_start, 'mixed', 'all', null, null, true);
+    session := public.review_session(day_start, 'mixed');
     assert exists (
       select 1 from pg_temp.time_items(session) as item
         where (item ->> 'artwork_id')::uuid = overdue and item -> 'card' ->> 'stability' = '3'
@@ -152,10 +154,10 @@ begin
   end loop;
 
   assert exists (
-    select 1 from pg_temp.time_items(public.review_session(day_start, 'flashcards', 'all', null, null, true))
+    select 1 from pg_temp.time_items(public.review_session(day_start, 'flashcards'))
   ), 'a session of flashcards asks nothing about time';
   assert exists (
-    select 1 from pg_temp.time_items(public.review_session(day_start, 'mixed', 'all', null, 0, true))
+    select 1 from pg_temp.time_items(public.review_session(day_start, 'mixed', 'all', null, 0))
   ), 'a free round asks nothing about time';
 end;
 $$;
@@ -234,16 +236,17 @@ declare
   day_start constant timestamptz := date_trunc('day', now());
   number integer;
 begin
+  insert into public.profiles (review_year_questions, review_order_questions) values (true, true);
   for number in 1..20 loop
     perform pg_temp.add_work(number, 'early_modern', null, null);
     perform public.record_review(pg_temp.work(number), pg_temp.card(now() - interval '1 hour'),
       '{"mode": "flashcard", "rating": 3}');
   end loop;
 
-  assert jsonb_array_length(public.review_session(day_start, 'mixed', 'all', null, null, true)) = 20,
+  assert jsonb_array_length(public.review_session(day_start, 'mixed')) = 20,
     'a session without dated artworks is not the plain session';
   assert not exists (
-    select 1 from pg_temp.time_items(public.review_session(day_start, 'mixed', 'all', null, null, true))
+    select 1 from pg_temp.time_items(public.review_session(day_start, 'mixed'))
   ), 'a session asks about time without dated artworks';
   assert not exists (select 1 from public.point_events where owner_id = auth.uid() and kind = 'right_answers'),
     'one learner''s right answers land with another';

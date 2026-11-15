@@ -67,8 +67,8 @@ describe('ReviewSummary', () => {
 			line.textContent?.replace(/\s+/g, ' ').trim()
 		);
 		expect(lines).toEqual([
-			`${m.review.roundLines.years} 2/3`,
 			`${m.review.roundLines.styles} 3/4`,
+			`${m.review.roundLines.years} 2/3`,
 			`${m.review.roundLines.definitions} 1/3`,
 			`${m.review.roundLines.symbols} 2/2`,
 			`${m.review.roundLines.notes} 1/1`,

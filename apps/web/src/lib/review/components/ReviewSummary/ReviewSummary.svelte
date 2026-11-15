@@ -73,9 +73,9 @@
 	);
 	let scores = $derived(
 		[
+			{ icon: Brush, label: m.review.roundLines.styles, ...styles },
 			{ icon: Target, label: m.review.roundLines.years, right: years.hit, asked: years.asked },
 			{ icon: ListOrdered, label: m.review.roundLines.orders, ...orders },
-			{ icon: Brush, label: m.review.roundLines.styles, ...styles },
 			{ icon: BookA, label: m.review.roundLines.definitions, ...definitions },
 			{ icon: KeyRound, label: m.review.roundLines.symbols, ...symbols },
 			{ icon: NotebookPen, label: m.review.roundLines.notes, ...notes },
