@@ -152,7 +152,6 @@
 	input {
 		width: 100%;
 		margin: 0;
-		accent-color: var(--color-fg);
 	}
 
 	.ticks {
