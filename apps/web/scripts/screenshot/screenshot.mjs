@@ -7,6 +7,7 @@ import { chromium } from 'playwright';
 import {
 	ARTWORK_PINS,
 	ARTWORKS,
+	ARTWORK_RELATIONS,
 	AUTHOR_RELATIONS,
 	CATALOGUE_MUSEUMS,
 	MAP_PLACES,
@@ -880,6 +881,18 @@ async function mockSupabase(context) {
 			return json(route, wantsObject ? counts : [counts]);
 		}
 		if (url.pathname === '/rest/v1/rpc/atelier_empty') return json(route, false);
+		if (url.pathname === '/rest/v1/artwork_relations') {
+			return json(
+				route,
+				ARTWORK_RELATIONS.filter((relation) => relation.kind !== 'related')
+			);
+		}
+		if (url.pathname === '/rest/v1/author_relations' && !url.searchParams.has('or')) {
+			return json(
+				route,
+				AUTHOR_RELATIONS.filter((relation) => relation.kind !== 'related')
+			);
+		}
 		if (url.pathname === '/rest/v1/author_relations') {
 			const ids = (url.searchParams.get('or') ?? '').match(/eq\.([^,)]+)/g) ?? [];
 			const id = ids[0]?.slice(3);

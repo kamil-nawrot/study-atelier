@@ -830,6 +830,27 @@ export const pl = {
 				style: (name: string): string => `Drugie dzieło to styl: ${name}.`
 			},
 			pairRetry: 'Wrócimy do tej pary za chwilę.',
+			relationTag: 'Pytanie dodatkowe z powiązań',
+			relationQuestions: {
+				studyFrom: 'Do jakiego dzieła powstało to studium lub projekt?',
+				studyTo: 'Które dzieło jest studium lub projektem do tego dzieła?',
+				copyFrom: 'Kopią lub reprodukcją jakiego dzieła jest to dzieło?',
+				copyTo: 'Które dzieło jest kopią lub reprodukcją tego dzieła?',
+				version: 'Które dzieło jest inną wersją tego dzieła?',
+				partFrom: 'Częścią jakiego dzieła jest to dzieło?',
+				partTo: 'Które dzieło jest częścią tego dzieła?',
+				referenceFrom: 'Do jakiego dzieła nawiązuje to dzieło?',
+				referenceTo: 'Które dzieło nawiązuje do tego dzieła?',
+				pupilFrom: 'Kto był nauczycielem?',
+				pupilTo: 'Kto był uczniem?',
+				influenceFrom: 'Kto wywarł wpływ na tę twórczość?',
+				influenceTo: 'Czyja twórczość powstała pod tym wpływem?',
+				collaboration: 'Kto był partnerem we współpracy?',
+				family: 'Kto należy do tej samej rodziny?'
+			},
+			relationArtwork: (title: string): string => `Dzieło: ${title}`,
+			relationAuthor: (name: string): string => `Autor: ${name}`,
+			relationRetry: 'Wrócimy do tego powiązania za chwilę.',
 			noteQuestion: 'Jakiego pojęcia brakuje w Twojej notatce?',
 			noteSource: 'Z notatki do dzieła',
 			showArtwork: 'Pokaż dzieło',
@@ -923,7 +944,8 @@ export const pl = {
 			definitions: 'Poprawnie odgadnięte pojęcia:',
 			symbols: 'Poprawnie rozpoznane symbole:',
 			notes: 'Poprawnie uzupełnione luki w notatkach:',
-			pairs: 'Poprawnie rozróżnione pary:'
+			pairs: 'Poprawnie rozróżnione pary:',
+			relations: 'Poprawnie wskazane powiązania:'
 		},
 		roundScore: (right: number, asked: number): string => `${right}/${asked}`,
 		tomorrowStart: (count: number): string =>

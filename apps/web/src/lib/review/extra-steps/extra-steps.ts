@@ -9,6 +9,8 @@ import {
 	drawnTerms,
 	withDefinitionsOf
 } from '#lib/review/definitions/definitions.ts';
+import { relationCount, relationItems } from '#lib/review/relation-questions/relation-questions.ts';
+import { loadReviewRelations } from '#lib/review/relation-questions-data/relation-questions-data.ts';
 import { drawNoteGap } from '#lib/review/note-gap/note-gap.ts';
 import type { ResolvedImages } from '#lib/review/resolved-images/resolved-images.svelte.ts';
 import { loadConfusedPairs, loadReviewDetails } from '#lib/review/review-data/review-data.ts';
@@ -42,6 +44,7 @@ export async function loadExtraSteps(input: ExtraInput): Promise<ExtraSteps> {
 	const shownImages = images.resolve(input.shown);
 	const definedRead = loadTermDefinitions(drawn.map((term) => term.id));
 	const pairsRead = loadConfusedPairs();
+	const relationsRead = loadReviewRelations();
 	const gaps = await drawNoteGap(
 		preferences.reviewNoteQuestions,
 		input.scope,
@@ -51,11 +54,20 @@ export async function loadExtraSteps(input: ExtraInput): Promise<ExtraSteps> {
 	);
 	const gapArtworks = gaps.map((gap) => gap.artwork);
 	const pairs = pairItems(await pairsRead, input.atelier, pairCount(preferences.reviewSessionSize));
-	const [, , , found, defined, symbolSteps] = await Promise.all([
+	const relations = relationItems(
+		await relationsRead,
+		input.atelier,
+		relationCount(preferences.reviewSessionSize)
+	);
+	const relationArtworks = relations.map((item) => item.artwork);
+	const [, , , , found, defined, symbolSteps] = await Promise.all([
 		shownImages,
 		images.resolve(gapArtworks),
 		images.resolve(pairArtworks(pairs)),
-		loadReviewDetails([...input.asked, ...gapArtworks].map((artwork) => artwork.id)),
+		images.resolve(relationArtworks),
+		loadReviewDetails(
+			[...input.asked, ...gapArtworks, ...relationArtworks].map((artwork) => artwork.id)
+		),
 		definedRead,
 		loadSymbolSteps(preferences.reviewSymbolQuestions, glossary)
 	]);
@@ -75,6 +87,7 @@ export async function loadExtraSteps(input: ExtraInput): Promise<ExtraSteps> {
 					)
 				}
 			})),
+			...relations.map((item) => ({ ...item, artwork: images.withImage(item.artwork) })),
 			...input.times.map((step) => withTimeImages(step, images.withImage))
 		]
 	};

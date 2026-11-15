@@ -13,4 +13,5 @@ export type SessionSummary = {
 	symbols: { asked: number; right: number };
 	notes: { asked: number; right: number };
 	pairs: { asked: number; right: number };
+	relations: { asked: number; right: number };
 };
