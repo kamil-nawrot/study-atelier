@@ -36,9 +36,17 @@
 	</Button>
 {:else}
 	<Tooltip align="end" placement="bottom" text={m.exhibitions.poster.noArtworks}>
-		<Button aria-label={m.exhibitions.poster.open} compact disabled icon={Crop}>
-			{m.exhibitions.poster.open}
-		</Button>
+		{#snippet children(describedby)}
+			<Button
+				aria-describedby={describedby}
+				aria-disabled="true"
+				aria-label={m.exhibitions.poster.open}
+				compact
+				icon={Crop}
+			>
+				{m.exhibitions.poster.open}
+			</Button>
+		{/snippet}
 	</Tooltip>
 {/if}
 

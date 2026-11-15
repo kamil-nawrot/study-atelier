@@ -40,6 +40,33 @@ describe('PinEntries', () => {
 		expect(entries.symbolName).toBe('Lily');
 	});
 
+	it('resolves a closed term or symbol dialog with nothing', async () => {
+		const entries = new PinEntries(
+			() => [],
+			() => []
+		);
+		const term = entries.newTerm('Nave');
+		const symbol = entries.newSymbol('Anchor');
+		entries.termOpen = false;
+		entries.symbolOpen = false;
+
+		await expect(term).resolves.toBeUndefined();
+		await expect(symbol).resolves.toBeUndefined();
+	});
+
+	it('resolves with the added term when the dialog closes before it reports the term', async () => {
+		const entries = new PinEntries(
+			() => [],
+			() => []
+		);
+		const added = entries.newTerm('Nave');
+		const nave = testEntry('entry-2', 'Nave');
+		entries.termOpen = false;
+		entries.termAdded(nave);
+
+		await expect(added).resolves.toBe(nave);
+	});
+
 	it('adds a meaning to a symbol and keeps it in the list', async () => {
 		vi.mocked(addSymbolMeaning).mockResolvedValue({ id: 'meaning-2' });
 		const entries = new PinEntries(

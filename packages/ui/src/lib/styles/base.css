@@ -145,6 +145,12 @@ input[type='range']::-moz-range-thumb {
 	background: var(--color-highlight);
 }
 
+@media (pointer: coarse) {
+	input[type='range'] {
+		height: var(--size-control);
+	}
+}
+
 .overlay-scrollbar {
 	scrollbar-width: none;
 }
