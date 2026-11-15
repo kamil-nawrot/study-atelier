@@ -46,6 +46,18 @@ describe('RelationQuiz', () => {
 		expect(onanswer).toHaveBeenCalledWith(1);
 	});
 
+	it('sets the right artwork in italics after the answer', async () => {
+		renderQuiz(item(), 0);
+
+		await expect
+			.element(page.getByRole('status'))
+			.toHaveTextContent(`${m.review.quiz.right} Madonna Litta.`);
+		await expect
+			.element(page.getByRole('status').getByText('Madonna Litta'))
+			.toHaveClass('artwork-title');
+		await expect.element(page.getByText(m.review.quiz.relationRetry)).not.toBeInTheDocument();
+	});
+
 	it('asks about the author of the artwork shown and names the right answer after a wrong one', async () => {
 		const { onnext } = renderQuiz(
 			item({ question: 'pupilFrom', author: 'Leonardo da Vinci', key: 'author:l|v' }),
