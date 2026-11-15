@@ -399,6 +399,12 @@ for (const row of [...ARTWORKS, ...TRASHED]) {
 	);
 }
 
+export const ARTWORK_RELATIONS = RELATIONS.map(({ from, to, kind }) => ({
+	kind,
+	from_id: relatedRow(from).id,
+	to_id: relatedRow(to).id
+}));
+
 export function valueId(category, name) {
 	return `${category}-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 }

@@ -39,6 +39,9 @@ vi.mock('$app/navigation', () => ({ beforeNavigate: vi.fn(), goto: vi.fn(), inva
 vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({
 	resolveImages: vi.fn().mockResolvedValue([])
 }));
+vi.mock('#lib/review/relation-questions-data/relation-questions-data.ts', () => ({
+	loadReviewRelations: vi.fn().mockResolvedValue({ artworks: [], authors: [] })
+}));
 vi.mock('#lib/glossary/glossary-data/glossary-data.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/glossary/glossary-data/glossary-data.ts')>()),
 	loadTermDefinitions: vi.fn()

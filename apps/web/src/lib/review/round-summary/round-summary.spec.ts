@@ -45,7 +45,8 @@ describe('roundSummary', () => {
 			definitions: { asked: 0, right: 0 },
 			symbols: { asked: 0, right: 0 },
 			notes: { asked: 0, right: 0 },
-			pairs: { asked: 0, right: 0 }
+			pairs: { asked: 0, right: 0 },
+			relations: { asked: 0, right: 0 }
 		});
 	});
 
