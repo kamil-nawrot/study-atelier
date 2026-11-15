@@ -189,4 +189,56 @@ begin
 end;
 $$;
 
+
+reset role;
+with added as (
+  insert into public.category_values (owner_id, category_code, name)
+    values
+      ('00000000-0000-0000-0000-00000000000a', 'style', 'Gothic'),
+      ('00000000-0000-0000-0000-00000000000a', 'style', 'Mannerism'),
+      ('00000000-0000-0000-0000-00000000000a', 'style', 'Impressionism')
+    returning id, name
+)
+insert into public.artwork_values (artwork_id, value_id, owner_id)
+  select artwork.id, added.id, artwork.owner_id
+    from added
+    join public.artworks as artwork on artwork.record_number = case added.name
+      when 'Gothic' then 26 when 'Mannerism' then 27 else 29 end;
+set local role authenticated;
+
+do $$
+declare
+  day_start constant timestamptz := date_trunc('day', now());
+  plan jsonb;
+begin
+  plan := public.review_plan(day_start, 'mixed');
+  assert pg_temp.scope(plan, 'all') @> '{"known": 0, "fresh": 0, "styles": 0, "years": 0, "orders": 0}',
+    'new style questions are planned while no artwork waits to be recognised: ' || pg_temp.scope(plan, 'all')::text;
+  assert (select waiting from public.review_counts(day_start)) = 0,
+    'the menu counter counts new style questions while no artwork waits to be recognised';
+  assert jsonb_array_length(public.review_session(day_start, 'mixed')) = 0,
+    'a session of new style questions is asked while no artwork waits to be recognised';
+end;
+$$;
+
+reset role;
+insert into public.review_cards (artwork_id, owner_id, facet, due, stability, difficulty, state)
+  select artwork.id, artwork.owner_id, 'style', now() - interval '1 day', 10, 5, 2
+    from public.artworks as artwork
+    where artwork.record_number = 1;
+set local role authenticated;
+
+do $$
+declare
+  day_start constant timestamptz := date_trunc('day', now());
+  plan jsonb;
+begin
+  plan := public.review_plan(day_start, 'mixed');
+  assert pg_temp.scope(plan, 'all') @> '{"known": 0, "fresh": 0, "styles": 1, "years": 0, "orders": 0}',
+    'a due style card is not planned alone while no artwork waits to be recognised: ' || pg_temp.scope(plan, 'all')::text;
+  assert (select waiting from public.review_counts(day_start)) = 1,
+    'the menu counter does not count only the due style card';
+end;
+$$;
+
 rollback;
