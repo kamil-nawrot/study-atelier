@@ -149,7 +149,6 @@
 							hint={m.glossary.form.sortNameHint}
 							label={m.glossary.form.sortName}
 							maxlength={NAME_MAX_LENGTH}
-							placeholder={m.glossary.form.sortNamePlaceholder}
 							bind:value={form.sortName}
 						/>
 					{/if}
