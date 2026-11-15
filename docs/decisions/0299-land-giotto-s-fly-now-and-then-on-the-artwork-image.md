@@ -23,7 +23,7 @@ For the behaviour: a still fly that flies off when swatted; a fly that also craw
 
 ## Decision outcome
 
-Assumed in ATL-760, to be confirmed by the owner in the review of 0.24.
+Assumed in ATL-760 and confirmed by the owner in the review of 0.24.
 
 - The fly lands at random on one in 20 openings of an artwork, decided again when the view moves to another artwork. It sits only on the stage of the artwork view and only when an image is shown, own or linked, never on an artwork without an image, the wall, the review or an exhibition.
 - It is a small drawn fly, about the size of a real one on the screen, at a random place between 20 % and 80 % of the width and height of the image, turned at a random angle. It does not move until it is swatted.
