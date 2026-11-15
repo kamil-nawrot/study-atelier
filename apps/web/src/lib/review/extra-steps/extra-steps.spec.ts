@@ -3,11 +3,15 @@ import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { defaultPreferences } from '#lib/profile/preferences/preferences.ts';
 import type { ResolvedImages } from '#lib/review/resolved-images/resolved-images.svelte.ts';
 import { loadConfusedPairs, loadReviewDetails } from '#lib/review/review-data/review-data.ts';
+import { loadReviewRelations } from '#lib/review/relation-questions-data/relation-questions-data.ts';
 import { loadExtraSteps } from './extra-steps.ts';
 
 vi.mock('#lib/review/review-data/review-data.ts', () => ({
 	loadConfusedPairs: vi.fn(),
 	loadReviewDetails: vi.fn()
+}));
+vi.mock('#lib/review/relation-questions-data/relation-questions-data.ts', () => ({
+	loadReviewRelations: vi.fn().mockResolvedValue({ artworks: [], authors: [] })
 }));
 vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({
 	loadTermDefinitions: vi.fn().mockResolvedValue({ definitions: new Map() })
@@ -60,6 +64,29 @@ describe('loadExtraSteps', () => {
 				? steps[0].quiz.options.map((option) => option.artwork?.title).sort()
 				: [];
 		expect(titles).toEqual(['Impression (shown)', 'Olympia (shown)']);
+	});
+
+	it('adds a relation question with the image of its artwork and loads its credit', async () => {
+		const atelier = [
+			monet,
+			manet,
+			testArtwork(3, 'The Kiss'),
+			testArtwork(4, 'Danaë'),
+			testArtwork(5, 'Water Lilies')
+		];
+		vi.mocked(loadConfusedPairs).mockResolvedValue([]);
+		vi.mocked(loadReviewRelations).mockResolvedValueOnce({
+			artworks: [{ kind: 'reference', from: manet.id, to: monet.id }],
+			authors: []
+		});
+		vi.mocked(loadReviewDetails).mockResolvedValue({ details: new Map() });
+
+		const { steps } = await loadExtraSteps({ ...input(), atelier });
+
+		expect(steps).toHaveLength(1);
+		expect(steps[0]).toMatchObject({ mode: 'quiz_relation' });
+		expect(steps[0].mode === 'quiz_relation' && steps[0].artwork.title).toMatch(/\(shown\)$/);
+		expect(vi.mocked(loadReviewDetails).mock.lastCall?.[0]).toHaveLength(2);
 	});
 
 	it('passes on the error of the details', async () => {
