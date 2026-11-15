@@ -27,7 +27,7 @@ Chosen by Claude without the owner, to be reviewed with the scope of 0.24 (assum
 1. **Pairs from the log.** A pair is born when an author or style quiz (`quiz_author`, `quiz_style`) was answered wrong with a kept `wrong_answer`: the right value and the chosen one, in either order, are one pair. `confused_pairs()` returns the active pairs of the learner, the most recent first; no new table holds them.
 2. **The question.** "Które z tych dzieł pasuje?" with "Autor: …" or "Styl: …" shows one artwork of each value as two image tiles. The artworks are drawn from the atelier at random among those with an image; an artwork holding both values is never drawn. Authors are compared by the joined author names of an artwork, styles by any of its styles. A pair without an artwork for each side is skipped.
 3. **In the session.** One pair question per 10 places of a round, at least 2 and at most 4, among the extra questions, in every form and scope, while pairs exist. A wrong answer brings the question back later in the session like the other extra questions, and only the first answer is saved.
-4. **Saving.** `record_pair_answer` logs the first answer in `review_log` with the facet `pair`, the mode `pair_author` or `pair_style` and the two values in the new column `pair`. It does not touch any review card, the streak or the points. Free rounds ask pair questions and save nothing.
+4. **Saving.** `record_pair_answer` logs the first answer in `review_log` with the facet `pair`, the mode `pair_author` or `pair_style` and the two values in the new column `pair`. It does not touch any review card or the streak. A right first answer gives 1 point of the museum career like the other extra questions. Free rounds ask pair questions and save nothing.
 5. **End of a pair.** A pair stays active until it has 3 right pair answers after its last confusion; a new wrong quiz answer or a wrong pair answer starts the count again.
 6. **Summary.** A line "Poprawnie rozróżnione pary:" with "x/y" counts the first answer of each pair in the round.
 7. **No list outside the session** in this version.
@@ -37,7 +37,6 @@ Chosen by Claude without the owner, to be reviewed with the scope of 0.24 (assum
 - Good: a confusion the learner made comes back as a direct comparison, from the history already in production.
 - Good: no schedule and no card to keep in sync.
 - Bad: the pair list is computed from the whole log on each session start; fine at the current size, a table later if the log grows.
-- Bad: a pair answer gives no point of the museum career.
 
 ## More information
 
