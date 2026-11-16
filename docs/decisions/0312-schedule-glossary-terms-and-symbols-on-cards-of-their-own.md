@@ -12,7 +12,7 @@ What is a card of a term and of a symbol, where do their questions stand in a se
 ## Decision drivers
 
 - The questions follow the learner's memory: a forgotten term or symbol comes back sooner than a known one.
-- The round of artworks, the settings, the menu counter and the review start stay as they are ([ADR-0303](0303-ask-about-artworks-in-the-round-and-side-topics-on-top.md), [ADR-0305](0305-count-the-whole-round-in-the-menu-and-on-the-review-start.md)).
+- The round of artworks, the menu counter and the review start stay as they are ([ADR-0303](0303-ask-about-artworks-in-the-round-and-side-topics-on-top.md), [ADR-0305](0305-count-the-whole-round-in-the-menu-and-on-the-review-start.md)).
 - The rules of the artwork cards hold for the new cards: the first answer of the day schedules ([ADR-0286](0286-let-only-the-first-answer-of-the-day-schedule-an-artwork.md)), a free round saves nothing ([ADR-0103](0103-draw-free-review-rounds-at-random.md)), the kind of question follows the card's own history ([ADR-0288](0288-choose-the-review-question-from-the-artworks-own-history.md)).
 - A short edit of a definition or a pin does not throw away what the learner remembers.
 
@@ -24,17 +24,19 @@ What is a card of a term and of a symbol, where do their questions stand in a se
 4. Whether "Co to jest?" on an artwork pin schedules the term: no, the artwork only; both cards; the term only.
 5. A card whose question cannot be built (a term without a definition, a symbol without a pin): the card waits; the card is deleted.
 6. Whether a settled term or symbol gives a point of the museum career: no; yes, once its card reaches 7 days.
+7. The count of glossary and symbol questions, checked against the production data (216 terms, all with a definition; 3 symbols with one meaning and one pin each): 1–3 as today; 1–5; 1–10.
 
 ## Decision outcome
 
-Chosen by the owner on 2026-11-16: the first option of each question.
+Chosen by the owner on 2026-11-16: the first option of questions 1–6 and 1–5 for question 7.
 
 1. **Cards.** A glossary term has one card, scheduled by the definition question ("Jakie pojęcie opisuje ta definicja?"). A symbol has one card, scheduled by all three symbol questions ("Co przedstawia ten detal?", "Jakie znaczenie ma tu ten symbol?", "Do kogo należy ten atrybut?"). The browser runs FSRS for them with the same settings as for artworks, an interval of at most 365 days included. A right answer counts as "Prawie" (2) and a wrong one as "Nie wiem" (1), like every quiz.
-2. **Extra questions as today.** Glossary and symbol questions stay extra questions on top of the round, with the switch and the count of 1–3 of [ADR-0303](0303-ask-about-artworks-in-the-round-and-side-topics-on-top.md). Instead of a draw, each kind takes its due cards first, the most overdue first, and only then new terms or symbols. The menu counter, the review start and the length of the round do not count them.
+2. **Extra questions as today.** Glossary and symbol questions stay extra questions on top of the round, with the switch and the count of [ADR-0303](0303-ask-about-artworks-in-the-round-and-side-topics-on-top.md). Instead of a draw, each kind takes its due cards first, the most overdue first, and only then new terms or symbols. The menu counter, the review start and the length of the round do not count them.
 3. **New cards in the free places.** A term or symbol without a card gets a place only when fewer due cards than the count can be asked; there is no separate limit of new cards. New ones are drawn at random.
 4. **"Co to jest?" schedules the artwork only.** The detail question of an artwork pin ([ADR-0109](0109-pin-details-on-the-artwork-image.md)) stays a recognition question of the artwork and does not touch the card of the term. The note gap with a term ([ADR-0182](0182-ask-for-a-term-from-the-own-note-and-a-title-typed-from-memory.md)) has no card either.
 5. **A card waits.** A card is created by its first scheduling answer. When its question cannot be built (a term without a definition, a symbol without a pin with a crop, too few other answers), the card is skipped and stays due; it comes back as overdue once the question can be built again. The card goes only with its term or symbol. Terms without a definition are shown by the list "Do poprawki" (ATL-762).
 6. **Points and summary as today.** The lines of the summary for definitions and symbols and the point for a right first answer stay; a settled term or symbol gives no point of its own.
+7. **Up to 5 questions.** "Liczba pytań w sesji" of "Pytania ze Słowniczka" and "Pytania z atlasu symboli" offers 1–5; the other extra questions keep 1–3. A quiz answer that is right counts as "Prawie", so a new card comes back after 1–3 days and about five or six times in its first month; with 216 terms and 3 questions a session, due cards would fill the places after two or three weeks and new terms would come in one at a time. This is an estimate from the FSRS defaults, not a measurement.
 
 Further rules, taken from the rules of the artwork cards:
 
@@ -53,7 +55,7 @@ Further rules, taken from the rules of the artwork cards:
 | A symbol with one pin and one meaning without a person | Its questions alternate between "Co przedstawia ten detal?" and "Jakie znaczenie ma tu ten symbol?".                                                                       |
 | Two sessions on one day                                | The cards answered in the first are no longer due, so the second asks the next due cards or new ones.                                                                      |
 
-Not handled: a symbol without any pin is never asked, so it never gets a card; a count of 1–3 is a session setting, not a daily one, so several sessions a day bring more new cards.
+Not handled: a symbol without any pin is never asked, so it never gets a card; the count is a session setting, not a daily one, so several sessions a day bring more new cards.
 
 ### Data
 
@@ -62,13 +64,14 @@ The cards and their answers live in two new tables, `extra_cards` and `extra_rev
 ### Consequences
 
 - Good: terms and symbols come back at the pace of the learner's memory, and the answers are kept for a later look.
-- Good: nothing the learner sees changes besides which terms and symbols are asked.
+- Good: nothing the learner sees changes besides which terms and symbols are asked and two more counts in the settings.
 - Good: the round of artworks, its counters and `record_review` are untouched.
-- Bad: with many due cards and a count of 1, new terms and symbols wait until the backlog clears.
+- Bad: with many due cards and a low count, new terms and symbols wait until the backlog clears; going through 216 terms takes months even at 5.
+- Bad: the counts of the extra questions are no longer the same for every kind.
 - Bad: two more tables in the export, the import and the deletion of an account.
 - Bad: a card of a term without a definition stays due until the definition is back.
 
 ## More information
 
-- Linear: ATL-789 (design), ATL-790 (build). Requirement R-316; changes R-171 and R-248.
-- Partly supersedes [ADR-0153](0153-add-glossary-definitions-to-the-review-as-extra-questions.md) and [ADR-0257](0257-keep-symbols-with-meanings-in-context-as-a-tab-of-the-glossary.md) in what they say about the schedule of definitions and symbols.
+- Linear: ATL-789 (design), ATL-790 (build). Requirement R-316; changes R-171, R-248 and R-312.
+- Partly supersedes [ADR-0153](0153-add-glossary-definitions-to-the-review-as-extra-questions.md) and [ADR-0257](0257-keep-symbols-with-meanings-in-context-as-a-tab-of-the-glossary.md) in what they say about the schedule of definitions and symbols, and [ADR-0303](0303-ask-about-artworks-in-the-round-and-side-topics-on-top.md) in the count of 1–3 for these two kinds.
