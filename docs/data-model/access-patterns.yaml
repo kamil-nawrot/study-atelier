@@ -788,6 +788,13 @@ writes:
     side_effects: [list, Archiwum, '"Na wystawach"']
     frequency: 'write, from the dialog "Afisz wystawy" (set_exhibition_cover), apart from the document autosave and its revision'
 
+  - id: W35
+    name: Flag a weak item
+    changes: [learner_flags]
+    side_effects: [Zaplecze, menu count of Zaplecze]
+    frequency: 'write, from "Co poprawić?" in the review session bar and in the artwork, term and symbol views (save_flag)'
+    note: 'one flag per item, image or pin and reason: a second flag of the same reason replaces the comment and keeps the question; a pin flag from a review finds its pin by image and place, since the round does not carry pin ids (ADR-0313)'
+
 relations:
   # Every relation the app shows, whether stored or computed today.
   - { from: artwork, to: value, kind: has_value, stored: artwork_values }

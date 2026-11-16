@@ -1,5 +1,7 @@
 <script lang="ts">
 	import MoreActions from '#lib/shared/navigation/MoreActions/MoreActions.svelte';
+	import FlagButton, { flagAction } from '#lib/backroom/components/FlagButton/FlagButton.svelte';
+	import FlagDialog from '#lib/backroom/components/FlagDialog/FlagDialog.svelte';
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { onMount } from 'svelte';
@@ -25,6 +27,7 @@
 
 	let toast: Toast;
 	let deleteOpen = $state(false);
+	let flagOpen = $state(false);
 	let deleting = $state(false);
 	let deleteError = $state<string>();
 
@@ -101,8 +104,12 @@
 				{m.common.edit}
 			</Button>
 			<MoreActions
-				actions={[{ label: m.common.delete, icon: Trash, onclick: askToDelete, danger: true }]}
+				actions={[
+					flagAction(() => (flagOpen = true)),
+					{ label: m.common.delete, icon: Trash, onclick: askToDelete, danger: true }
+				]}
 			>
+				<FlagButton onclick={() => (flagOpen = true)} />
 				<Button
 					aria-label={m.common.delete}
 					compact
@@ -154,6 +161,19 @@
 </AtelierLayout>
 
 <Toast bind:this={toast} />
+
+{#if entry}
+	<FlagDialog
+		groups={[
+			{
+				item: { kind: 'term', id: entry.id, name: entry.name },
+				reasons: ['hidden', 'definition', 'other']
+			}
+		]}
+		onflagged={(message) => toast.show(message)}
+		bind:open={flagOpen}
+	/>
+{/if}
 
 {#snippet deleteErrorAlert()}
 	<Alert tone="danger">

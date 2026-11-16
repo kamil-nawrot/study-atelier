@@ -110,7 +110,7 @@ declare
     'record_legal_read',
     'save_symbol', 'symbol_atlas',
     'set_place_point', 'set_symbol_cover', 'assign_symbol_meaning', 'ensure_city_place',
-    'set_exhibition_cover'
+    'set_exhibition_cover', 'save_flag'
   ];
   table_name text;
   routine record;
@@ -262,6 +262,7 @@ select public.save_exhibition(
 select public.save_symbol('Skull', jsonb_build_array(jsonb_build_object('text', 'transience', 'contexts',
   jsonb_build_array(jsonb_build_object('era_code', 'early_modern')))));
 update public.artwork_pins set symbol_id = (select id from public.symbols);
+select public.save_flag(jsonb_build_object('symbol_id', (select id from public.symbols), 'reason', 'meaning'));
 
 insert into public.category_values (category_code, name) values ('material', 'Oil on canvas'), ('author', 'Sculptor');
 insert into public.material_details (value_id, summary)
@@ -359,6 +360,7 @@ begin
   assert (select count(*) from public.artwork_images) = 0, 'B reads artwork images of A';
   assert (select count(*) from public.artwork_pins) = 0, 'B reads pins of A';
   assert (select count(*) from public.artwork_relations) = 0, 'B reads relations of artworks of A';
+  assert (select count(*) from public.learner_flags) = 0, 'B reads flags of A';
   assert (select count(*) from public.author_relations) = 0, 'B reads relations of authors of A';
   assert (select count(*) from public.period_eras) = 0, 'B reads period eras of A';
   assert (select count(*) from public.style_periods) = 0, 'B reads style periods of A';
@@ -566,6 +568,9 @@ begin
   assert security_test.denied(format(
     'select public.save_symbol(''Mine'', ''[]'', %L)', a_symbol)),
     'B renames a symbol of A through save_symbol';
+  assert security_test.denied(format(
+    'select public.save_flag(jsonb_build_object(''symbol_id'', %L::uuid, ''reason'', ''meaning''))', a_symbol)),
+    'B flags a symbol of A through save_flag';
   assert security_test.denied(format('select public.set_symbol_cover(%L)', a_symbol)),
     'B changes the main detail of a symbol of A through set_symbol_cover';
   assert security_test.denied(format('select public.assign_symbol_meaning(%L, ''{}'')', a_meaning)),

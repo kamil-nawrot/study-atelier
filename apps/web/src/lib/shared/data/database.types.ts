@@ -1009,6 +1009,51 @@ export type Database = {
         };
         Relationships: [];
       };
+      learner_flags: {
+        Row: {
+          artwork_id: string | null;
+          comment: string | null;
+          created_at: string;
+          id: string;
+          image_id: string | null;
+          owner_id: string;
+          pin_id: string | null;
+          question: Json | null;
+          reason: string;
+          symbol_id: string | null;
+          term_id: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          artwork_id?: string | null;
+          comment?: string | null;
+          created_at?: string;
+          id?: string;
+          image_id?: string | null;
+          owner_id?: string;
+          pin_id?: string | null;
+          question?: Json | null;
+          reason: string;
+          symbol_id?: string | null;
+          term_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          artwork_id?: string | null;
+          comment?: string | null;
+          created_at?: string;
+          id?: string;
+          image_id?: string | null;
+          owner_id?: string;
+          pin_id?: string | null;
+          question?: Json | null;
+          reason?: string;
+          symbol_id?: string | null;
+          term_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       location_details: {
         Row: {
           catalogue_wikidata_id: string | null;
@@ -2165,6 +2210,7 @@ export type Database = {
         };
         Returns: number;
       };
+      save_flag: { Args: { flag: Json }; Returns: boolean };
       save_symbol: {
         Args: {
           new_description?: string;

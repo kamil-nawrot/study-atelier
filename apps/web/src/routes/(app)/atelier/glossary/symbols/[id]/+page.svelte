@@ -11,6 +11,8 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
 	import MoreActions from '#lib/shared/navigation/MoreActions/MoreActions.svelte';
+	import FlagButton, { flagAction } from '#lib/backroom/components/FlagButton/FlagButton.svelte';
+	import FlagDialog from '#lib/backroom/components/FlagDialog/FlagDialog.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import SymbolDeleteDialog from '#lib/symbols/components/SymbolDeleteDialog/SymbolDeleteDialog.svelte';
 	import SymbolView from '#lib/symbols/components/SymbolView/SymbolView.svelte';
@@ -24,6 +26,7 @@
 	let toast: Toast;
 	let view: ReturnType<typeof SymbolView> | undefined = $state();
 	let deleteOpen = $state(false);
+	let flagOpen = $state(false);
 	let reordering = $state(false);
 	let symbol = $derived(data.symbol);
 	let title = $derived(
@@ -82,9 +85,11 @@
 			</Button>
 			<MoreActions
 				actions={[
+					flagAction(() => (flagOpen = true)),
 					{ label: m.common.delete, icon: Trash, onclick: () => (deleteOpen = true), danger: true }
 				]}
 			>
+				<FlagButton onclick={() => (flagOpen = true)} />
 				<Button
 					aria-label={m.common.delete}
 					compact
@@ -115,4 +120,14 @@
 
 {#if symbol}
 	<SymbolDeleteDialog {symbol} bind:open={deleteOpen} />
+	<FlagDialog
+		groups={[
+			{
+				item: { kind: 'symbol', id: symbol.id, name: symbol.name },
+				reasons: ['meaning', 'other']
+			}
+		]}
+		onflagged={(message) => toast.show(message)}
+		bind:open={flagOpen}
+	/>
 {/if}
