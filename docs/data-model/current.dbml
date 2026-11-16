@@ -473,12 +473,13 @@ Table learner_flags {
   reason text [not null, note: 'image, pin, data, note, hidden, definition, meaning, answers, other']
   comment text
   question jsonb
-  holds boolean [not null, default: false]
   created_at "timestamp with time zone" [not null, default: `now()`]
   updated_at "timestamp with time zone" [not null, default: `now()`]
+  holds boolean [not null, default: `false`]
 
   indexes {
     artwork_id [name: 'learner_flags_artwork_id_idx', note: 'where (artwork_id IS NOT NULL)']
+    owner_id [name: 'learner_flags_held_idx', note: 'where holds']
     image_id [name: 'learner_flags_image_id_idx', note: 'where (image_id IS NOT NULL)']
     (owner_id, created_at) [name: 'learner_flags_owner_id_idx']
     pin_id [name: 'learner_flags_pin_id_idx', note: 'where (pin_id IS NOT NULL)']
