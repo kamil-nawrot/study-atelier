@@ -36,7 +36,7 @@
 
 	let toast: Toast;
 	let trashOpen = $state(false);
-	let flag = $state<{ open: boolean; image?: string }>({ open: false });
+	let flag = $state<{ open: boolean; image?: string; count?: number }>({ open: false });
 	const favouriteMark = new ArtworkMark(setFavourite);
 	const wantToSeeMark = new ArtworkMark(setWantToSee);
 
@@ -120,7 +120,7 @@
 			</Button>
 			<MoreActions
 				actions={[
-					flagAction(() => (flag.open = true)),
+					flagAction(() => (flag.open = true), flag.count),
 					canCompare
 						? { label: m.compare.label, icon: Columns2, href: comparePath }
 						: { label: m.compare.label, icon: Columns2, reason: m.compare.unavailable },
@@ -130,7 +130,7 @@
 				{#snippet kept()}
 					{@render editButton()}
 				{/snippet}
-				<FlagButton onclick={() => (flag.open = true)} />
+				<FlagButton count={flag.count} onclick={() => (flag.open = true)} />
 				{#if canCompare}
 					<Button aria-label={m.compare.label} compact href={comparePath} icon={Columns2}>
 						{m.compare.label}
@@ -213,6 +213,7 @@
 		artwork={data.artwork}
 		glossary={data.glossary}
 		imageId={flag.image}
+		oncount={(count) => (flag.count = count)}
 		onflagged={(message) => toast.show(message)}
 		pins={data.pins}
 		symbols={data.symbols}
