@@ -8,9 +8,16 @@
 	type Props = {
 		session: ReviewSession;
 		onstop: () => void;
+		onskip?: () => void;
 	};
 
-	let { session, onstop }: Props = $props();
+	let { session, onstop, onskip }: Props = $props();
+
+	let answered = $derived(
+		[session.chosen, session.guessed, session.ordered, session.typed].some(
+			(value) => value !== undefined
+		)
+	);
 </script>
 
 <div class="session-bar">
@@ -23,7 +30,7 @@
 	{/if}
 	<div class="end">
 		{#if session.current}
-			<ReviewFlag chosen={session.chosen} step={session.current} />
+			<ReviewFlag {answered} chosen={session.chosen} {onskip} step={session.current} />
 		{/if}
 		<div
 			class="progress"

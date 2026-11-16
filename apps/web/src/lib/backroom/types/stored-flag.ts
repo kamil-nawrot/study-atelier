@@ -9,4 +9,6 @@ export type StoredFlag = {
 	symbolId: string | null;
 	imageId: string | null;
 	pinId: string | null;
+	holds: boolean;
+	mode: string | null;
 };

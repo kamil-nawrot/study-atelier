@@ -1135,6 +1135,7 @@ export type Database = {
           artwork_id: string | null;
           comment: string | null;
           created_at: string;
+          holds: boolean;
           id: string;
           image_id: string | null;
           owner_id: string;
@@ -1150,6 +1151,7 @@ export type Database = {
           artwork_id?: string | null;
           comment?: string | null;
           created_at?: string;
+          holds?: boolean;
           id?: string;
           image_id?: string | null;
           owner_id?: string;
@@ -1164,6 +1166,7 @@ export type Database = {
           artwork_id?: string | null;
           comment?: string | null;
           created_at?: string;
+          holds?: boolean;
           id?: string;
           image_id?: string | null;
           owner_id?: string;

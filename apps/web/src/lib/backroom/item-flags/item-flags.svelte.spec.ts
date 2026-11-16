@@ -13,7 +13,9 @@ const flag = (id: string): StoredFlag => ({
 	termId: null,
 	symbolId: null,
 	imageId: null,
-	pinId: null
+	pinId: null,
+	holds: false,
+	mode: null
 });
 
 describe('ItemFlags', () => {

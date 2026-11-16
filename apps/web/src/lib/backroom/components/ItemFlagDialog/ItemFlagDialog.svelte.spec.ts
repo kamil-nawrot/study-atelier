@@ -24,7 +24,9 @@ const stored = {
 	termId: 'term-1',
 	symbolId: null,
 	imageId: null,
-	pinId: null
+	pinId: null,
+	holds: false,
+	mode: null
 };
 
 function renderDialog(): {

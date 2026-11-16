@@ -112,6 +112,7 @@ export function flagRows(
 				reason,
 				origin: originOf(flag, item.kind),
 				...(flag.comment ? { comment: flag.comment } : {}),
+				...(flag.holds ? { held: true } : {}),
 				entry: {
 					key: `flag:${flag.id}`,
 					path,

@@ -20,6 +20,10 @@ import { timeQuestions, withTimeImages } from '#lib/review/time-questions/time-q
 import type { ReviewDetails } from '#lib/review/types/review-details.ts';
 import type { ReviewScope } from '#lib/review/types/review-scope.ts';
 import type { SessionStep } from '#lib/review/types/session-step.ts';
+import type { Holds } from '#lib/review/types/holds.ts';
+import { NO_HOLDS, withoutHeld } from '#lib/review/holds/holds.ts';
+
+const RESERVE = 2;
 
 type ExtraInput = {
 	preferences: Preferences;
@@ -32,10 +36,12 @@ type ExtraInput = {
 	images: ResolvedImages;
 	times: ReturnType<typeof timeQuestions>;
 	now?: Date;
+	holds?: Holds;
 };
 
 type ExtraSteps = {
 	steps: SessionStep[];
+	reserve: SessionStep[];
 	details: Map<string, ReviewDetails>;
 	error?: string;
 };
@@ -43,8 +49,16 @@ type ExtraSteps = {
 export async function loadExtraSteps(input: ExtraInput): Promise<ExtraSteps> {
 	const { preferences, glossary, images } = input;
 	const now = input.now ?? new Date();
+	const holds = input.holds ?? NO_HOLDS;
 	const cards = await loadExtraCards();
-	const drawn = pickedTerms(glossary, cards.terms, definitionCount(preferences, glossary), now);
+	const termCount = definitionCount(preferences, glossary);
+	const symbolCount = preferences.reviewSymbolsOn ? preferences.reviewSymbolQuestions : 0;
+	const drawn = pickedTerms(
+		glossary.filter((term) => !holds.terms.has(term.id)),
+		cards.terms,
+		termCount > 0 ? termCount + RESERVE : 0,
+		now
+	);
 	const shownImages = images.resolve(input.shown);
 	const definedRead = loadTermDefinitions(drawn.map((term) => term.id));
 	const pairsRead = preferences.reviewPairsOn ? loadConfusedPairs() : Promise.resolve([]);
@@ -76,35 +90,41 @@ export async function loadExtraSteps(input: ExtraInput): Promise<ExtraSteps> {
 		),
 		definedRead,
 		loadSymbolSteps(
-			preferences.reviewSymbolsOn ? preferences.reviewSymbolQuestions : 0,
+			symbolCount > 0 ? symbolCount + RESERVE : 0,
 			glossary,
 			cards,
-			now
+			now,
+			holds.symbols
 		)
 	]);
+	const definitions = definitionItems(
+		withDefinitionsOf(drawn, defined.definitions),
+		glossary,
+		Math.random,
+		cards.terms
+	);
 	return {
 		details: found.details,
 		...(found.error ? { error: found.error } : {}),
-		steps: [
-			...definitionItems(
-				withDefinitionsOf(drawn, defined.definitions),
-				glossary,
-				Math.random,
-				cards.terms
-			),
-			...symbolSteps,
-			...gaps.map((gap) => ({ ...gap, artwork: images.withImage(gap.artwork) })),
-			...pairs.map((pair) => ({
-				...pair,
-				quiz: {
-					...pair.quiz,
-					options: pair.quiz.options.map((option) =>
-						option.artwork ? { ...option, artwork: images.withImage(option.artwork) } : option
-					)
-				}
-			})),
-			...relations.map((item) => ({ ...item, artwork: images.withImage(item.artwork) })),
-			...input.times.map((step) => withTimeImages(step, images.withImage))
-		]
+		reserve: [...definitions.slice(termCount), ...symbolSteps.slice(symbolCount)],
+		steps: withoutHeld(
+			[
+				...definitions.slice(0, termCount),
+				...symbolSteps.slice(0, symbolCount),
+				...gaps.map((gap) => ({ ...gap, artwork: images.withImage(gap.artwork) })),
+				...pairs.map((pair) => ({
+					...pair,
+					quiz: {
+						...pair.quiz,
+						options: pair.quiz.options.map((option) =>
+							option.artwork ? { ...option, artwork: images.withImage(option.artwork) } : option
+						)
+					}
+				})),
+				...relations.map((item) => ({ ...item, artwork: images.withImage(item.artwork) })),
+				...input.times.map((step) => withTimeImages(step, images.withImage))
+			],
+			holds
+		)
 	};
 }

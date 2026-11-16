@@ -13,6 +13,7 @@ export type FlagPayload = {
 	reason: FlagReason;
 	comment: string | null;
 	question?: FlagDraft['question'];
+	holds?: boolean;
 };
 
 function itemColumns(item: FlagItem, reason: FlagReason): Partial<FlagPayload> {
@@ -39,6 +40,7 @@ export function flagPayload(draft: FlagDraft): FlagPayload {
 		...itemColumns(draft.item, draft.reason),
 		reason: draft.reason,
 		comment: comment === '' ? null : comment,
-		...(draft.question ? { question: draft.question } : {})
+		...(draft.question ? { question: draft.question } : {}),
+		...(draft.holds === undefined ? {} : { holds: draft.holds })
 	};
 }

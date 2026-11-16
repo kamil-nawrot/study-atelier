@@ -12,6 +12,8 @@ function flag(extra: Partial<StoredFlag>): StoredFlag {
 		symbolId: null,
 		imageId: null,
 		pinId: null,
+		holds: false,
+		mode: null,
 		...extra
 	};
 }
