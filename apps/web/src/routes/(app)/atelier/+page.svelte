@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { SvelteSet } from 'svelte/reactivity';
+	import { snapshot } from '$app/navigation';
 	import { page } from '$app/state';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import FilterPanel from '#lib/wall/components/FilterPanel/FilterPanel.svelte';
@@ -11,7 +12,7 @@
 	import { WALL_PART } from '#lib/wall/masonry/masonry.ts';
 	import { WallView } from '#lib/wall/wall-view/wall-view.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
-	import type { PageProps, Snapshot } from './$types';
+	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
@@ -26,7 +27,8 @@
 	view.follow();
 	view.keepAddress();
 
-	export const snapshot: Snapshot<{ query: string; rendered: number; collapsed: string[] }> = {
+	snapshot<{ query: string; rendered: number; collapsed: string[] }>({
+		id: 'wall',
 		capture: () => ({ query, rendered, collapsed: [...collapsed] }),
 		restore: (value) => {
 			query = value.query;
@@ -34,7 +36,7 @@
 			collapsed.clear();
 			for (const key of value.collapsed ?? []) collapsed.add(key);
 		}
-	};
+	});
 </script>
 
 <AtelierLayout

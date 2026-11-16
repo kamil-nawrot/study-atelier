@@ -2,7 +2,7 @@
 	import { onMount, untrack } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { Alert, PageHeader, Toast } from '@study-atelier/ui';
-	import { goto, invalidateAll } from '$app/navigation';
+	import { goto, invalidateAll, snapshot } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
@@ -25,7 +25,7 @@
 	import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
 	import type { TimelineFilter } from '#lib/timeline/types/timeline-filter.ts';
 	import type { TimelinePlace } from '#lib/timeline/types/timeline-place.ts';
-	import type { PageProps, Snapshot } from './$types';
+	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
@@ -51,7 +51,8 @@
 		showSpans?: boolean;
 	};
 
-	export const snapshot: Snapshot<Saved> = {
+	snapshot<Saved>({
+		id: 'timeline',
 		capture: () => ({ place: timelineView?.capture(), filter, showEvents, showSpans }),
 		restore: (value) => {
 			filter = value.filter;
@@ -59,7 +60,7 @@
 			showSpans = value.showSpans ?? true;
 			if (value.place) timelineView?.restore(value.place);
 		}
-	};
+	});
 	let dialogOpen = $state(false);
 
 	const wide = new MediaQuery('min-width: 768px');
