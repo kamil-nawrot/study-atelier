@@ -60,7 +60,10 @@ describe('SessionSkip', () => {
 	it('replaces a wholly held artwork with a fresh one and passes on its details', async () => {
 		vi.mocked(loadItemFlags).mockResolvedValue([flag({ artworkId: jerome.id })]);
 		const next = { artwork: mona, card: null, mode: 'flashcard' as const };
-		vi.mocked(loadFreshItem).mockResolvedValue({ item: next, details: new Map([[mona.id, {}]]) });
+		const details = new Map([[mona.id, { notes: '' }]]) as Awaited<
+			ReturnType<typeof loadFreshItem>
+		>['details'];
+		vi.mocked(loadFreshItem).mockResolvedValue({ item: next, details });
 		const session = new ReviewSession(
 			[
 				{ artwork: jerome, card: null, mode: 'quiz_title', quiz },
@@ -74,7 +77,7 @@ describe('SessionSkip', () => {
 		await skip().skip(session, ondetails);
 
 		expect(session.queue).toEqual([next, { artwork: david, card: null, mode: 'flashcard' }]);
-		expect(ondetails).toHaveBeenCalledWith(new Map([[mona.id, {}]]));
+		expect(ondetails).toHaveBeenCalledWith(details);
 		expect(loadFreshItem).toHaveBeenCalledWith(
 			expect.objectContaining({ form: 'mixed', freeRound: undefined })
 		);
