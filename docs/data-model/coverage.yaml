@@ -821,7 +821,7 @@ decisions:
     decided: 'Q1 and Q2; X1 only if Q2 becomes slow. A tooltip loads its content on hover when it is one row by id (owner, 2026-10-31)'
   - id: D2
     question: 'Keep current.dbml in step with the migrations by a check in CI?'
-    recommended: 'yes: commit the generator and run it in the job that already applies the migrations to a local Supabase'
+    decided: 'yes: the generator is tools/data-model/generate-dbml.mjs and the Migrations workflow checks the file against the local Supabase (ATL-729)'
   - id: D3
     question: 'Next artwork preload (T4): code only, the core only, or as today?'
     decided: 'the core only (the artwork record), the rest after the flip; T13 dropped (owner, 2026-11-03, ATL-430)'

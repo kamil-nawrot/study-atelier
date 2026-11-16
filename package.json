@@ -28,6 +28,7 @@
 		"db:status": "supabase status",
 		"db:env": "supabase status -o env",
 		"db:try": "node tools/db-try/db-try.mjs",
+		"data-model": "node tools/data-model/generate-dbml.mjs",
 		"db:types": "supabase gen types --lang typescript --local --schema public | prettier --no-config --parser typescript > apps/web/src/lib/shared/data/database.types.ts"
 	},
 	"devDependencies": {
