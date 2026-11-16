@@ -141,10 +141,10 @@
 		duplicateCheck.answer(false);
 	});
 
-	function suggestionsFor(code: CategoryCode, existing: readonly string[]): ValueSuggestion[] {
+	function options(code: CategoryCode): ValueSuggestion[] {
 		return suggestValues({
 			query: form.queries[code],
-			existing,
+			existing: suggestions.categoryValues[code],
 			selected: form.values[code],
 			...(code === 'location'
 				? { starter: suggestions.placeStarter.museums, notes: suggestions.placeStarter.notes }
@@ -155,10 +155,6 @@
 	function wantSuggestions(event: FocusEvent): void {
 		const target = event.target as HTMLElement;
 		if (target.matches('[role="combobox"], [contenteditable="true"]')) void suggestions.load();
-	}
-
-	function options(code: CategoryCode): ValueSuggestion[] {
-		return suggestionsFor(code, suggestions.categoryValues[code]);
 	}
 
 	function chooseType(code: string | null): void {

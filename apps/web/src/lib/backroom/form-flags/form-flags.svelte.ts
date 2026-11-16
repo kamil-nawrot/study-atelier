@@ -31,13 +31,13 @@ export class FormFlags {
 	}
 
 	notes(field: FixField): FormNote[] {
-		const fixed = new Set(this.#fixed.map((flag) => flag.id));
+		const fixed = this.#fixed.map((flag) => flag.id);
 		return [...this.#items.list, ...this.#fixed.filter((flag) => !this.#has(flag.id))]
 			.filter((flag) => fieldOf(this.#kind, flag.reason) === field)
 			.map((flag) => ({
 				id: flag.id,
 				text: m.backroom.note(reasonText(flag.reason, flag.imageNumber), flag.comment ?? undefined),
-				fixed: fixed.has(flag.id)
+				fixed: fixed.includes(flag.id)
 			}));
 	}
 
