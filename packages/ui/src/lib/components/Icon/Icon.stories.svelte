@@ -40,7 +40,7 @@
 		tags: ['autodocs'],
 		args: { icon: Search, size: 'md' },
 		argTypes: {
-			size: { control: 'inline-radio', options: ['sm', 'md'] },
+			size: { control: 'inline-radio', options: ['xs', 'sm', 'md'] },
 			icon: { control: false }
 		}
 	});
@@ -84,6 +84,8 @@
 <Story name="Default" />
 
 <Story name="Small" args={{ size: 'sm' }} />
+
+<Story name="Extra small" args={{ size: 'xs' }} />
 
 <Story name="With label" args={{ icon: Trash, label: 'Move to trash' }} />
 

@@ -3,6 +3,7 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import GlossaryFormPage from '#lib/glossary/components/GlossaryFormPage/GlossaryFormPage.svelte';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
+	import FixBar from '#lib/backroom/components/FixBar/FixBar.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import type { PageProps } from './$types';
 
@@ -27,6 +28,7 @@
 	{#snippet bar()}
 		<BackLink fallbackHref={backPath} fallbackName={data.entry?.name ?? m.glossary.back} />
 		<h1 class="visually-hidden">{title}</h1>
+		<FixBar />
 	{/snippet}
 
 	<GlossaryFormPage bind:this={page} {backPath} {data} />

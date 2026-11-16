@@ -10,6 +10,7 @@
 	import { page } from '$app/state';
 	import { m } from '#lib/i18n/i18n.ts';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
+	import FixBar from '#lib/backroom/components/FixBar/FixBar.svelte';
 	import MoreActions from '#lib/shared/navigation/MoreActions/MoreActions.svelte';
 	import FlagButton, { flagAction } from '#lib/backroom/components/FlagButton/FlagButton.svelte';
 	import FlagDialog from '#lib/backroom/components/FlagDialog/FlagDialog.svelte';
@@ -52,6 +53,7 @@
 <AtelierLayout email={data.session.user.email ?? ''} {title}>
 	{#snippet bar()}
 		<BackLink fallbackHref={glossaryPath} fallbackName={m.glossary.back} />
+		<FixBar />
 		{#if symbol}
 			{#if symbol.meanings.length > 1}
 				{@const label = reordering ? m.symbols.view.reorderDone : m.symbols.view.reorder}

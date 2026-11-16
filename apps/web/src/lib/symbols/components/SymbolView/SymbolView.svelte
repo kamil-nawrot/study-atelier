@@ -2,6 +2,9 @@
 	import KeyRound from '@lucide/svelte/icons/key-round';
 	import { Alert, Disclosure, Icon, Toast } from '@study-atelier/ui';
 	import { invalidateAll } from '$app/navigation';
+	import { page as current } from '$app/state';
+	import FixNote from '#lib/backroom/components/FixNote/FixNote.svelte';
+	import { FixRoute } from '#lib/backroom/fix-route/fix-route.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { loadSymbolForm } from '#lib/symbols/symbol-page-data/symbol-page-data.ts';
 	import {
@@ -35,6 +38,7 @@
 	let { symbol, page, reordering = false }: Props = $props();
 
 	let toast: Toast;
+	const fix = new FixRoute(() => current.url.pathname);
 	let chosen = $state<{ pinId: string | null }>();
 	let pageError = $state<string>();
 	const coverPinId = $derived(chosen ? (chosen.pinId ?? undefined) : symbol.coverPinId);
@@ -74,6 +78,7 @@
 	async function saveMeaning(meaning: { text: string; contexts: SymbolContext[] }): Promise<void> {
 		if (await store(withMeaning(symbol, meaning, editing?.id), m.symbols.meaningDialog.saved)) {
 			dialogOpen = false;
+			await fix.afterSave();
 		}
 	}
 
@@ -151,6 +156,8 @@
 	{#if pageError}
 		<Alert tone="danger">{pageError}</Alert>
 	{/if}
+
+	<FixNote field="meanings" />
 
 	{#each page.sections as section, index (section.meaning.id)}
 		<SymbolMeaningSection
