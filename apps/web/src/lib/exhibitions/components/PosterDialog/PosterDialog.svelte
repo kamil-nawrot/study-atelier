@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
+	import { MediaQuery } from 'svelte/reactivity';
 	import { Alert, Button, Dialog, MetaLine, Tooltip } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { artworkImageSource } from '#lib/images/artwork-image/artwork-image.ts';
@@ -49,6 +50,9 @@
 	let choiceChanged = $state(false);
 	let busy = $state(false);
 	let error = $state<string>();
+	let sideHeight = $state(0);
+
+	const wide = new MediaQuery('min-width: 768px');
 
 	let shownId = $derived(draft.artworkId ?? artworkIds[0]);
 	let artwork = $derived(shownId ? lookup.get(shownId) : undefined);
@@ -119,7 +123,12 @@
 >
 	<div class="layout">
 		<div class="stage">
-			<div class="poster">
+			<div
+				style:width={wide.current && sideHeight > 0
+					? `calc((${sideHeight}px - 2 * var(--spacing-6)) * 4 / 5)`
+					: undefined}
+				class="poster"
+			>
 				<PosterFrame
 					crop={draft.crop}
 					filters={draft.filters}
@@ -130,7 +139,7 @@
 				/>
 			</div>
 		</div>
-		<div class="side">
+		<div class="side" bind:clientHeight={sideHeight}>
 			{#if error}
 				<Alert title={m.exhibitions.poster.saveErrorTitle} tone="danger">{error}</Alert>
 			{/if}
