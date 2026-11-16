@@ -5,28 +5,6 @@ import type { ArtworkFieldErrors } from '#lib/artworks/types/artwork-field-error
 import type { ArtworkInput } from '#lib/artworks/types/artwork-input.ts';
 import type { YearsInput } from '#lib/artworks/types/years-input.ts';
 
-export function emptyArtworkInput(): ArtworkInput {
-	return {
-		title: '',
-		authors: [],
-		authorUnknown: false,
-		yearFrom: null,
-		fromBeforeCommonEra: false,
-		yearTo: null,
-		toBeforeCommonEra: false,
-		yearApproximate: false,
-		typeCode: null,
-		eraCode: null,
-		period: null,
-		styles: [],
-		materials: [],
-		location: null,
-		notes: '',
-		image: null,
-		images: []
-	};
-}
-
 export function names(values: string[]): string[] {
 	return values.map(oneLine).filter((value) => value !== '');
 }

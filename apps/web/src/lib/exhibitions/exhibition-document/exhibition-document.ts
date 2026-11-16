@@ -47,16 +47,6 @@ export function isBlankText(node: ExhibitionDocument): boolean {
 	return node.type === 'textBlock' && (node.content ?? []).every((child) => !child.content?.length);
 }
 
-export function withEditableBody(document: ExhibitionDocument): ExhibitionDocument {
-	const content = document.content ?? [];
-	const last = content[content.length - 1];
-	if (last && isBlankText(last)) return document;
-	return {
-		...document,
-		content: [...content, { type: 'textBlock', content: [{ type: 'paragraph' }] }]
-	};
-}
-
 function numberText(value: number): string {
 	if (!Number.isFinite(value)) return 'null';
 	const text = String(value);

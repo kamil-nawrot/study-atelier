@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
-import { emptyArtworkInput, validateArtwork } from './artwork-record.ts';
+import { emptyArtworkInput } from '#lib/testing/artwork-input/artwork-input.ts';
+import { validateArtwork } from './artwork-record.ts';
 import type { ArtworkInput } from '#lib/artworks/types/artwork-input.ts';
 
 function input(overrides: Partial<ArtworkInput> = {}): ArtworkInput {
