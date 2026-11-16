@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { goto } from '$app/navigation';
+import { goto, snapshot } from '$app/navigation';
 import type { OwnField } from '#lib/card-index/types/own-field.ts';
 import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 import { m } from '#lib/i18n/i18n.ts';
@@ -23,7 +23,11 @@ vi.mock('$app/state', () => ({
 	navigating: { to: null },
 	updated: { current: false }
 }));
-vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidateAll: vi.fn() }));
+vi.mock('$app/navigation', () => ({ goto: vi.fn(), snapshot: vi.fn(), invalidateAll: vi.fn() }));
+
+type Registered = { capture: () => unknown; restore: (value: unknown) => void };
+const registered = (): Registered =>
+	vi.mocked(snapshot).mock.calls.at(-1)![0] as unknown as Registered;
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
@@ -358,10 +362,10 @@ describe('card index page', () => {
 		});
 		await page.getByRole('tab', { name: m.cardIndex.tabs.material }).click();
 		await page.getByRole('searchbox', { name: m.cardIndex.search.material }).fill('marb');
-		const saved = first.component.snapshot.capture();
+		const saved = registered().capture();
 		first.unmount();
 
-		const second = await render(ValuesPage, {
+		await render(ValuesPage, {
 			data: {
 				session: testSession(),
 				index,
@@ -372,7 +376,7 @@ describe('card index page', () => {
 			},
 			params: {}
 		});
-		second.component.snapshot.restore(saved);
+		registered().restore(saved);
 
 		await expect
 			.element(page.getByRole('tab', { name: m.cardIndex.tabs.material }))
@@ -400,10 +404,10 @@ describe('card index page', () => {
 		await expect.element(openValue('Material 2', 1)).not.toBeInTheDocument();
 		const place = Math.round((document.documentElement.scrollHeight - window.innerHeight) / 2);
 		window.scrollTo({ top: place, behavior: 'instant' });
-		const saved = first.component.snapshot.capture();
+		const saved = registered().capture();
 		first.unmount();
 
-		const second = await render(ValuesPage, {
+		await render(ValuesPage, {
 			data: {
 				session: testSession(),
 				index,
@@ -415,7 +419,7 @@ describe('card index page', () => {
 			params: {}
 		});
 		window.scrollTo({ top: place, behavior: 'instant' });
-		second.component.snapshot.restore(saved);
+		registered().restore(saved);
 		window.scrollTo({ top: place / 2, behavior: 'instant' });
 
 		await expect.element(openValue('Material 2', 1)).not.toBeInTheDocument();
@@ -424,7 +428,7 @@ describe('card index page', () => {
 	});
 
 	it('ignores a snapshot with a tab it does not know', async () => {
-		const shown = await render(ValuesPage, {
+		await render(ValuesPage, {
 			data: {
 				session: testSession(),
 				index: testCardIndex(),
@@ -436,7 +440,7 @@ describe('card index page', () => {
 			params: {}
 		});
 
-		shown.component.snapshot.restore({ tab: 'colours', query: 'x' });
+		registered().restore({ tab: 'colours', query: 'x' });
 
 		await expect
 			.element(page.getByRole('tab', { name: m.cardIndex.tabs.timeline }))

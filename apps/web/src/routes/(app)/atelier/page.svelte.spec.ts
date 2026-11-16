@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { goto, invalidateAll } from '$app/navigation';
+import { goto, invalidateAll, snapshot } from '$app/navigation';
 import { refreshExpiredImages } from '#lib/wall/wall-data/wall-data.ts';
 import { setFavourite } from '#lib/wall/favourite-data/favourite-data.ts';
 import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
@@ -41,7 +41,8 @@ vi.mock('$app/state', () => ({
 }));
 vi.mock('$app/navigation', () => ({
 	goto: vi.fn(),
-	invalidateAll: vi.fn()
+	invalidateAll: vi.fn(),
+	snapshot: vi.fn()
 }));
 vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({
 	refreshExpiredImages: vi.fn(),
@@ -60,6 +61,14 @@ const artworks = [
 	testArtwork(2, 'Starry Night', { authors: [], date: undefined }),
 	testArtwork(1, 'Night Watch', { image: undefined })
 ];
+
+type Registered = {
+	id: string;
+	capture: () => unknown;
+	restore: (value: unknown) => void;
+};
+const registered = (): Registered =>
+	vi.mocked(snapshot).mock.calls.at(-1)![0] as unknown as Registered;
 
 function renderAtelier(
 	list: WallArtwork[] = artworks,
@@ -126,6 +135,20 @@ describe('atelier page', () => {
 		await expect
 			.element(page.getByRole('link', { name: m.atelier.add }))
 			.toHaveAttribute('href', '/atelier/new');
+	});
+
+	it('keeps the search, the rendered part and the collapsed groups for the way back', async () => {
+		renderAtelier();
+
+		expect(registered().id).toBe('wall');
+		registered().restore({ query: 'starry', rendered: 40, collapsed: ['modern'] });
+
+		expect(registered().capture()).toEqual({
+			query: 'starry',
+			rendered: 40,
+			collapsed: ['modern']
+		});
+		await expect.element(page.getByText(m.atelier.filteredCount(1, 3))).toBeVisible();
 	});
 
 	it('filters by title ignoring case and diacritics', async () => {
