@@ -5,6 +5,7 @@ import type { ImageRow } from '#lib/images/types/image-row.ts';
 import { fragmentLenses } from '#lib/pins/fragment-lenses/fragment-lenses.ts';
 import type { PinFragment } from '#lib/pins/types/pin-fragment.ts';
 import type { Json } from '#lib/shared/data/database.types.ts';
+import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { isUuid } from '#lib/shared/utils/ids/ids.ts';
 import { isNameTakenError, symbolErrorMessage } from '#lib/symbols/errors/errors.ts';
@@ -133,13 +134,17 @@ type OptionRow = {
 };
 
 export async function loadSymbolOptions(): Promise<{ symbols: SymbolOption[]; error?: string }> {
-	const { data, error } = await supabase
-		.from('symbols')
-		.select('id, name, cover_pin_id, symbol_meanings(id, position, text)')
-		.order('name');
+	const { rows, error } = await fetchAll<OptionRow>((from, to) =>
+		supabase
+			.from('symbols')
+			.select('id, name, cover_pin_id, symbol_meanings(id, position, text)')
+			.order('name')
+			.order('id')
+			.range(from, to)
+	);
 	if (error) return { symbols: [], error: await failureMessage(error, symbolErrorMessage) };
 	return {
-		symbols: (data as unknown as OptionRow[]).map((row) => ({
+		symbols: rows.map((row) => ({
 			id: row.id,
 			name: row.name,
 			...(row.cover_pin_id ? { coverPinId: row.cover_pin_id } : {}),
@@ -185,14 +190,17 @@ function pinOf(row: PinRow): SymbolPin {
 }
 
 export async function loadSymbolPins(symbolId: string): Promise<SymbolPinsResult> {
-	const { data, error } = await supabase
-		.from('artwork_pins')
-		.select(PIN_COLUMNS)
-		.eq('symbol_id', symbolId)
-		.order('created_at')
-		.order('id');
+	const { rows, error } = await fetchAll<PinRow>((from, to) =>
+		supabase
+			.from('artwork_pins')
+			.select(PIN_COLUMNS)
+			.eq('symbol_id', symbolId)
+			.order('created_at')
+			.order('id')
+			.range(from, to)
+	);
 	if (error) return { pins: [], error: await failureMessage(error, symbolErrorMessage) };
-	return { pins: (data as unknown as PinRow[]).map(pinOf) };
+	return { pins: rows.map(pinOf) };
 }
 
 export async function saveSymbol(draft: SymbolDraft, existingId?: string): Promise<SaveResult> {

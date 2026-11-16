@@ -130,6 +130,9 @@ begin
   assert (select array_agg(kind || ':' || coalesce(record_number::text, id) || ':' || coalesce(title, '') order by kind)
       from public.note_link_labels(era_code => 'antiquity')) = array['artwork:2:Second', 'era:modern:'],
     'note_link_labels does not give the targets of a note';
+  assert (select array_agg(kind || ':' || coalesce(record_number::text, id)
+      ) from public.note_link_labels(era_code => 'antiquity')) = array['artwork:2', 'era:modern'],
+    'note_link_labels does not give its labels in a stable order';
   assert (select array_agg(kind || ':' || title) from public.note_link_labels(value_id => baroque))
       = array['artwork:First'],
     'note_link_labels does not give the targets of the notes of a value';

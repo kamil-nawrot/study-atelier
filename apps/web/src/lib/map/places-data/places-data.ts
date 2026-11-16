@@ -69,9 +69,8 @@ export async function setPlacePoint(
 ): Promise<{ error?: string }> {
 	const { error } = await supabase.rpc('set_place_point', {
 		place: placeId,
-		latitude: point?.latitude ?? null,
-		longitude: point?.longitude ?? null,
+		...(point ? { latitude: point.latitude, longitude: point.longitude } : {}),
 		...(wikidataId ? { wikidata_id: wikidataId } : {})
-	} as never);
+	});
 	return error ? { error: await failureMessage(error, () => m.map.saveFailed) } : {};
 }

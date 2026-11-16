@@ -8,9 +8,15 @@ const leonardo = { id: 'leonardo', name: 'Leonardo' };
 const verrocchio = { id: 'verrocchio', name: 'Verrocchio' };
 const raphael = { id: 'raphael', name: 'Raphael' };
 
-function query(result: unknown): { select: () => unknown; or: ReturnType<typeof vi.fn> } {
-	const or = vi.fn().mockResolvedValue(result);
-	const chain = { select: () => chain, or };
+function query(result: unknown): {
+	or: ReturnType<typeof vi.fn>;
+	order: ReturnType<typeof vi.fn>;
+	range: ReturnType<typeof vi.fn>;
+} {
+	const range = vi.fn().mockResolvedValue(result);
+	const order = vi.fn(() => chain);
+	const or = vi.fn(() => chain);
+	const chain = { select: () => chain, or, order, range };
 	vi.mocked(supabase.from).mockReturnValue(chain as never);
 	return chain;
 }
@@ -44,6 +50,8 @@ describe('loadAuthorRelations', () => {
 		});
 		expect(supabase.from).toHaveBeenCalledWith('author_relations');
 		expect(chain.or).toHaveBeenCalledWith('from_id.eq.leonardo,to_id.eq.leonardo');
+		expect(chain.order.mock.calls).toEqual([['from_id'], ['to_id']]);
+		expect(chain.range).toHaveBeenCalledWith(0, 999);
 	});
 
 	it('returns an error message when the query fails', async () => {

@@ -3,6 +3,7 @@ import { IMAGES_BUCKET, OWN_IMAGE_CACHE_SECONDS } from '#lib/images/bucket/bucke
 import { m } from '#lib/i18n/i18n.ts';
 import { isRowLimitError } from '#lib/shared/data/errors/errors.ts';
 import { forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
+import type { Json } from '#lib/shared/data/database.types.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import type { ExportRow } from '#lib/data-transfer/types/export-row.ts';
 import type { Upload } from '#lib/data-transfer/types/upload.ts';
@@ -36,7 +37,7 @@ export async function removeUploads(paths: string[]): Promise<void> {
 export async function importAtelier(
 	payload: Record<string, ExportRow[]>
 ): Promise<{ error?: string; notEmpty?: boolean }> {
-	const { error } = await supabase.rpc('import_atelier', { payload: payload as never });
+	const { error } = await supabase.rpc('import_atelier', { payload: payload as Json });
 	forgetCached();
 	if (!error) return {};
 	if (error.code === '55000') return { error: m.settings.data.importNotEmpty, notEmpty: true };

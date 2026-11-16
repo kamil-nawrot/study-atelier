@@ -28,6 +28,7 @@ const query = {
 	delete: vi.fn(),
 	eq: vi.fn(),
 	order: vi.fn(),
+	range: vi.fn(),
 	maybeSingle: vi.fn(),
 	abortSignal: vi.fn()
 };
@@ -47,7 +48,10 @@ const image = {
 function chain(result: unknown): void {
 	for (const method of ['select', 'delete', 'eq'] as const) query[method].mockReturnValue(query);
 	let orders = 0;
-	query.order.mockImplementation(() => (++orders === 2 ? Promise.resolve(result) : query));
+	query.range.mockResolvedValue(result);
+	query.order.mockImplementation(() =>
+		++orders === 2 ? Object.assign(Promise.resolve(result), { range: query.range }) : query
+	);
 	query.maybeSingle.mockResolvedValue(result);
 	vi.mocked(supabase.from).mockReturnValue(query as never);
 }
@@ -397,7 +401,8 @@ describe('symbols data', () => {
 			],
 			error: null
 		});
-		query.order.mockReset().mockResolvedValue({
+		query.order.mockReset().mockReturnValue(query);
+		query.range.mockResolvedValue({
 			data: [
 				{
 					id: 'keys',
@@ -412,7 +417,8 @@ describe('symbols data', () => {
 			error: null
 		});
 
-		await expect(loadSymbolOptions()).resolves.toEqual({
+		const options = loadSymbolOptions();
+		await expect(options).resolves.toEqual({
 			symbols: [
 				{
 					id: 'keys',
@@ -425,12 +431,13 @@ describe('symbols data', () => {
 				}
 			]
 		});
+		expect(query.order.mock.calls).toEqual([['name'], ['id']]);
+		expect(query.range).toHaveBeenCalledWith(0, 999);
 	});
 
 	it('says so when the symbol options cannot be loaded', async () => {
-		query.order
-			.mockReset()
-			.mockResolvedValue({ data: null, error: { message: 'Failed to fetch' } });
+		query.order.mockReset().mockReturnValue(query);
+		query.range.mockResolvedValue({ data: null, error: { message: 'Failed to fetch' } });
 
 		await expect(loadSymbolOptions()).resolves.toEqual({ symbols: [], error: m.common.network });
 	});
