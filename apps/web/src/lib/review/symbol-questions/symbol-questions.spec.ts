@@ -2,9 +2,10 @@ import { describe, expect, it } from 'vitest';
 import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
 import type { SymbolQuestionPin } from '#lib/symbols/types/symbol-question-pin.ts';
-import { NO_EXTRA_CARDS } from '#lib/review/extra-cards/extra-cards.ts';
 import type { ExtraCard } from '#lib/review/types/extra-card.ts';
-import { pickedSymbolQuestions, possibleQuestions, symbolItems } from './symbol-questions.ts';
+import type { RoundSymbol } from '#lib/review/types/round-symbol.ts';
+import type { SymbolQuestionKind } from '#lib/review/types/symbol-question-kind.ts';
+import { possibleQuestions, roundSymbolQuestions, symbolItems } from './symbol-questions.ts';
 
 const symbols: SymbolOption[] = ['Lily', 'Skull', 'Keys', 'Dove', 'Globe'].map((name, index) => ({
 	id: `symbol-${index}`,
@@ -27,15 +28,20 @@ function pin(id: string, extra: Partial<SymbolQuestionPin> = {}): SymbolQuestion
 }
 
 const first = (): number => 0;
-const now = new Date('2026-11-16T12:00:00');
+function round(
+	pinId: string,
+	kind: SymbolQuestionKind = 'symbol',
+	card: ExtraCard | null = null
+): RoundSymbol {
+	return { symbolId: 'symbol-keys', pinId, kind, card };
+}
 
 function picked(
 	pins: SymbolQuestionPin[],
-	count: number,
-	cards = NO_EXTRA_CARDS,
+	symbolsOfRound: RoundSymbol[],
 	options: SymbolOption[] = symbols
-): ReturnType<typeof pickedSymbolQuestions> {
-	return pickedSymbolQuestions(pins, options, persons, count, cards, now, first);
+): ReturnType<typeof roundSymbolQuestions> {
+	return roundSymbolQuestions(symbolsOfRound, pins, options, persons, first);
 }
 
 function card(symbolId: string, due: string): ExtraCard {
@@ -58,7 +64,7 @@ function card(symbolId: string, due: string): ExtraCard {
 
 describe('symbol questions', () => {
 	it('asks for the symbol with three other names', () => {
-		const [question] = picked([pin('p1')], 1);
+		const [question] = picked([pin('p1')], [round('p1')]);
 
 		expect(question.kind).toBe('symbol');
 		expect(question.right).toBe('Keys');
@@ -67,36 +73,34 @@ describe('symbol questions', () => {
 		expect(question.card).toBeNull();
 	});
 
-	it('asks the kind of question asked least recently for the symbol', () => {
+	it('asks the kind the round picked on its pin, with the card of the symbol', () => {
 		const withMeaning = pin('p1', {
 			meaning: { id: 'meaning-2', text: 'Meaning of Keys', persons: ['Peter'] }
 		});
-		const asked = (kinds: Record<string, number>): typeof NO_EXTRA_CARDS => ({
-			...NO_EXTRA_CARDS,
-			askedKinds: new Map([['symbol-keys', kinds]])
-		});
+		const due = card('symbol-keys', '2026-11-14T08:00:00');
 
-		expect(picked([withMeaning], 1)[0].kind).toBe('symbol');
-		expect(picked([withMeaning], 1, asked({ symbol: 10 }))[0].kind).toBe('meaning');
-		expect(picked([withMeaning], 1, asked({ symbol: 10, meaning: 20 }))[0].kind).toBe('attribute');
-		expect(picked([pin('p2')], 1, asked({ symbol: 10, meaning: 5 }))[0].kind).toBe('symbol');
+		const [meaning] = picked([withMeaning], [round('p1', 'meaning', due)]);
+		const [attribute] = picked([withMeaning], [round('p1', 'attribute')]);
+
+		expect(meaning).toMatchObject({ kind: 'meaning', right: 'Meaning of Keys' });
+		expect(meaning.card?.id).toBe('card-symbol-keys');
+		expect(attribute).toMatchObject({ kind: 'attribute', right: 'Peter' });
 	});
 
-	it('asks a due symbol first with its card and a new one in the place left', () => {
+	it('keeps the order of the round and leaves out a pin not loaded or a kind it cannot build', () => {
 		const lily = pin('p2', { symbolId: 'symbol-lily', symbolName: 'Lily' });
-		const dove = pin('p3', { symbolId: 'symbol-dove', symbolName: 'Dove' });
-		const cards = {
-			...NO_EXTRA_CARDS,
-			symbols: new Map([
-				['symbol-lily', card('symbol-lily', '2026-11-14T08:00:00')],
-				['symbol-dove', card('symbol-dove', '2026-12-01T08:00:00')]
-			])
-		};
 
-		const questions = picked([pin('p1'), lily, dove], 2, cards);
+		const questions = picked(
+			[pin('p1'), lily],
+			[
+				{ ...round('p2'), symbolId: 'symbol-lily' },
+				round('gone'),
+				round('p1', 'meaning'),
+				round('p1')
+			]
+		);
 
 		expect(questions.map((question) => question.pin.symbolName)).toEqual(['Lily', 'Keys']);
-		expect(questions[0].card?.id).toBe('card-symbol-lily');
 	});
 
 	it('never offers another person of the same meaning as a wrong attribute', () => {
@@ -125,16 +129,11 @@ describe('symbol questions', () => {
 	it('skips a question without four sensible answers', () => {
 		const few = symbols.slice(0, 3);
 
-		expect(picked([pin('p1')], 1, NO_EXTRA_CARDS, few)).toEqual([]);
-	});
-
-	it('draws nothing for a count of zero and one question per symbol', () => {
-		expect(picked([pin('p1')], 0)).toEqual([]);
-		expect(picked([pin('p1'), pin('p2')], 3)).toHaveLength(1);
+		expect(picked([pin('p1')], [round('p1')], few)).toEqual([]);
 	});
 
 	it('builds items whose right answer is among the shuffled options', () => {
-		const questions = picked([pin('p1')], 1);
+		const questions = picked([pin('p1')], [round('p1')]);
 		const [item] = symbolItems(questions, new Map(), first);
 
 		expect(item.mode).toBe('quiz_symbol');

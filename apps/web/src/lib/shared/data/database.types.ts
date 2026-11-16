@@ -2197,6 +2197,10 @@ export type Database = {
         };
         Returns: string;
       };
+      extra_round: {
+        Args: { day_start: string; reserve?: number };
+        Returns: Json;
+      };
       flag_count: { Args: Record<PropertyKey, never>; Returns: number };
       import_atelier: { Args: { payload: Json }; Returns: Json };
       keep_alive: { Args: Record<PropertyKey, never>; Returns: string };

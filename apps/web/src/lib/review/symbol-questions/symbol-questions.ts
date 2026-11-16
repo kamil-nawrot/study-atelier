@@ -1,7 +1,6 @@
 import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
-import { dueFirst, leastAskedKind } from '#lib/review/extra-cards/extra-cards.ts';
 import type { ExtraCard } from '#lib/review/types/extra-card.ts';
-import type { ExtraCards } from '#lib/review/types/extra-cards.ts';
+import type { RoundSymbol } from '#lib/review/types/round-symbol.ts';
 import { shuffle, shuffleQuiz } from '#lib/review/quiz/quiz.ts';
 import type { SymbolItem } from '#lib/review/types/symbol-item.ts';
 import type { SymbolQuestionKind } from '#lib/review/types/symbol-question-kind.ts';
@@ -67,35 +66,21 @@ export function possibleQuestions(
 	});
 }
 
-export function pickedSymbolQuestions(
+export function roundSymbolQuestions(
+	picked: readonly RoundSymbol[],
 	pins: readonly SymbolQuestionPin[],
 	symbols: readonly SymbolOption[],
 	glossary: readonly GlossaryTerm[],
-	count: number,
-	cards: Pick<ExtraCards, 'symbols' | 'askedKinds'>,
-	now: Date,
 	random: () => number = Math.random
 ): SymbolQuestion[] {
-	if (count <= 0) return [];
 	const pool = poolOf(symbols, glossary);
-	const bySymbol = new Map<string, SymbolQuestion[]>();
-	for (const pin of pins) {
-		const questions = possibleQuestions(pin, pool, random);
-		if (questions.length > 0)
-			bySymbol.set(pin.symbolId, [...(bySymbol.get(pin.symbolId) ?? []), ...questions]);
-	}
-	const picked = dueFirst([...bySymbol.keys()], (id) => cards.symbols.get(id), count, now, random);
-	return picked.flatMap(({ item: symbolId, card }) => {
-		const questions = bySymbol.get(symbolId) ?? [];
-		const kind = leastAskedKind(
-			[...new Set(questions.map((question) => question.kind))],
-			cards.askedKinds.get(symbolId)
-		);
-		const ofKind = shuffle(
-			questions.filter((question) => question.kind === kind),
-			random
-		);
-		return ofKind[0] ? [{ ...ofKind[0], card }] : [];
+	const byId = new Map(pins.map((pin) => [pin.pinId, pin]));
+	return picked.flatMap(({ pinId, kind, card }) => {
+		const pin = byId.get(pinId);
+		const question = pin
+			? possibleQuestions(pin, pool, random).find((possible) => possible.kind === kind)
+			: undefined;
+		return question ? [{ ...question, card }] : [];
 	});
 }
 
