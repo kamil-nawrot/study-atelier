@@ -54,6 +54,29 @@ describe('scheduler', () => {
 		expect(forgotten.due.getTime() - card.due.getTime()).toBeGreaterThanOrEqual(day);
 	});
 
+	it('never schedules a review more than a year ahead', () => {
+		const settled: ReviewCard = {
+			artworkId: 'artwork-1',
+			due: now,
+			stability: 900,
+			difficulty: 3,
+			state: 2,
+			reps: 12,
+			lapses: 0,
+			scheduledDays: 300,
+			learningSteps: 0,
+			lastReview: new Date(now.getTime() - 900 * day),
+			lastRating: 2
+		};
+		for (const next of Object.values(outcomes('artwork-1', settled, now))) {
+			expect(next.scheduledDays).toBeLessThanOrEqual(365);
+			expect(next.due.getTime() - now.getTime()).toBeLessThanOrEqual(365 * day);
+		}
+		const good = schedule('artwork-1', settled, 3, now).scheduledDays;
+		expect(good).toBeGreaterThan(300);
+		expect(good).toBeLessThanOrEqual(365);
+	});
+
 	it('counts a right quiz answer as hard and a wrong one as forgotten', () => {
 		expect(quizRating(true)).toBe(2);
 		expect(quizRating(false)).toBe(1);
