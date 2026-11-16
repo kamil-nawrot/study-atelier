@@ -18,7 +18,21 @@ export default defineConfig({
 				runes: ({ filename }) =>
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
-			adapter: adapter({ platformProxy: { persist: false } }),
+			adapter: adapter({
+				platformProxy: { persist: false },
+				routes: {
+					include: ['/*'],
+					exclude: [
+						'<build>',
+						'/exhibits/*',
+						'/icons/*',
+						'/map/*',
+						'/manifest.webmanifest',
+						'/og-image.png',
+						'/robots.txt'
+					]
+				}
+			}),
 			version: { pollInterval: 10 * 60 * 1000 }
 		}),
 		sentryAuthToken

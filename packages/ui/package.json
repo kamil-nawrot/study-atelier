@@ -3,6 +3,9 @@
 	"private": true,
 	"version": "0.24.1",
 	"type": "module",
+	"sideEffects": [
+		"**/*.css"
+	],
 	"exports": {
 		".": {
 			"types": "./src/lib/index.ts",
