@@ -908,9 +908,9 @@ export type Database = {
           due: string;
           glossary_entry_id: string | null;
           id: string;
+          lapses: number;
           last_rating: number | null;
           last_review: string | null;
-          lapses: number;
           learning_steps: number;
           owner_id: string;
           reps: number;
@@ -919,15 +919,16 @@ export type Database = {
           state: number;
           symbol_id: string | null;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           difficulty: number;
           due: string;
           glossary_entry_id?: string | null;
           id?: string;
+          lapses?: number;
           last_rating?: number | null;
           last_review?: string | null;
-          lapses?: number;
           learning_steps?: number;
           owner_id?: string;
           reps?: number;
@@ -942,9 +943,9 @@ export type Database = {
           due?: string;
           glossary_entry_id?: string | null;
           id?: string;
+          lapses?: number;
           last_rating?: number | null;
           last_review?: string | null;
-          lapses?: number;
           learning_steps?: number;
           owner_id?: string;
           reps?: number;
@@ -953,7 +954,22 @@ export type Database = {
           state?: number;
           symbol_id?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "extra_cards_glossary_entry_id_owner_id_fkey";
+            columns: ["glossary_entry_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "glossary_entries";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "extra_cards_symbol_id_owner_id_fkey";
+            columns: ["symbol_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "symbols";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
       };
       extra_review_log: {
         Row: {
@@ -969,12 +985,13 @@ export type Database = {
           reviewed_at: string;
           wrong_answer: string | null;
         };
+        ComputedFields: never;
         Insert: {
           answer_ms?: number | null;
           card_id: string;
           correct: boolean;
           due_before?: string | null;
-          id?: number;
+          id?: never;
           mode: string;
           owner_id?: string;
           practice?: boolean;
@@ -987,7 +1004,7 @@ export type Database = {
           card_id?: string;
           correct?: boolean;
           due_before?: string | null;
-          id?: number;
+          id?: never;
           mode?: string;
           owner_id?: string;
           practice?: boolean;
@@ -995,7 +1012,15 @@ export type Database = {
           reviewed_at?: string;
           wrong_answer?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "extra_review_log_card_id_owner_id_fkey";
+            columns: ["card_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "extra_cards";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
       };
       feedback: {
         Row: {
