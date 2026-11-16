@@ -24,6 +24,18 @@ describe('flag tiles', () => {
 		]);
 	});
 
+	it('marks the reasons already flagged', () => {
+		expect(
+			groupTiles(
+				{ item: { kind: 'term', id: 't', name: 'Vanitas' }, reasons: ['hidden', 'other'] },
+				(reason) => reason === 'other'
+			)
+		).toEqual([
+			{ value: 'hidden', label: m.backroom.reasons.hidden },
+			{ value: 'other', label: m.backroom.reasons.other, note: m.backroom.marked }
+		]);
+	});
+
 	it('numbers the pins to choose from', () => {
 		expect(pinTiles([{ id: 'p', imageId: 'i', number: 2, name: 'Skull' }])).toEqual([
 			{ value: 'p', label: m.pins.marker(2, 'Skull') }

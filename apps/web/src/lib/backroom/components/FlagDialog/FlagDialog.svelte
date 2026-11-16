@@ -3,6 +3,8 @@
 	import { Alert, Button, ChoiceTiles, Dialog, Form, TextArea } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { saveFlag } from '#lib/backroom/flags-data/flags-data.ts';
+	import { deleteFlag } from '#lib/backroom/backroom-data/backroom-data.ts';
+	import { flagOf } from '#lib/backroom/flag-match/flag-match.ts';
 	import { flagCount } from '#lib/backroom/flag-count/flag-count.svelte.ts';
 	import { FLAG_COMMENT_MAX, commentMissing } from '#lib/backroom/flag-payload/flag-payload.ts';
 	import { groupLabel, groupTiles, pinTiles } from '#lib/backroom/flag-tiles/flag-tiles.ts';
@@ -11,16 +13,27 @@
 	import type { FlagItem } from '#lib/backroom/types/flag-item.ts';
 	import type { FlagQuestion } from '#lib/backroom/types/flag-question.ts';
 	import type { FlagReason } from '#lib/backroom/types/flag-reason.ts';
+	import type { StoredFlag } from '#lib/backroom/types/stored-flag.ts';
 
 	type Props = {
 		open?: boolean;
 		groups: readonly FlagGroup[];
 		question?: FlagQuestion;
 		pins?: readonly FlagChoicePin[];
+		flags?: readonly StoredFlag[];
 		onflagged: (message: string) => void;
+		onchange?: () => void;
 	};
 
-	let { open = $bindable(false), groups, question, pins = [], onflagged }: Props = $props();
+	let {
+		open = $bindable(false),
+		groups,
+		question,
+		pins = [],
+		flags = [],
+		onflagged,
+		onchange
+	}: Props = $props();
 
 	const formId = $props.id();
 
@@ -35,6 +48,11 @@
 	let choosingPin = $derived(
 		chosen?.reason === 'pin' && chosenItem?.kind === 'artwork' && !chosenItem.pin && pins.length > 0
 	);
+	let existing = $derived(
+		chosen && chosenItem
+			? flagOf(flags, chosenItem, chosen.reason, choosingPin ? (pinId ?? undefined) : undefined)
+			: undefined
+	);
 
 	$effect(() => {
 		if (open) untrack(reset);
@@ -48,9 +66,39 @@
 		failure = undefined;
 	}
 
-	function choose(group: number, value: string | null): void {
-		chosen = value ? { group, reason: value as FlagReason } : undefined;
+	function prefill(change: () => void): void {
+		const filled = existing !== undefined;
+		change();
 		commentError = undefined;
+		if (existing) comment = existing.comment ?? '';
+		else if (filled) comment = '';
+	}
+
+	function choose(group: number, value: string | null): void {
+		prefill(() => (chosen = value ? { group, reason: value as FlagReason } : undefined));
+	}
+
+	function marked(group: FlagGroup): (reason: FlagReason) => boolean {
+		return (reason) => flagOf(flags, group.item, reason) !== undefined;
+	}
+
+	function settled(message: string): void {
+		open = false;
+		void flagCount.refresh();
+		onchange?.();
+		onflagged(message);
+	}
+
+	async function withdraw(): Promise<void> {
+		if (saving || !existing) return;
+		saving = true;
+		const result = await deleteFlag(existing.id);
+		saving = false;
+		if (result.error) {
+			failure = result.error;
+			return;
+		}
+		settled(m.backroom.withdrawn);
 	}
 
 	function itemOf(item: FlagItem): FlagItem {
@@ -78,9 +126,7 @@
 			failure = result.error;
 			return;
 		}
-		open = false;
-		if (result.created) void flagCount.refresh();
-		onflagged(result.created ? m.backroom.flagged : m.backroom.changed);
+		settled(result.created ? m.backroom.flagged : m.backroom.changed);
 	}
 </script>
 
@@ -97,7 +143,7 @@
 				label={groupLabel(group.item)}
 				narrowColumns={1}
 				onchange={(value) => choose(index, value)}
-				options={groupTiles(group)}
+				options={groupTiles(group, marked(group))}
 				value={chosen?.group === index ? chosen.reason : null}
 			/>
 		{/each}
@@ -106,7 +152,7 @@
 				columns={1}
 				label={m.backroom.pinChoice}
 				narrowColumns={1}
-				onchange={(value) => (pinId = value)}
+				onchange={(value) => prefill(() => (pinId = value))}
 				options={pinTiles(pins)}
 				value={pinId}
 			/>
@@ -121,11 +167,16 @@
 		/>
 	</Form>
 	{#snippet footer()}
+		{#if existing}
+			<Button disabled={saving} onclick={withdraw}>
+				{m.backroom.withdraw}
+			</Button>
+		{/if}
 		<Button onclick={() => (open = false)}>
 			{m.common.cancel}
 		</Button>
 		<Button disabled={saving || !chosen} form={formId} type="submit" variant="primary">
-			{saving ? m.backroom.confirming : m.backroom.confirm}
+			{saving ? m.backroom.confirming : existing ? m.backroom.saveChanges : m.backroom.confirm}
 		</Button>
 	{/snippet}
 </Dialog>

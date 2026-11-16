@@ -14,6 +14,14 @@ describe('FlagButton', () => {
 		expect(onclick).toHaveBeenCalledOnce();
 	});
 
+	it('says how many flags the item already has', async () => {
+		render(FlagButton, { onclick: vi.fn(), count: 2 });
+
+		await expect
+			.element(page.getByRole('button', { name: m.backroom.markedCount(2) }))
+			.toBeVisible();
+	});
+
 	it('gives the same flag to the more actions of a phone', () => {
 		const onclick = vi.fn();
 		const action = flagAction(onclick);
@@ -21,6 +29,7 @@ describe('FlagButton', () => {
 		action.onclick?.();
 
 		expect(action.label).toBe(m.backroom.flag);
+		expect(flagAction(onclick, 1).label).toBe(m.backroom.markedCount(1));
 		expect(onclick).toHaveBeenCalledOnce();
 	});
 });

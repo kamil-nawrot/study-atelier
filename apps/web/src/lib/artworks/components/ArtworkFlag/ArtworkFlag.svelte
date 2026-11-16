@@ -1,5 +1,5 @@
 <script lang="ts">
-	import FlagDialog from '#lib/backroom/components/FlagDialog/FlagDialog.svelte';
+	import ItemFlagDialog from '#lib/backroom/components/ItemFlagDialog/ItemFlagDialog.svelte';
 	import { artworkFlagGroup, stagePins } from '#lib/artworks/artwork-flag/artwork-flag.ts';
 	import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
@@ -14,6 +14,7 @@
 		glossary?: readonly GlossaryTerm[];
 		symbols?: readonly SymbolOption[];
 		onflagged: (message: string) => void;
+		oncount?: (count: number) => void;
 	};
 
 	let {
@@ -23,11 +24,19 @@
 		pins = [],
 		glossary,
 		symbols,
-		onflagged
+		onflagged,
+		oncount
 	}: Props = $props();
 
 	let choices = $derived(stagePins(pins, imageId, { glossary, symbols }));
 	let groups = $derived([artworkFlagGroup(artwork, imageId, choices.length)]);
 </script>
 
-<FlagDialog {groups} {onflagged} pins={choices} bind:open />
+<ItemFlagDialog
+	flagsOf={{ artworkId: artwork.id }}
+	{groups}
+	{oncount}
+	{onflagged}
+	pins={choices}
+	bind:open
+/>
