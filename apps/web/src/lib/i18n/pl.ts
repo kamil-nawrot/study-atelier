@@ -1429,11 +1429,15 @@ export const pl = {
 			invalid: 'Flaga jest niepoprawna. Sprawdź powód i komentarz.'
 		},
 		title: 'Zaplecze',
-		lead: 'Tu czeka to, co oznaczysz flagą w powtórce albo w widokach, i dane, których brakuje w atelier. Popraw je po kolei albo wybierz jedną pozycję.',
+		lead: 'Na Zapleczu gromadzą się dzieła i kartki ze Słowniczka, które wymagają poprawki – zarówno te oflagowane przez Ciebie, jak i te z brakami w informacjach. Możesz tutaj zająć się ich porządkowaniem i uzupełnianiem.',
 		menuCount: (count: number): string => `${count} do poprawki`,
 		tabs: { flags: 'Twoje flagi', missing: 'Braki danych' },
 		fixAll: 'Poprawiaj po kolei',
 		fix: 'Popraw',
+		markFixed: 'Oznacz jako poprawione',
+		markedFixed: 'Oznaczono jako poprawione.',
+		undo: 'Cofnij',
+		fixErrorTitle: 'Nie udało się zmienić flagi',
 		imageNumber: (number: number): string => `obraz ${number}`,
 		origins: {
 			question: (question: string): string => `z pytania „${question}”`,
@@ -1456,9 +1460,9 @@ export const pl = {
 		progress: (position: number, total: number): string => `${position} z ${total}`,
 		skip: 'Pomiń',
 		finish: 'Zakończ',
-		saveNext: 'Zapisz i dalej',
+		saveNext: 'Zapisz i popraw kolejne',
 		note: (reason: string, comment?: string): string =>
-			comment ? `${reason} · „${comment}”` : reason,
+			comment ? `${reason}: „${comment}”` : reason,
 		done: (count: number): string => `To już wszystko. Poprawione pozycje: ${count}.`
 	},
 	pins: {

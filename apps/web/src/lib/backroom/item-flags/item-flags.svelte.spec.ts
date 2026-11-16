@@ -14,6 +14,8 @@ const flag = (id: string): StoredFlag => ({
 	symbolId: null,
 	imageId: null,
 	pinId: null,
+	imageNumber: null,
+	question: null,
 	holds: false,
 	mode: null
 });

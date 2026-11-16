@@ -1,8 +1,9 @@
 <script lang="ts">
 	import BookA from '@lucide/svelte/icons/book-a';
+	import Check from '@lucide/svelte/icons/check';
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Shapes from '@lucide/svelte/icons/shapes';
-	import { Button, Icon, MetaLine } from '@study-atelier/ui';
+	import { Button, Icon, Tag } from '@study-atelier/ui';
 	import type { ResolvedPathname } from '$app/types';
 	import type { BackroomRow } from '#lib/backroom/types/backroom-row.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -11,10 +12,12 @@
 	type Props = {
 		rows: readonly BackroomRow[];
 		onfix: (index: number) => void;
+		onfixed?: (row: BackroomRow) => void;
+		busy?: string;
 		onimage?: (artwork: WallArtwork) => void;
 	};
 
-	let { rows, onfix, onimage }: Props = $props();
+	let { rows, onfix, onfixed, busy, onimage }: Props = $props();
 
 	$effect(() => {
 		for (const row of rows) if (row.artwork?.pendingImage) onimage?.(row.artwork);
@@ -48,22 +51,39 @@
 					<span class="name">{row.title}</span>
 				{/if}
 				<span class="reason">{row.reason}</span>
-				{#if row.origin || row.comment}
-					<MetaLine
-						class="meta"
-						parts={[row.origin, row.held && m.backroom.held, row.comment && `„${row.comment}”`]}
-					/>
+				{#if row.origin || row.held}
+					<span class="tags">
+						{#if row.origin}<Tag>{row.origin}</Tag>{/if}
+						{#if row.held}<Tag>{m.backroom.held}</Tag>{/if}
+					</span>
+				{/if}
+				{#if row.comment}
+					<span class="comment">„{row.comment}”</span>
 				{/if}
 			</div>
-			<Button
-				aria-label={m.backroom.fix}
-				compact
-				href={row.entry.path as ResolvedPathname}
-				icon={Pencil}
-				onclick={() => onfix(index)}
-			>
-				{m.backroom.fix}
-			</Button>
+			<div class="actions">
+				{#if row.flag && onfixed}
+					{@const flag = row.flag}
+					<Button
+						aria-label={m.backroom.markFixed}
+						compact
+						disabled={busy === flag.id}
+						icon={Check}
+						onclick={() => onfixed(row)}
+					>
+						{m.backroom.markFixed}
+					</Button>
+				{/if}
+				<Button
+					aria-label={m.backroom.fix}
+					compact
+					href={row.entry.path as ResolvedPathname}
+					icon={Pencil}
+					onclick={() => onfix(index)}
+				>
+					{m.backroom.fix}
+				</Button>
+			</div>
 		</li>
 	{/each}
 </ul>
@@ -125,8 +145,21 @@
 		font-size: var(--font-size-sm);
 	}
 
-	.text > :global(.meta) {
+	.tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--spacing-1);
+	}
+
+	.comment {
 		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
+		font-size: var(--font-size-sm);
+	}
+
+	.actions {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+		gap: var(--spacing-2);
 	}
 </style>

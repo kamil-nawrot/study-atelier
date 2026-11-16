@@ -3,11 +3,16 @@
 	import ListChecks from '@lucide/svelte/icons/list-checks';
 	import { onMount } from 'svelte';
 	import { Alert, Button, EmptyState, PageHeader, Tabs, Toast } from '@study-atelier/ui';
+	import { refreshAll } from '$app/navigation';
 	import type { ResolvedPathname } from '$app/types';
+	import { deleteFlag } from '#lib/backroom/backroom-data/backroom-data.ts';
+	import { restoreFlag } from '#lib/backroom/flags-data/flags-data.ts';
+	import { fixStart } from '#lib/backroom/fix-entries/fix-entries.ts';
 	import BackroomList from '#lib/backroom/components/BackroomList/BackroomList.svelte';
 	import { flagRows, missingRows } from '#lib/backroom/backroom-rows/backroom-rows.ts';
 	import { flagCount } from '#lib/backroom/flag-count/flag-count.svelte.ts';
 	import { fixSession } from '#lib/backroom/fix-session/fix-session.svelte.ts';
+	import type { BackroomRow } from '#lib/backroom/types/backroom-row.ts';
 	import type { BackroomTerm } from '#lib/backroom/types/backroom-term.ts';
 	import type { FlagRecord } from '#lib/backroom/types/flag-record.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -31,7 +36,16 @@
 		{ value: 'missing', label: m.backroom.tabs.missing }
 	];
 
-	let flagged = $derived(flagRows(flags, artworks, terms));
+	let fixed = $state<string[]>([]);
+	let busy = $state<string>();
+	let failure = $state<string>();
+	let flagged = $derived(
+		flagRows(
+			flags.filter((flag) => !fixed.includes(flag.id)),
+			artworks,
+			terms
+		)
+	);
 	let missing = $derived(missingRows(artworks, terms));
 	let shown = $derived(tab === 'flags' ? flagged : missing);
 
@@ -42,17 +56,44 @@
 	});
 
 	function fix(index: number, queue: boolean): void {
-		fixSession.start(
+		const start = fixStart(
 			shown.map((row) => row.entry),
-			index,
-			queue
+			index
 		);
+		fixSession.start(start.entries, start.position, queue);
+	}
+
+	async function markFixed(row: BackroomRow): Promise<void> {
+		const flag = row.flag;
+		if (!flag || busy) return;
+		busy = flag.id;
+		const { error } = await deleteFlag(flag.id);
+		busy = undefined;
+		failure = error;
+		if (error) return;
+		fixed = [...fixed, flag.id];
+		void flagCount.refresh();
+		toast.show(m.backroom.markedFixed, { label: m.backroom.undo, run: () => void undo(flag) });
+	}
+
+	async function undo(flag: FlagRecord): Promise<void> {
+		const { error } = await restoreFlag(flag);
+		failure = error;
+		if (error) return;
+		await refreshAll();
+		fixed = fixed.filter((id) => id !== flag.id);
+		void flagCount.refresh();
 	}
 </script>
 
 <PageHeader lead={m.backroom.lead} />
 
 <Tabs label={m.backroom.title} {tabs} bind:value={tab}>
+	{#if failure}
+		<Alert title={m.backroom.fixErrorTitle} tone="danger">
+			{failure}
+		</Alert>
+	{/if}
 	{#if error}
 		<Alert title={m.backroom.loadErrorTitle} tone="danger">
 			{error}
@@ -73,7 +114,13 @@
 				{m.backroom.fixAll}
 			</Button>
 		</div>
-		<BackroomList onfix={(index) => fix(index, false)} {onimage} rows={shown} />
+		<BackroomList
+			{busy}
+			onfix={(index) => fix(index, false)}
+			onfixed={(row) => void markFixed(row)}
+			{onimage}
+			rows={shown}
+		/>
 	{/if}
 </Tabs>
 

@@ -14,7 +14,7 @@ const rows: BackroomRow[] = [
 		reason: m.backroom.reasons.image,
 		origin: m.backroom.origins.question('Kto jest autorem tego dzieła?'),
 		comment: 'Blurry',
-		entry: { key: 'flag:1', path: '/atelier/12/edit', field: 'image', note: '', flagId: '1' }
+		entry: { key: 'flag:1', path: '/atelier/12/edit', field: 'image', note: '', flagIds: ['1'] }
 	},
 	{
 		kind: 'term',
@@ -53,5 +53,22 @@ describe('BackroomList', () => {
 		render(BackroomList, { rows: [{ ...rows[0], artwork: pending }], onfix: vi.fn(), onimage });
 
 		expect(onimage).toHaveBeenCalledWith(pending);
+	});
+
+	it('shows the origin and the hold as tags and marks a flag as fixed', async () => {
+		const flag = { id: '1' } as NonNullable<BackroomRow['flag']>;
+		const onfixed = vi.fn();
+		render(BackroomList, {
+			rows: [{ ...rows[0], held: true, flag }, rows[1]],
+			onfix: vi.fn(),
+			onfixed
+		});
+
+		await expect.element(page.getByText(m.backroom.held)).toBeVisible();
+		const marks = page.getByRole('button', { name: m.backroom.markFixed });
+		await expect.element(marks).toBeVisible();
+		await marks.click();
+
+		expect(onfixed).toHaveBeenCalledWith(expect.objectContaining({ flag }));
 	});
 });

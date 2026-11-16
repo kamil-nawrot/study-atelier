@@ -8,14 +8,14 @@ vi.mock('#lib/backroom/backroom-data/backroom-data.ts', () => ({
 }));
 
 const entries: FixEntry[] = [
-	{ key: 'flag:1', path: '/atelier/1/edit', field: 'image', note: 'Blurry', flagId: 'flag-1' },
+	{ key: 'flag:1', path: '/atelier/1/edit', field: 'image', note: 'Blurry', flagIds: ['flag-1'] },
 	{ key: 'missing:2', path: '/atelier/2/edit', field: 'style', note: 'brak stylu' },
 	{
 		key: 'flag:3',
 		path: '/atelier/glossary/t/edit',
 		field: 'definition',
 		note: 'Vague',
-		flagId: 'flag-3'
+		flagIds: ['flag-3']
 	}
 ];
 

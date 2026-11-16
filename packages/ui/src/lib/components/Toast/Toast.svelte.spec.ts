@@ -107,4 +107,25 @@ describe('Toast', () => {
 		const region = page.getByRole('status').element() as HTMLElement;
 		expect(region.style.getPropertyValue('--toast-offset')).toBe('80px');
 	});
+
+	it('runs its action once and goes away', async () => {
+		const { component } = await render(Toast);
+		const run = vi.fn();
+
+		component.show('Marked as fixed.', { label: 'Undo', run });
+		await userEvent.click(page.getByRole('button', { name: 'Undo' }));
+
+		expect(run).toHaveBeenCalledOnce();
+		await expect.element(page.getByText('Marked as fixed.')).not.toBeInTheDocument();
+	});
+
+	it('drops the action of an earlier message', async () => {
+		const { component } = await render(Toast);
+
+		component.show('Marked as fixed.', { label: 'Undo', run: vi.fn() });
+		component.show('Saved.');
+
+		await expect.element(page.getByText('Saved.')).toBeVisible();
+		await expect.element(page.getByRole('button', { name: 'Undo' })).not.toBeInTheDocument();
+	});
 });

@@ -46,6 +46,7 @@
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import ArtworkEraFields from '#lib/artworks/components/ArtworkEraFields/ArtworkEraFields.svelte';
 	import FixNote from '#lib/backroom/components/FixNote/FixNote.svelte';
+	import { FormFlags } from '#lib/backroom/form-flags/form-flags.svelte.ts';
 	import ArtworkImages from '#lib/artworks/components/ArtworkImages/ArtworkImages.svelte';
 	import ArtworkRelationsField from '#lib/artwork-relations/components/ArtworkRelationsField/ArtworkRelationsField.svelte';
 	import ArtworkOwnFields from '#lib/artworks/components/ArtworkOwnFields/ArtworkOwnFields.svelte';
@@ -90,6 +91,7 @@
 	}: Props = $props();
 
 	const titleId = $props.id();
+	const flags = new FormFlags('artwork', () => (artwork ? { artworkId: artwork.id } : undefined));
 	const yearToId = `${titleId}-year-to`;
 	const typeTiles = artworkTypeTiles();
 	const imageTexts = artworkImageTexts();
@@ -219,9 +221,10 @@
 </script>
 
 <Form error={formState.error} errorTitle={m.artworkForm.errorTitle} onsubmit={submit}>
-	<FixNote field="top" />
+	<FixNote field="top" {flags} />
 	<div class="columns" onfocusin={wantSuggestions}>
 		<div class="fields head">
+			<FixNote field="data" {flags} />
 			<TextField
 				id={titleId}
 				autocomplete="off"
@@ -246,11 +249,10 @@
 					bind:checked={form.authorUnknown}
 				/>
 			</div>
-			<FixNote field="data" />
 		</div>
 
 		<div class="images">
-			<FixNote field="image" />
+			<FixNote field="image" {flags} />
 			<ArtworkImages
 				alt={imageAlt}
 				autoMatch={!artwork}
@@ -273,6 +275,7 @@
 		</div>
 
 		<div class="fields">
+			<FixNote field="year" {flags} />
 			<YearGroup
 				columns={form.spanMode}
 				labelFor={form.spanMode ? undefined : yearToId}
@@ -302,7 +305,6 @@
 					bind:beforeCommonEra={form.toBeforeCommonEra}
 				/>
 			</YearGroup>
-			<FixNote field="year" />
 
 			<ChoiceTiles
 				clearable
@@ -314,8 +316,8 @@
 				value={form.typeCode || null}
 			/>
 
+			<FixNote field="style" {flags} />
 			<ArtworkEraFields valueLinks={suggestions.valueLinks} bind:form />
-			<FixNote field="style" />
 
 			{#each describedCategories as category (category.code)}
 				<ValueField
@@ -344,6 +346,7 @@
 				bind:rows={form.relations}
 			/>
 
+			<FixNote field="note" {flags} />
 			<NotesEditor
 				hint={m.artworkForm.notesLinkHint}
 				label={m.common.notes}
@@ -351,7 +354,6 @@
 				placeholder={m.artworkForm.notesPlaceholder}
 				bind:value={form.notes}
 			/>
-			<FixNote field="note" />
 		</div>
 	</div>
 

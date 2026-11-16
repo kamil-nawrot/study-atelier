@@ -5,6 +5,7 @@
 	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/i18n.ts';
 	import FixNote from '#lib/backroom/components/FixNote/FixNote.svelte';
+	import { FormFlags } from '#lib/backroom/form-flags/form-flags.svelte.ts';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { LiveErrors } from '#lib/shared/forms/live-errors/live-errors.svelte.ts';
@@ -33,6 +34,7 @@
 	};
 
 	let { symbol, candidates, cancelHref, oncancel, onsaved, labels }: Props = $props();
+	const flags = new FormFlags('symbol', () => (symbol ? { symbolId: symbol.id } : undefined));
 
 	const existing = untrack(() => symbol);
 	const initial = (): SymbolDraft => (existing ? symbolDraftOf(existing) : emptySymbolDraft());
@@ -90,7 +92,7 @@
 
 <div class="page">
 	<Form error={formState.error} errorTitle={m.symbols.form.errorTitle} onsubmit={submit}>
-		<FixNote field="top" />
+		<FixNote field="top" {flags} />
 		<div class="fields">
 			<TextField
 				autocomplete="off"
