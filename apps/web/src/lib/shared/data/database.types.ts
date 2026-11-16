@@ -1024,6 +1024,7 @@ export type Database = {
           term_id: string | null;
           updated_at: string;
         };
+        ComputedFields: never;
         Insert: {
           artwork_id?: string | null;
           comment?: string | null;
@@ -1052,7 +1053,43 @@ export type Database = {
           term_id?: string | null;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "learner_flags_artwork_id_owner_id_fkey";
+            columns: ["artwork_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "learner_flags_image_id_artwork_id_fkey";
+            columns: ["image_id", "artwork_id"];
+            isOneToOne: false;
+            referencedRelation: "artwork_images";
+            referencedColumns: ["id", "artwork_id"];
+          },
+          {
+            foreignKeyName: "learner_flags_pin_id_owner_id_fkey";
+            columns: ["pin_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artwork_pins";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "learner_flags_symbol_id_owner_id_fkey";
+            columns: ["symbol_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "symbols";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "learner_flags_term_id_owner_id_fkey";
+            columns: ["term_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "glossary_entries";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
       };
       location_details: {
         Row: {
