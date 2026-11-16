@@ -43,6 +43,18 @@ Further rules, taken from the rules of the artwork cards:
 - **Free rounds** pick terms and symbols by the same rules and save nothing.
 - **Past answers.** No answer to a definition or symbol question was ever saved, so every card starts with its first answer after the update.
 
+### Scenarios
+
+| Situation                                              | What the learner sees                                                                                                                                                      |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 40 terms with a definition, count 2, the first days    | Day 1: two new terms. A right one comes back in a few days, a wrong one the next day; each later day the due ones first, the free places to new terms.                     |
+| Count 1, 20 term cards due after two weeks away        | One due term a session, the most overdue first; no new term until fewer than one is due, so the backlog takes about 20 days at one session a day. Raising the count helps. |
+| A due term whose definition was removed                | It is skipped; the next due term or a new one takes the place. Once the definition is back, the term comes first as the most overdue.                                      |
+| A symbol with one pin and one meaning without a person | Its questions alternate between "Co przedstawia ten detal?" and "Jakie znaczenie ma tu ten symbol?".                                                                       |
+| Two sessions on one day                                | The cards answered in the first are no longer due, so the second asks the next due cards or new ones.                                                                      |
+
+Not handled: a symbol without any pin is never asked, so it never gets a card; a count of 1–3 is a session setting, not a daily one, so several sessions a day bring more new cards.
+
 ### Data
 
 The cards and their answers live in two new tables, `extra_cards` and `extra_review_log`, beside `review_cards` and `review_log`, which reference an artwork. A card references either a glossary term or a symbol (exactly one, with its owner) and is deleted with it; an answer references its card. `record_extra_review` writes the card and the answer in one transaction with the rule of the first answer of the day. The export and the import carry both tables. The data model is in `docs/data-model` (M13, R14, R30, W34).
