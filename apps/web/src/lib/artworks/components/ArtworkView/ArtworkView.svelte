@@ -40,6 +40,7 @@
 		loupeOnOpen?: boolean;
 		flipLinks?: Record<FlipDirection, ResolvedPathname | null>;
 		onflip?: (direction: FlipDirection) => void;
+		onstage?: (imageId: string | undefined) => void;
 	};
 
 	let {
@@ -59,7 +60,8 @@
 		ownFields = [],
 		showPinsOnOpen = false,
 		loupeOnOpen = false,
-		onflip
+		onflip,
+		onstage
 	}: Props = $props();
 
 	let panelOpen = $state(artworkPanelOpen());
@@ -79,6 +81,7 @@
 		{glossary}
 		{loupeOnOpen}
 		{onflip}
+		{onstage}
 		{pins}
 		{showPinsOnOpen}
 		{symbols}

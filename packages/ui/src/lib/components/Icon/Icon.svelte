@@ -3,13 +3,13 @@
 
 	type Props = {
 		icon: LucideIcon;
-		size?: 'sm' | 'md';
+		size?: 'xs' | 'sm' | 'md';
 		label?: string;
 	};
 
 	let { icon: Glyph, size = 'md', label }: Props = $props();
 
-	const pixels = { sm: 20, md: 24 };
+	const pixels = { xs: 16, sm: 20, md: 24 };
 </script>
 
 <Glyph

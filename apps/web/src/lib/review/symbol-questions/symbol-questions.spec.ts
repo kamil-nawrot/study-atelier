@@ -17,6 +17,7 @@ const persons = ['Peter', 'Paul', 'Mary', 'John'].map(
 function pin(id: string, extra: Partial<SymbolQuestionPin> = {}): SymbolQuestionPin {
 	return {
 		pinId: id,
+		symbolId: 'symbol-keys',
 		symbolName: 'Keys',
 		fragment: { pinId: id, artworkId: 'a', x: 0, y: 0, viewWidth: 0.1, text: '' },
 		...extra

@@ -69,6 +69,7 @@ begin
     insert into public.profiles (display_name) values ('Learner');
     insert into public.era_details (era_code, summary, notes) values ('early_modern', 'Era', 'See [x](/atelier/1).');
     insert into public.feedback (kind, title) values ('idea', 'An idea');
+    perform public.save_flag(jsonb_build_object('artwork_id', artwork, 'reason', 'data'));
     perform public.save_visit('{"visited_on": "2026-10-12", "date_precision": "day"}', 'Museum', array[artwork]);
     insert into public.artwork_fields (name, kind) values ('Lecture', 'list');
     insert into public.period_details (value_id, summary)

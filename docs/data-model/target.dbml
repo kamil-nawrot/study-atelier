@@ -866,3 +866,35 @@ Ref: extra_cards.glossary_entry_id > glossary_entries.id [delete: cascade]
 Ref: extra_cards.symbol_id > symbols.id [delete: cascade]
 Ref: extra_cards.owner_id > auth.users.id [delete: cascade]
 Ref: extra_review_log.card_id > extra_cards.id [delete: cascade]
+
+Table learner_flags {
+  id uuid [pk, default: `gen_random_uuid()`]
+  owner_id uuid [not null, default: `auth.uid()`]
+  artwork_id uuid
+  term_id uuid
+  symbol_id uuid
+  image_id uuid
+  pin_id uuid
+  reason text [not null, note: 'image, pin, data, note, hidden, definition, meaning, answers, other']
+  comment text
+  question jsonb
+  created_at "timestamp with time zone" [not null, default: `now()`]
+  updated_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    (owner_id, created_at) [name: 'learner_flags_owner_id_idx']
+    artwork_id [name: 'learner_flags_artwork_id_idx', note: 'where artwork_id is not null']
+    term_id [name: 'learner_flags_term_id_idx', note: 'where term_id is not null']
+    symbol_id [name: 'learner_flags_symbol_id_idx', note: 'where symbol_id is not null']
+    image_id [name: 'learner_flags_image_id_idx', note: 'where image_id is not null']
+    pin_id [name: 'learner_flags_pin_id_idx', note: 'where pin_id is not null']
+  }
+  Note: 'RLS on; exactly one of artwork_id, term_id, symbol_id; image_id and pin_id only with artwork_id; a comment for other (ADR-0313)'
+}
+
+Ref learner_flags_artwork_id_owner_id_fkey: learner_flags.(artwork_id, owner_id) > artworks.(id, owner_id) [delete: cascade]
+Ref learner_flags_image_id_artwork_id_fkey: learner_flags.(image_id, artwork_id) > artwork_images.(id, artwork_id) [delete: set null]
+Ref learner_flags_owner_id_fkey: learner_flags.owner_id > auth.users.id [delete: cascade]
+Ref learner_flags_pin_id_owner_id_fkey: learner_flags.(pin_id, owner_id) > artwork_pins.(id, owner_id) [delete: set null]
+Ref learner_flags_symbol_id_owner_id_fkey: learner_flags.(symbol_id, owner_id) > symbols.(id, owner_id) [delete: cascade]
+Ref learner_flags_term_id_owner_id_fkey: learner_flags.(term_id, owner_id) > glossary_entries.(id, owner_id) [delete: cascade]

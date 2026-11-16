@@ -1389,6 +1389,72 @@ export const pl = {
 			invalid: 'Zgłoszenie jest niepoprawne. Sprawdź tytuł i opis.'
 		}
 	},
+	backroom: {
+		flag: 'Do poprawki',
+		dialogTitle: 'Co poprawić?',
+		dialogDescription: 'Wybierz, co jest nie tak. Wrócisz do tego na Zapleczu.',
+		groups: {
+			artwork: (title: string): string => `Dzieło „${title}”`,
+			term: (name: string): string => `Pojęcie „${name}”`,
+			symbol: (name: string): string => `Symbol „${name}”`
+		},
+		reasons: {
+			image: 'Obraz jest nieostry albo zły',
+			pin: 'Pinezka wskazuje złe miejsce albo zły detal',
+			data: 'Coś się nie zgadza w danych',
+			note: 'Notatka jest niejasna albo błędna',
+			hidden: 'Odpowiedź widać w pytaniu',
+			definition: 'Definicja jest niejasna albo błędna',
+			meaning: 'Znaczenie jest źle opisane',
+			answers: 'Pasuje więcej niż jedna odpowiedź',
+			other: 'Coś innego'
+		},
+		pinChoice: 'Która pinezka?',
+		commentLabel: 'Komentarz',
+		commentHint: 'Kilka słów, które pomogą Ci to poprawić. Nieobowiązkowe.',
+		commentRequired: 'Napisz w komentarzu, co jest nie tak.',
+		confirm: 'Oznacz',
+		confirming: 'Oznaczanie…',
+		flagged: 'Odłożono na Zaplecze.',
+		changed: 'Zmieniono flagę na Zapleczu.',
+		errorTitle: 'Nie udało się odłożyć na Zaplecze',
+		errors: {
+			gone: 'Tego już nie ma w atelier.',
+			invalid: 'Flaga jest niepoprawna. Sprawdź powód i komentarz.'
+		},
+		title: 'Zaplecze',
+		lead: 'Tu czeka to, co oznaczysz flagą w powtórce albo w widokach, i dane, których brakuje w atelier. Popraw je po kolei albo wybierz jedną pozycję.',
+		menuCount: (count: number): string => `${count} do poprawki`,
+		tabs: { flags: 'Twoje flagi', missing: 'Braki danych' },
+		fixAll: 'Poprawiaj po kolei',
+		fix: 'Popraw',
+		imageNumber: (number: number): string => `obraz ${number}`,
+		origins: {
+			question: (question: string): string => `z pytania „${question}”`,
+			note: (record: string): string => `w notatce do ${record}`,
+			artwork: 'z widoku dzieła',
+			term: 'z widoku pojęcia',
+			symbol: 'z widoku symbolu'
+		},
+		missing: {
+			style: 'brak stylu',
+			year: 'brak roku',
+			image: 'brak obrazu',
+			definition: 'brak definicji'
+		},
+		emptyFlagsTitle: 'Nic do poprawki',
+		emptyFlags: 'Gdy coś w pytaniu albo w dziele się nie zgadza, oznacz to flagą. Trafi tutaj.',
+		emptyMissingTitle: 'Niczego nie brakuje',
+		emptyMissing: 'Wszystkie dzieła mają styl, rok i obraz, a pojęcia definicje.',
+		loadErrorTitle: 'Nie udało się wczytać Zaplecza',
+		progress: (position: number, total: number): string => `${position} z ${total}`,
+		skip: 'Pomiń',
+		finish: 'Zakończ',
+		saveNext: 'Zapisz i dalej',
+		note: (reason: string, comment?: string): string =>
+			comment ? `${reason} · „${comment}”` : reason,
+		done: (count: number): string => `To już wszystko. Poprawione pozycje: ${count}.`
+	},
 	pins: {
 		switchLabel: (count: number): string => `Pinezki (${count})`,
 		editorNote: 'Pinezki zapisują się od razu, niezależnie od przycisku „Zapisz”.',
