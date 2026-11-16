@@ -4,12 +4,13 @@ All notable changes to study-atelier are recorded here. The format follows [Keep
 
 ## [0.24.1] - 2026-11-16
 
-The review counter ends the day at zero again, and the confused-pair question fits the screen.
+The review counter ends the day at zero again, the confused-pair question fits the screen, and the poster editor shows just the image.
 
 ### Fixed
 
 - The number beside "Powtórki" in the menu stayed at 10 with the style, year and order questions on, also right after the day's round, because new style questions had no daily limit. A round with no artwork left to recognise now holds only the style cards due today, so the counter reaches 0 and the free round opens.
 - The images of the confused-pair question no longer run past the top edge of the screen.
+- The poster dialog shows only the image in a steady frame next to its controls, without the exhibition title and meta line.
 
 ### Migrations run on production
 
