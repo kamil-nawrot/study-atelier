@@ -10,6 +10,9 @@ import SymbolPage from './+page.svelte';
 import { saveFlag } from '#lib/backroom/flags-data/flags-data.ts';
 
 vi.mock('#lib/backroom/flags-data/flags-data.ts', () => ({ saveFlag: vi.fn() }));
+vi.mock('#lib/backroom/flag-count/flag-count.svelte.ts', () => ({
+	flagCount: { refresh: vi.fn(), forLearner: vi.fn(), value: 0 }
+}));
 
 const navigation = vi.hoisted(() => ({
 	url: new URL('http://localhost/atelier/glossary/symbols/skull'),
