@@ -175,6 +175,9 @@ begin
         continue;
       end if;
     end if;
+    if table_name = 'location_details' then
+      rows := (select jsonb_agg(place.value - 'city_id') from jsonb_array_elements(rows) as place);
+    end if;
     if table_name in ('artwork_relations', 'author_relations') then
       rows := (select jsonb_agg(
           case
@@ -212,6 +215,20 @@ begin
     get diagnostics inserted = row_count;
     counts := counts || jsonb_build_object(table_name, inserted);
   end loop;
+
+  update public.location_details as details
+    set city_id = (place.value ->> 'city_id')::uuid
+    from jsonb_array_elements(coalesce(payload -> 'location_details', '[]')) as place
+    where details.value_id = (place.value ->> 'value_id')::uuid
+      and details.owner_id = importer
+      and place.value ->> 'city_id' is not null;
+
+  if jsonb_array_length(coalesce(payload -> 'review_log', '[]')) > 0
+    and not jsonb_exists(payload -> 'review_log' -> 0, 'practice') then
+    perform private.fill_review_practice(importer);
+  end if;
+
+  perform private.fill_style_cards(importer);
 
   perform set_config('study_atelier.importing', '', true);
 
