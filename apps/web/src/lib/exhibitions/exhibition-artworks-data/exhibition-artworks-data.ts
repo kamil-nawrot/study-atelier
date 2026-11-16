@@ -49,6 +49,7 @@ async function loadChunk(ids: readonly string[]): Promise<ArtworksResult> {
 			.in('id', [...ids])
 			.eq('artwork_images.position', 0)
 			.is('deleted_at', null)
+			.order('id')
 			.limit(1, { referencedTable: 'visit_artworks' })
 			.range(from, to)
 	);

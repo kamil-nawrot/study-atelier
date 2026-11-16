@@ -1,4 +1,4 @@
-import { readStored, writeStored } from '#lib/shared/utils/storage/storage.ts';
+import { writeStored } from '#lib/shared/utils/storage/storage.ts';
 
 type Theme = 'dark' | 'light';
 
@@ -13,11 +13,6 @@ export const themeScript = `<script>try{if(localStorage.getItem(${JSON.stringify
 
 export function isTheme(value: unknown): value is Theme {
 	return value === 'dark' || value === 'light';
-}
-
-export function rememberedTheme(): Theme {
-	const stored = readStored('local', THEME_KEY);
-	return isTheme(stored) ? stored : DEFAULT_THEME;
 }
 
 function rememberTheme(theme: Theme): void {

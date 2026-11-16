@@ -1,4 +1,5 @@
 import { collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
+import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { authorRelationTypeOf } from '#lib/author-relations/author-relation-types/author-relation-types.ts';
 import type { AuthorRelation } from '#lib/author-relations/types/author-relation.ts';
@@ -27,10 +28,15 @@ export function authorRelationsFromRows(
 }
 
 export async function loadAuthorRelations(authorId: string): Promise<LoadResult> {
-	const { data, error } = await supabase
-		.from('author_relations')
-		.select(COLUMNS)
-		.or(`from_id.eq.${authorId},to_id.eq.${authorId}`);
+	const { rows, error } = await fetchAll<RelationRow>((from, to) =>
+		supabase
+			.from('author_relations')
+			.select(COLUMNS)
+			.or(`from_id.eq.${authorId},to_id.eq.${authorId}`)
+			.order('from_id')
+			.order('to_id')
+			.range(from, to)
+	);
 	if (error) return { relations: [], error: collectionErrorMessage(error) };
-	return { relations: authorRelationsFromRows(authorId, data ?? []) };
+	return { relations: authorRelationsFromRows(authorId, rows) };
 }

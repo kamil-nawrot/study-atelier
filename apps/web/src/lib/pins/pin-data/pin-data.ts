@@ -174,16 +174,19 @@ export async function deletePin(id: string): Promise<PinActionResult> {
 }
 
 export async function loadEntryPins(entryId: string): Promise<EntryPinsResult> {
-	const { data, error } = await supabase
-		.from('artwork_pins')
-		.select(ENTRY_PIN_COLUMNS)
-		.eq('glossary_entry_id', entryId)
-		.order('created_at')
-		.order('id');
+	const { rows, error } = await fetchAll<EntryPinRow>((from, to) =>
+		supabase
+			.from('artwork_pins')
+			.select(ENTRY_PIN_COLUMNS)
+			.eq('glossary_entry_id', entryId)
+			.order('created_at')
+			.order('id')
+			.range(from, to)
+	);
 	if (error) return { pins: [], fragments: [], error: pinErrorMessage(error) };
 	const firstPins = new Map<string, string>();
 	const fragments: PinFragment[] = [];
-	for (const row of data as unknown as EntryPinRow[]) {
+	for (const row of rows) {
 		const artworkId = row.artwork_images.artwork_id;
 		if (!firstPins.has(artworkId)) firstPins.set(artworkId, row.id);
 		if (row.view_width === null) continue;

@@ -2400,8 +2400,8 @@ export type Database = {
       };
       set_place_point: {
         Args: {
-          latitude: number;
-          longitude: number;
+          latitude?: number;
+          longitude?: number;
           place: string;
           wikidata_id?: string;
         };

@@ -1,12 +1,6 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import '@study-atelier/ui/styles.css';
-import {
-	currentTheme,
-	rememberedTheme,
-	setTheme,
-	THEME_COLORS,
-	themeScript
-} from './theme.svelte.ts';
+import { currentTheme, setTheme, THEME_COLORS, themeScript } from './theme.svelte.ts';
 
 let meta: HTMLMetaElement;
 
@@ -35,7 +29,7 @@ describe('theme', () => {
 	});
 
 	it('is dark until the learner picks the light theme', () => {
-		expect(rememberedTheme()).toBe('dark');
+		expect(localStorage.getItem('study-atelier:theme')).toBeNull();
 		expect(currentTheme()).toBe('dark');
 		expect(document.documentElement.dataset.theme).toBeUndefined();
 	});
@@ -45,13 +39,13 @@ describe('theme', () => {
 
 		expect(currentTheme()).toBe('light');
 		expect(document.documentElement.dataset.theme).toBe('light');
-		expect(rememberedTheme()).toBe('light');
+		expect(localStorage.getItem('study-atelier:theme')).toBe('light');
 
 		setTheme('dark');
 
 		expect(currentTheme()).toBe('dark');
 		expect(document.documentElement.dataset.theme).toBeUndefined();
-		expect(rememberedTheme()).toBe('dark');
+		expect(localStorage.getItem('study-atelier:theme')).toBeNull();
 	});
 
 	it('gives the browser bar the background of the chosen theme', () => {
