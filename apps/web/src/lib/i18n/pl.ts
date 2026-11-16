@@ -1389,6 +1389,40 @@ export const pl = {
 			invalid: 'Zgłoszenie jest niepoprawne. Sprawdź tytuł i opis.'
 		}
 	},
+	backroom: {
+		flag: 'Do poprawki',
+		dialogTitle: 'Co poprawić?',
+		dialogDescription: 'Wybierz, co jest nie tak. Wrócisz do tego na Zapleczu.',
+		groups: {
+			artwork: (title: string): string => `Dzieło „${title}”`,
+			term: (name: string): string => `Pojęcie „${name}”`,
+			symbol: (name: string): string => `Symbol „${name}”`
+		},
+		reasons: {
+			image: 'Obraz jest nieostry albo zły',
+			pin: 'Pinezka wskazuje złe miejsce albo zły detal',
+			data: 'Coś się nie zgadza w danych',
+			note: 'Notatka jest niejasna albo błędna',
+			hidden: 'Odpowiedź widać w pytaniu',
+			definition: 'Definicja jest niejasna albo błędna',
+			meaning: 'Znaczenie jest źle opisane',
+			answers: 'Pasuje więcej niż jedna odpowiedź',
+			other: 'Coś innego'
+		},
+		pinChoice: 'Która pinezka?',
+		commentLabel: 'Komentarz',
+		commentHint: 'Kilka słów, które pomogą Ci to poprawić. Nieobowiązkowe.',
+		commentRequired: 'Napisz w komentarzu, co jest nie tak.',
+		confirm: 'Oznacz',
+		confirming: 'Oznaczanie…',
+		flagged: 'Odłożono na Zaplecze.',
+		changed: 'Zmieniono flagę na Zapleczu.',
+		errorTitle: 'Nie udało się odłożyć na Zaplecze',
+		errors: {
+			gone: 'Tego już nie ma w atelier.',
+			invalid: 'Flaga jest niepoprawna. Sprawdź powód i komentarz.'
+		}
+	},
 	pins: {
 		switchLabel: (count: number): string => `Pinezki (${count})`,
 		editorNote: 'Pinezki zapisują się od razu, niezależnie od przycisku „Zapisz”.',

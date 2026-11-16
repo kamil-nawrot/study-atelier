@@ -55,7 +55,7 @@ describe('symbol questions data', () => {
 					text: null,
 					view_width: 0.2,
 					crop_path: 'owner/crop.jpg',
-					symbols: { name: 'Keys' },
+					symbols: { id: 'symbol-keys', name: 'Keys' },
 					symbol_meanings: {
 						id: 'meaning-1',
 						text: 'Power of the Church',
@@ -75,7 +75,7 @@ describe('symbol questions data', () => {
 					text: 'Lily',
 					view_width: 0.1,
 					crop_path: 'owner/crop2.jpg',
-					symbols: { name: 'Lily' },
+					symbols: { id: 'symbol-lily', name: 'Lily' },
 					symbol_meanings: null,
 					artwork_images: pinImage
 				}
@@ -87,6 +87,7 @@ describe('symbol questions data', () => {
 
 		expect(pins[0]).toMatchObject({
 			pinId: 'pin-1',
+			symbolId: 'symbol-keys',
 			symbolName: 'Keys',
 			meaning: { id: 'meaning-1', text: 'Power of the Church', persons: ['Peter', 'Paul'] },
 			fragment: { artworkId: 'artwork-1', cropPath: 'owner/crop.jpg', viewWidth: 0.2 }
@@ -115,7 +116,7 @@ describe('symbol questions data', () => {
 			text: null,
 			view_width: 0.1,
 			crop_path: 'owner/crop.jpg',
-			symbols: { name: 'Keys' },
+			symbols: { id: 'symbol-keys', name: 'Keys' },
 			symbol_meanings: null,
 			artwork_images: pinImage
 		});

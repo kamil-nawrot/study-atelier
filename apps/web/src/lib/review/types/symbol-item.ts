@@ -5,6 +5,7 @@ import type { Quiz } from './quiz.ts';
 export type SymbolItem = {
 	mode: 'quiz_symbol';
 	kind: SymbolQuestionKind;
+	symbol: { id: string; name: string };
 	key: string;
 	lens?: FragmentLens;
 	quiz: Quiz;

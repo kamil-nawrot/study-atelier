@@ -949,6 +949,7 @@ async function mockSupabase(context) {
 			return json(route, reviewSession(request.postDataJSON() ?? {}));
 		}
 		if (url.pathname === '/rest/v1/rpc/confused_pairs') return json(route, CONFUSED_PAIRS);
+		if (url.pathname === '/rest/v1/rpc/save_flag') return json(route, true);
 		if (url.pathname === '/rest/v1/rpc/record_pair_answer') {
 			return route.fulfill({ status: 204, headers: corsHeaders() });
 		}

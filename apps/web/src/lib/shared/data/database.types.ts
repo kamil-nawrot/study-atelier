@@ -1009,6 +1009,88 @@ export type Database = {
         };
         Relationships: [];
       };
+      learner_flags: {
+        Row: {
+          artwork_id: string | null;
+          comment: string | null;
+          created_at: string;
+          id: string;
+          image_id: string | null;
+          owner_id: string;
+          pin_id: string | null;
+          question: Json | null;
+          reason: string;
+          symbol_id: string | null;
+          term_id: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          artwork_id?: string | null;
+          comment?: string | null;
+          created_at?: string;
+          id?: string;
+          image_id?: string | null;
+          owner_id?: string;
+          pin_id?: string | null;
+          question?: Json | null;
+          reason: string;
+          symbol_id?: string | null;
+          term_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          artwork_id?: string | null;
+          comment?: string | null;
+          created_at?: string;
+          id?: string;
+          image_id?: string | null;
+          owner_id?: string;
+          pin_id?: string | null;
+          question?: Json | null;
+          reason?: string;
+          symbol_id?: string | null;
+          term_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "learner_flags_artwork_id_owner_id_fkey";
+            columns: ["artwork_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "learner_flags_image_id_artwork_id_fkey";
+            columns: ["image_id", "artwork_id"];
+            isOneToOne: false;
+            referencedRelation: "artwork_images";
+            referencedColumns: ["id", "artwork_id"];
+          },
+          {
+            foreignKeyName: "learner_flags_pin_id_owner_id_fkey";
+            columns: ["pin_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artwork_pins";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "learner_flags_symbol_id_owner_id_fkey";
+            columns: ["symbol_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "symbols";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "learner_flags_term_id_owner_id_fkey";
+            columns: ["term_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "glossary_entries";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
+      };
       location_details: {
         Row: {
           catalogue_wikidata_id: string | null;
@@ -2165,6 +2247,7 @@ export type Database = {
         };
         Returns: number;
       };
+      save_flag: { Args: { flag: Json }; Returns: boolean };
       save_symbol: {
         Args: {
           new_description?: string;

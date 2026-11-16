@@ -13,7 +13,7 @@ type PinRow = {
 	text: string | null;
 	view_width: number;
 	crop_path: string;
-	symbols: { name: string };
+	symbols: { id: string; name: string };
 	symbol_meanings: {
 		id: string;
 		text: string;
@@ -29,7 +29,7 @@ type ImagePinRow = { id: string; artwork_images: ImageRow & { id: string } };
 
 const PAGE = 1000;
 
-const COLUMNS = `id, x, y, text, view_width, crop_path, symbols!inner(name), symbol_meanings(id, text, symbol_meaning_contexts(position, glossary_entries(name, category))), artwork_images!inner(id, artwork_id, artworks!inner(deleted_at))`;
+const COLUMNS = `id, x, y, text, view_width, crop_path, symbols!inner(id, name), symbol_meanings(id, text, symbol_meaning_contexts(position, glossary_entries(name, category))), artwork_images!inner(id, artwork_id, artworks!inner(deleted_at))`;
 
 const IMAGE_SELECT = `id, artwork_images!inner(id, ${IMAGE_COLUMNS.join(', ')})`;
 
@@ -64,6 +64,7 @@ export async function loadSymbolQuestionPins(): Promise<{
 	return {
 		pins: rows.map((row) => ({
 			pinId: row.id,
+			symbolId: row.symbols.id,
 			symbolName: row.symbols.name,
 			...(row.symbol_meanings
 				? {
@@ -76,6 +77,7 @@ export async function loadSymbolQuestionPins(): Promise<{
 				: {}),
 			fragment: {
 				pinId: row.id,
+				symbolId: row.symbols.id,
 				artworkId: row.artwork_images.artwork_id,
 				x: row.x,
 				y: row.y,

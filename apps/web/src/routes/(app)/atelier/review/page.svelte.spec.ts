@@ -771,7 +771,7 @@ describe('review page', () => {
 			expect.objectContaining({ mode: 'quiz_title', correct: true })
 		);
 		await expect
-			.element(page.getByRole('status'))
+			.element(page.getByRole('status').filter({ hasText: m.review.quiz.right }))
 			.toHaveTextContent(new RegExp(`^${m.review.quiz.right}`));
 
 		await userEvent.keyboard('{Enter}');
