@@ -2,6 +2,42 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.24.0] - 2026-11-15
+
+Reviews learn from the history of each artwork: one answer a day schedules it, the style gets its own card, new questions ask about confused pairs and relations, and the round has one number in the menu and on the review start. Exhibitions get a poster, and pins add symbols and terms on the spot.
+
+### Added
+
+- Reviews ask about pairs of authors or styles the learner confuses: "Autorem którego z tych dzieł jest …?" or "Styl którego z tych dzieł to …?" with one artwork of each side by side, until the pair is told apart on three different days ("Poprawnie rozróżnione pary:").
+- Reviews ask about relations between artworks ("Częścią jakiego dzieła jest …?") and between a pupil and a teacher ("Kto był nauczycielem autora tego dzieła?"), counted as "Poprawnie wskazane powiązania:".
+- The style of an artwork has its own review card, so a missed style no longer brings a known artwork back the next day ("Poprawnie dopasowane style:").
+- An exhibition has a poster: "Zmień afisz" in the edit bar opens "Afisz wystawy" to choose the artwork and image, crop it by dragging, zoom it and tone it with five sliders. The list of exhibitions, Archiwum and "Na N wystawach" show it.
+- A pin adds what is missing straight away: "Dodaj symbol „…”", "Dodaj znaczenie „…”" and "Dodaj pojęcie „…”" open a small dialog over the pin, also in the artwork edit form. The toolbox of the exhibition editor adds a missing symbol or term the same way and puts it in the exhibition.
+- The empty view of Wystawy has "Dodaj pierwszą wystawę".
+- New hidden exhibits in Ekspozycja: "Mucha Giotta" for swatting the painted fly that lands on one in a hundred artwork images, and "Tablice przymierza" for reading the terms or the privacy policy to the end.
+
+### Changed
+
+- Only the first answer of the day about an artwork schedules it; a repeat in the same day is practice and no longer counts a second lapse.
+- The review question comes from the artwork's own history: a new or forgotten artwork gets the recognition quiz asked least recently, a known one a flashcard until the detail or the typed title is due.
+- The round holds the questions about artworks (recognition, style, date and order) and the side topics (glossary, symbols, notes, pairs, relations) come on top. "Powtórki" in Ustawienia have a switch and a count of 1, 2 or 3 for each extra question, and "Szacowanie daty" and "Ustawianie w kolejności" apart.
+- The number beside "Powtórki" in the menu and the review start count the whole round: "Na dziś zaplanowane masz {n} pytań o dzieła", with the line of recognition, new, style, date and order questions under it.
+- A missed extra question comes back at most twice in a session, like an artwork, and its answers are shuffled.
+- Review questions on a phone: text answers stay at the bottom above "Następne", the order shows a gold number on a tapped tile, and the answers drop their key column.
+- Relation labels describe the record whose card shows them: "Jest uczniem", "Jest nauczycielem", "Jest kopią lub reprodukcją", "Jest częścią".
+- The app no longer speaks in the first person: "To dzieło wróci jeszcze w tej sesji.", "Link wysłany", "Nie udało się zapisać. Kolejna próba za chwilę." and the other texts of sign-in, saving and reviews.
+- Sliders are drawn in the app's own gold in every browser and are easier to grab on a touch screen.
+- Internal: the whole review plan lives in the database, CI runs every SQL test, a steadier spec, and a code review of the version with its fixes.
+
+### Fixed
+
+- With "Szacowanie daty" or "Ustawianie w kolejności" on and nothing to recognise, the menu counter stayed at 1–2 all day and "Zacznij" did nothing; the round is now empty and the free round opens.
+- Closing "Nowe pojęcie" or "Nowy symbol" of a pin without adding left the field waiting; it is now released.
+
+### Migrations run on production
+
+13 migrations run on production with this release. Three change existing data: `20261115000000_first_answer_of_the_day` marks every review answer after the first of its artwork and day as practice and stores the last rating of each card; `20261115020000_style_review_card` creates the style cards from the first style answer of each day; and `20261115070000_artwork_questions_in_the_round` splits `review_time_questions` into the year and order switches, renames `review_note_questions` to `review_notes_on` and adds the switches and counts of the extra questions. The others add columns and functions for confused pairs, the review plan, the exhibition poster and the two hidden exhibits, and replace `record_review`, `review_session`, `review_counts` and `private.exhibit_values`. Since migrations run before the deploy, the 0.23.1 app fails to load the preferences and to start a review until the 0.24.0 app is deployed a few minutes later: it reads the dropped column and calls `review_session` with the removed `time_questions` argument.
+
 ## [0.23.1] - 2026-11-14
 
 Exhibitions can show symbols from the atlas, and two new hidden exhibits wait in Ekspozycja.
@@ -1042,3 +1078,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.22.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.22.0
 [0.23.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.23.0
 [0.23.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.23.1
+[0.24.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.24.0
