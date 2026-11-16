@@ -11,4 +11,5 @@ export type FlagRecord = {
 	symbolId: string | null;
 	symbolName: string | null;
 	imageNumber: number | null;
+	holds: boolean;
 };

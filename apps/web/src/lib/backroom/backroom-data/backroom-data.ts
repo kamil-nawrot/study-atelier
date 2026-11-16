@@ -3,6 +3,8 @@ import { flagErrorMessage } from '#lib/backroom/errors/errors.ts';
 import type { FlagQuestion } from '#lib/backroom/types/flag-question.ts';
 import type { FlagReason } from '#lib/backroom/types/flag-reason.ts';
 import type { FlagRecord } from '#lib/backroom/types/flag-record.ts';
+import type { FlagTarget } from '#lib/backroom/types/flag-target.ts';
+import type { StoredFlag } from '#lib/backroom/types/stored-flag.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 
@@ -16,10 +18,11 @@ type FlagRow = {
 	symbol_id: string | null;
 	artwork_images: { position: number } | null;
 	symbols: { name: string } | null;
+	holds: boolean;
 };
 
 const COLUMNS =
-	'id, reason, comment, question, artwork_id, term_id, symbol_id, artwork_images(position), symbols(name)';
+	'id, reason, comment, question, holds, artwork_id, term_id, symbol_id, artwork_images(position), symbols(name)';
 
 function recordOf(row: FlagRow): FlagRecord {
 	return {
@@ -31,7 +34,8 @@ function recordOf(row: FlagRow): FlagRecord {
 		termId: row.term_id,
 		symbolId: row.symbol_id,
 		symbolName: row.symbols?.name ?? null,
-		imageNumber: row.artwork_images ? row.artwork_images.position + 1 : null
+		imageNumber: row.artwork_images ? row.artwork_images.position + 1 : null,
+		holds: row.holds === true
 	};
 }
 
@@ -55,4 +59,53 @@ export async function countFlags(): Promise<number | undefined> {
 export async function deleteFlag(id: string): Promise<{ error?: string }> {
 	const { error } = await supabase.from('learner_flags').delete().eq('id', id);
 	return error ? { error: await failureMessage(error, flagErrorMessage) } : {};
+}
+
+type StoredRow = {
+	id: string;
+	reason: FlagReason;
+	comment: string | null;
+	artwork_id: string | null;
+	term_id: string | null;
+	symbol_id: string | null;
+	image_id: string | null;
+	pin_id: string | null;
+	holds: boolean;
+	question: { mode?: string } | null;
+};
+
+const STORED_COLUMNS =
+	'id, reason, comment, artwork_id, term_id, symbol_id, image_id, pin_id, holds, question';
+
+const TARGET_COLUMNS = {
+	artworkId: 'artwork_id',
+	termId: 'term_id',
+	symbolId: 'symbol_id'
+} as const;
+
+function storedOf(row: StoredRow): StoredFlag {
+	return {
+		id: row.id,
+		reason: row.reason,
+		comment: row.comment,
+		artworkId: row.artwork_id,
+		termId: row.term_id,
+		symbolId: row.symbol_id,
+		imageId: row.image_id,
+		pinId: row.pin_id,
+		holds: row.holds === true,
+		mode: row.question?.mode ?? null
+	};
+}
+
+export async function loadItemFlags(target?: FlagTarget): Promise<StoredFlag[]> {
+	const { rows, error } = await fetchAll<StoredRow>((from, to) => {
+		const query = supabase.from('learner_flags').select(STORED_COLUMNS);
+		const [key, value] = target ? Object.entries(target)[0] : [];
+		const narrowed = key
+			? query.eq(TARGET_COLUMNS[key as keyof typeof TARGET_COLUMNS], value as string)
+			: query;
+		return narrowed.order('id').range(from, to);
+	});
+	return error ? [] : rows.map(storedOf);
 }

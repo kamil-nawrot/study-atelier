@@ -4,7 +4,7 @@
 	import { onMount, tick } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { Alert, Button, EmptyState, Icon, PageHeader, Toast } from '@study-atelier/ui';
-	import { goto } from '$app/navigation';
+	import { goto, snapshot } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
@@ -14,7 +14,7 @@
 	import { createExhibition } from '#lib/exhibitions/exhibition-data/exhibition-data.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { WallImages } from '#lib/wall/wall-images/wall-images.svelte.ts';
-	import type { PageProps, Snapshot } from './$types';
+	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
@@ -28,13 +28,14 @@
 	let query = $state('');
 	let covers = $derived(new Map(images.apply(data.covers).map((artwork) => [artwork.id, artwork])));
 
-	export const snapshot: Snapshot<{ query: string; scroll: number }> = {
+	snapshot<{ query: string; scroll: number }>({
+		id: 'exhibitions',
 		capture: () => ({ query, scroll: window.scrollY }),
 		restore: (value) => {
 			query = value.query;
 			void tick().then(() => window.scrollTo({ top: value.scroll, behavior: 'instant' }));
 		}
-	};
+	});
 
 	$effect(() => {
 		for (const cover of data.covers) images.request(cover);

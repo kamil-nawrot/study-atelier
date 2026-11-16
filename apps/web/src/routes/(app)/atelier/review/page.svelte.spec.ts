@@ -26,6 +26,7 @@ import { testSession } from '#lib/testing/auth/auth.ts';
 import { testReviewCard } from '#lib/testing/review/review.ts';
 import ReviewPage from './+page.svelte';
 import { loadTermDefinitions } from '#lib/glossary/glossary-data/glossary-data.ts';
+import { loadExtraRound } from '#lib/review/extra-cards-data/extra-cards-data.ts';
 
 const navigation = vi.hoisted(() => ({
 	url: new URL('http://localhost/atelier/review'),
@@ -66,9 +67,9 @@ vi.mock('#lib/symbols/symbol-questions-data/symbol-questions-data.ts', () => ({
 	loadSymbolQuestionImages: vi.fn().mockResolvedValue(new Map())
 }));
 vi.mock('#lib/review/extra-cards-data/extra-cards-data.ts', async () => ({
-	loadExtraCards: vi
+	loadExtraRound: vi
 		.fn()
-		.mockResolvedValue((await import('#lib/review/extra-cards/extra-cards.ts')).NO_EXTRA_CARDS),
+		.mockResolvedValue((await import('#lib/review/extra-cards/extra-cards.ts')).NO_EXTRA_ROUND),
 	recordExtraReview: vi.fn().mockResolvedValue(undefined)
 }));
 vi.mock('#lib/symbols/symbols-data/symbols-data.ts', () => ({
@@ -397,6 +398,10 @@ describe('review page', () => {
 	});
 
 	it('adds as many definitions to a session as the preferences ask for', async () => {
+		vi.mocked(loadExtraRound).mockResolvedValueOnce({
+			terms: terms.slice(0, 4).map(({ id }) => ({ id, card: null })),
+			symbols: []
+		});
 		const artworks = collection(25);
 		renderReview(
 			artworks,
@@ -417,7 +422,11 @@ describe('review page', () => {
 			.toBeVisible();
 	});
 
-	it('loads the definitions of the drawn terms in one request and runs without them when it fails', async () => {
+	it('loads the definitions of the drawn terms and their reserve in one request and runs without them when it fails', async () => {
+		vi.mocked(loadExtraRound).mockResolvedValueOnce({
+			terms: terms.slice(0, 4).map(({ id }) => ({ id, card: null })),
+			symbols: []
+		});
 		vi.mocked(loadTermDefinitions).mockResolvedValue({
 			definitions: new Map(),
 			error: 'Brak sieci.'
@@ -439,7 +448,7 @@ describe('review page', () => {
 
 		await expect.element(page.getByText(m.review.progress(1, 4))).toBeVisible();
 		expect(loadTermDefinitions).toHaveBeenCalledOnce();
-		expect(vi.mocked(loadTermDefinitions).mock.calls[0][0]).toHaveLength(2);
+		expect(vi.mocked(loadTermDefinitions).mock.calls[0][0]).toHaveLength(4);
 	});
 
 	it('leaves the definitions out when the preferences switch them off', async () => {

@@ -5,6 +5,7 @@
 	import { page as current } from '$app/state';
 	import FixNote from '#lib/backroom/components/FixNote/FixNote.svelte';
 	import { FixRoute } from '#lib/backroom/fix-route/fix-route.svelte.ts';
+	import DeleteDialog from '#lib/shared/forms/DeleteDialog/DeleteDialog.svelte';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { loadSymbolForm } from '#lib/symbols/symbol-page-data/symbol-page-data.ts';
 	import {
@@ -17,7 +18,6 @@
 		saveSymbol,
 		setSymbolCover
 	} from '#lib/symbols/symbols-data/symbols-data.ts';
-	import MeaningDeleteDialog from '#lib/symbols/components/MeaningDeleteDialog/MeaningDeleteDialog.svelte';
 	import MeaningDetailsDialog from '#lib/symbols/components/MeaningDetailsDialog/MeaningDetailsDialog.svelte';
 	import MeaningDialog from '#lib/symbols/components/MeaningDialog/MeaningDialog.svelte';
 	import type { SymbolContext } from '#lib/symbols/types/symbol-context.ts';
@@ -82,12 +82,13 @@
 		}
 	}
 
-	async function removeMeaning(): Promise<void> {
-		if (!editing) return;
-		if (await store(withoutMeaning(symbol, editing.id), m.symbols.meaningDialog.removed)) {
-			removeOpen = false;
-			dialogOpen = false;
-		}
+	async function removeMeaning(): Promise<{ error?: string } | undefined> {
+		if (!editing) return undefined;
+		const removed = await store(
+			withoutMeaning(symbol, editing.id),
+			m.symbols.meaningDialog.removed
+		);
+		return removed ? {} : { error: dialogError };
 	}
 
 	async function moveMeaning(id: string, step: -1 | 1): Promise<void> {
@@ -207,11 +208,13 @@
 	bind:open={dialogOpen}
 />
 
-<MeaningDeleteDialog
-	{busy}
-	error={removeOpen ? dialogError : undefined}
-	meaning={editing}
-	onconfirm={removeMeaning}
+<DeleteDialog
+	description={m.symbols.meaningDialog.removeDescription}
+	ondone={() => {
+		dialogOpen = false;
+	}}
+	run={removeMeaning}
+	title={m.symbols.meaningDialog.removeTitle(editing?.text ?? '')}
 	bind:open={removeOpen}
 />
 

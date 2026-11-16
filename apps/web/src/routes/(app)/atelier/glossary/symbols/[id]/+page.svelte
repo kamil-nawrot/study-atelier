@@ -13,7 +13,7 @@
 	import FixBar from '#lib/backroom/components/FixBar/FixBar.svelte';
 	import MoreActions from '#lib/shared/navigation/MoreActions/MoreActions.svelte';
 	import FlagButton, { flagAction } from '#lib/backroom/components/FlagButton/FlagButton.svelte';
-	import FlagDialog from '#lib/backroom/components/FlagDialog/FlagDialog.svelte';
+	import ItemFlagDialog from '#lib/backroom/components/ItemFlagDialog/ItemFlagDialog.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import SymbolDeleteDialog from '#lib/symbols/components/SymbolDeleteDialog/SymbolDeleteDialog.svelte';
 	import SymbolView from '#lib/symbols/components/SymbolView/SymbolView.svelte';
@@ -27,7 +27,7 @@
 	let toast: Toast;
 	let view: ReturnType<typeof SymbolView> | undefined = $state();
 	let deleteOpen = $state(false);
-	let flagOpen = $state(false);
+	let flag = $state({ open: false, count: 0 });
 	let reordering = $state(false);
 	let symbol = $derived(data.symbol);
 	let title = $derived(
@@ -87,11 +87,11 @@
 			</Button>
 			<MoreActions
 				actions={[
-					flagAction(() => (flagOpen = true)),
+					flagAction(() => (flag.open = true), flag.count),
 					{ label: m.common.delete, icon: Trash, onclick: () => (deleteOpen = true), danger: true }
 				]}
 			>
-				<FlagButton onclick={() => (flagOpen = true)} />
+				<FlagButton count={flag.count} onclick={() => (flag.open = true)} />
 				<Button
 					aria-label={m.common.delete}
 					compact
@@ -122,14 +122,16 @@
 
 {#if symbol}
 	<SymbolDeleteDialog {symbol} bind:open={deleteOpen} />
-	<FlagDialog
+	<ItemFlagDialog
+		flagsOf={{ symbolId: symbol.id }}
 		groups={[
 			{
 				item: { kind: 'symbol', id: symbol.id, name: symbol.name },
 				reasons: ['meaning', 'other']
 			}
 		]}
+		oncount={(count) => (flag.count = count)}
 		onflagged={(message) => toast.show(message)}
-		bind:open={flagOpen}
+		bind:open={flag.open}
 	/>
 {/if}

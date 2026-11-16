@@ -11,8 +11,15 @@ export function groupLabel(item: FlagItem): string {
 		: m.backroom.groups.symbol(item.name);
 }
 
-export function groupTiles(group: FlagGroup): ChoiceTile[] {
-	return group.reasons.map((reason) => ({ value: reason, label: m.backroom.reasons[reason] }));
+export function groupTiles(
+	group: FlagGroup,
+	marked: (reason: FlagGroup['reasons'][number]) => boolean = () => false
+): ChoiceTile[] {
+	return group.reasons.map((reason) => ({
+		value: reason,
+		label: m.backroom.reasons[reason],
+		...(marked(reason) ? { note: m.backroom.marked } : {})
+	}));
 }
 
 export function pinTiles(pins: readonly FlagChoicePin[]): ChoiceTile[] {

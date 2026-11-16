@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
 	import { Alert, PageHeader, Tabs, Toast } from '@study-atelier/ui';
-	import { goto } from '$app/navigation';
+	import { goto, snapshot } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
@@ -16,7 +16,7 @@
 	import SymbolAtlas from '#lib/symbols/components/SymbolAtlas/SymbolAtlas.svelte';
 	import { loadSymbolAtlas, type AtlasResult } from '#lib/symbols/symbols-data/symbols-data.ts';
 	import { m } from '#lib/i18n/i18n.ts';
-	import type { PageProps, Snapshot } from './$types';
+	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
@@ -39,7 +39,8 @@
 		scroll?: number;
 	};
 
-	export const snapshot: Snapshot<Saved> = {
+	snapshot<Saved>({
+		id: 'glossary',
 		capture: () => ({ tab, query, symbolQuery, chosen: [...chosen], scroll: window.scrollY }),
 		restore: (value) => {
 			if (isGlossaryTab(value.tab)) tab = value.tab;
@@ -50,7 +51,7 @@
 			if (scroll === undefined) return;
 			void tick().then(() => window.scrollTo({ top: scroll, behavior: 'instant' }));
 		}
-	};
+	});
 
 	$effect(() => {
 		rememberGlossaryTab(tab);

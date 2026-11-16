@@ -18,7 +18,21 @@ export default defineConfig({
 				runes: ({ filename }) =>
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
-			adapter: adapter({ platformProxy: { persist: false } }),
+			adapter: adapter({
+				platformProxy: { persist: false },
+				routes: {
+					include: ['/*'],
+					exclude: [
+						'<build>',
+						'/exhibits/*',
+						'/icons/*',
+						'/map/*',
+						'/manifest.webmanifest',
+						'/og-image.png',
+						'/robots.txt'
+					]
+				}
+			}),
 			version: { pollInterval: 10 * 60 * 1000 }
 		}),
 		sentryAuthToken
@@ -63,7 +77,11 @@ export default defineConfig({
 						instances: [{ browser: 'chromium', headless: true }]
 					},
 					include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
-					setupFiles: ['src/lib/testing/ui-messages/ui-messages.ts', 'src/lib/testing/env/env.ts']
+					setupFiles: [
+						'src/lib/testing/ui-messages/ui-messages.ts',
+						'src/lib/testing/env/env.ts',
+						'src/lib/testing/quiet-fly/quiet-fly.ts'
+					]
 				}
 			}
 		]

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
 	import { Alert, PageHeader, Toast } from '@study-atelier/ui';
-	import { goto } from '$app/navigation';
+	import { goto, snapshot } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import {
@@ -12,7 +12,7 @@
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import CardIndexTabs from '#lib/card-index/components/CardIndexTabs/CardIndexTabs.svelte';
 	import { m } from '#lib/i18n/i18n.ts';
-	import type { PageProps, Snapshot } from './$types';
+	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
@@ -24,7 +24,8 @@
 
 	type Saved = { tab: string; query: string; scroll?: number };
 
-	export const snapshot: Snapshot<Saved> = {
+	snapshot<Saved>({
+		id: 'card-index',
 		capture: () => ({ tab, query, scroll: window.scrollY }),
 		restore: (value) => {
 			if (!isCardIndexTab(value.tab)) return;
@@ -34,7 +35,7 @@
 			if (scroll === undefined) return;
 			void tick().then(() => window.scrollTo({ top: scroll, behavior: 'instant' }));
 		}
-	};
+	});
 
 	$effect(() => {
 		rememberCardIndexTab(tab);

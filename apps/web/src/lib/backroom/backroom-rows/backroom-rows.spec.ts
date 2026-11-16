@@ -20,6 +20,7 @@ function flag(extra: Partial<FlagRecord>): FlagRecord {
 		symbolId: null,
 		symbolName: null,
 		imageNumber: null,
+		holds: false,
 		...extra
 	};
 }
@@ -46,6 +47,18 @@ describe('flag rows', () => {
 				flagId: 'flag-1'
 			}
 		});
+	});
+
+	it('marks a flag that holds its question in the reviews', () => {
+		const [row] = flagRows(
+			[flag({ artworkId: 'artwork-12', reason: 'pin', holds: true })],
+			[jerome],
+			[]
+		);
+		expect(row.held).toBe(true);
+		expect(flagRows([flag({ artworkId: 'artwork-12' })], [jerome], [])[0]).not.toHaveProperty(
+			'held'
+		);
 	});
 
 	it('says which question or note a flag came from', () => {

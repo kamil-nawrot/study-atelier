@@ -1,6 +1,6 @@
 # 0312. Schedule glossary terms and symbols on cards of their own
 
-- Status: accepted
+- Status: accepted; picking the questions in the browser is superseded by [0316](0316-pick-the-glossary-and-symbol-questions-in-the-database.md)
 - Date: 2026-11-16
 
 ## Context and problem statement

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { goto } from '$app/navigation';
+import { goto, snapshot } from '$app/navigation';
 import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { createExhibition } from '#lib/exhibitions/exhibition-data/exhibition-data.ts';
@@ -19,13 +19,21 @@ vi.mock('$app/state', () => ({
 	navigating: { to: null },
 	updated: { current: false }
 }));
-vi.mock('$app/navigation', () => ({ afterNavigate: vi.fn(), goto: vi.fn() }));
+vi.mock('$app/navigation', () => ({ afterNavigate: vi.fn(), goto: vi.fn(), snapshot: vi.fn() }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
 vi.mock('#lib/exhibitions/exhibition-data/exhibition-data.ts', () => ({
 	createExhibition: vi.fn()
 }));
+
+type Registered = {
+	id: string;
+	capture: () => unknown;
+	restore: (value: unknown) => void;
+};
+const registered = (): Registered =>
+	vi.mocked(snapshot).mock.calls.at(-1)![0] as unknown as Registered;
 
 const cover = testArtwork(1, 'Judith');
 const light = {
@@ -54,6 +62,15 @@ describe('exhibitions page', () => {
 		vi.clearAllMocks();
 		navigation.state = {};
 		await page.viewport(1280, 800);
+	});
+
+	it('keeps the search and the scroll position for the way back', async () => {
+		renderList();
+
+		expect(registered().id).toBe('exhibitions');
+		registered().restore({ query: 'Light', scroll: 0 });
+
+		expect(registered().capture()).toEqual({ query: 'Light', scroll: 0 });
 	});
 
 	it('lists the exhibitions with their number', async () => {

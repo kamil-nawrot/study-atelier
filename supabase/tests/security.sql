@@ -110,7 +110,7 @@ declare
     'record_legal_read',
     'save_symbol', 'symbol_atlas',
     'set_place_point', 'set_symbol_cover', 'assign_symbol_meaning', 'ensure_city_place',
-    'set_exhibition_cover', 'save_flag', 'flag_count', 'record_extra_review'
+    'set_exhibition_cover', 'save_flag', 'flag_count', 'record_extra_review', 'extra_round'
   ];
   table_name text;
   routine record;
@@ -579,6 +579,8 @@ begin
   assert security_test.denied(format('select public.assign_symbol_meaning(%L, ''{}'')', a_meaning)),
     'B moves the details of a meaning of A through assign_symbol_meaning';
   assert (select count(*) from public.symbol_atlas()) = 0, 'B sees the symbol atlas of A';
+  assert public.extra_round(now()) = '{"terms": [], "symbols": []}'::jsonb,
+    'B gets the terms or symbols of A through extra_round';
   perform public.set_place_point(a_place, 48.86, 2.34, 'Q19675');
   assert security_test.denied(format(
     'insert into public.exhibitions (owner_id, title) values (%L, ''Forged'')', a)),
@@ -1000,6 +1002,7 @@ begin
   assert security_test.denied('select * from public.review_cards'), 'anon reads review cards';
   assert security_test.denied('select public.review_counts(now())'), 'anon executes review_counts';
   assert security_test.denied('select public.confused_pairs()'), 'anon executes confused_pairs';
+  assert security_test.denied('select public.extra_round(now())'), 'anon executes extra_round';
   assert security_test.denied(format('select public.record_pair_answer(%L, ''author'', ''a'', ''b'', true)',
     gen_random_uuid())), 'anon executes record_pair_answer';
   assert security_test.denied('select public.review_session(now())'), 'anon executes review_session';

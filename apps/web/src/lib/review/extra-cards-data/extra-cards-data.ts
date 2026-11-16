@@ -1,12 +1,11 @@
-import { NO_EXTRA_CARDS } from '#lib/review/extra-cards/extra-cards.ts';
+import { NO_EXTRA_ROUND } from '#lib/review/extra-cards/extra-cards.ts';
 import { startOfDay } from '#lib/review/queue/queue.ts';
 import type { ExtraCard } from '#lib/review/types/extra-card.ts';
-import type { ExtraCards } from '#lib/review/types/extra-cards.ts';
+import type { ExtraRound } from '#lib/review/types/extra-round.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewRating } from '#lib/review/types/review-rating.ts';
 import type { ReviewState } from '#lib/review/types/review-state.ts';
 import type { SymbolQuestionKind } from '#lib/review/types/symbol-question-kind.ts';
-import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 
 type CardRow = {
@@ -25,7 +24,16 @@ type CardRow = {
 	last_rating: number | null;
 };
 
-type AnswerRow = { card_id: string; mode: string; reviewed_at: string };
+type TermRow = { id: string; card: CardRow | null };
+
+type SymbolRow = {
+	symbol_id: string;
+	pin_id: string;
+	kind: SymbolQuestionKind;
+	card: CardRow | null;
+};
+
+type RoundRow = { terms: TermRow[]; symbols: SymbolRow[] };
 
 export type ExtraMode = 'quiz_definition' | `symbol_${SymbolQuestionKind}`;
 
@@ -35,9 +43,6 @@ export type ExtraAnswerInput = {
 	answerMs: number;
 	wrongAnswer?: string;
 };
-
-const CARD_COLUMNS =
-	'id, glossary_entry_id, symbol_id, due, stability, difficulty, state, reps, lapses, scheduled_days, learning_steps, last_review, last_rating';
 
 function cardOf(row: CardRow): ExtraCard {
 	return {
@@ -57,47 +62,23 @@ function cardOf(row: CardRow): ExtraCard {
 	};
 }
 
-function askedKindsOf(
-	answers: readonly AnswerRow[],
-	cards: readonly ExtraCard[]
-): Map<string, Partial<Record<SymbolQuestionKind, number>>> {
-	const symbolOf = new Map(
-		cards.flatMap((card) => (card.symbolId ? [[card.id, card.symbolId]] : []))
-	);
-	const asked = new Map<string, Partial<Record<SymbolQuestionKind, number>>>();
-	for (const answer of answers) {
-		const symbolId = symbolOf.get(answer.card_id);
-		if (!symbolId) continue;
-		const kind = answer.mode.replace('symbol_', '') as SymbolQuestionKind;
-		const at = new Date(answer.reviewed_at).getTime();
-		const kinds = asked.get(symbolId) ?? {};
-		kinds[kind] = Math.max(kinds[kind] ?? at, at);
-		asked.set(symbolId, kinds);
-	}
-	return asked;
-}
+export const RESERVE = 2;
 
-export async function loadExtraCards(): Promise<ExtraCards> {
-	const [cardRows, answerRows] = await Promise.all([
-		fetchAll<CardRow>((from, to) =>
-			supabase.from('extra_cards').select(CARD_COLUMNS).order('id').range(from, to)
-		),
-		fetchAll<AnswerRow>((from, to) =>
-			supabase
-				.from('extra_review_log')
-				.select('card_id, mode, reviewed_at')
-				.eq('practice', false)
-				.neq('mode', 'quiz_definition')
-				.order('id')
-				.range(from, to)
-		)
-	]);
-	if (cardRows.error || answerRows.error) return NO_EXTRA_CARDS;
-	const cards = cardRows.rows.map(cardOf);
+export async function loadExtraRound(dayStart: Date): Promise<ExtraRound> {
+	const { data, error } = await supabase.rpc('extra_round', {
+		day_start: dayStart.toISOString(),
+		reserve: RESERVE
+	});
+	if (error || !data) return NO_EXTRA_ROUND;
+	const round = data as unknown as RoundRow;
 	return {
-		terms: new Map(cards.flatMap((card) => (card.termId ? [[card.termId, card]] : []))),
-		symbols: new Map(cards.flatMap((card) => (card.symbolId ? [[card.symbolId, card]] : []))),
-		askedKinds: askedKindsOf(answerRows.rows, cards)
+		terms: round.terms.map((term) => ({ id: term.id, card: term.card && cardOf(term.card) })),
+		symbols: round.symbols.map((symbol) => ({
+			symbolId: symbol.symbol_id,
+			pinId: symbol.pin_id,
+			kind: symbol.kind,
+			card: symbol.card && cardOf(symbol.card)
+		}))
 	};
 }
 

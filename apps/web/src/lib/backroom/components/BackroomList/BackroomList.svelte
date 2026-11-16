@@ -49,7 +49,10 @@
 				{/if}
 				<span class="reason">{row.reason}</span>
 				{#if row.origin || row.comment}
-					<MetaLine class="meta" parts={[row.origin, row.comment && `„${row.comment}”`]} />
+					<MetaLine
+						class="meta"
+						parts={[row.origin, row.held && m.backroom.held, row.comment && `„${row.comment}”`]}
+					/>
 				{/if}
 			</div>
 			<Button
