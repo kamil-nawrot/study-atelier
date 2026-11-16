@@ -25,7 +25,6 @@
 	type Props = {
 		open?: boolean;
 		exhibitionId: string;
-		title: string;
 		artworkIds: readonly string[];
 		lookup: ArtworkLookup;
 		stored: ExhibitionPoster;
@@ -37,7 +36,6 @@
 	let {
 		open = $bindable(false),
 		exhibitionId,
-		title,
 		artworkIds,
 		lookup,
 		stored,
@@ -130,11 +128,6 @@
 					oncrop={crop}
 					{picture}
 				/>
-				<span class="title">{title}</span>
-				<MetaLine
-					class="meta"
-					text={m.exhibitions.posterMeta(artworkIds.length, m.exhibitions.changedToday)}
-				/>
 			</div>
 		</div>
 		<div class="side">
@@ -225,29 +218,18 @@
 <style>
 	.layout {
 		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(0, 20rem);
+		grid-template-columns: auto minmax(0, 1fr);
 		gap: var(--spacing-8);
+		align-items: start;
 	}
 
 	.stage {
-		display: grid;
-		place-items: center;
 		padding: var(--spacing-6);
 		background: var(--color-surface);
 	}
 
 	.poster {
-		display: grid;
-		gap: var(--spacing-3);
-		width: 100%;
-		max-width: 22.5rem;
-	}
-
-	.title {
-		font-family: var(--font-family-title), Georgia, serif;
-		font-size: var(--font-size-xl);
-		font-style: italic;
-		line-height: var(--line-height-xl);
+		width: 22rem;
 	}
 
 	.side {
@@ -266,8 +248,7 @@
 	}
 
 	.hint,
-	.side :global(.meta),
-	.poster :global(.meta) {
+	.side :global(.meta) {
 		margin: 0;
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-sm);
@@ -293,7 +274,12 @@
 		}
 
 		.stage {
+			justify-self: center;
 			padding: var(--spacing-4);
+		}
+
+		.poster {
+			width: 16rem;
 		}
 	}
 </style>
