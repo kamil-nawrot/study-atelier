@@ -77,7 +77,11 @@ export default defineConfig({
 						instances: [{ browser: 'chromium', headless: true }]
 					},
 					include: ['src/**/*.svelte.{test,spec}.{js,ts}'],
-					setupFiles: ['src/lib/testing/ui-messages/ui-messages.ts', 'src/lib/testing/env/env.ts']
+					setupFiles: [
+						'src/lib/testing/ui-messages/ui-messages.ts',
+						'src/lib/testing/env/env.ts',
+						'src/lib/testing/quiet-fly/quiet-fly.ts'
+					]
 				}
 			}
 		]
