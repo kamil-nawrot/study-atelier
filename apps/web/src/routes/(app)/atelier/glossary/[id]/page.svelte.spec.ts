@@ -13,6 +13,9 @@ import { testSession } from '#lib/testing/auth/auth.ts';
 import { testEntry, testGlossary } from '#lib/testing/glossary/glossary.ts';
 import { setBackPlace } from '#lib/shared/navigation/back/back.svelte.ts';
 import GlossaryEntryPage from './+page.svelte';
+import { saveFlag } from '#lib/backroom/flags-data/flags-data.ts';
+
+vi.mock('#lib/backroom/flags-data/flags-data.ts', () => ({ saveFlag: vi.fn() }));
 
 const navigation = vi.hoisted(() => ({
 	url: new URL('http://localhost/atelier/glossary/a-tympanum'),
@@ -329,5 +332,21 @@ describe('glossary entry page', () => {
 		await expect
 			.element(page.getByRole('heading', { name: m.glossary.view.fragments }))
 			.not.toBeInTheDocument();
+	});
+
+	it('flags the term and says it went to Zaplecze', async () => {
+		vi.mocked(saveFlag).mockResolvedValue({ created: true });
+		renderEntry();
+
+		await page.getByRole('button', { name: m.backroom.flag }).click();
+		await page.getByRole('radio', { name: m.backroom.reasons.definition }).click();
+		await page.getByRole('button', { name: m.backroom.confirm, exact: true }).click();
+
+		await expect.element(page.getByText(m.backroom.flagged)).toBeInTheDocument();
+		expect(saveFlag).toHaveBeenCalledWith({
+			item: { kind: 'term', id: tympanum.id, name: tympanum.name },
+			reason: 'definition',
+			comment: ''
+		});
 	});
 });
