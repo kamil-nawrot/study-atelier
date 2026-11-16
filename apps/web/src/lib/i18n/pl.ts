@@ -215,7 +215,6 @@ export const pl = {
 		exhibitions: 'Wystawy',
 		review: 'Powtórki',
 		displayCase: 'Ekspozycja',
-		displayCaseNew: 'Ekspozycja, nowe',
 		reviewWaiting: (count: number): string => `${workCount(count)} na dziś`,
 		trash: 'Archiwum',
 		settings: 'Ustawienia',
@@ -249,7 +248,6 @@ export const pl = {
 		},
 		loadErrorTitle: 'Nie udało się wczytać ustawień',
 		profile: {
-			avatarAlt: 'Twoje zdjęcie',
 			addPhoto: 'Dodaj zdjęcie',
 			changePhoto: 'Zmień zdjęcie',
 			removePhoto: 'Usuń zdjęcie',
@@ -280,7 +278,6 @@ export const pl = {
 			emailPending: (email: string): string =>
 				`Czeka na potwierdzenie zmiany na ${email}. Kliknij w linki, które zostały wysłane na stary i na nowy adres, aby dokończyć procedurę.`,
 			emailChanged: 'Adres e-mail został pomyślnie zmieniony.',
-			emailErrorTitle: 'Nie udało się zmienić adresu',
 			passwordTitle: 'Zmiana hasła',
 			currentPassword: 'Obecne hasło',
 			newPassword: 'Nowe hasło',
@@ -907,7 +904,6 @@ export const pl = {
 				span
 					? `Twój rok ${guess} mieści się w latach powstania.`
 					: `Strzał w rok ${guess} to dokładnie ten rok.`,
-			guessMark: (guess: string): string => `Twój strzał: ${guess}`,
 			axis: 'Oś epoki z prawdziwymi latami dzieła i Twoim strzałem'
 		},
 		order: {
@@ -1421,7 +1417,39 @@ export const pl = {
 		errors: {
 			gone: 'Tego już nie ma w atelier.',
 			invalid: 'Flaga jest niepoprawna. Sprawdź powód i komentarz.'
-		}
+		},
+		title: 'Zaplecze',
+		lead: 'Tu czeka to, co oznaczysz flagą w powtórce albo w widokach, i dane, których brakuje w atelier. Popraw je po kolei albo wybierz jedną pozycję.',
+		menuCount: (count: number): string => `${count} do poprawki`,
+		tabs: { flags: 'Twoje flagi', missing: 'Braki danych' },
+		fixAll: 'Poprawiaj po kolei',
+		fix: 'Popraw',
+		imageNumber: (number: number): string => `obraz ${number}`,
+		origins: {
+			question: (question: string): string => `z pytania „${question}”`,
+			note: (record: string): string => `w notatce do ${record}`,
+			artwork: 'z widoku dzieła',
+			term: 'z widoku pojęcia',
+			symbol: 'z widoku symbolu'
+		},
+		missing: {
+			style: 'brak stylu',
+			year: 'brak roku',
+			image: 'brak obrazu',
+			definition: 'brak definicji'
+		},
+		emptyFlagsTitle: 'Nic do poprawki',
+		emptyFlags: 'Gdy coś w pytaniu albo w dziele się nie zgadza, oznacz to flagą. Trafi tutaj.',
+		emptyMissingTitle: 'Niczego nie brakuje',
+		emptyMissing: 'Wszystkie dzieła mają styl, rok i obraz, a pojęcia definicje.',
+		loadErrorTitle: 'Nie udało się wczytać Zaplecza',
+		progress: (position: number, total: number): string => `${position} z ${total}`,
+		skip: 'Pomiń',
+		finish: 'Zakończ',
+		saveNext: 'Zapisz i dalej',
+		note: (reason: string, comment?: string): string =>
+			comment ? `${reason} · „${comment}”` : reason,
+		done: (count: number): string => `To już wszystko. Poprawione pozycje: ${count}.`
 	},
 	pins: {
 		switchLabel: (count: number): string => `Pinezki (${count})`,
@@ -1502,7 +1530,6 @@ export const pl = {
 			fragments: 'Detale',
 			fragmentsBack: 'Przewiń detale wstecz',
 			fragmentsForward: 'Przewiń detale dalej',
-			licenceLink: 'CC BY-SA 4.0',
 			notFoundTitle: 'Nie ma takiego pojęcia',
 			notFound: 'Nie ma takiego pojęcia w słowniczku. Może zostało usunięte.',
 			loadErrorTitle: 'Nie udało się wczytać tego pojęcia',
@@ -1531,7 +1558,6 @@ export const pl = {
 			searchAgain: 'Szukaj jeszcze raz',
 			searchDefinition: 'Szukaj w Wikipedii',
 			definitionManual: 'Napisz definicję własnymi słowami albo poszukaj jej w Wikipedii.',
-			definitionTooLong: (max: number): string => `Definicja może mieć najwyżej ${max} znaków.`,
 			pickArticle: 'Wybierz inny artykuł',
 			removeSource: 'Usuń źródło',
 			sortByOther: 'Sortuj inaczej niż po nazwie',
@@ -1691,7 +1717,6 @@ export const pl = {
 			description: 'Opis',
 			meaning: 'Co oznacza?',
 			meaningRequired: 'Wpisz, co oznacza ten symbol, albo usuń to znaczenie.',
-			meaningTooLong: (max: number): string => `Znaczenie może mieć najwyżej ${max} znaków.`,
 			context: 'W jakim kontekście?',
 			contextHint:
 				'Wybierz wartość z Kartoteki, postać ze Słowniczka, lub wpisz własny opis. Puste pole będzie traktowane jako znaczenie ogólne.',

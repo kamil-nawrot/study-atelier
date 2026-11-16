@@ -551,6 +551,37 @@ alternatives:
     loses:
       - 'One poster per exhibition; the poster cannot come from an image outside the atelier.'
 
+  - id: M13
+    name: Schedule glossary terms and symbols on extra cards
+    status: 'designed in 0.25 (ATL-789, ADR-0312); built in ATL-790'
+    kind: schema
+    tables: [extra_cards, extra_review_log]
+    serves: [R14, R30, W34]
+    pull_requests: 1
+    risk: medium-high
+    risk_because: 'a second card store beside review_cards, a new write in the session flow, and two more tables in the export, the import and the account deletion'
+    how: >
+      extra_cards holds the FSRS state of one glossary term or one symbol (exactly one reference, each unique,
+      cascading on the delete of the term or symbol), created by its first scheduling answer. extra_review_log keeps
+      every answer by card_id with its mode, rating, time, wrong answer, due_before and practice.
+      record_extra_review(target_term, target_symbol, card, answer, day_start) upserts the card computed in the
+      browser by ts-fsrs (365-day cap) and appends the answer in one transaction; an earlier scheduling answer of the
+      card on the same day makes it practice and leaves the card. The session loads the cards due by the end of the
+      day with the last non-practice mode of each symbol card in one select, and picks in the browser: due cards whose
+      question can be built, most overdue first, then new terms or symbols at random in the places left.
+    design:
+      - 'Separate tables, not review_cards: review_cards and review_log reference an artwork, and record_review also keeps the streak, the plan of the day and the recognition points.'
+      - 'A card is never created ahead; a card whose question cannot be built is skipped and stays due.'
+      - 'The kind of symbol question is the buildable kind asked least recently for the card; a new card starts with the symbol question.'
+      - 'No backfill: answers to definition and symbol questions were never saved.'
+    cost:
+      - 'migration: two tables, references, checks, indexes, RLS, grants, record_extra_review'
+      - 'SQL tests: first answer of the day, practice, exactly one reference, another owner refused, cascade on delete of a term and a symbol, import'
+      - 'browser: definitions.ts and symbol-questions.ts pick from cards, review-session saves the answer, data-transfer tables and remap, database.types.ts'
+    loses:
+      - 'One card per symbol: knowing its look and its meanings are not told apart.'
+      - '"Co to jest?" and note gaps do not move the card of a term.'
+
 patterns:
   - { id: R01, today: 10, target: 5, model: none, also: [T1, T2] }
   - { id: R02, today: 2, target: 2, model: none, also: [T13] }
@@ -599,7 +630,13 @@ patterns:
   - { id: R11, today: 2, target: 2, model: none, also: [] }
   - { id: R12, today: 2, target: 2, model: none, also: [] }
   - { id: R13, today: 9, target: 'about 4', model: [M1, Q1], also: [Z5] }
-  - { id: R14, today: 7, target: 'about 5', model: [Q1], also: [T1, T14] }
+  - {
+      id: R14,
+      today: 7,
+      target: 'about 5, +1 select of extra cards (M13)',
+      model: [Q1, M13],
+      also: [T1, T14]
+    }
   - { id: R15, today: 5, target: 3, model: [M6], also: [T2] }
   - {
       id: R16,
@@ -626,7 +663,12 @@ patterns:
   - { id: R27, today: 'new', target: '3 selects with embeds', model: [M7] }
   - { id: R28, today: 'new', target: '+1 light index beside the term index', model: [M7] }
   - { id: R29, today: 'new', target: '+1 select by the label column', model: [M7] }
-  - { id: R30, today: 'new', target: '+1 at the session start', model: [M7] }
+  - {
+      id: R30,
+      today: 'new',
+      target: '+1 at the session start; due symbol cards from the R14 select',
+      model: [M7, M13]
+    }
   - { id: R31, today: 'new', target: 'read with the artwork, no request of its own', model: [M8] }
   - {
       id: R32,
@@ -771,6 +813,7 @@ writes:
       model: [M11]
     }
   - { id: W33, today: 'new', after: 'set_exhibition_cover updates the cover columns', model: [M12] }
+  - { id: W34, today: 'nothing saved', after: 'record_extra_review', model: [M13] }
 
 decisions:
   - id: D1

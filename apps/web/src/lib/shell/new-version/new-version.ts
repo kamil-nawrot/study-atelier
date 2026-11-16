@@ -1,5 +1,3 @@
-export const VERSION_POLL_INTERVAL = 10 * 60 * 1000;
-
 const RELOADED_TYPES = new Set(['link', 'popstate']);
 
 type Reloading = Pick<Location, 'assign' | 'replace'>;

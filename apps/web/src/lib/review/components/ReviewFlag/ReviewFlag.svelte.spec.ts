@@ -7,6 +7,9 @@ import { saveFlag } from '#lib/backroom/flags-data/flags-data.ts';
 import ReviewFlag from './ReviewFlag.svelte';
 
 vi.mock('#lib/backroom/flags-data/flags-data.ts', () => ({ saveFlag: vi.fn() }));
+vi.mock('#lib/backroom/flag-count/flag-count.svelte.ts', () => ({
+	flagCount: { refresh: vi.fn() }
+}));
 
 const save = vi.mocked(saveFlag);
 const jerome = testArtwork(1, 'Saint Jerome');

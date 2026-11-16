@@ -23,6 +23,7 @@ reads:
     needs:
       - profile (one)
       - review_counts (aggregate)
+      - flag_count (aggregate, from 0.25)
       - career_standing (aggregate)
       - announcements (few)
     scope: one
@@ -262,8 +263,9 @@ reads:
     needs:
       - 'review cards: due'
       - 'artwork facts: of the drawn cards'
-      - 'term index with a has-definition flag: to draw definition questions'
-      - 'term definitions: of the drawn terms'
+      - 'term index with a has-definition flag: to pick definition questions'
+      - 'extra cards of terms and symbols: due by the end of the day, with the last mode of each symbol card (ADR-0312)'
+      - 'term definitions: of the picked terms'
       - 'counts, streak, preferences'
     scope: few
     frequency: view
@@ -504,7 +506,7 @@ reads:
     route: /atelier/review
     shows: 1 to 3 extra questions with a pin crop asking for the symbol, its meaning here or the person it belongs to
     needs:
-      - 'pins with a symbol and a crop: few, random, with symbol name, meaning text and person label'
+      - 'pins with a symbol and a crop: few, with symbol name, meaning text and person label; due symbol cards first, then new symbols at random (ADR-0312)'
       - 'other answers: other symbol names, meaning texts and glossary persons'
     scope: few
     frequency: view
@@ -561,6 +563,23 @@ reads:
         requests: 0,
         whole: [],
         note: 'new in 0.23 (ADR-0260, built in ATL-685): 1 request for the places with their details, the rest from the wall cache'
+      }
+
+  - id: R36
+    name: Zaplecze
+    route: /atelier/backroom
+    shows: "the learner's flags (item, reason with the image number, the question, note or view it came from, comment) and the missing data (artworks without a style, year or image, terms without a definition), each opening its editor at the field (ADR-0313)"
+    needs:
+      - 'learner_flags: all of the learner, newest first, with the position of the flagged image and the name of a flagged symbol'
+      - 'artworks: tile columns, styles, year and image, from the cached collection of the wall; flags of artworks in Archiwum are left out'
+      - 'glossary_entries: the cached term index (name, has_definition)'
+    scope: all
+    frequency: view
+    today:
+      {
+        requests: 1,
+        whole: [],
+        note: 'new in 0.25 (ATL-467): the flags, the rest from the wall and glossary caches'
       }
 
 writes:
@@ -787,6 +806,17 @@ writes:
     changes: [exhibitions.cover_*]
     side_effects: [list, Archiwum, '"Na wystawach"']
     frequency: 'write, from the dialog "Afisz wystawy" (set_exhibition_cover), apart from the document autosave and its revision'
+  - id: W34
+    name: Answer a glossary or symbol question in review
+    changes: [extra_cards, extra_review_log, point_events]
+    side_effects:
+      [
+        the next glossary and symbol questions,
+        a point for a right first answer as today,
+        only the first answer of the day of a card schedules it; later ones are practice,
+        nothing in a free round
+      ]
+    frequency: 'write, record_extra_review (ADR-0312)'
 
   - id: W35
     name: Flag a weak item
@@ -794,6 +824,12 @@ writes:
     side_effects: [Zaplecze, menu count of Zaplecze]
     frequency: 'write, from "Co poprawić?" in the review session bar and in the artwork, term and symbol views (save_flag)'
     note: 'one flag per item, image or pin and reason: a second flag of the same reason replaces the comment and keeps the question; a pin flag from a review finds its pin by image and place, since the round does not carry pin ids (ADR-0313)'
+
+  - id: W36
+    name: Fix a flagged item from Zaplecze
+    changes: [learner_flags]
+    side_effects: [Zaplecze, menu count of Zaplecze]
+    frequency: 'write, after a save in an editor opened from Zaplecze ("Popraw" or "Poprawiaj po kolei"); the flag is deleted, with no history'
 
 relations:
   # Every relation the app shows, whether stored or computed today.

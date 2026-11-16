@@ -1,6 +1,6 @@
 # 0153. Add glossary definitions to the review as extra questions
 
-- Status: accepted; the switch at the review start is superseded by [0186](0186-tidy-up-the-settings-view.md)
+- Status: accepted; the switch at the review start is superseded by [0186](0186-tidy-up-the-settings-view.md), the draw without a schedule by [0312](0312-schedule-glossary-terms-and-symbols-on-cards-of-their-own.md)
 - Date: 2026-10-28
 
 ## Context and problem statement

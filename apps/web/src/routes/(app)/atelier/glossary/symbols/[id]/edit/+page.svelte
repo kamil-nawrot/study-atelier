@@ -2,6 +2,7 @@
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
+	import FixBar from '#lib/backroom/components/FixBar/FixBar.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import SymbolFormPage from '#lib/symbols/components/SymbolFormPage/SymbolFormPage.svelte';
 	import type { PageProps } from './$types';
@@ -27,6 +28,7 @@
 	{#snippet bar()}
 		<BackLink fallbackHref={backPath} fallbackName={data.symbol?.name ?? m.glossary.back} />
 		<h1 class="visually-hidden">{title}</h1>
+		<FixBar />
 	{/snippet}
 
 	<SymbolFormPage bind:this={page} {backPath} {data} />

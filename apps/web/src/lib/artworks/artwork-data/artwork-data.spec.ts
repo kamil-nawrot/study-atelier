@@ -6,7 +6,7 @@ import {
 	uploadOwnImage
 } from '#lib/images/own-image-data/own-image-data.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { emptyArtworkInput } from '#lib/artworks/artwork-record/artwork-record.ts';
+import { emptyArtworkInput } from '#lib/testing/artwork-input/artwork-input.ts';
 import { loadArtwork, saveArtwork } from './artwork-data.ts';
 import type { ArtworkInput } from '#lib/artworks/types/artwork-input.ts';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
