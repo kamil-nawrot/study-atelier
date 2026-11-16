@@ -565,7 +565,7 @@ reads:
         note: 'new in 0.23 (ADR-0260, built in ATL-685): 1 request for the places with their details, the rest from the wall cache'
       }
 
-  - id: R34
+  - id: R36
     name: Zaplecze
     route: /atelier/backroom
     shows: "the learner's flags (item, reason with the image number, the question, note or view it came from, comment) and the missing data (artworks without a style, year or image, terms without a definition), each opening its editor at the field (ADR-0313)"
