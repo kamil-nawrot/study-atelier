@@ -232,7 +232,16 @@ describe('settings page', () => {
 		const counts = page.getByRole('group', {
 			name: `${glossary}: ${m.settings.preferences.extraCount}`
 		});
-		await expect.element(counts.getByRole('button', { name: '2' })).toBeEnabled();
+		await expect.element(counts.getByRole('button', { name: '5' })).toBeEnabled();
+		await expect
+			.element(
+				page
+					.getByRole('group', {
+						name: `${m.settings.preferences.extraLabels.reviewPairsOn}: ${m.settings.preferences.extraCount}`
+					})
+					.getByRole('button', { name: '5' })
+			)
+			.not.toBeInTheDocument();
 		await page.getByRole('switch', { name: glossary }).click();
 		await expect.element(counts.getByRole('button', { name: '2' })).toBeDisabled();
 

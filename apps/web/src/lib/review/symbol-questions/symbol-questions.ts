@@ -1,4 +1,7 @@
 import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
+import { dueFirst, leastAskedKind } from '#lib/review/extra-cards/extra-cards.ts';
+import type { ExtraCard } from '#lib/review/types/extra-card.ts';
+import type { ExtraCards } from '#lib/review/types/extra-cards.ts';
 import { shuffle, shuffleQuiz } from '#lib/review/quiz/quiz.ts';
 import type { SymbolItem } from '#lib/review/types/symbol-item.ts';
 import type { SymbolQuestionKind } from '#lib/review/types/symbol-question-kind.ts';
@@ -18,6 +21,7 @@ export type SymbolQuestion = {
 	kind: SymbolQuestionKind;
 	right: string;
 	wrong: string[];
+	card?: ExtraCard | null;
 };
 
 function key(text: string): string {
@@ -63,23 +67,36 @@ export function possibleQuestions(
 	});
 }
 
-export function drawnSymbolQuestions(
+export function pickedSymbolQuestions(
 	pins: readonly SymbolQuestionPin[],
 	symbols: readonly SymbolOption[],
 	glossary: readonly GlossaryTerm[],
 	count: number,
+	cards: Pick<ExtraCards, 'symbols' | 'askedKinds'>,
+	now: Date,
 	random: () => number = Math.random
 ): SymbolQuestion[] {
 	if (count <= 0) return [];
 	const pool = poolOf(symbols, glossary);
-	const drawn: SymbolQuestion[] = [];
-	for (const pin of shuffle([...pins], random)) {
-		if (drawn.length === count) break;
+	const bySymbol = new Map<string, SymbolQuestion[]>();
+	for (const pin of pins) {
 		const questions = possibleQuestions(pin, pool, random);
-		if (questions.length === 0) continue;
-		drawn.push(questions[Math.min(questions.length - 1, Math.floor(random() * questions.length))]);
+		if (questions.length > 0)
+			bySymbol.set(pin.symbolId, [...(bySymbol.get(pin.symbolId) ?? []), ...questions]);
 	}
-	return drawn;
+	const picked = dueFirst([...bySymbol.keys()], (id) => cards.symbols.get(id), count, now, random);
+	return picked.flatMap(({ item: symbolId, card }) => {
+		const questions = bySymbol.get(symbolId) ?? [];
+		const kind = leastAskedKind(
+			[...new Set(questions.map((question) => question.kind))],
+			cards.askedKinds.get(symbolId)
+		);
+		const ofKind = shuffle(
+			questions.filter((question) => question.kind === kind),
+			random
+		);
+		return ofKind[0] ? [{ ...ofKind[0], card }] : [];
+	});
 }
 
 export function symbolItems(
@@ -87,12 +104,13 @@ export function symbolItems(
 	lenses: ReadonlyMap<string, NonNullable<SymbolItem['lens']>>,
 	random: () => number = Math.random
 ): SymbolItem[] {
-	return questions.map(({ pin, kind, right, wrong }) => {
+	return questions.map(({ pin, kind, right, wrong, card }) => {
 		const lens = lenses.get(pin.pinId);
 		return {
 			mode: 'quiz_symbol' as const,
 			kind,
 			symbol: { id: pin.symbolId, name: pin.symbolName },
+			card: card ?? null,
 			key: `${pin.pinId}:${kind}`,
 			...(lens ? { lens } : {}),
 			quiz: shuffleQuiz(

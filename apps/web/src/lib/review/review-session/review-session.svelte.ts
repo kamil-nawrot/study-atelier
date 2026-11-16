@@ -1,12 +1,9 @@
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 import { currentDate, MAX_REPEATS, retryLater, startOfDay } from '#lib/review/queue/queue.ts';
 import { shuffleQuiz } from '#lib/review/quiz/quiz.ts';
-import {
-	recordPairAnswer,
-	recordReview,
-	recordRightAnswer
-} from '#lib/review/review-data/review-data.ts';
+import { recordReview, recordRightAnswer } from '#lib/review/review-data/review-data.ts';
 import { outcomes, quizRating } from '#lib/review/scheduler/scheduler.ts';
+import { recordExtraAnswer } from '#lib/review/extra-answers/extra-answers.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
 import type { ReviewRating } from '#lib/review/types/review-rating.ts';
@@ -146,7 +143,7 @@ export class ReviewSession {
 		}
 		const correct = choice === item.quiz.answer;
 		if (extraQuiz(item)) {
-			this.#answerExtra(item, correct);
+			this.#answerExtra(item, correct, pickedWrong(item.quiz, choice));
 			this.chosen = choice;
 			return;
 		}
@@ -158,12 +155,13 @@ export class ReviewSession {
 		if (saved) this.chosen = choice;
 	}
 
-	#answerExtra(item: ExtraQuizItem, correct: boolean): void {
+	#answerExtra(item: ExtraQuizItem, correct: boolean, wrongAnswer?: string): void {
 		const key = extraKey(item);
 		if (!this.#asked.has(key)) {
 			this.#asked.add(key);
 			this.extraAnswers.push({ mode: item.mode, right: correct });
-			if (item.mode === 'quiz_pair' && !this.free) void recordPairAnswer(item, correct);
+			if (!this.free)
+				void recordExtraAnswer(item, correct, this.#now(), this.#shownAt, wrongAnswer);
 		}
 		if (!correct) {
 			const missed = this.#missed.get(key) ?? 0;
