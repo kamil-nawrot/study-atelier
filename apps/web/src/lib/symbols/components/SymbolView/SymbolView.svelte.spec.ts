@@ -21,7 +21,7 @@ vi.mock('#lib/symbols/symbols-data/symbols-data.ts', () => ({
 	saveSymbol,
 	searchArtworkContexts: vi.fn().mockResolvedValue([])
 }));
-vi.mock('$app/navigation', () => ({ invalidateAll }));
+vi.mock('$app/navigation', () => ({ invalidateAll, goto: vi.fn() }));
 vi.mock('#lib/symbols/symbol-page-data/symbol-page-data.ts', () => ({ loadSymbolForm }));
 
 beforeEach(() => {

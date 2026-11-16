@@ -2,6 +2,9 @@
 	import { LoadFailure } from '@study-atelier/ui';
 	import { afterNavigate, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
+	import FixBar from '#lib/backroom/components/FixBar/FixBar.svelte';
+	import { BACKROOM_PATH, FixRoute } from '#lib/backroom/fix-route/fix-route.svelte.ts';
 	import ArtworkForm from '#lib/artworks/components/ArtworkForm/ArtworkForm.svelte';
 	import { FormSuggestions } from '#lib/artworks/form-suggestions/form-suggestions.svelte.ts';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
@@ -19,6 +22,7 @@
 	const atelierPath = resolve('/(app)/atelier');
 
 	let form = $state<ArtworkForm>();
+	const fix = new FixRoute(() => page.url.pathname);
 	let cameFromApp = false;
 
 	let suggestions = $derived(
@@ -44,6 +48,7 @@
 	}
 
 	async function showSaved(saved: number): Promise<void> {
+		if (await fix.afterSave()) return;
 		await goto(artworkPath, { replace: true, refreshAll: true, state: { saved } });
 	}
 </script>
@@ -59,6 +64,7 @@
 			fallbackName={data.artwork?.title ?? m.artworkView.back}
 		/>
 		<h1 class="visually-hidden">{title}</h1>
+		<FixBar />
 	{/snippet}
 
 	{#if data.artwork}
@@ -66,8 +72,9 @@
 			<ArtworkForm
 				bind:this={form}
 				artwork={data.artwork}
-				cancelHref={artworkPath}
-				oncancel={goBack}
+				cancelHref={fix.progress ? BACKROOM_PATH : artworkPath}
+				labels={fix.labels}
+				oncancel={fix.progress ? undefined : goBack}
 				onsaved={showSaved}
 				ownFields={data.ownFields}
 				pins={data.pins}

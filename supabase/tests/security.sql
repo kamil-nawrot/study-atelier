@@ -110,7 +110,7 @@ declare
     'record_legal_read',
     'save_symbol', 'symbol_atlas',
     'set_place_point', 'set_symbol_cover', 'assign_symbol_meaning', 'ensure_city_place',
-    'set_exhibition_cover', 'save_flag'
+    'set_exhibition_cover', 'save_flag', 'flag_count'
   ];
   table_name text;
   routine record;

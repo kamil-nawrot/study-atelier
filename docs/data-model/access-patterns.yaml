@@ -23,6 +23,7 @@ reads:
     needs:
       - profile (one)
       - review_counts (aggregate)
+      - flag_count (aggregate, from 0.25)
       - career_standing (aggregate)
       - announcements (few)
     scope: one
@@ -563,6 +564,23 @@ reads:
         note: 'new in 0.23 (ADR-0260, built in ATL-685): 1 request for the places with their details, the rest from the wall cache'
       }
 
+  - id: R34
+    name: Zaplecze
+    route: /atelier/backroom
+    shows: "the learner's flags (item, reason with the image number, the question, note or view it came from, comment) and the missing data (artworks without a style, year or image, terms without a definition), each opening its editor at the field (ADR-0313)"
+    needs:
+      - 'learner_flags: all of the learner, newest first, with the position of the flagged image and the name of a flagged symbol'
+      - 'artworks: tile columns, styles, year and image, from the cached collection of the wall; flags of artworks in Archiwum are left out'
+      - 'glossary_entries: the cached term index (name, has_definition)'
+    scope: all
+    frequency: view
+    today:
+      {
+        requests: 1,
+        whole: [],
+        note: 'new in 0.25 (ATL-467): the flags, the rest from the wall and glossary caches'
+      }
+
 writes:
   - id: W01
     name: Save artwork
@@ -794,6 +812,12 @@ writes:
     side_effects: [Zaplecze, menu count of Zaplecze]
     frequency: 'write, from "Co poprawić?" in the review session bar and in the artwork, term and symbol views (save_flag)'
     note: 'one flag per item, image or pin and reason: a second flag of the same reason replaces the comment and keeps the question; a pin flag from a review finds its pin by image and place, since the round does not carry pin ids (ADR-0313)'
+
+  - id: W36
+    name: Fix a flagged item from Zaplecze
+    changes: [learner_flags]
+    side_effects: [Zaplecze, menu count of Zaplecze]
+    frequency: 'write, after a save in an editor opened from Zaplecze ("Popraw" or "Poprawiaj po kolei"); the flag is deleted, with no history'
 
 relations:
   # Every relation the app shows, whether stored or computed today.

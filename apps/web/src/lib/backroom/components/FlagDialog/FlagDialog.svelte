@@ -3,6 +3,7 @@
 	import { Alert, Button, ChoiceTiles, Dialog, Form, TextArea } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { saveFlag } from '#lib/backroom/flags-data/flags-data.ts';
+	import { flagCount } from '#lib/backroom/flag-count/flag-count.svelte.ts';
 	import { FLAG_COMMENT_MAX, commentMissing } from '#lib/backroom/flag-payload/flag-payload.ts';
 	import { groupLabel, groupTiles, pinTiles } from '#lib/backroom/flag-tiles/flag-tiles.ts';
 	import type { FlagChoicePin } from '#lib/backroom/types/flag-choice-pin.ts';
@@ -78,6 +79,7 @@
 			return;
 		}
 		open = false;
+		if (result.created) void flagCount.refresh();
 		onflagged(result.created ? m.backroom.flagged : m.backroom.changed);
 	}
 </script>
