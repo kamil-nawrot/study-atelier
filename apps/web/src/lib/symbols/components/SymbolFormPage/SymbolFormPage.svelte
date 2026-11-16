@@ -2,6 +2,8 @@
 	import { LoadFailure } from '@study-atelier/ui';
 	import { afterNavigate, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
+	import { BACKROOM_PATH, FixRoute } from '#lib/backroom/fix-route/fix-route.svelte.ts';
 	import type { ResolvedPathname } from '$app/types';
 	import { arrivedFromApp, goBackThroughHistory } from '#lib/shared/navigation/history/history.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -19,6 +21,7 @@
 
 	let form = $state<SymbolForm>();
 	let cameFromApp = false;
+	const fix = new FixRoute(() => page.url.pathname);
 
 	let failed = $derived(data.error !== undefined || data.notFound === true);
 
@@ -35,6 +38,7 @@
 	}
 
 	async function showSaved(path: ResolvedPathname, message: string): Promise<void> {
+		if (await fix.afterSave()) return;
 		await goto(path, { replace: true, refreshAll: true, state: { glossaryMessage: message } });
 	}
 </script>
@@ -51,9 +55,10 @@
 	{#key backPath}
 		<SymbolForm
 			bind:this={form}
-			cancelHref={backPath}
+			cancelHref={fix.progress ? BACKROOM_PATH : backPath}
 			candidates={data.candidates}
-			oncancel={goBack}
+			labels={fix.labels}
+			oncancel={fix.progress ? undefined : goBack}
 			onsaved={showSaved}
 			symbol={data.symbol}
 		/>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import X from '@lucide/svelte/icons/x';
 	import { Icon, Tag } from '@study-atelier/ui';
+	import ReviewFlag from '#lib/review/components/ReviewFlag/ReviewFlag.svelte';
 	import type { ReviewSession } from '#lib/review/review-session/review-session.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 
@@ -20,26 +21,31 @@
 	{#if session.free}
 		<Tag>{m.review.freeTag}</Tag>
 	{/if}
-	<div
-		class="progress"
-		aria-label={m.review.progressLabel}
-		aria-valuemax={session.queue.length}
-		aria-valuemin={0}
-		aria-valuenow={session.position}
-		role="progressbar"
-	>
-		<span class="caption">
-			{m.review.progress(
-				Math.min(session.position + 1, session.queue.length),
-				session.queue.length
-			)}
-		</span>
-		<span class="track" aria-hidden="true">
-			<span
-				style:width="{(session.position / Math.max(1, session.queue.length)) * 100}%"
-				class="fill"
-			></span>
-		</span>
+	<div class="end">
+		{#if session.current}
+			<ReviewFlag chosen={session.chosen} step={session.current} />
+		{/if}
+		<div
+			class="progress"
+			aria-label={m.review.progressLabel}
+			aria-valuemax={session.queue.length}
+			aria-valuemin={0}
+			aria-valuenow={session.position}
+			role="progressbar"
+		>
+			<span class="caption">
+				{m.review.progress(
+					Math.min(session.position + 1, session.queue.length),
+					session.queue.length
+				)}
+			</span>
+			<span class="track" aria-hidden="true">
+				<span
+					style:width="{(session.position / Math.max(1, session.queue.length)) * 100}%"
+					class="fill"
+				></span>
+			</span>
+		</div>
 	</div>
 </div>
 
@@ -67,6 +73,13 @@
 		justify-content: space-between;
 		gap: var(--spacing-3);
 		min-width: 0;
+	}
+
+	.end {
+		display: flex;
+		align-self: stretch;
+		align-items: center;
+		gap: var(--spacing-3);
 	}
 
 	.progress {

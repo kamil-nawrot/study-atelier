@@ -3,7 +3,7 @@ import { fetchCommonsThumbnails } from '#lib/images/commons/commons.ts';
 import { savePinCrop } from '#lib/pins/pin-crop-data/pin-crop-data.ts';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 import type { Pin } from '#lib/pins/types/pin.ts';
-import { cutPinCrop, ensurePinCrops, PIN_CROP_SIDE } from './pin-crop.ts';
+import { ensurePinCrops } from './pin-crop.ts';
 
 vi.mock('#lib/pins/pin-crop-data/pin-crop-data.ts', () => ({ savePinCrop: vi.fn() }));
 vi.mock('#lib/images/commons/commons.ts', async (importOriginal) => ({
@@ -75,29 +75,6 @@ async function settled(): Promise<void> {
 async function drained(): Promise<void> {
 	for (let turn = 0; turn < 20; turn += 1) await Promise.resolve();
 }
-
-describe('cutPinCrop', () => {
-	afterEach(() => {
-		vi.unstubAllGlobals();
-		drawn.length = 0;
-	});
-
-	it('draws the view into a small square jpeg', async () => {
-		const jpeg = new Blob(['jpeg'], { type: 'image/jpeg' });
-		stubCanvas(jpeg);
-
-		await expect(cutPinCrop(new Blob(), { x: 0.5, y: 0.5, viewWidth: 0.1 })).resolves.toBe(jpeg);
-		expect(drawn[0].slice(1)).toEqual([900, 400, 200, 200, 0, 0, PIN_CROP_SIDE, PIN_CROP_SIDE]);
-	});
-
-	it('gives up when the image cannot be read', async () => {
-		vi.stubGlobal('createImageBitmap', vi.fn().mockRejectedValue(new Error('tainted')));
-
-		await expect(cutPinCrop(new Blob(), { x: 0.5, y: 0.5, viewWidth: 0.1 })).resolves.toBe(
-			undefined
-		);
-	});
-});
 
 describe('ensurePinCrops', () => {
 	beforeEach(() => {

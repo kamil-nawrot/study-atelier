@@ -1759,3 +1759,41 @@ export const EXHIBIT_TIERS = EXHIBITS.flatMap(({ exhibit, value, thresholds }) =
 					: '2026-10-29T10:00:00Z'
 		}))
 );
+
+function learnerFlag(number, target, reason, comment, question, createdAt) {
+	return {
+		id: `00000000-0000-4000-c000-${String(number).padStart(12, '0')}`,
+		reason,
+		comment,
+		question,
+		artwork_id: target.artwork ? artworkId(target.artwork) : null,
+		term_id: target.term
+			? `00000000-0000-4000-9000-${String(target.term).padStart(12, '0')}`
+			: null,
+		symbol_id: target.symbol ? symbolId(target.symbol) : null,
+		artwork_images: target.image ? { position: target.image - 1 } : null,
+		symbols: target.symbol ? { name: SYMBOLS[target.symbol - 1].name } : null,
+		created_at: createdAt
+	};
+}
+
+export const LEARNER_FLAGS = [
+	learnerFlag(
+		1,
+		{ artwork: 1, image: 1 },
+		'image',
+		'Za ciemne, nie widać tła',
+		{ mode: 'quiz_author', text: 'Kto jest autorem tego dzieła?', answer: 'Leonardo da Vinci' },
+		'2026-11-16T10:00:00Z'
+	),
+	learnerFlag(
+		2,
+		{ term: 2 },
+		'hidden',
+		null,
+		{ mode: 'note_gap', text: 'Jakiego pojęcia brakuje w Twojej notatce?', note: 6 },
+		'2026-11-15T10:00:00Z'
+	),
+	learnerFlag(3, { symbol: 1 }, 'meaning', null, null, '2026-11-14T10:00:00Z'),
+	learnerFlag(4, { artwork: 6 }, 'other', 'Sprawdzić daty budowy', null, '2026-11-13T10:00:00Z')
+];

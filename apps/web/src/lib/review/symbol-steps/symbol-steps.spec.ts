@@ -20,6 +20,7 @@ const names = ['Keys', 'Lily', 'Skull', 'Dove', 'Globe'];
 const symbols = names.map((name) => ({ id: name, name, meanings: [] }));
 const pin = {
 	pinId: 'pin-1',
+	symbolId: 'symbol-keys',
 	symbolName: 'Keys',
 	fragment: { pinId: 'pin-1', artworkId: 'a', x: 0, y: 0, viewWidth: 0.1, text: '' }
 };

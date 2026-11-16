@@ -92,6 +92,7 @@ export function symbolItems(
 		return {
 			mode: 'quiz_symbol' as const,
 			kind,
+			symbol: { id: pin.symbolId, name: pin.symbolName },
 			key: `${pin.pinId}:${kind}`,
 			...(lens ? { lens } : {}),
 			quiz: shuffleQuiz(

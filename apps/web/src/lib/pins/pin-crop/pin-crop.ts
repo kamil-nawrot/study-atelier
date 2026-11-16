@@ -5,7 +5,7 @@ import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input
 import { pinCropRect } from '#lib/pins/pin-crop-rect/pin-crop-rect.ts';
 import type { Pin } from '#lib/pins/types/pin.ts';
 
-export const PIN_CROP_SIDE = 320;
+const PIN_CROP_SIDE = 320;
 const PIN_CROP_QUALITY = 0.85;
 const FALLBACK_WIDTH = 960;
 
@@ -51,19 +51,6 @@ async function bitmapOf(source: Blob): Promise<ImageBitmap | undefined> {
 		return await createImageBitmap(source);
 	} catch {
 		return undefined;
-	}
-}
-
-export async function cutPinCrop(
-	source: Blob,
-	pin: Pick<Pin, 'x' | 'y' | 'viewWidth'>
-): Promise<Blob | undefined> {
-	const bitmap = await bitmapOf(source);
-	if (!bitmap) return undefined;
-	try {
-		return await cropOf(bitmap, pin);
-	} finally {
-		bitmap.close();
 	}
 }
 

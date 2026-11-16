@@ -7,6 +7,12 @@ import { testSession } from '#lib/testing/auth/auth.ts';
 import { testSymbolPage } from '#lib/testing/symbols/symbols.ts';
 import type { SymbolPageResult } from '#lib/symbols/types/symbol-page-result.ts';
 import SymbolPage from './+page.svelte';
+import { saveFlag } from '#lib/backroom/flags-data/flags-data.ts';
+
+vi.mock('#lib/backroom/flags-data/flags-data.ts', () => ({ saveFlag: vi.fn() }));
+vi.mock('#lib/backroom/flag-count/flag-count.svelte.ts', () => ({
+	flagCount: { refresh: vi.fn(), forLearner: vi.fn(), value: 0 }
+}));
 
 const navigation = vi.hoisted(() => ({
 	url: new URL('http://localhost/atelier/glossary/symbols/skull'),
@@ -114,5 +120,22 @@ describe('symbol page', () => {
 
 		await expect.element(page.getByText(m.symbols.view.notFound)).toBeVisible();
 		await expect.element(page.getByRole('link', { name: m.common.edit })).not.toBeInTheDocument();
+	});
+
+	it('flags the meaning of the symbol and says it went to Zaplecze', async () => {
+		vi.mocked(saveFlag).mockResolvedValue({ created: false });
+		renderSymbol();
+
+		await page.getByRole('button', { name: m.backroom.flag }).click();
+		await page.getByRole('radio', { name: m.backroom.reasons.meaning }).click();
+		await page.getByRole('button', { name: m.backroom.confirm, exact: true }).click();
+
+		await expect.element(page.getByText(m.backroom.changed)).toBeInTheDocument();
+		expect(saveFlag).toHaveBeenCalledWith(
+			expect.objectContaining({
+				item: { kind: 'symbol', id: 'skull', name: 'Skull' },
+				reason: 'meaning'
+			})
+		);
 	});
 });

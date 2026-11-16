@@ -45,6 +45,7 @@
 	import { suggestValues } from '#lib/card-index/value-suggestions/value-suggestions.ts';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import ArtworkEraFields from '#lib/artworks/components/ArtworkEraFields/ArtworkEraFields.svelte';
+	import FixNote from '#lib/backroom/components/FixNote/FixNote.svelte';
 	import ArtworkImages from '#lib/artworks/components/ArtworkImages/ArtworkImages.svelte';
 	import ArtworkRelationsField from '#lib/artwork-relations/components/ArtworkRelationsField/ArtworkRelationsField.svelte';
 	import ArtworkOwnFields from '#lib/artworks/components/ArtworkOwnFields/ArtworkOwnFields.svelte';
@@ -73,6 +74,7 @@
 		cancelHref: string;
 		oncancel?: (event: MouseEvent) => void;
 		onsaved: (number: number, next: boolean) => void | Promise<void>;
+		labels?: { save: string; cancel: string };
 	};
 
 	let {
@@ -83,7 +85,8 @@
 		pinsError,
 		cancelHref,
 		oncancel,
-		onsaved
+		onsaved,
+		labels
 	}: Props = $props();
 
 	const titleId = $props.id();
@@ -216,6 +219,7 @@
 </script>
 
 <Form error={formState.error} errorTitle={m.artworkForm.errorTitle} onsubmit={submit}>
+	<FixNote field="top" />
 	<div class="columns" onfocusin={wantSuggestions}>
 		<div class="fields head">
 			<TextField
@@ -242,27 +246,31 @@
 					bind:checked={form.authorUnknown}
 				/>
 			</div>
+			<FixNote field="data" />
 		</div>
 
-		<ArtworkImages
-			alt={imageAlt}
-			autoMatch={!artwork}
-			compactEmpty
-			entries={suggestions.glossary}
-			onmatching={(matching) => (imageMatching = matching)}
-			{pinsError}
-			query={{
-				kind: 'artwork',
-				title: form.title,
-				authors: form.authorUnknown ? [] : form.values.author
-			}}
-			searchReady={imageSearchReady}
-			symbols={suggestions.symbols}
-			texts={imageTexts}
-			bind:image={form.image}
-			bind:images={form.images}
-			bind:pins={pinList}
-		/>
+		<div class="images">
+			<FixNote field="image" />
+			<ArtworkImages
+				alt={imageAlt}
+				autoMatch={!artwork}
+				compactEmpty
+				entries={suggestions.glossary}
+				onmatching={(matching) => (imageMatching = matching)}
+				{pinsError}
+				query={{
+					kind: 'artwork',
+					title: form.title,
+					authors: form.authorUnknown ? [] : form.values.author
+				}}
+				searchReady={imageSearchReady}
+				symbols={suggestions.symbols}
+				texts={imageTexts}
+				bind:image={form.image}
+				bind:images={form.images}
+				bind:pins={pinList}
+			/>
+		</div>
 
 		<div class="fields">
 			<YearGroup
@@ -294,6 +302,7 @@
 					bind:beforeCommonEra={form.toBeforeCommonEra}
 				/>
 			</YearGroup>
+			<FixNote field="year" />
 
 			<ChoiceTiles
 				clearable
@@ -306,6 +315,7 @@
 			/>
 
 			<ArtworkEraFields valueLinks={suggestions.valueLinks} bind:form />
+			<FixNote field="style" />
 
 			{#each describedCategories as category (category.code)}
 				<ValueField
@@ -341,12 +351,13 @@
 				placeholder={m.artworkForm.notesPlaceholder}
 				bind:value={form.notes}
 			/>
+			<FixNote field="note" />
 		</div>
 	</div>
 
 	<FormActions bind:height={barHeight}>
 		<Button href={cancelHref} onclick={oncancel}>
-			{m.common.cancel}
+			{labels?.cancel ?? m.common.cancel}
 		</Button>
 		{#if !artwork}
 			<Button disabled={formState.busy || imageMatching} onclick={saveAndAddNext}>
@@ -354,7 +365,7 @@
 			</Button>
 		{/if}
 		<Button disabled={formState.busy || imageMatching} type="submit" variant="primary">
-			{formState.busy && !savingNext ? m.common.saving : m.common.save}
+			{formState.busy && !savingNext ? m.common.saving : (labels?.save ?? m.common.save)}
 		</Button>
 	</FormActions>
 </Form>
@@ -386,8 +397,10 @@
 		min-width: 0;
 	}
 
-	.group {
+	.group,
+	.images {
 		display: grid;
+		align-content: start;
 		gap: var(--spacing-3);
 	}
 
