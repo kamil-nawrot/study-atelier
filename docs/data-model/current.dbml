@@ -323,6 +323,52 @@ Table exhibits {
   Note: 'RLS on'
 }
 
+Table extra_cards {
+  id uuid [pk, default: `gen_random_uuid()`]
+  owner_id uuid [not null, default: `auth.uid()`]
+  glossary_entry_id uuid
+  symbol_id uuid
+  due "timestamp with time zone" [not null]
+  stability "double precision" [not null]
+  difficulty "double precision" [not null]
+  state smallint [not null]
+  reps integer [not null, default: `0`]
+  lapses integer [not null, default: `0`]
+  scheduled_days integer [not null, default: `0`]
+  learning_steps integer [not null, default: `0`]
+  last_review "timestamp with time zone"
+  last_rating smallint
+  created_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    (id, owner_id) [unique]
+    glossary_entry_id [unique, note: 'where (glossary_entry_id IS NOT NULL)']
+    symbol_id [unique, note: 'where (symbol_id IS NOT NULL)']
+    (owner_id, due) [name: 'extra_cards_owner_id_due_idx']
+  }
+  Note: 'RLS on; M13; exactly one of glossary_entry_id, symbol_id; created by the first scheduling answer'
+}
+
+Table extra_review_log {
+  id bigint [pk, increment, note: 'generated always as identity']
+  card_id uuid [not null]
+  owner_id uuid [not null, default: `auth.uid()`]
+  mode text [not null, note: 'quiz_definition, symbol_symbol, symbol_meaning, symbol_attribute']
+  rating smallint [not null]
+  correct boolean [not null]
+  answer_ms integer
+  wrong_answer text
+  due_before "timestamp with time zone"
+  practice boolean [not null, default: `false`]
+  reviewed_at "timestamp with time zone" [not null, default: `now()`]
+
+  indexes {
+    (card_id, reviewed_at) [name: 'extra_review_log_card_id_reviewed_at_idx']
+    (owner_id, reviewed_at) [name: 'extra_review_log_owner_id_reviewed_at_idx']
+  }
+  Note: 'RLS on; M13'
+}
+
 Table feedback {
   id uuid [pk, default: `gen_random_uuid()`]
   owner_id uuid [not null, default: `auth.uid()`]
@@ -713,6 +759,11 @@ Ref exhibitions_cover_artwork_id_owner_id_fkey: exhibitions.(cover_artwork_id, o
 Ref exhibitions_cover_image_id_owner_id_fkey: exhibitions.(cover_image_id, owner_id) > artwork_images.(id, owner_id) [delete: set null]
 Ref exhibitions_owner_id_fkey: exhibitions.owner_id > auth.users.id [delete: cascade]
 Ref exhibits_room_code_fkey: exhibits.room_code > exhibit_rooms.code
+Ref extra_cards_glossary_entry_id_owner_id_fkey: extra_cards.(glossary_entry_id, owner_id) > glossary_entries.(id, owner_id) [delete: cascade]
+Ref extra_cards_owner_id_fkey: extra_cards.owner_id > auth.users.id [delete: cascade]
+Ref extra_cards_symbol_id_owner_id_fkey: extra_cards.(symbol_id, owner_id) > symbols.(id, owner_id) [delete: cascade]
+Ref extra_review_log_card_id_owner_id_fkey: extra_review_log.(card_id, owner_id) > extra_cards.(id, owner_id) [delete: cascade]
+Ref extra_review_log_owner_id_fkey: extra_review_log.owner_id > auth.users.id [delete: cascade]
 Ref feedback_owner_id_fkey: feedback.owner_id > auth.users.id [delete: cascade]
 Ref free_review_days_owner_id_fkey: free_review_days.owner_id > auth.users.id [delete: cascade]
 Ref glossary_entries_owner_id_fkey: glossary_entries.owner_id > auth.users.id [delete: cascade]

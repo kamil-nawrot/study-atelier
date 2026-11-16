@@ -901,6 +901,102 @@ export type Database = {
           },
         ];
       };
+      extra_cards: {
+        Row: {
+          created_at: string;
+          difficulty: number;
+          due: string;
+          glossary_entry_id: string | null;
+          id: string;
+          last_rating: number | null;
+          last_review: string | null;
+          lapses: number;
+          learning_steps: number;
+          owner_id: string;
+          reps: number;
+          scheduled_days: number;
+          stability: number;
+          state: number;
+          symbol_id: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          difficulty: number;
+          due: string;
+          glossary_entry_id?: string | null;
+          id?: string;
+          last_rating?: number | null;
+          last_review?: string | null;
+          lapses?: number;
+          learning_steps?: number;
+          owner_id?: string;
+          reps?: number;
+          scheduled_days?: number;
+          stability: number;
+          state: number;
+          symbol_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          difficulty?: number;
+          due?: string;
+          glossary_entry_id?: string | null;
+          id?: string;
+          last_rating?: number | null;
+          last_review?: string | null;
+          lapses?: number;
+          learning_steps?: number;
+          owner_id?: string;
+          reps?: number;
+          scheduled_days?: number;
+          stability?: number;
+          state?: number;
+          symbol_id?: string | null;
+        };
+        Relationships: [];
+      };
+      extra_review_log: {
+        Row: {
+          answer_ms: number | null;
+          card_id: string;
+          correct: boolean;
+          due_before: string | null;
+          id: number;
+          mode: string;
+          owner_id: string;
+          practice: boolean;
+          rating: number;
+          reviewed_at: string;
+          wrong_answer: string | null;
+        };
+        Insert: {
+          answer_ms?: number | null;
+          card_id: string;
+          correct: boolean;
+          due_before?: string | null;
+          id?: number;
+          mode: string;
+          owner_id?: string;
+          practice?: boolean;
+          rating: number;
+          reviewed_at?: string;
+          wrong_answer?: string | null;
+        };
+        Update: {
+          answer_ms?: number | null;
+          card_id?: string;
+          correct?: boolean;
+          due_before?: string | null;
+          id?: number;
+          mode?: string;
+          owner_id?: string;
+          practice?: boolean;
+          rating?: number;
+          reviewed_at?: string;
+          wrong_answer?: string | null;
+        };
+        Relationships: [];
+      };
       feedback: {
         Row: {
           browser: string | null;
@@ -2135,6 +2231,16 @@ export type Database = {
           era_code: string;
           period_id: string;
         }[];
+      };
+      record_extra_review: {
+        Args: {
+          answer: Json;
+          card: Json;
+          day_start?: string;
+          target_symbol: string;
+          target_term: string;
+        };
+        Returns: boolean;
       };
       record_free_answers: {
         Args: { answers: number; day_start: string };

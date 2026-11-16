@@ -1,6 +1,8 @@
 import type { Preferences } from '#lib/profile/types/preferences.ts';
 import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
+import { dueFirst } from '#lib/review/extra-cards/extra-cards.ts';
 import { shuffle, shuffleQuiz } from '#lib/review/quiz/quiz.ts';
+import type { ExtraCard } from '#lib/review/types/extra-card.ts';
 import type { DefinedTerm } from '#lib/review/types/defined-term.ts';
 import type { DefinitionItem } from '#lib/review/types/definition-item.ts';
 
@@ -40,19 +42,24 @@ export function wrongNames(
 	return [...names.values()].slice(0, 3);
 }
 
-export function drawnTerms(
+export function pickedTerms(
 	glossary: readonly GlossaryTerm[],
+	cards: ReadonlyMap<string, ExtraCard>,
 	count: number,
+	now: Date,
 	random: () => number = Math.random
 ): GlossaryTerm[] {
 	if (!definitionsOffered(glossary)) return [];
-	return shuffle(defined(glossary), random).slice(0, count);
+	return dueFirst(defined(glossary), (term) => cards.get(term.id), count, now, random).map(
+		({ item }) => item
+	);
 }
 
 export function definitionItems(
 	drawn: readonly DefinedTerm[],
 	glossary: readonly GlossaryTerm[],
-	random: () => number = Math.random
+	random: () => number = Math.random,
+	cards: ReadonlyMap<string, ExtraCard> = new Map()
 ): DefinitionItem[] {
 	return drawn.map((term) => {
 		const options = [term.name, ...wrongNames(term, glossary, random)].map((label) => ({
@@ -61,6 +68,7 @@ export function definitionItems(
 		return {
 			mode: 'quiz_definition' as const,
 			term,
+			card: cards.get(term.id) ?? null,
 			quiz: shuffleQuiz({ options, answer: 0 }, random)
 		};
 	});

@@ -5,7 +5,7 @@ import type { DefinitionItem } from '#lib/review/types/definition-item.ts';
 import {
 	definitionItems,
 	definitionsOffered,
-	drawnTerms,
+	pickedTerms,
 	withDefinitionsOf
 } from './definitions.ts';
 
@@ -26,13 +26,15 @@ function entry(
 }
 
 function drawnItems(count: number, random: () => number = Math.random): DefinitionItem[] {
-	const drawn = drawnTerms(glossary, count, random);
+	const drawn = pickedTerms(glossary, new Map(), count, now, random);
 	return definitionItems(
 		withDefinitionsOf(drawn, new Map(glossary.map((term) => [term.id, term.definition]))),
 		glossary,
 		random
 	);
 }
+
+const now = new Date('2026-11-16T12:00:00');
 
 const glossary = [
 	entry('Apse', 'architecture'),
@@ -55,16 +57,52 @@ describe('definitionsOffered', () => {
 	});
 });
 
-describe('drawnTerms', () => {
+describe('pickedTerms', () => {
 	it('draws the asked number of terms with a definition', () => {
-		const drawn = drawnTerms([...glossary, entry('Portal', 'architecture', '')], 10, () => 0);
+		const drawn = pickedTerms(
+			[...glossary, entry('Portal', 'architecture', '')],
+			new Map(),
+			10,
+			now,
+			() => 0
+		);
 
 		expect(drawn).toHaveLength(6);
 		expect(drawn.every((term) => term.hasDefinition)).toBe(true);
 	});
 
+	it('asks a due term first and skips a due term without a definition', () => {
+		const due = {
+			id: 'card',
+			termId: 'Nave',
+			symbolId: null,
+			due: new Date('2026-11-14T08:00:00'),
+			stability: 2,
+			difficulty: 5,
+			state: 2 as const,
+			reps: 1,
+			lapses: 0,
+			scheduledDays: 2,
+			learningSteps: 0,
+			lastReview: null,
+			lastRating: 2 as const
+		};
+		const cards = new Map([
+			['Nave', due],
+			['Portal', { ...due, termId: 'Portal' }],
+			['Apse', { ...due, termId: 'Apse', due: new Date('2026-12-01T08:00:00') }]
+		]);
+
+		const drawn = pickedTerms([...glossary, entry('Portal', 'architecture', '')], cards, 6, now);
+
+		expect(drawn[0].name).toBe('Nave');
+		expect(drawn.map((term) => term.name)).not.toContain('Portal');
+		expect(drawn.map((term) => term.name)).not.toContain('Apse');
+		expect(drawn).toHaveLength(5);
+	});
+
 	it('draws nothing with fewer than four defined terms', () => {
-		expect(drawnTerms(glossary.slice(0, 3), 2)).toEqual([]);
+		expect(pickedTerms(glossary.slice(0, 3), new Map(), 2, now)).toEqual([]);
 	});
 });
 

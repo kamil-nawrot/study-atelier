@@ -70,6 +70,9 @@ begin
     insert into public.era_details (era_code, summary, notes) values ('early_modern', 'Era', 'See [x](/atelier/1).');
     insert into public.feedback (kind, title) values ('idea', 'An idea');
     perform public.save_flag(jsonb_build_object('artwork_id', artwork, 'reason', 'data'));
+    perform public.record_extra_review((select id from public.glossary_entries), null,
+      '{"due": "2026-11-18T08:00:00Z", "stability": 2, "difficulty": 5, "state": 2}',
+      '{"mode": "quiz_definition", "rating": 2, "correct": true}', '2026-11-16T00:00:00Z');
     perform public.save_visit('{"visited_on": "2026-10-12", "date_precision": "day"}', 'Museum', array[artwork]);
     insert into public.artwork_fields (name, kind) values ('Lecture', 'list');
     insert into public.period_details (value_id, summary)

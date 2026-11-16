@@ -6,7 +6,7 @@ import { pairArtworks, pairItems } from '#lib/review/confused-pairs/confused-pai
 import {
 	definitionCount,
 	definitionItems,
-	drawnTerms,
+	pickedTerms,
 	withDefinitionsOf
 } from '#lib/review/definitions/definitions.ts';
 import { relationItems } from '#lib/review/relation-questions/relation-questions.ts';
@@ -15,6 +15,7 @@ import { drawNoteGap } from '#lib/review/note-gap/note-gap.ts';
 import type { ResolvedImages } from '#lib/review/resolved-images/resolved-images.svelte.ts';
 import { loadConfusedPairs, loadReviewDetails } from '#lib/review/review-data/review-data.ts';
 import { loadSymbolSteps } from '#lib/review/symbol-steps/symbol-steps.ts';
+import { loadExtraCards } from '#lib/review/extra-cards-data/extra-cards-data.ts';
 import { timeQuestions, withTimeImages } from '#lib/review/time-questions/time-questions.ts';
 import type { ReviewDetails } from '#lib/review/types/review-details.ts';
 import type { ReviewScope } from '#lib/review/types/review-scope.ts';
@@ -30,6 +31,7 @@ type ExtraInput = {
 	artworksById: ReadonlyMap<string, WallArtwork>;
 	images: ResolvedImages;
 	times: ReturnType<typeof timeQuestions>;
+	now?: Date;
 };
 
 type ExtraSteps = {
@@ -40,7 +42,9 @@ type ExtraSteps = {
 
 export async function loadExtraSteps(input: ExtraInput): Promise<ExtraSteps> {
 	const { preferences, glossary, images } = input;
-	const drawn = drawnTerms(glossary, definitionCount(preferences, glossary));
+	const now = input.now ?? new Date();
+	const cards = await loadExtraCards();
+	const drawn = pickedTerms(glossary, cards.terms, definitionCount(preferences, glossary), now);
 	const shownImages = images.resolve(input.shown);
 	const definedRead = loadTermDefinitions(drawn.map((term) => term.id));
 	const pairsRead = preferences.reviewPairsOn ? loadConfusedPairs() : Promise.resolve([]);
@@ -71,13 +75,23 @@ export async function loadExtraSteps(input: ExtraInput): Promise<ExtraSteps> {
 			[...input.asked, ...gapArtworks, ...relationArtworks].map((artwork) => artwork.id)
 		),
 		definedRead,
-		loadSymbolSteps(preferences.reviewSymbolsOn ? preferences.reviewSymbolQuestions : 0, glossary)
+		loadSymbolSteps(
+			preferences.reviewSymbolsOn ? preferences.reviewSymbolQuestions : 0,
+			glossary,
+			cards,
+			now
+		)
 	]);
 	return {
 		details: found.details,
 		...(found.error ? { error: found.error } : {}),
 		steps: [
-			...definitionItems(withDefinitionsOf(drawn, defined.definitions), glossary),
+			...definitionItems(
+				withDefinitionsOf(drawn, defined.definitions),
+				glossary,
+				Math.random,
+				cards.terms
+			),
 			...symbolSteps,
 			...gaps.map((gap) => ({ ...gap, artwork: images.withImage(gap.artwork) })),
 			...pairs.map((pair) => ({

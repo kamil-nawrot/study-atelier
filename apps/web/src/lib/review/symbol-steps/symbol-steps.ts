@@ -1,9 +1,11 @@
 import { fragmentLenses } from '#lib/pins/fragment-lenses/fragment-lenses.ts';
 import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 import {
-	drawnSymbolQuestions,
+	pickedSymbolQuestions,
 	symbolItems
 } from '#lib/review/symbol-questions/symbol-questions.ts';
+import { NO_EXTRA_CARDS } from '#lib/review/extra-cards/extra-cards.ts';
+import type { ExtraCards } from '#lib/review/types/extra-cards.ts';
 import type { SymbolItem } from '#lib/review/types/symbol-item.ts';
 import {
 	loadSymbolQuestionImages,
@@ -13,12 +15,14 @@ import { loadSymbolOptions } from '#lib/symbols/symbols-data/symbols-data.ts';
 
 export async function loadSymbolSteps(
 	count: number,
-	glossary: readonly GlossaryTerm[]
+	glossary: readonly GlossaryTerm[],
+	cards: ExtraCards = NO_EXTRA_CARDS,
+	now: Date = new Date()
 ): Promise<SymbolItem[]> {
 	if (count <= 0) return [];
 	const [pins, options] = await Promise.all([loadSymbolQuestionPins(), loadSymbolOptions()]);
 	if (pins.error || options.error) return [];
-	const questions = drawnSymbolQuestions(pins.pins, options.symbols, glossary, count);
+	const questions = pickedSymbolQuestions(pins.pins, options.symbols, glossary, count, cards, now);
 	const images = await loadSymbolQuestionImages(questions.map((question) => question.pin.pinId));
 	if (!images) return [];
 	const lenses = await fragmentLenses(
