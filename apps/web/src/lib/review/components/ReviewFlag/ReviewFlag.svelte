@@ -14,11 +14,14 @@
 	type Props = {
 		step: SessionStep;
 		chosen?: number;
+		answered?: boolean;
+		onskip?: () => void;
 	};
 
-	let { step, chosen }: Props = $props();
+	let { step, chosen, answered = false, onskip }: Props = $props();
 
 	let open = $state(false);
+	let skipping = $state(false);
 	let toast: Toast;
 	let groups = $derived(stepGroups(step));
 	let question = $derived(flagQuestion(step, chosen));
@@ -43,7 +46,12 @@
 	flags={flags.list}
 	{groups}
 	onchange={() => void flags.load()}
-	onflagged={(message) => toast.show(message)}
+	onflagged={(message) => toast.show(skipping ? m.backroom.skipped : message)}
+	onsaved={(holds) => {
+		skipping = holds && !answered;
+		if (skipping) onskip?.();
+	}}
+	place={answered ? 'answered' : 'question'}
 	{question}
 	bind:open
 />

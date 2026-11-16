@@ -36,7 +36,8 @@ describe('ArtworkFlag', () => {
 		expect(save).toHaveBeenCalledWith({
 			item: { kind: 'artwork', id: 'artwork-1', title: 'Saint Jerome', imageId: 'image-1' },
 			reason: 'image',
-			comment: ''
+			comment: '',
+			holds: false
 		});
 	});
 

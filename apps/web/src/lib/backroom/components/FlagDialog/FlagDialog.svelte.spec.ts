@@ -75,7 +75,8 @@ describe('FlagDialog', () => {
 			item: term,
 			reason: 'hidden',
 			comment: 'Missing the form "vanitas"',
-			question: { mode: 'note_gap', text: m.review.quiz.noteQuestion, note: 12 }
+			question: { mode: 'note_gap', text: m.review.quiz.noteQuestion, note: 12 },
+			holds: false
 		});
 		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
 	});
@@ -136,5 +137,40 @@ describe('FlagDialog', () => {
 		await expect.element(page.getByText(m.backroom.errorTitle)).toBeInTheDocument();
 		await expect.element(page.getByText(m.common.network)).toBeInTheDocument();
 		expect(onflagged).not.toHaveBeenCalled();
+	});
+
+	it('ticks the hold for a reason that breaks a review question and reports it', async () => {
+		save.mockResolvedValue({ created: true });
+		const onsaved = vi.fn();
+		render(FlagDialog, {
+			open: true,
+			groups,
+			place: 'question',
+			onflagged: vi.fn(),
+			onsaved
+		} as never);
+
+		await userEvent.click(page.getByRole('radio', { name: m.backroom.reasons.note }));
+		await expect
+			.element(page.getByRole('checkbox', { name: m.backroom.skipQuestion }))
+			.not.toBeChecked();
+		await userEvent.click(page.getByRole('radio', { name: m.backroom.reasons.hidden }));
+		await expect
+			.element(page.getByRole('checkbox', { name: m.backroom.skipQuestion }))
+			.toBeChecked();
+		await userEvent.click(confirmButton());
+
+		await expect.poll(() => onsaved.mock.calls).toEqual([[true]]);
+		expect(save).toHaveBeenCalledWith(expect.objectContaining({ reason: 'hidden', holds: true }));
+	});
+
+	it('offers the hold unticked in a view', async () => {
+		renderDialog();
+
+		await userEvent.click(page.getByRole('radio', { name: m.backroom.reasons.hidden }));
+
+		await expect
+			.element(page.getByRole('checkbox', { name: m.backroom.holdQuestion }))
+			.not.toBeChecked();
 	});
 });

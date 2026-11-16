@@ -823,7 +823,7 @@ writes:
     changes: [learner_flags]
     side_effects: [Zaplecze, menu count of Zaplecze]
     frequency: 'write, from "Co poprawić?" in the review session bar and in the artwork, term and symbol views (save_flag)'
-    note: 'one flag per item, image or pin and reason: a second flag of the same reason replaces the comment and keeps the question; a pin flag from a review finds its pin by image and place, since the round does not carry pin ids (ADR-0313)'
+    note: 'one flag per item, image or pin and reason: a second flag of the same reason replaces the comment and keeps the question; a pin flag from a review finds its pin by image and place, since the round does not carry pin ids (ADR-0313); `holds` keeps the question out of the reviews until the flag is gone, the whole artwork in review_round (ADR-0315)'
 
   - id: W36
     name: Fix a flagged item from Zaplecze

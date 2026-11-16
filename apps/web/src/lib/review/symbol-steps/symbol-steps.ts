@@ -17,12 +17,20 @@ export async function loadSymbolSteps(
 	count: number,
 	glossary: readonly GlossaryTerm[],
 	cards: ExtraCards = NO_EXTRA_CARDS,
-	now: Date = new Date()
+	now: Date = new Date(),
+	held: ReadonlySet<string> = new Set()
 ): Promise<SymbolItem[]> {
 	if (count <= 0) return [];
 	const [pins, options] = await Promise.all([loadSymbolQuestionPins(), loadSymbolOptions()]);
 	if (pins.error || options.error) return [];
-	const questions = pickedSymbolQuestions(pins.pins, options.symbols, glossary, count, cards, now);
+	const questions = pickedSymbolQuestions(
+		pins.pins.filter((pin) => !held.has(pin.symbolId)),
+		options.symbols,
+		glossary,
+		count,
+		cards,
+		now
+	);
 	const images = await loadSymbolQuestionImages(questions.map((question) => question.pin.pinId));
 	if (!images) return [];
 	const lenses = await fragmentLenses(

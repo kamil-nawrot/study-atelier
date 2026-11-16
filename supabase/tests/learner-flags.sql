@@ -145,6 +145,51 @@ begin
 end;
 $$;
 
+do $$
+declare
+  held uuid;
+  pinned uuid;
+  pin uuid;
+  in_round boolean;
+begin
+  select id into held from public.save_artwork('{"title": "Held", "author_unknown": true}', '{}', null,
+    '[{"own_image_url": "https://example.com/held.jpg", "image_width": 10, "image_height": 10}]');
+  select id into pinned from public.save_artwork('{"title": "Pinned", "author_unknown": true}', '{}', null,
+    '[{"own_image_url": "https://example.com/pinned.jpg", "image_width": 10, "image_height": 10}]');
+  insert into public.artwork_pins (image_id, x, y, text)
+    select id, 0.5, 0.5, 'A pin' from public.artwork_images where artwork_id = pinned
+    returning id into pin;
+
+  perform public.save_flag(jsonb_build_object('artwork_id', held, 'reason', 'image', 'holds', true));
+  perform public.save_flag(jsonb_build_object('artwork_id', pinned, 'pin_id', pin, 'reason', 'pin',
+    'holds', true));
+  assert (select holds from public.learner_flags where artwork_id = held),
+    'a flag does not keep that it holds its question';
+  perform public.save_flag(jsonb_build_object('artwork_id', held, 'reason', 'image', 'comment', 'Blurry'));
+  assert (select holds from public.learner_flags where artwork_id = held),
+    'a second flag without the hold releases the question';
+
+  select exists (
+    select 1 from jsonb_array_elements(public.review_round('2026-11-16T00:00:00Z') -> 'facts') as fact
+      where (fact ->> 'id')::uuid = held
+  ) into in_round;
+  assert not in_round, 'the round asks about an artwork held by a flag of its image';
+  select exists (
+    select 1 from jsonb_array_elements(public.review_round('2026-11-16T00:00:00Z') -> 'facts') as fact
+      where (fact ->> 'id')::uuid = pinned
+  ) into in_round;
+  assert in_round, 'a held pin keeps the whole artwork out of the round';
+
+  delete from public.learner_flags where artwork_id = held;
+  select exists (
+    select 1 from jsonb_array_elements(public.review_round('2026-11-16T00:00:00Z') -> 'facts') as fact
+      where (fact ->> 'id')::uuid = held
+  ) into in_round;
+  assert in_round, 'an artwork stays out of the round after its flag is gone';
+  delete from public.artworks where id in (held, pinned);
+end;
+$$;
+
 select set_config('request.jwt.claims',
   '{"sub": "00000000-0000-0000-0000-00000000000b", "role": "authenticated"}', true);
 

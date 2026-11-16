@@ -7,4 +7,5 @@ export type FlagDraft = {
 	reason: FlagReason;
 	comment: string;
 	question?: FlagQuestion;
+	holds?: boolean;
 };

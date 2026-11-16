@@ -8,5 +8,6 @@ export type BackroomRow = {
 	reason: string;
 	origin?: string;
 	comment?: string;
+	held?: boolean;
 	entry: FixEntry;
 };

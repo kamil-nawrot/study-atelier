@@ -1,6 +1,7 @@
 import { answeredArtworks } from '#lib/review/free-answers/free-answers.ts';
 import { summaryGroups } from '#lib/review/overview/overview.ts';
 import type { ReviewSession } from '#lib/review/review-session/review-session.svelte.ts';
+import { extraScoreOf } from '#lib/review/step-kinds/step-kinds.ts';
 import type { SessionSummary } from '#lib/review/types/session-summary.ts';
 
 export function roundSummary(session: ReviewSession, tomorrow: number): SessionSummary {
@@ -13,10 +14,10 @@ export function roundSummary(session: ReviewSession, tomorrow: number): SessionS
 		years: session.years,
 		orders: session.orders,
 		styles: session.styles,
-		definitions: session.extraScore('quiz_definition'),
-		symbols: session.extraScore('quiz_symbol'),
-		notes: session.extraScore('note_gap'),
-		pairs: session.extraScore('quiz_pair'),
-		relations: session.extraScore('quiz_relation')
+		definitions: extraScoreOf(session.extraAnswers, 'quiz_definition'),
+		symbols: extraScoreOf(session.extraAnswers, 'quiz_symbol'),
+		notes: extraScoreOf(session.extraAnswers, 'note_gap'),
+		pairs: extraScoreOf(session.extraAnswers, 'quiz_pair'),
+		relations: extraScoreOf(session.extraAnswers, 'quiz_relation')
 	};
 }

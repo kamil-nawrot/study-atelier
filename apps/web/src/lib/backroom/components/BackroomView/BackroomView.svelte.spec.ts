@@ -22,7 +22,8 @@ const flag = {
 	termId: null,
 	symbolId: null,
 	symbolName: null,
-	imageNumber: null
+	imageNumber: null,
+	holds: false
 };
 
 function preventNavigation(): void {

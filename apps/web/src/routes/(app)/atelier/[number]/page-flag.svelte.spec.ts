@@ -85,7 +85,8 @@ describe('artwork page flag', () => {
 				imageId: 'image-1'
 			},
 			reason: 'image',
-			comment: ''
+			comment: '',
+			holds: false
 		});
 	});
 

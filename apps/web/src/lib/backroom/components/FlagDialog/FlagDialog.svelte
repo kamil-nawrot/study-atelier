@@ -1,6 +1,15 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
-	import { Alert, Button, ChoiceTiles, Dialog, Form, TextArea } from '@study-atelier/ui';
+	import {
+		Alert,
+		Button,
+		Checkbox,
+		ChoiceTiles,
+		Dialog,
+		FieldMessage,
+		Form,
+		TextArea
+	} from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { saveFlag } from '#lib/backroom/flags-data/flags-data.ts';
 	import { deleteFlag } from '#lib/backroom/backroom-data/backroom-data.ts';
@@ -15,6 +24,15 @@
 	import type { FlagReason } from '#lib/backroom/types/flag-reason.ts';
 	import type { StoredFlag } from '#lib/backroom/types/stored-flag.ts';
 
+	const BREAKING = new Set<FlagReason>([
+		'image',
+		'pin',
+		'hidden',
+		'definition',
+		'meaning',
+		'answers'
+	]);
+
 	type Props = {
 		open?: boolean;
 		groups: readonly FlagGroup[];
@@ -23,6 +41,8 @@
 		flags?: readonly StoredFlag[];
 		onflagged: (message: string) => void;
 		onchange?: () => void;
+		onsaved?: (holds: boolean) => void;
+		place?: 'view' | 'question' | 'answered';
 	};
 
 	let {
@@ -32,7 +52,9 @@
 		pins = [],
 		flags = [],
 		onflagged,
-		onchange
+		onchange,
+		onsaved,
+		place = 'view'
 	}: Props = $props();
 
 	const formId = $props.id();
@@ -43,6 +65,7 @@
 	let commentError = $state<string>();
 	let failure = $state<string>();
 	let saving = $state(false);
+	let holds = $state(false);
 
 	let chosenItem = $derived(chosen ? groups[chosen.group]?.item : undefined);
 	let choosingPin = $derived(
@@ -70,6 +93,7 @@
 		const filled = existing !== undefined;
 		change();
 		commentError = undefined;
+		holds = existing?.holds ?? (place !== 'view' && !!chosen && BREAKING.has(chosen.reason));
 		if (existing) comment = existing.comment ?? '';
 		else if (filled) comment = '';
 	}
@@ -119,13 +143,15 @@
 			item: itemOf(chosenItem),
 			reason: chosen.reason,
 			comment,
-			...(question ? { question } : {})
+			...(question ? { question } : {}),
+			holds
 		});
 		saving = false;
 		if (result.error !== undefined) {
 			failure = result.error;
 			return;
 		}
+		onsaved?.(holds);
 		settled(result.created ? m.backroom.flagged : m.backroom.changed);
 	}
 </script>
@@ -157,6 +183,16 @@
 				value={pinId}
 			/>
 		{/if}
+		{#if chosen}
+			<div class="hold">
+				<Checkbox
+					aria-describedby="{formId}-hold"
+					label={place === 'question' ? m.backroom.skipQuestion : m.backroom.holdQuestion}
+					bind:checked={holds}
+				/>
+				<FieldMessage id="{formId}-hold" hint={m.backroom.holdHint} />
+			</div>
+		{/if}
 		<TextArea
 			counter
 			error={commentError}
@@ -180,3 +216,10 @@
 		</Button>
 	{/snippet}
 </Dialog>
+
+<style>
+	.hold {
+		display: grid;
+		gap: var(--spacing-1);
+	}
+</style>

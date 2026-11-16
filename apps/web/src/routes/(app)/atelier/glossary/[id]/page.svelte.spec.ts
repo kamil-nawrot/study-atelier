@@ -349,7 +349,8 @@ describe('glossary entry page', () => {
 		expect(saveFlag).toHaveBeenCalledWith({
 			item: { kind: 'term', id: tympanum.id, name: tympanum.name },
 			reason: 'definition',
-			comment: ''
+			comment: '',
+			holds: false
 		});
 	});
 });

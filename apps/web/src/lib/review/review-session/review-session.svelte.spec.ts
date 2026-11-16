@@ -7,6 +7,7 @@ import {
 	recordRightAnswer
 } from '#lib/review/review-data/review-data.ts';
 import { recordExtraReview } from '#lib/review/extra-cards-data/extra-cards-data.ts';
+import { extraScoreOf } from '#lib/review/step-kinds/step-kinds.ts';
 import { ReviewSession } from './review-session.svelte.ts';
 import type { DefinitionItem } from '#lib/review/types/definition-item.ts';
 import type { NoteGapItem } from '#lib/review/types/note-gap-item.ts';
@@ -353,9 +354,9 @@ describe('ReviewSession', () => {
 		);
 		await first.answer(0);
 		expect(recordRightAnswer).toHaveBeenCalledOnce();
-		expect(review.extraScore('note_gap')).toEqual({ asked: 1, right: 0 });
-		expect(first.extraScore('note_gap')).toEqual({ asked: 1, right: 1 });
-		expect(first.extraScore('quiz_definition')).toEqual({ asked: 0, right: 0 });
+		expect(extraScoreOf(review.extraAnswers, 'note_gap')).toEqual({ asked: 1, right: 0 });
+		expect(extraScoreOf(first.extraAnswers, 'note_gap')).toEqual({ asked: 1, right: 1 });
+		expect(extraScoreOf(first.extraAnswers, 'quiz_definition')).toEqual({ asked: 0, right: 0 });
 	});
 
 	it('asks a missed extra question again at most twice', async () => {
@@ -420,7 +421,7 @@ describe('ReviewSession', () => {
 		await review.answer(review.current?.mode === 'quiz_pair' ? review.current.quiz.answer : 0);
 		expect(recordPairAnswer).toHaveBeenCalledOnce();
 		expect(recordRightAnswer).not.toHaveBeenCalled();
-		expect(review.extraScore('quiz_pair')).toEqual({ asked: 1, right: 0 });
+		expect(extraScoreOf(review.extraAnswers, 'quiz_pair')).toEqual({ asked: 1, right: 0 });
 
 		const free = new ReviewSession(
 			[pair, ...items(2)],
@@ -431,7 +432,7 @@ describe('ReviewSession', () => {
 		);
 		await free.answer(0);
 		expect(recordPairAnswer).toHaveBeenCalledOnce();
-		expect(free.extraScore('quiz_pair')).toEqual({ asked: 1, right: 1 });
+		expect(extraScoreOf(free.extraAnswers, 'quiz_pair')).toEqual({ asked: 1, right: 1 });
 	});
 
 	it('does not rate a quiz like a flashcard', async () => {
@@ -658,6 +659,24 @@ describe('ReviewSession', () => {
 		);
 		await free.answer(0);
 		expect(recordExtraReview).toHaveBeenCalledOnce();
+	});
+
+	it('puts another question in place of a skipped one and starts it afresh', async () => {
+		const review = new ReviewSession(
+			quizItems(3),
+			new Map(),
+			() => start,
+			() => 0
+		);
+		const replacement = items(1)[0];
+
+		review.replaceCurrent([replacement, ...review.queue.slice(1)]);
+
+		expect(review.current).toEqual(replacement);
+		expect(review.position).toBe(0);
+		expect(review.answers).toHaveLength(0);
+		review.replaceCurrent(review.queue.slice(1));
+		expect(review.queue).toHaveLength(2);
 	});
 });
 

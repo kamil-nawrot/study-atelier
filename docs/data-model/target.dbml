@@ -878,6 +878,7 @@ Table learner_flags {
   reason text [not null, note: 'image, pin, data, note, hidden, definition, meaning, answers, other']
   comment text
   question jsonb
+  holds boolean [not null, default: false]
   created_at "timestamp with time zone" [not null, default: `now()`]
   updated_at "timestamp with time zone" [not null, default: `now()`]
 

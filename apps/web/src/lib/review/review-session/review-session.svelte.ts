@@ -17,12 +17,10 @@ import {
 	artworkItem,
 	extraKey,
 	extraQuiz,
-	extraScoreOf,
 	pickedWrong,
 	scoreOf,
 	yearScore,
 	type ExtraAnswer,
-	type ExtraMode,
 	type ExtraQuizItem
 } from '#lib/review/step-kinds/step-kinds.ts';
 
@@ -96,10 +94,6 @@ export class ReviewSession {
 
 	get orders(): { asked: number; right: number } {
 		return scoreOf(this.orderAnswers);
-	}
-
-	extraScore(mode: ExtraMode): { asked: number; right: number } {
-		return extraScoreOf(this.extraAnswers, mode);
 	}
 
 	get minutes(): number {
@@ -310,8 +304,13 @@ export class ReviewSession {
 		this.queue = retryLater(this.queue, this.position, again, this.#random);
 	}
 
-	#advance(): void {
-		this.position += 1;
+	replaceCurrent(queue: SessionStep[]): void {
+		this.queue = queue;
+		this.#advance(0);
+	}
+
+	#advance(by = 1): void {
+		this.position += by;
 		this.revealed = false;
 		this.chosen = undefined;
 		this.typed = undefined;

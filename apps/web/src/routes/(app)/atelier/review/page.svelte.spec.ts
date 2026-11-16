@@ -417,7 +417,7 @@ describe('review page', () => {
 			.toBeVisible();
 	});
 
-	it('loads the definitions of the drawn terms in one request and runs without them when it fails', async () => {
+	it('loads the definitions of the drawn terms and their reserve in one request and runs without them when it fails', async () => {
 		vi.mocked(loadTermDefinitions).mockResolvedValue({
 			definitions: new Map(),
 			error: 'Brak sieci.'
@@ -439,7 +439,7 @@ describe('review page', () => {
 
 		await expect.element(page.getByText(m.review.progress(1, 4))).toBeVisible();
 		expect(loadTermDefinitions).toHaveBeenCalledOnce();
-		expect(vi.mocked(loadTermDefinitions).mock.calls[0][0]).toHaveLength(2);
+		expect(vi.mocked(loadTermDefinitions).mock.calls[0][0]).toHaveLength(4);
 	});
 
 	it('leaves the definitions out when the preferences switch them off', async () => {

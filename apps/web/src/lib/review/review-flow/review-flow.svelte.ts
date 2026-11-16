@@ -40,6 +40,8 @@ import type { ScopeChoice } from '#lib/review/types/scope-choice.ts';
 import type { SessionSummary } from '#lib/review/types/session-summary.ts';
 import { reportError } from '#lib/shared/monitoring/monitoring.ts';
 import { timeArtworks, timeQuestions } from '#lib/review/time-questions/time-questions.ts';
+import { withoutHeld } from '#lib/review/holds/holds.ts';
+import { SessionSkip } from '#lib/review/session-skip/session-skip.ts';
 
 const PRELOAD_AHEAD = 2;
 const ALL_SCOPE: ReviewScope = { kind: 'all' };
@@ -70,6 +72,7 @@ export class ReviewFlow {
 	);
 
 	#free = new FreeAnswers();
+	readonly #skip = new SessionSkip(() => this);
 	#plannedForm: ReviewForm = 'mixed';
 	#outcomes = $state<Record<ReviewRating, ReviewCard>>();
 	readonly #source: () => ReviewSource;
@@ -198,13 +201,18 @@ export class ReviewFlow {
 
 	async #prepareSession(): Promise<string | undefined> {
 		const free = this.freeOpen;
-		const loaded = await loadSession(
-			startOfDay(currentDate()),
-			this.activeForm,
-			this.activeScope,
-			free ? this.freeRound : undefined
+		const [loaded, holds] = await Promise.all([
+			loadSession(
+				startOfDay(currentDate()),
+				this.activeForm,
+				this.activeScope,
+				free ? this.freeRound : undefined
+			),
+			this.#skip.loadHolds()
+		]);
+		const items = await withPinPreviews(
+			withoutHeld(sessionItems(loaded.rows, this.artworksById, this.cards), holds)
 		);
-		const items = await withPinPreviews(sessionItems(loaded.rows, this.artworksById, this.cards));
 		if (loaded.error || items.length === 0) return loaded.error;
 		const times = timeQuestions(loaded.rows, this.artworksById, currentDate());
 		const artworks = [...items.map((item) => item.artwork), ...timeArtworks(times)];
@@ -218,10 +226,12 @@ export class ReviewFlow {
 			atelier: this.#data().artworks,
 			artworksById: this.artworksById,
 			images: this.images,
-			times
+			times,
+			holds
 		});
 		if (extras.error) return extras.error;
 		this.details = extras.details;
+		this.#skip.reserve = extras.reserve;
 		if (free) this.freeRound += 1;
 		this.#free = new FreeAnswers();
 		this.session = new ReviewSession(
@@ -274,6 +284,13 @@ export class ReviewFlow {
 		if (!active) return;
 		await active.guess(year);
 		if (active === this.session && this.stop.afterSave) void this.#finish();
+	}
+
+	async skip(): Promise<void> {
+		const session = this.session;
+		if (!session) return;
+		await this.#skip.skip(session, (found) => (this.details = mapOf([...this.details, ...found])));
+		if (session.finished) void this.#finish();
 	}
 
 	proceed(): void {

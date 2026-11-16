@@ -43,7 +43,11 @@
 >
 	{#snippet bar()}
 		{#if flow.phase === 'session' && flow.session}
-			<ReviewSessionBar onstop={() => void flow.stop.confirm()} session={flow.session} />
+			<ReviewSessionBar
+				onskip={() => void flow.skip()}
+				onstop={() => void flow.stop.confirm()}
+				session={flow.session}
+			/>
 		{/if}
 	{/snippet}
 
