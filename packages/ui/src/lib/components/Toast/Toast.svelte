@@ -49,10 +49,9 @@
 		action = undefined;
 	}
 
-	function act(): void {
-		const run = action?.run;
+	function act(run: () => void): void {
 		hide();
-		run?.();
+		run();
 	}
 
 	$effect(() => () => clearTimeout(timer));
@@ -77,9 +76,10 @@
 				role="presentation"
 				out:leave
 			>
-				<span>{message}</span>
+				{message}
 				{#if action}
-					<button class="action" onclick={act} type="button">{action.label}</button>
+					{@const { label, run } = action}
+					<button class="action" onclick={() => act(run)} type="button">{label}</button>
 				{/if}
 			</div>
 		{/if}

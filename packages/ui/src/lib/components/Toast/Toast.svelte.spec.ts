@@ -128,4 +128,21 @@ describe('Toast', () => {
 		await expect.element(page.getByText('Saved.')).toBeVisible();
 		await expect.element(page.getByRole('button', { name: 'Undo' })).not.toBeInTheDocument();
 	});
+
+	it('goes away without motion when the learner asks for less motion or no duration is set', async () => {
+		const original = window.matchMedia;
+		window.matchMedia = ((query: string) => ({
+			...original.call(window, query),
+			matches: query.includes('reduce')
+		})) as typeof window.matchMedia;
+		document.documentElement.style.setProperty('--duration-short', 'none');
+		const { component } = await render(Toast);
+
+		component.show('Saved.', { label: 'Undo', run: vi.fn() });
+		await userEvent.click(page.getByRole('button', { name: 'Undo' }));
+		window.matchMedia = original;
+		document.documentElement.style.removeProperty('--duration-short');
+
+		await expect.element(page.getByText('Saved.')).not.toBeInTheDocument();
+	});
 });
