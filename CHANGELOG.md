@@ -2,6 +2,20 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.24.1] - 2026-11-16
+
+The review counter ends the day at zero again, the confused-pair question fits the screen, and the poster editor shows just the image.
+
+### Fixed
+
+- The number beside "Powtórki" in the menu stayed at 10 with the style, year and order questions on, also right after the day's round, because new style questions had no daily limit. A round with no artwork left to recognise now holds only the style cards due today, so the counter reaches 0 and the free round opens.
+- The images of the confused-pair question no longer run past the top edge of the screen.
+- The poster dialog shows only the image in a steady frame next to its controls, without the exhibition title and meta line.
+
+### Migrations run on production
+
+1 migration runs on production with this release and changes no existing data: `20261115130000_new_style_questions_only_with_recognition` replaces `review_round` with the same arguments and result, so the 0.24.0 app keeps working with it.
+
 ## [0.24.0] - 2026-11-15
 
 Reviews learn from the history of each artwork: one answer a day schedules it, the style gets its own card, new questions ask about confused pairs and relations, and the round has one number in the menu and on the review start. Exhibitions get a poster, and pins add symbols and terms on the spot.
@@ -1079,3 +1093,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.23.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.23.0
 [0.23.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.23.1
 [0.24.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.24.0
+[0.24.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.24.1

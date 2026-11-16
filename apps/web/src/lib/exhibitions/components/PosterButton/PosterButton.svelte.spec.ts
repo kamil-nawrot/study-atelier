@@ -63,7 +63,6 @@ describe('PosterButton', () => {
 	it('waits for the first artwork of the exhibition', async () => {
 		render(PosterButton, {
 			exhibitionId: 'exhibition',
-			title: 'Light',
 			document: documentWith('gone'),
 			lookup: lookup(),
 			poster: NO_POSTER
@@ -78,7 +77,6 @@ describe('PosterButton', () => {
 	it('opens the poster, saves it and confirms', async () => {
 		render(PosterButton, {
 			exhibitionId: 'exhibition',
-			title: 'Light',
 			document: documentWith(judith.id),
 			lookup: lookup(),
 			poster: { ...NO_POSTER, filters: { ...NEUTRAL_FILTERS, sepia: 20 } }

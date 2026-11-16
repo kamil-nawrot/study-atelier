@@ -93,7 +93,6 @@
 					exhibitionId={data.exhibition.id}
 					{lookup}
 					poster={data.exhibition.poster}
-					title={session.title}
 				/>
 				<Button
 					aria-label={m.exhibitions.view.done}

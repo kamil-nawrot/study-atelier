@@ -101,7 +101,8 @@
 			);
 		}
 
-		.tiles {
+		.tiles,
+		.pair .tiles {
 			display: flex;
 			justify-content: center;
 			align-items: flex-start;

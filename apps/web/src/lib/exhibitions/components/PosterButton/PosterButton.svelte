@@ -10,13 +10,12 @@
 
 	type Props = {
 		exhibitionId: string;
-		title: string;
 		document: ExhibitionDocument;
 		lookup: ArtworkLookup;
 		poster: ExhibitionPoster;
 	};
 
-	let { exhibitionId, title, document, lookup, poster }: Props = $props();
+	let { exhibitionId, document, lookup, poster }: Props = $props();
 
 	let open = $state(false);
 	let saved = $state.raw<ExhibitionPoster>();
@@ -56,7 +55,6 @@
 	{lookup}
 	onsaved={stored}
 	stored={saved ?? poster}
-	{title}
 	bind:open
 />
 
