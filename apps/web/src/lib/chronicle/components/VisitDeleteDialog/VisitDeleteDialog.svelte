@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { Alert, Button, Dialog } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { deleteVisit } from '#lib/chronicle/chronicle-data/chronicle-data.ts';
 	import { tripDateFrom } from '#lib/chronicle/trip-date/trip-date.ts';
 	import type { Visit } from '#lib/chronicle/types/visit.ts';
+	import DeleteDialog from '#lib/shared/forms/DeleteDialog/DeleteDialog.svelte';
 
 	type Props = {
 		visit: Visit;
@@ -16,48 +16,18 @@
 	let texts = $derived(
 		visit.kind === 'trip' ? m.chronicle.trip.deleteConfirm : m.chronicle.deleteConfirm
 	);
-	let deleting = $state(false);
-	let error = $state<string>();
+	let removed: Visit;
 
-	$effect(() => {
-		if (open) error = undefined;
-	});
-
-	async function remove(): Promise<void> {
-		if (deleting) return;
-		const removed = visit;
-		deleting = true;
-		error = undefined;
-		const result = await deleteVisit(removed.id);
-		deleting = false;
-		if (result.error) {
-			error = result.error;
-			return;
-		}
-		open = false;
-		await ondeleted(removed);
+	function run(): ReturnType<typeof deleteVisit> {
+		removed = visit;
+		return deleteVisit(removed.id);
 	}
 </script>
 
-{#snippet errorAlert()}
-	<Alert tone="danger">
-		{error}
-	</Alert>
-{/snippet}
-
-<Dialog
-	children={error ? errorAlert : undefined}
+<DeleteDialog
 	description={texts.description}
-	size="small"
+	ondone={() => ondeleted(removed)}
+	{run}
 	title={texts.title(tripDateFrom(visit))}
 	bind:open
->
-	{#snippet footer()}
-		<Button onclick={() => (open = false)}>
-			{m.common.back}
-		</Button>
-		<Button disabled={deleting} onclick={remove} variant="primary">
-			{deleting ? m.common.deleting : m.common.delete}
-		</Button>
-	{/snippet}
-</Dialog>
+/>
