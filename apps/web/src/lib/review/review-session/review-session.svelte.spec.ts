@@ -6,6 +6,7 @@ import {
 	recordReview,
 	recordRightAnswer
 } from '#lib/review/review-data/review-data.ts';
+import { recordExtraReview } from '#lib/review/extra-cards-data/extra-cards-data.ts';
 import { ReviewSession } from './review-session.svelte.ts';
 import type { DefinitionItem } from '#lib/review/types/definition-item.ts';
 import type { NoteGapItem } from '#lib/review/types/note-gap-item.ts';
@@ -19,6 +20,9 @@ vi.mock('#lib/review/review-data/review-data.ts', () => ({
 	recordRightAnswer: vi.fn()
 }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({ supabase: {} }));
+vi.mock('#lib/review/extra-cards-data/extra-cards-data.ts', () => ({
+	recordExtraReview: vi.fn().mockResolvedValue(undefined)
+}));
 
 const start = new Date(2026, 9, 16, 9, 0);
 
@@ -622,6 +626,38 @@ describe('ReviewSession', () => {
 
 		await review.answer(0);
 		expect(recordRightAnswer).not.toHaveBeenCalled();
+	});
+
+	it('schedules a term with its first answer and the wrong pick and saves nothing in a free round', async () => {
+		vi.mocked(recordExtraReview).mockClear();
+		const later = new Date(start.getTime() + 4000);
+		let now = start;
+		const review = new ReviewSession(
+			[definition('Apse'), ...items(2)],
+			new Map(),
+			() => now,
+			() => 0
+		);
+		now = later;
+
+		await review.answer(2);
+
+		expect(recordExtraReview).toHaveBeenCalledWith(
+			{ termId: 'Apse' },
+			expect.objectContaining({ lastRating: 1 }),
+			{ correct: false, answerMs: 4000, wrongAnswer: 'Choir', mode: 'quiz_definition' },
+			later
+		);
+
+		const free = new ReviewSession(
+			[definition('Apse'), ...items(2)],
+			new Map(),
+			() => start,
+			() => 0,
+			true
+		);
+		await free.answer(0);
+		expect(recordExtraReview).toHaveBeenCalledOnce();
 	});
 });
 

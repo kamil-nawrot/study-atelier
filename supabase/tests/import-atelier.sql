@@ -69,6 +69,9 @@ begin
     'pin_id', (select id from public.artwork_pins where glossary_entry_id = term), 'reason', 'pin',
     'comment', 'Wrong spot', 'question', jsonb_build_object('mode', 'quiz_pin', 'text', 'Co to jest?')));
   perform public.save_flag(jsonb_build_object('term_id', term, 'reason', 'definition'));
+  perform public.record_extra_review(term, null,
+    '{"due": "2026-11-18T08:00:00Z", "stability": 2, "difficulty": 5, "state": 2}',
+    '{"mode": "quiz_definition", "rating": 2, "correct": true}', '2026-11-16T00:00:00Z');
   insert into public.timeline_events (name, year_to) values ('War', 1648);
   perform public.save_visit('{"visited_on": "2026-10-12", "date_precision": "day", "notes": "Seen"}', 'Louvre',
     array[first_artwork, third_artwork]);
@@ -106,7 +109,7 @@ declare
     'period_details', 'style_details', 'material_details', 'location_details', 'era_details',
     'artwork_relations', 'author_relations',
     'artwork_field_entries', 'symbol_meaning_contexts', 'timeline_events', 'visits', 'visit_artworks', 'exhibitions', 'learner_flags', 'review_cards',
-    'review_log'
+    'review_log', 'extra_cards', 'extra_review_log'
   ];
   table_name text;
   rows jsonb;
@@ -154,6 +157,13 @@ begin
     jsonb_build_object('exhibit', 'removed_exhibit', 'tier', 1, 'tiers', 1, 'unlocked_at', '2026-10-20T10:00:00Z'))));
   assert (counts ->> 'artworks')::integer = 3, 'import_atelier does not count the artworks';
   assert (counts ->> 'learner_flags')::integer = 2, 'import_atelier does not carry the flags';
+  assert exists (
+    select 1
+      from public.extra_review_log as answer
+      join public.extra_cards as card on card.id = answer.card_id
+      join public.glossary_entries as term on term.id = card.glossary_entry_id
+      where term.name = 'Tenebrism'
+  ), 'an imported card of a term does not follow the new ids of its term and answers';
   assert exists (
     select 1
       from public.learner_flags as flag

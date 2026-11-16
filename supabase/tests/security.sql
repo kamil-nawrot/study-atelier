@@ -110,7 +110,7 @@ declare
     'record_legal_read',
     'save_symbol', 'symbol_atlas',
     'set_place_point', 'set_symbol_cover', 'assign_symbol_meaning', 'ensure_city_place',
-    'set_exhibition_cover', 'save_flag', 'flag_count'
+    'set_exhibition_cover', 'save_flag', 'flag_count', 'record_extra_review'
   ];
   table_name text;
   routine record;
@@ -263,6 +263,9 @@ select public.save_symbol('Skull', jsonb_build_array(jsonb_build_object('text', 
   jsonb_build_array(jsonb_build_object('era_code', 'early_modern')))));
 update public.artwork_pins set symbol_id = (select id from public.symbols);
 select public.save_flag(jsonb_build_object('symbol_id', (select id from public.symbols), 'reason', 'meaning'));
+select public.record_extra_review(null, (select id from public.symbols),
+  '{"due": "2026-11-18T08:00:00Z", "stability": 2, "difficulty": 5, "state": 2}',
+  '{"mode": "symbol_symbol", "rating": 2, "correct": true}', '2026-11-16T00:00:00Z');
 
 insert into public.category_values (category_code, name) values ('material', 'Oil on canvas'), ('author', 'Sculptor');
 insert into public.material_details (value_id, summary)

@@ -901,6 +901,127 @@ export type Database = {
           },
         ];
       };
+      extra_cards: {
+        Row: {
+          created_at: string;
+          difficulty: number;
+          due: string;
+          glossary_entry_id: string | null;
+          id: string;
+          lapses: number;
+          last_rating: number | null;
+          last_review: string | null;
+          learning_steps: number;
+          owner_id: string;
+          reps: number;
+          scheduled_days: number;
+          stability: number;
+          state: number;
+          symbol_id: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          difficulty: number;
+          due: string;
+          glossary_entry_id?: string | null;
+          id?: string;
+          lapses?: number;
+          last_rating?: number | null;
+          last_review?: string | null;
+          learning_steps?: number;
+          owner_id?: string;
+          reps?: number;
+          scheduled_days?: number;
+          stability: number;
+          state: number;
+          symbol_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          difficulty?: number;
+          due?: string;
+          glossary_entry_id?: string | null;
+          id?: string;
+          lapses?: number;
+          last_rating?: number | null;
+          last_review?: string | null;
+          learning_steps?: number;
+          owner_id?: string;
+          reps?: number;
+          scheduled_days?: number;
+          stability?: number;
+          state?: number;
+          symbol_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "extra_cards_glossary_entry_id_owner_id_fkey";
+            columns: ["glossary_entry_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "glossary_entries";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "extra_cards_symbol_id_owner_id_fkey";
+            columns: ["symbol_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "symbols";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
+      };
+      extra_review_log: {
+        Row: {
+          answer_ms: number | null;
+          card_id: string;
+          correct: boolean;
+          due_before: string | null;
+          id: number;
+          mode: string;
+          owner_id: string;
+          practice: boolean;
+          rating: number;
+          reviewed_at: string;
+          wrong_answer: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          answer_ms?: number | null;
+          card_id: string;
+          correct: boolean;
+          due_before?: string | null;
+          id?: never;
+          mode: string;
+          owner_id?: string;
+          practice?: boolean;
+          rating: number;
+          reviewed_at?: string;
+          wrong_answer?: string | null;
+        };
+        Update: {
+          answer_ms?: number | null;
+          card_id?: string;
+          correct?: boolean;
+          due_before?: string | null;
+          id?: never;
+          mode?: string;
+          owner_id?: string;
+          practice?: boolean;
+          rating?: number;
+          reviewed_at?: string;
+          wrong_answer?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "extra_review_log_card_id_owner_id_fkey";
+            columns: ["card_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "extra_cards";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
+      };
       feedback: {
         Row: {
           browser: string | null;
@@ -2135,6 +2256,16 @@ export type Database = {
           era_code: string;
           period_id: string;
         }[];
+      };
+      record_extra_review: {
+        Args: {
+          answer: Json;
+          card: Json;
+          day_start?: string;
+          target_symbol: string;
+          target_term: string;
+        };
+        Returns: boolean;
       };
       record_free_answers: {
         Args: { answers: number; day_start: string };

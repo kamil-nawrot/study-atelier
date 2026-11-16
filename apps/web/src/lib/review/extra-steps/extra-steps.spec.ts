@@ -19,6 +19,11 @@ vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({
 vi.mock('#lib/review/symbol-steps/symbol-steps.ts', () => ({
 	loadSymbolSteps: vi.fn().mockResolvedValue([])
 }));
+vi.mock('#lib/review/extra-cards-data/extra-cards-data.ts', async () => ({
+	loadExtraCards: vi
+		.fn()
+		.mockResolvedValue((await import('#lib/review/extra-cards/extra-cards.ts')).NO_EXTRA_CARDS)
+}));
 vi.mock('#lib/review/note-gap/note-gap.ts', () => ({
 	drawNoteGap: vi.fn().mockResolvedValue([])
 }));
