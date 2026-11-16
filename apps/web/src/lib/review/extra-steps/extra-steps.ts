@@ -6,7 +6,7 @@ import { pairArtworks, pairItems } from '#lib/review/confused-pairs/confused-pai
 import {
 	definitionCount,
 	definitionItems,
-	pickedTerms,
+	roundTerms,
 	withDefinitionsOf
 } from '#lib/review/definitions/definitions.ts';
 import { relationItems } from '#lib/review/relation-questions/relation-questions.ts';
@@ -15,15 +15,14 @@ import { drawNoteGap } from '#lib/review/note-gap/note-gap.ts';
 import type { ResolvedImages } from '#lib/review/resolved-images/resolved-images.svelte.ts';
 import { loadConfusedPairs, loadReviewDetails } from '#lib/review/review-data/review-data.ts';
 import { loadSymbolSteps } from '#lib/review/symbol-steps/symbol-steps.ts';
-import { loadExtraCards } from '#lib/review/extra-cards-data/extra-cards-data.ts';
+import { loadExtraRound } from '#lib/review/extra-cards-data/extra-cards-data.ts';
+import { startOfDay } from '#lib/review/queue/queue.ts';
 import { timeQuestions, withTimeImages } from '#lib/review/time-questions/time-questions.ts';
 import type { ReviewDetails } from '#lib/review/types/review-details.ts';
 import type { ReviewScope } from '#lib/review/types/review-scope.ts';
 import type { SessionStep } from '#lib/review/types/session-step.ts';
 import type { Holds } from '#lib/review/types/holds.ts';
 import { NO_HOLDS, withoutHeld } from '#lib/review/holds/holds.ts';
-
-const RESERVE = 2;
 
 type ExtraInput = {
 	preferences: Preferences;
@@ -50,15 +49,10 @@ export async function loadExtraSteps(input: ExtraInput): Promise<ExtraSteps> {
 	const { preferences, glossary, images } = input;
 	const now = input.now ?? new Date();
 	const holds = input.holds ?? NO_HOLDS;
-	const cards = await loadExtraCards();
-	const termCount = definitionCount(preferences, glossary);
+	const round = await loadExtraRound(startOfDay(now));
+	const termCount = definitionCount(preferences);
 	const symbolCount = preferences.reviewSymbolsOn ? preferences.reviewSymbolQuestions : 0;
-	const drawn = pickedTerms(
-		glossary.filter((term) => !holds.terms.has(term.id)),
-		cards.terms,
-		termCount > 0 ? termCount + RESERVE : 0,
-		now
-	);
+	const drawn = roundTerms(round.terms, glossary);
 	const shownImages = images.resolve(input.shown);
 	const definedRead = loadTermDefinitions(drawn.map((term) => term.id));
 	const pairsRead = preferences.reviewPairsOn ? loadConfusedPairs() : Promise.resolve([]);
@@ -89,19 +83,13 @@ export async function loadExtraSteps(input: ExtraInput): Promise<ExtraSteps> {
 			[...input.asked, ...gapArtworks, ...relationArtworks].map((artwork) => artwork.id)
 		),
 		definedRead,
-		loadSymbolSteps(
-			symbolCount > 0 ? symbolCount + RESERVE : 0,
-			glossary,
-			cards,
-			now,
-			holds.symbols
-		)
+		loadSymbolSteps(round.symbols, glossary)
 	]);
 	const definitions = definitionItems(
 		withDefinitionsOf(drawn, defined.definitions),
 		glossary,
 		Math.random,
-		cards.terms
+		new Map(round.terms.flatMap(({ id, card }) => (card ? [[id, card]] : [])))
 	);
 	return {
 		details: found.details,

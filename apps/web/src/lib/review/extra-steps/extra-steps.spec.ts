@@ -4,6 +4,11 @@ import { defaultPreferences } from '#lib/profile/preferences/preferences.ts';
 import type { ResolvedImages } from '#lib/review/resolved-images/resolved-images.svelte.ts';
 import { loadConfusedPairs, loadReviewDetails } from '#lib/review/review-data/review-data.ts';
 import { loadReviewRelations } from '#lib/review/relation-questions-data/relation-questions-data.ts';
+import { loadTermDefinitions } from '#lib/glossary/glossary-data/glossary-data.ts';
+import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
+import { loadExtraRound } from '#lib/review/extra-cards-data/extra-cards-data.ts';
+import { loadSymbolSteps } from '#lib/review/symbol-steps/symbol-steps.ts';
+import type { ExtraCard } from '#lib/review/types/extra-card.ts';
 import { loadExtraSteps } from './extra-steps.ts';
 
 vi.mock('#lib/review/review-data/review-data.ts', () => ({
@@ -20,9 +25,9 @@ vi.mock('#lib/review/symbol-steps/symbol-steps.ts', () => ({
 	loadSymbolSteps: vi.fn().mockResolvedValue([])
 }));
 vi.mock('#lib/review/extra-cards-data/extra-cards-data.ts', async () => ({
-	loadExtraCards: vi
+	loadExtraRound: vi
 		.fn()
-		.mockResolvedValue((await import('#lib/review/extra-cards/extra-cards.ts')).NO_EXTRA_CARDS)
+		.mockResolvedValue((await import('#lib/review/extra-cards/extra-cards.ts')).NO_EXTRA_ROUND)
 }));
 vi.mock('#lib/review/note-gap/note-gap.ts', () => ({
 	drawNoteGap: vi.fn().mockResolvedValue([])
@@ -92,6 +97,42 @@ describe('loadExtraSteps', () => {
 		expect(steps[0]).toMatchObject({ mode: 'quiz_relation' });
 		expect(steps[0].mode === 'quiz_relation' && steps[0].artwork.title).toMatch(/\(shown\)$/);
 		expect(vi.mocked(loadReviewDetails).mock.lastCall?.[0]).toHaveLength(2);
+	});
+
+	it('asks the terms the round picked up to the count and keeps the rest in reserve', async () => {
+		const glossary = ['Apse', 'Nave', 'Crypt', 'Choir'].map(
+			(name) => ({ id: name, name, category: 'architecture', hasDefinition: true }) as GlossaryTerm
+		);
+		const card = { id: 'card-nave', termId: 'Nave' } as ExtraCard;
+		const symbols = [{ symbolId: 'skull', pinId: 'pin-1', kind: 'symbol' as const, card: null }];
+		vi.mocked(loadExtraRound).mockResolvedValueOnce({
+			terms: [
+				{ id: 'Nave', card },
+				{ id: 'Apse', card: null },
+				{ id: 'Crypt', card: null }
+			],
+			symbols
+		});
+		vi.mocked(loadTermDefinitions).mockResolvedValueOnce({
+			definitions: new Map(glossary.map((term) => [term.id, `About ${term.name}.`]))
+		});
+		vi.mocked(loadConfusedPairs).mockResolvedValue([]);
+		vi.mocked(loadReviewDetails).mockResolvedValue({ details: new Map() });
+
+		const { steps, reserve } = await loadExtraSteps({
+			...input(),
+			preferences: { ...defaultPreferences, reviewGlossaryOn: true, reviewGlossaryQuestions: 1 },
+			glossary,
+			now: new Date('2026-11-16T12:00:00')
+		});
+
+		expect(vi.mocked(loadExtraRound).mock.lastCall?.[0]).toEqual(new Date('2026-11-16T00:00:00'));
+		expect(steps).toEqual([expect.objectContaining({ mode: 'quiz_definition', card })]);
+		expect(reserve.map((step) => step.mode === 'quiz_definition' && step.term.name)).toEqual([
+			'Apse',
+			'Crypt'
+		]);
+		expect(loadSymbolSteps).toHaveBeenCalledWith(symbols, glossary);
 	});
 
 	it('passes on the error of the details', async () => {

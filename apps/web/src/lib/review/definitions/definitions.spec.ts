@@ -2,12 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
 import type { DefinedTerm } from '#lib/review/types/defined-term.ts';
 import type { DefinitionItem } from '#lib/review/types/definition-item.ts';
-import {
-	definitionItems,
-	definitionsOffered,
-	pickedTerms,
-	withDefinitionsOf
-} from './definitions.ts';
+import { definitionCount, definitionItems, roundTerms, withDefinitionsOf } from './definitions.ts';
 
 function entry(
 	name: string,
@@ -26,15 +21,13 @@ function entry(
 }
 
 function drawnItems(count: number, random: () => number = Math.random): DefinitionItem[] {
-	const drawn = pickedTerms(glossary, new Map(), count, now, random);
+	const drawn = glossary.slice(0, count);
 	return definitionItems(
 		withDefinitionsOf(drawn, new Map(glossary.map((term) => [term.id, term.definition]))),
 		glossary,
 		random
 	);
 }
-
-const now = new Date('2026-11-16T12:00:00');
 
 const glossary = [
 	entry('Apse', 'architecture'),
@@ -45,64 +38,22 @@ const glossary = [
 	entry('Sfumato', 'technique')
 ];
 
-describe('definitionsOffered', () => {
-	it('needs four different terms with a definition', () => {
-		const three = [
-			...glossary.slice(0, 3),
-			entry('Apse', 'general'),
-			entry('Portal', 'architecture', ' ')
-		];
-		expect(definitionsOffered(three)).toBe(false);
-		expect(definitionsOffered(glossary.slice(0, 4))).toBe(true);
+describe('definitionCount', () => {
+	it('asks the count of glossary questions only with the switch on', () => {
+		expect(definitionCount({ reviewGlossaryOn: true, reviewGlossaryQuestions: 3 })).toBe(3);
+		expect(definitionCount({ reviewGlossaryOn: false, reviewGlossaryQuestions: 3 })).toBe(0);
 	});
 });
 
-describe('pickedTerms', () => {
-	it('draws the asked number of terms with a definition', () => {
-		const drawn = pickedTerms(
-			[...glossary, entry('Portal', 'architecture', '')],
-			new Map(),
-			10,
-			now,
-			() => 0
-		);
+describe('roundTerms', () => {
+	it('keeps the order of the round and leaves out a term no longer in the glossary', () => {
+		const picked = [
+			{ id: 'Nave', card: null },
+			{ id: 'Gone', card: null },
+			{ id: 'Apse', card: null }
+		];
 
-		expect(drawn).toHaveLength(6);
-		expect(drawn.every((term) => term.hasDefinition)).toBe(true);
-	});
-
-	it('asks a due term first and skips a due term without a definition', () => {
-		const due = {
-			id: 'card',
-			termId: 'Nave',
-			symbolId: null,
-			due: new Date('2026-11-14T08:00:00'),
-			stability: 2,
-			difficulty: 5,
-			state: 2 as const,
-			reps: 1,
-			lapses: 0,
-			scheduledDays: 2,
-			learningSteps: 0,
-			lastReview: null,
-			lastRating: 2 as const
-		};
-		const cards = new Map([
-			['Nave', due],
-			['Portal', { ...due, termId: 'Portal' }],
-			['Apse', { ...due, termId: 'Apse', due: new Date('2026-12-01T08:00:00') }]
-		]);
-
-		const drawn = pickedTerms([...glossary, entry('Portal', 'architecture', '')], cards, 6, now);
-
-		expect(drawn[0].name).toBe('Nave');
-		expect(drawn.map((term) => term.name)).not.toContain('Portal');
-		expect(drawn.map((term) => term.name)).not.toContain('Apse');
-		expect(drawn).toHaveLength(5);
-	});
-
-	it('draws nothing with fewer than four defined terms', () => {
-		expect(pickedTerms(glossary.slice(0, 3), new Map(), 2, now)).toEqual([]);
+		expect(roundTerms(picked, glossary).map((term) => term.name)).toEqual(['Nave', 'Apse']);
 	});
 });
 

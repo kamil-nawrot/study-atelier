@@ -40,14 +40,16 @@ function personsOf(
 		.flatMap(({ glossary_entries: entry }) => (entry?.category === 'person' ? [entry.name] : []));
 }
 
-export async function loadSymbolQuestionPins(): Promise<{
+export async function loadSymbolQuestionPins(pinIds: readonly string[]): Promise<{
 	pins: SymbolQuestionPin[];
 	error?: string;
 }> {
+	if (pinIds.length === 0) return { pins: [] };
 	const { rows, error } = await fetchAll<PinRow>((from, to) =>
 		supabase
 			.from('artwork_pins')
 			.select(COLUMNS)
+			.in('id', [...pinIds])
 			.not('symbol_id', 'is', null)
 			.not('crop_path', 'is', null)
 			.not('view_width', 'is', null)

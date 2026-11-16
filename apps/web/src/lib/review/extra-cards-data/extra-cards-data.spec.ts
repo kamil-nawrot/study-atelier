@@ -1,14 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { NO_EXTRA_CARDS } from '#lib/review/extra-cards/extra-cards.ts';
-import { loadExtraCards, recordExtraReview } from './extra-cards-data.ts';
+import { NO_EXTRA_ROUND } from '#lib/review/extra-cards/extra-cards.ts';
+import { loadExtraRound, recordExtraReview } from './extra-cards-data.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
-	supabase: { rpc: vi.fn(), from: vi.fn(), auth: { signOut: vi.fn() } }
+	supabase: { rpc: vi.fn(), auth: { signOut: vi.fn() } }
 }));
 
 const rpc = vi.mocked(supabase.rpc);
-const from = vi.mocked(supabase.from);
 
 const cardRow = (id: string, target: { term?: string; symbol?: string }): unknown => ({
 	id,
@@ -26,55 +25,49 @@ const cardRow = (id: string, target: { term?: string; symbol?: string }): unknow
 	last_rating: 2
 });
 
-function answer(results: Record<string, unknown>): void {
-	from.mockImplementation((table: string) => {
-		const query: Record<string, ReturnType<typeof vi.fn>> = {};
-		for (const name of ['select', 'eq', 'neq', 'order']) query[name] = vi.fn(() => query);
-		query.range = vi.fn().mockResolvedValue(results[table]);
-		return query as never;
-	});
-}
-
 describe('extra cards data', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
 
-	it('loads the cards of terms and symbols and when each symbol kind was asked last', async () => {
-		answer({
-			extra_cards: {
-				data: [cardRow('card-1', { term: 'term-1' }), cardRow('card-2', { symbol: 'symbol-1' })],
-				error: null
-			},
-			extra_review_log: {
-				data: [
-					{ card_id: 'card-2', mode: 'symbol_symbol', reviewed_at: '2026-11-10T08:00:00.000Z' },
-					{ card_id: 'card-2', mode: 'symbol_symbol', reviewed_at: '2026-11-12T08:00:00.000Z' },
-					{ card_id: 'card-2', mode: 'symbol_meaning', reviewed_at: '2026-11-11T08:00:00.000Z' },
-					{ card_id: 'card-9', mode: 'symbol_meaning', reviewed_at: '2026-11-11T08:00:00.000Z' }
+	it('loads the terms and symbols the database picked for the day, with their cards', async () => {
+		rpc.mockResolvedValue({
+			data: {
+				terms: [
+					{ id: 'term-1', card: cardRow('card-1', { term: 'term-1' }) },
+					{ id: 'term-2', card: null }
 				],
-				error: null
-			}
-		});
+				symbols: [
+					{
+						symbol_id: 'symbol-1',
+						pin_id: 'pin-1',
+						kind: 'meaning',
+						card: cardRow('card-2', { symbol: 'symbol-1' })
+					}
+				]
+			},
+			error: null
+		} as never);
 
-		const cards = await loadExtraCards();
+		const round = await loadExtraRound(new Date('2026-11-16T00:00:00.000Z'));
 
-		expect(cards.terms.get('term-1')).toMatchObject({ id: 'card-1', reps: 1, lastRating: 2 });
-		expect(cards.terms.get('term-1')?.due).toEqual(new Date('2026-11-18T08:00:00.000Z'));
-		expect(cards.symbols.get('symbol-1')?.id).toBe('card-2');
-		expect(cards.askedKinds.get('symbol-1')).toEqual({
-			symbol: new Date('2026-11-12T08:00:00.000Z').getTime(),
-			meaning: new Date('2026-11-11T08:00:00.000Z').getTime()
+		expect(rpc).toHaveBeenCalledWith('extra_round', {
+			day_start: '2026-11-16T00:00:00.000Z',
+			reserve: 2
 		});
+		expect(round.terms[0].card).toMatchObject({ id: 'card-1', reps: 1, lastRating: 2 });
+		expect(round.terms[0].card?.due).toEqual(new Date('2026-11-18T08:00:00.000Z'));
+		expect(round.terms[1]).toEqual({ id: 'term-2', card: null });
+		expect(round.symbols).toEqual([
+			expect.objectContaining({ symbolId: 'symbol-1', pinId: 'pin-1', kind: 'meaning' })
+		]);
+		expect(round.symbols[0].card?.symbolId).toBe('symbol-1');
 	});
 
-	it('treats every term and symbol as new when the cards cannot be loaded', async () => {
-		answer({
-			extra_cards: { data: null, error: { message: 'Failed to fetch' } },
-			extra_review_log: { data: [], error: null }
-		});
+	it('asks no term or symbol when the round cannot be loaded', async () => {
+		rpc.mockResolvedValue({ data: null, error: { message: 'Failed to fetch' } } as never);
 
-		await expect(loadExtraCards()).resolves.toBe(NO_EXTRA_CARDS);
+		await expect(loadExtraRound(new Date())).resolves.toBe(NO_EXTRA_ROUND);
 	});
 
 	it('records an answer of a symbol with its card and the start of the day', async () => {
