@@ -1,6 +1,7 @@
 <script lang="ts">
 	import BookA from '@lucide/svelte/icons/book-a';
 	import CalendarRange from '@lucide/svelte/icons/calendar-range';
+	import Flag from '@lucide/svelte/icons/flag';
 	import Footprints from '@lucide/svelte/icons/footprints';
 	import ImagesIcon from '@lucide/svelte/icons/images';
 	import Landmark from '@lucide/svelte/icons/landmark';
@@ -30,6 +31,7 @@
 	} from '#lib/profile/menu-profile/menu-profile.svelte.ts';
 	import { avatarInitial } from '#lib/profile/profile/profile.ts';
 	import { currentTheme, setTheme } from '#lib/shell/theme/theme.svelte.ts';
+	import { flagCount } from '#lib/backroom/flag-count/flag-count.svelte.ts';
 
 	type Props = {
 		email: string;
@@ -58,6 +60,7 @@
 	const chroniclePath = resolve('/(app)/atelier/chronicle');
 	const exhibitionsPath = resolve('/(app)/atelier/exhibitions');
 	const trashPath = resolve('/(app)/atelier/trash');
+	const backroomPath = resolve('/(app)/atelier/backroom');
 	const settingsPath = resolve('/(app)/atelier/settings');
 	const reviewPath = resolve('/(app)/atelier/review');
 	const displayCasePath = resolve('/(app)/atelier/display-case');
@@ -69,6 +72,7 @@
 
 	$effect(() => followMenuProfile(page.data.menuProfile, ownerId));
 	$effect(() => followNightLight(ownerId, page.data.nightLightRecorded === true));
+	$effect(() => flagCount.forLearner(ownerId));
 
 	function toggleTheme(): void {
 		const next = light ? 'dark' : 'light';
@@ -252,25 +256,46 @@
 		aria-current={page.url.pathname === trashPath ? 'page' : undefined}
 		href={trashPath}
 	>
-		<Icon icon={Trash} size={dense ? 'sm' : 'md'} />
+		<span class="small-icon"><Icon icon={Trash} size="xs" /></span>
 		<span class="label" class:visually-hidden={compact}>
 			{m.menu.trash}
 		</span>
 	</a>
+	<a
+		class="item muted"
+		aria-current={page.url.pathname === backroomPath ? 'page' : undefined}
+		href={backroomPath}
+	>
+		<span class="small-icon icon">
+			<Icon icon={Flag} size="xs" />
+			{#if flagCount.value > 0}
+				<span class="badge" aria-hidden="true"></span>
+			{/if}
+		</span>
+		<span class="label" class:visually-hidden={compact}>
+			{m.backroom.title}
+			{#if flagCount.value > 0}
+				<span class="visually-hidden">, {m.backroom.menuCount(flagCount.value)}</span>
+			{/if}
+		</span>
+		{#if flagCount.value > 0}
+			<Count aria-hidden="true" value={flagCount.value} />
+		{/if}
+	</a>
 	<button class="item muted" onclick={onfeedback} type="button">
-		<Icon icon={MessageSquarePlus} size={dense ? 'sm' : 'md'} />
+		<span class="small-icon"><Icon icon={MessageSquarePlus} size="xs" /></span>
 		<span class="label" class:visually-hidden={compact}>
 			{m.menu.feedback}
 		</span>
 	</button>
 	<button class="item muted" onclick={toggleTheme} type="button">
-		<Icon icon={light ? Moon : Sun} size={dense ? 'sm' : 'md'} />
+		<span class="small-icon"><Icon icon={light ? Moon : Sun} size="xs" /></span>
 		<span class="label" class:visually-hidden={compact}>
 			{light ? m.menu.darkTheme : m.menu.lightTheme}
 		</span>
 	</button>
 	<button class="item danger" disabled={signingOut} onclick={onsignout} type="button">
-		<Icon icon={LogOut} size={dense ? 'sm' : 'md'} />
+		<span class="small-icon"><Icon icon={LogOut} size="xs" /></span>
 		<span class="label" class:visually-hidden={compact}>
 			{m.menu.signOut}
 		</span>
@@ -362,6 +387,18 @@
 	.icon {
 		position: relative;
 		display: flex;
+	}
+
+	.small-icon {
+		display: flex;
+		flex: none;
+		align-items: center;
+		justify-content: center;
+		width: var(--spacing-6);
+	}
+
+	.dense .small-icon {
+		width: calc(var(--spacing-4) + var(--spacing-1));
 	}
 
 	.badge {

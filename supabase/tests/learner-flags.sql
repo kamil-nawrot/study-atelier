@@ -123,6 +123,11 @@ begin
   end;
   assert rejected, 'a comment longer than 200 characters is saved';
 
+  assert public.flag_count() = 5, 'flag_count does not count every flag of the learner';
+  update public.artworks set deleted_at = now() where id = painting;
+  assert public.flag_count() = 2, 'flag_count counts the flags of an artwork in Archiwum';
+  update public.artworks set deleted_at = null where id = painting;
+
   delete from public.artwork_pins where id = pin;
   assert exists (select 1 from public.learner_flags where reason = 'pin' and pin_id is null and image_id = image),
     'deleting a pin deletes its flag instead of keeping it on the image';
@@ -148,6 +153,7 @@ declare
   rejected boolean;
 begin
   assert (select count(*) from public.learner_flags) = 0, 'B reads the flags of A';
+  assert public.flag_count() = 0, 'flag_count counts the flags of A for B';
   begin
     perform public.save_flag(jsonb_build_object('artwork_id', current_setting('test.painting')::uuid,
       'reason', 'data'));

@@ -2073,6 +2073,7 @@ export type Database = {
         };
         Returns: string;
       };
+      flag_count: { Args: Record<PropertyKey, never>; Returns: number };
       import_atelier: { Args: { payload: Json }; Returns: Json };
       keep_alive: { Args: Record<PropertyKey, never>; Returns: string };
       learner_points: { Args: Record<PropertyKey, never>; Returns: number };
