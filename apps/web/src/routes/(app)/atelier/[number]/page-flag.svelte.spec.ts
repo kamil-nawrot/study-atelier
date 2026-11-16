@@ -21,7 +21,10 @@ vi.mock('$app/state', () => ({
 }));
 vi.mock('$app/navigation', () => ({ afterNavigate: vi.fn(), goto: vi.fn() }));
 vi.mock('#lib/artworks/artwork-preload/artwork-preload.ts', () => ({ preloadArtwork: vi.fn() }));
-vi.mock('#lib/backroom/flags-data/flags-data.ts', () => ({ saveFlag: vi.fn() }));
+vi.mock('#lib/backroom/flags-data/flags-data.ts', () => ({
+	saveFlag: vi.fn(),
+	restoreFlag: vi.fn()
+}));
 vi.mock('#lib/backroom/flag-count/flag-count.svelte.ts', () => ({
 	flagCount: { refresh: vi.fn(), forLearner: vi.fn(), value: 0 }
 }));

@@ -9,7 +9,10 @@ import type { SymbolPageResult } from '#lib/symbols/types/symbol-page-result.ts'
 import SymbolPage from './+page.svelte';
 import { saveFlag } from '#lib/backroom/flags-data/flags-data.ts';
 
-vi.mock('#lib/backroom/flags-data/flags-data.ts', () => ({ saveFlag: vi.fn() }));
+vi.mock('#lib/backroom/flags-data/flags-data.ts', () => ({
+	saveFlag: vi.fn(),
+	restoreFlag: vi.fn()
+}));
 vi.mock('#lib/backroom/flag-count/flag-count.svelte.ts', () => ({
 	flagCount: { refresh: vi.fn(), forLearner: vi.fn(), value: 0 }
 }));
