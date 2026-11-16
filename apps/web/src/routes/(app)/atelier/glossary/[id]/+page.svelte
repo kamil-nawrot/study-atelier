@@ -1,7 +1,7 @@
 <script lang="ts">
 	import MoreActions from '#lib/shared/navigation/MoreActions/MoreActions.svelte';
 	import FlagButton, { flagAction } from '#lib/backroom/components/FlagButton/FlagButton.svelte';
-	import FlagDialog from '#lib/backroom/components/FlagDialog/FlagDialog.svelte';
+	import ItemFlagDialog from '#lib/backroom/components/ItemFlagDialog/ItemFlagDialog.svelte';
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import { onMount } from 'svelte';
@@ -27,7 +27,7 @@
 
 	let toast: Toast;
 	let deleteOpen = $state(false);
-	let flagOpen = $state(false);
+	let flag = $state({ open: false, count: 0 });
 	let deleting = $state(false);
 	let deleteError = $state<string>();
 
@@ -105,11 +105,11 @@
 			</Button>
 			<MoreActions
 				actions={[
-					flagAction(() => (flagOpen = true)),
+					flagAction(() => (flag.open = true), flag.count),
 					{ label: m.common.delete, icon: Trash, onclick: askToDelete, danger: true }
 				]}
 			>
-				<FlagButton onclick={() => (flagOpen = true)} />
+				<FlagButton count={flag.count} onclick={() => (flag.open = true)} />
 				<Button
 					aria-label={m.common.delete}
 					compact
@@ -163,15 +163,17 @@
 <Toast bind:this={toast} />
 
 {#if entry}
-	<FlagDialog
+	<ItemFlagDialog
+		flagsOf={{ termId: entry.id }}
 		groups={[
 			{
 				item: { kind: 'term', id: entry.id, name: entry.name },
 				reasons: ['hidden', 'definition', 'other']
 			}
 		]}
+		oncount={(count) => (flag.count = count)}
 		onflagged={(message) => toast.show(message)}
-		bind:open={flagOpen}
+		bind:open={flag.open}
 	/>
 {/if}
 

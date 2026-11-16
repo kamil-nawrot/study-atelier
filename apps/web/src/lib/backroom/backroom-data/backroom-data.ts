@@ -3,6 +3,8 @@ import { flagErrorMessage } from '#lib/backroom/errors/errors.ts';
 import type { FlagQuestion } from '#lib/backroom/types/flag-question.ts';
 import type { FlagReason } from '#lib/backroom/types/flag-reason.ts';
 import type { FlagRecord } from '#lib/backroom/types/flag-record.ts';
+import type { FlagTarget } from '#lib/backroom/types/flag-target.ts';
+import type { StoredFlag } from '#lib/backroom/types/stored-flag.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 
@@ -55,4 +57,48 @@ export async function countFlags(): Promise<number | undefined> {
 export async function deleteFlag(id: string): Promise<{ error?: string }> {
 	const { error } = await supabase.from('learner_flags').delete().eq('id', id);
 	return error ? { error: await failureMessage(error, flagErrorMessage) } : {};
+}
+
+type StoredRow = {
+	id: string;
+	reason: FlagReason;
+	comment: string | null;
+	artwork_id: string | null;
+	term_id: string | null;
+	symbol_id: string | null;
+	image_id: string | null;
+	pin_id: string | null;
+};
+
+const STORED_COLUMNS = 'id, reason, comment, artwork_id, term_id, symbol_id, image_id, pin_id';
+
+const TARGET_COLUMNS = {
+	artworkId: 'artwork_id',
+	termId: 'term_id',
+	symbolId: 'symbol_id'
+} as const;
+
+function storedOf(row: StoredRow): StoredFlag {
+	return {
+		id: row.id,
+		reason: row.reason,
+		comment: row.comment,
+		artworkId: row.artwork_id,
+		termId: row.term_id,
+		symbolId: row.symbol_id,
+		imageId: row.image_id,
+		pinId: row.pin_id
+	};
+}
+
+export async function loadItemFlags(target?: FlagTarget): Promise<StoredFlag[]> {
+	const { rows, error } = await fetchAll<StoredRow>((from, to) => {
+		const query = supabase.from('learner_flags').select(STORED_COLUMNS);
+		const [key, value] = target ? Object.entries(target)[0] : [];
+		const narrowed = key
+			? query.eq(TARGET_COLUMNS[key as keyof typeof TARGET_COLUMNS], value as string)
+			: query;
+		return narrowed.order('id').range(from, to);
+	});
+	return error ? [] : rows.map(storedOf);
 }
