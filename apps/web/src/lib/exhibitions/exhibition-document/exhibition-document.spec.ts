@@ -3,8 +3,7 @@ import {
 	artworkIdsOf,
 	blockCountOf,
 	documentBytes,
-	isBlankText,
-	withEditableBody
+	isBlankText
 } from '#lib/exhibitions/exhibition-document/exhibition-document.ts';
 import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
 
@@ -106,26 +105,6 @@ describe('isBlankText', () => {
 
 	it('is false for other kinds of blocks', () => {
 		expect(isBlankText(artwork('a'))).toBe(false);
-	});
-});
-
-describe('withEditableBody', () => {
-	const blank = { type: 'textBlock', content: [{ type: 'paragraph' }] };
-
-	it('gives an empty document one empty text block to write in', () => {
-		expect(withEditableBody({ type: 'doc', content: [] }).content).toEqual([blank]);
-	});
-
-	it('adds an empty text block after a last block that is not one', () => {
-		expect(withEditableBody({ type: 'doc', content: [artwork('a')] }).content).toEqual([
-			artwork('a'),
-			blank
-		]);
-	});
-
-	it('keeps a document that already ends with an empty text block', () => {
-		const document = { type: 'doc', content: [text('x'), blank] };
-		expect(withEditableBody(document)).toBe(document);
 	});
 });
 

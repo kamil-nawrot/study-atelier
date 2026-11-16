@@ -21,8 +21,6 @@ type EraMove = {
 	remaining: EraCode[];
 };
 
-export const CARD_INDEX_LIST_CATEGORIES = ['material', 'author', 'location'] as const;
-
 export function emptyCardIndex(): CardIndexData {
 	return { values: [], periodEras: [], stylePeriods: [] };
 }

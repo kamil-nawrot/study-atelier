@@ -4,8 +4,6 @@ import {
 	avatarInitial,
 	DISPLAY_NAME_MAX_LENGTH,
 	normalizedName,
-	profileDraftChanged,
-	profileDraftOf,
 	showsAvatar,
 	validateDisplayName
 } from './profile.ts';
@@ -64,36 +62,6 @@ describe('validateDisplayName', () => {
 		expect(validateDisplayName('x'.repeat(DISPLAY_NAME_MAX_LENGTH + 1))).toBe(
 			m.settings.profile.nameTooLong(DISPLAY_NAME_MAX_LENGTH)
 		);
-	});
-});
-
-describe('profileDraftChanged', () => {
-	const saved = profileDraftOf({
-		displayName: 'Anna',
-		avatarPath: null,
-		rankForm: 'masculine' as const,
-		careerShown: true
-	});
-
-	it('sees no change in the same draft or in a name that differs only in spacing', () => {
-		expect(profileDraftChanged(saved, saved)).toBe(false);
-		expect(profileDraftChanged({ ...saved, name: ' Anna ' }, saved)).toBe(false);
-	});
-
-	it('sees a changed name', () => {
-		expect(profileDraftChanged({ ...saved, name: 'Ania' }, saved)).toBe(true);
-	});
-
-	it('sees a new photo and a removed photo', () => {
-		const image = new Blob(['a'], { type: 'image/jpeg' });
-		expect(profileDraftChanged({ ...saved, avatar: { kind: 'replace', image } }, saved)).toBe(true);
-		expect(profileDraftChanged({ ...saved, avatar: { kind: 'remove' } }, saved)).toBe(true);
-	});
-
-	it('treats the same new photo as unchanged', () => {
-		const image = new Blob(['a'], { type: 'image/jpeg' });
-		const draft = { ...saved, avatar: { kind: 'replace' as const, image } };
-		expect(profileDraftChanged(draft, { ...draft })).toBe(false);
 	});
 });
 

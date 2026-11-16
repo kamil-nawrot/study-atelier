@@ -43,20 +43,6 @@ export function profileDraftOf(profile: Profile): ProfileDraft {
 	};
 }
 
-function sameAvatar(left: AvatarChange, right: AvatarChange): boolean {
-	if (left.kind !== right.kind) return false;
-	return left.kind !== 'replace' || left.image === (right as typeof left).image;
-}
-
-export function profileDraftChanged(current: ProfileDraft, reference: ProfileDraft): boolean {
-	return (
-		normalizedName(current.name) !== normalizedName(reference.name) ||
-		current.rankForm !== reference.rankForm ||
-		current.careerShown !== reference.careerShown ||
-		!sameAvatar(current.avatar, reference.avatar)
-	);
-}
-
 export function showsAvatar(profile: Profile, avatar: AvatarChange): boolean {
 	if (avatar.kind === 'replace') return true;
 	return avatar.kind === 'keep' && profile.avatarPath !== null;
