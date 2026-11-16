@@ -59,7 +59,6 @@ function open(stored = NO_POSTER, onsaved = vi.fn()): typeof onsaved {
 	render(PosterDialog, {
 		open: true,
 		exhibitionId: 'exhibition',
-		title: 'Light',
 		artworkIds: [judith.id, olympia.id],
 		lookup: lookup(),
 		stored,
