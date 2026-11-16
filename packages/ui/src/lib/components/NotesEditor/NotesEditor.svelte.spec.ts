@@ -179,6 +179,16 @@ describe('NotesEditor', () => {
 			await expect.element(page.getByRole('listbox')).not.toBeInTheDocument();
 		});
 
+		it('lists values with links that arrive after the editor opens', async () => {
+			const { rerender } = await render(NotesEditorValue, {});
+			await userEvent.click(page.getByRole('textbox', { name: 'Notes' }));
+			await rerender({ links });
+
+			await userEvent.keyboard('Like in @ba');
+
+			await expect.element(page.getByRole('option', { name: /barok/ })).toBeInTheDocument();
+		});
+
 		it('waits for the minimum query length before listing', async () => {
 			render(NotesEditorValue, { links: { ...links, minQueryLength: 2 } });
 

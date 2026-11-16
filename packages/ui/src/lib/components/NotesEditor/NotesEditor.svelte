@@ -115,7 +115,7 @@
 				editable: !disabled,
 				content: renderNotes(value, links),
 				attributes: () => ({ id: inputId, ...describe() }),
-				links,
+				links: () => links,
 				onChange: updateSuggestion,
 				onKeyDown: chooseWithKey,
 				onRefresh: refresh,
