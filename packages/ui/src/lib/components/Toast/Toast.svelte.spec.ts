@@ -107,4 +107,42 @@ describe('Toast', () => {
 		const region = page.getByRole('status').element() as HTMLElement;
 		expect(region.style.getPropertyValue('--toast-offset')).toBe('80px');
 	});
+
+	it('runs its action once and goes away', async () => {
+		const { component } = await render(Toast);
+		const run = vi.fn();
+
+		component.show('Marked as fixed.', { label: 'Undo', run });
+		await userEvent.click(page.getByRole('button', { name: 'Undo' }));
+
+		expect(run).toHaveBeenCalledOnce();
+		await expect.element(page.getByText('Marked as fixed.')).not.toBeInTheDocument();
+	});
+
+	it('drops the action of an earlier message', async () => {
+		const { component } = await render(Toast);
+
+		component.show('Marked as fixed.', { label: 'Undo', run: vi.fn() });
+		component.show('Saved.');
+
+		await expect.element(page.getByText('Saved.')).toBeVisible();
+		await expect.element(page.getByRole('button', { name: 'Undo' })).not.toBeInTheDocument();
+	});
+
+	it('goes away without motion when the learner asks for less motion or no duration is set', async () => {
+		const original = window.matchMedia;
+		window.matchMedia = ((query: string) => ({
+			...original.call(window, query),
+			matches: query.includes('reduce')
+		})) as typeof window.matchMedia;
+		document.documentElement.style.setProperty('--duration-short', 'none');
+		const { component } = await render(Toast);
+
+		component.show('Saved.', { label: 'Undo', run: vi.fn() });
+		await userEvent.click(page.getByRole('button', { name: 'Undo' }));
+		window.matchMedia = original;
+		document.documentElement.style.removeProperty('--duration-short');
+
+		await expect.element(page.getByText('Saved.')).not.toBeInTheDocument();
+	});
 });

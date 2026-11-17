@@ -3,30 +3,13 @@ import type { BackroomRow } from '#lib/backroom/types/backroom-row.ts';
 import type { BackroomTerm } from '#lib/backroom/types/backroom-term.ts';
 import type { FixField } from '#lib/backroom/types/fix-field.ts';
 import type { FlagReason } from '#lib/backroom/types/flag-reason.ts';
+import { fieldOf, reasonText } from '#lib/backroom/flag-fields/flag-fields.ts';
 import type { FlagRecord } from '#lib/backroom/types/flag-record.ts';
 import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { m } from '#lib/i18n/i18n.ts';
 
 type Missing = keyof typeof m.backroom.missing;
-
-const ARTWORK_FIELDS: Record<FlagReason, FixField> = {
-	image: 'image',
-	pin: 'image',
-	data: 'data',
-	note: 'note',
-	answers: 'data',
-	hidden: 'top',
-	definition: 'top',
-	meaning: 'top',
-	other: 'top'
-};
-
-const TERM_FIELDS: Partial<Record<FlagReason, FixField>> = {
-	hidden: 'forms',
-	definition: 'definition',
-	answers: 'definition'
-};
 
 const MISSING_FIELDS: Record<Missing, FixField> = {
 	style: 'style',
@@ -58,13 +41,6 @@ function originOf(flag: FlagRecord, kind: BackroomRow['kind']): string {
 	return m.backroom.origins.question(question.text);
 }
 
-function reasonOf(flag: FlagRecord): string {
-	const reason = m.backroom.reasons[flag.reason];
-	return flag.imageNumber && (flag.reason === 'image' || flag.reason === 'pin')
-		? `${reason} (${m.backroom.imageNumber(flag.imageNumber)})`
-		: reason;
-}
-
 function target(
 	flag: FlagRecord,
 	artworks: ReadonlyMap<string, WallArtwork>,
@@ -75,17 +51,17 @@ function target(
 	if (flag.artworkId) {
 		const artwork = artworks.get(flag.artworkId);
 		if (!artwork) return undefined;
-		const field = ARTWORK_FIELDS[flag.reason];
+		const field = fieldOf('artwork', flag.reason);
 		return { kind: 'artwork', title: artwork.title, artwork, path: artworkPath(artwork), field };
 	}
 	if (flag.termId) {
 		const term = terms.get(flag.termId);
 		if (!term) return undefined;
-		const field = TERM_FIELDS[flag.reason] ?? 'top';
+		const field = fieldOf('term', flag.reason);
 		return { kind: 'term', title: term.name, path: termPath(term.id), field };
 	}
 	if (!flag.symbolId || !flag.symbolName) return undefined;
-	const field = flag.reason === 'other' ? 'top' : 'meanings';
+	const field = fieldOf('symbol', flag.reason);
 	return {
 		kind: 'symbol',
 		title: flag.symbolName,
@@ -105,7 +81,7 @@ export function flagRows(
 		const found = target(flag, byArtwork, byTerm);
 		if (!found) return [];
 		const { path, field, ...item } = found;
-		const reason = reasonOf(flag);
+		const reason = reasonText(flag.reason, flag.imageNumber);
 		return [
 			{
 				...item,
@@ -113,12 +89,13 @@ export function flagRows(
 				origin: originOf(flag, item.kind),
 				...(flag.comment ? { comment: flag.comment } : {}),
 				...(flag.holds ? { held: true } : {}),
+				flag,
 				entry: {
 					key: `flag:${flag.id}`,
 					path,
 					field,
 					note: m.backroom.note(reason, flag.comment ?? undefined),
-					flagId: flag.id
+					flagIds: [flag.id]
 				}
 			}
 		];

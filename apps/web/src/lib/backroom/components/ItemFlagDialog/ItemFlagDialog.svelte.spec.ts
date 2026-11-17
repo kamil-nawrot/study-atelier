@@ -10,7 +10,10 @@ vi.mock('#lib/backroom/backroom-data/backroom-data.ts', () => ({
 	loadItemFlags: vi.fn(),
 	deleteFlag: vi.fn()
 }));
-vi.mock('#lib/backroom/flags-data/flags-data.ts', () => ({ saveFlag: vi.fn() }));
+vi.mock('#lib/backroom/flags-data/flags-data.ts', () => ({
+	saveFlag: vi.fn(),
+	restoreFlag: vi.fn()
+}));
 vi.mock('#lib/backroom/flag-count/flag-count.svelte.ts', () => ({
 	flagCount: { refresh: vi.fn() }
 }));
@@ -25,6 +28,8 @@ const stored = {
 	symbolId: null,
 	imageId: null,
 	pinId: null,
+	imageNumber: null,
+	question: null,
 	holds: false,
 	mode: null
 };

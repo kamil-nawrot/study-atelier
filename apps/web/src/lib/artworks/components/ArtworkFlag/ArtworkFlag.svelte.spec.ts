@@ -6,7 +6,10 @@ import { saveFlag } from '#lib/backroom/flags-data/flags-data.ts';
 import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
 import ArtworkFlag from './ArtworkFlag.svelte';
 
-vi.mock('#lib/backroom/flags-data/flags-data.ts', () => ({ saveFlag: vi.fn() }));
+vi.mock('#lib/backroom/flags-data/flags-data.ts', () => ({
+	saveFlag: vi.fn(),
+	restoreFlag: vi.fn()
+}));
 vi.mock('#lib/backroom/flag-count/flag-count.svelte.ts', () => ({
 	flagCount: { refresh: vi.fn() }
 }));

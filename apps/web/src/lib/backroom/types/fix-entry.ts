@@ -5,5 +5,5 @@ export type FixEntry = {
 	path: string;
 	field: FixField;
 	note: string;
-	flagId?: string;
+	flagIds?: string[];
 };

@@ -1,8 +1,9 @@
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
 import { flagErrorMessage } from '#lib/backroom/errors/errors.ts';
-import { flagPayload } from '#lib/backroom/flag-payload/flag-payload.ts';
+import { flagPayload, type FlagPayload } from '#lib/backroom/flag-payload/flag-payload.ts';
 import type { FlagDraft } from '#lib/backroom/types/flag-draft.ts';
 import type { FlagPin } from '#lib/backroom/types/flag-pin.ts';
+import type { RestorableFlag } from '#lib/backroom/types/restorable-flag.ts';
 import type { Json } from '#lib/shared/data/database.types.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 
@@ -36,4 +37,20 @@ export async function saveFlag(draft: FlagDraft): Promise<FlagSaveResult> {
 	const { data, error } = await supabase.rpc('save_flag', { flag: payload as unknown as Json });
 	if (error) return { error: await failureMessage(error, flagErrorMessage) };
 	return { created: data === true };
+}
+
+export async function restoreFlag(flag: RestorableFlag): Promise<{ error?: string }> {
+	const payload: FlagPayload = {
+		...(flag.artworkId ? { artwork_id: flag.artworkId } : {}),
+		...(flag.termId ? { term_id: flag.termId } : {}),
+		...(flag.symbolId ? { symbol_id: flag.symbolId } : {}),
+		...(flag.imageId ? { image_id: flag.imageId } : {}),
+		...(flag.pinId ? { pin_id: flag.pinId } : {}),
+		reason: flag.reason,
+		comment: flag.comment,
+		...(flag.question ? { question: flag.question } : {}),
+		holds: flag.holds
+	};
+	const { error } = await supabase.rpc('save_flag', { flag: payload as unknown as Json });
+	return error ? { error: await failureMessage(error, flagErrorMessage) } : {};
 }

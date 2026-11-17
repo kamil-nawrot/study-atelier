@@ -16,6 +16,7 @@
 	let toast: Toast | undefined = $state();
 	let barToast: Toast | undefined = $state();
 	let longToast: Toast | undefined = $state();
+	let actionToast: Toast | undefined = $state();
 	let barHeight = $state(0);
 	let next = $state(12);
 
@@ -60,5 +61,22 @@
 			</Button>
 		</div>
 		<Toast {...args} bind:this={longToast} />
+	{/snippet}
+</Story>
+
+<Story name="With an action">
+	{#snippet template(args)}
+		<div style="padding: var(--spacing-6)">
+			<Button
+				onclick={() =>
+					actionToast?.show('Marked as fixed.', {
+						label: 'Undo',
+						run: () => actionToast?.show('Flag restored.')
+					})}
+			>
+				Mark as fixed
+			</Button>
+		</div>
+		<Toast {...args} bind:this={actionToast} />
 	{/snippet}
 </Story>

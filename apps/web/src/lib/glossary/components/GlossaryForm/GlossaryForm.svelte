@@ -14,6 +14,7 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 	import FixNote from '#lib/backroom/components/FixNote/FixNote.svelte';
+	import { FormFlags } from '#lib/backroom/form-flags/form-flags.svelte.ts';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { LiveErrors } from '#lib/shared/forms/live-errors/live-errors.svelte.ts';
@@ -54,6 +55,7 @@
 	};
 
 	let { entry, entries, index, cancelHref, oncancel, onsaved, labels }: Props = $props();
+	const flags = new FormFlags('term', () => (entry ? { termId: entry.id } : undefined));
 
 	const tiles = glossaryCategoryTiles();
 	const existing = untrack(() => entry);
@@ -127,7 +129,7 @@
 
 <div class="page">
 	<Form error={formState.error} errorTitle={m.glossary.form.errorTitle} onsubmit={submit}>
-		<FixNote field="top" />
+		<FixNote field="top" {flags} />
 		<div class="fields">
 			<div class="name">
 				<TextField
@@ -172,11 +174,11 @@
 				{/if}
 			</div>
 
+			<FixNote field="definition" {flags} />
 			<GlossaryDefinition search={definition} />
-			<FixNote field="definition" />
 
+			<FixNote field="forms" {flags} />
 			<GlossaryWordForms {existing} onfilling={(filling) => (formsFilling = filling)} bind:form />
-			<FixNote field="forms" />
 		</div>
 
 		<FormActions>

@@ -54,7 +54,7 @@ export class FixSession {
 		const entry = this.entryFor(path);
 		const stored = this.#stored;
 		if (!entry || !stored) return undefined;
-		if (entry.flagId) await deleteFlag(entry.flagId);
+		await Promise.all((entry.flagIds ?? []).map((id) => deleteFlag(id)));
 		this.#save({ ...stored, fixed: stored.fixed + 1 });
 		return this.#advance();
 	}

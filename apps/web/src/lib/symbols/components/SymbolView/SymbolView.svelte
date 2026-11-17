@@ -4,6 +4,7 @@
 	import { invalidateAll } from '$app/navigation';
 	import { page as current } from '$app/state';
 	import FixNote from '#lib/backroom/components/FixNote/FixNote.svelte';
+	import { FormFlags } from '#lib/backroom/form-flags/form-flags.svelte.ts';
 	import { FixRoute } from '#lib/backroom/fix-route/fix-route.svelte.ts';
 	import DeleteDialog from '#lib/shared/forms/DeleteDialog/DeleteDialog.svelte';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -39,6 +40,7 @@
 
 	let toast: Toast;
 	const fix = new FixRoute(() => current.url.pathname);
+	const flags = new FormFlags('symbol', () => ({ symbolId: symbol.id }));
 	let chosen = $state<{ pinId: string | null }>();
 	let pageError = $state<string>();
 	const coverPinId = $derived(chosen ? (chosen.pinId ?? undefined) : symbol.coverPinId);
@@ -158,7 +160,7 @@
 		<Alert tone="danger">{pageError}</Alert>
 	{/if}
 
-	<FixNote field="meanings" />
+	<FixNote field="meanings" {flags} />
 
 	{#each page.sections as section, index (section.meaning.id)}
 		<SymbolMeaningSection

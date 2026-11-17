@@ -11,13 +11,15 @@
 	let { duration = 5000, offset = 0 }: Props = $props();
 
 	let message = $state('');
+	let action = $state<{ label: string; run: () => void }>();
 	let key = $state(0);
 	let timer: ReturnType<typeof setTimeout> | undefined;
 	let remaining = 0;
 	let startedAt = 0;
 
-	export function show(text: string): void {
+	export function show(text: string, withAction?: { label: string; run: () => void }): void {
 		message = text;
+		action = withAction;
 		key += 1;
 		remaining = duration;
 		start();
@@ -44,6 +46,12 @@
 	function hide(): void {
 		clearTimeout(timer);
 		message = '';
+		action = undefined;
+	}
+
+	function act(run: () => void): void {
+		hide();
+		run();
 	}
 
 	$effect(() => () => clearTimeout(timer));
@@ -69,6 +77,10 @@
 				out:leave
 			>
 				{message}
+				{#if action}
+					{@const { label, run } = action}
+					<button class="action" onclick={() => act(run)} type="button">{label}</button>
+				{/if}
 			</div>
 		{/if}
 	{/key}
@@ -87,6 +99,10 @@
 	}
 
 	.toast {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: var(--spacing-4);
 		grid-area: 1 / 1;
 		width: 100%;
 		padding: var(--spacing-3) var(--spacing-4);
@@ -97,6 +113,19 @@
 		font-size: var(--font-size-sm);
 		line-height: var(--line-height-sm);
 		pointer-events: auto;
+	}
+
+	.action {
+		flex: none;
+		padding: 0;
+		border: none;
+		background: transparent;
+		color: var(--color-on-fg);
+		font: inherit;
+		font-weight: var(--font-weight-medium);
+		text-decoration: underline;
+		text-underline-offset: var(--spacing-1);
+		cursor: pointer;
 	}
 
 	@media (min-width: 768px) {

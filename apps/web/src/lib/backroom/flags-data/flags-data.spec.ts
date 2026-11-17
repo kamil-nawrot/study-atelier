@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { saveFlag } from './flags-data.ts';
+import { restoreFlag, saveFlag } from './flags-data.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { rpc: vi.fn(), from: vi.fn(), auth: { signOut: vi.fn() } }
@@ -121,5 +121,60 @@ describe('saveFlag', () => {
 				comment: ''
 			})
 		).resolves.toEqual({ error: m.backroom.errors.gone });
+	});
+});
+
+describe('restoreFlag', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	it('saves the flag again with its item, image, pin, comment, question and hold', async () => {
+		rpc.mockResolvedValueOnce({ data: true, error: null } as never);
+		const question = { mode: 'quiz_pin', text: 'Co to jest?' };
+
+		await expect(
+			restoreFlag({
+				reason: 'pin',
+				comment: 'Too far left',
+				question,
+				artworkId: 'a1',
+				termId: null,
+				symbolId: null,
+				imageId: 'i1',
+				pinId: 'p1',
+				holds: true
+			})
+		).resolves.toEqual({});
+
+		expect(rpc).toHaveBeenCalledWith('save_flag', {
+			flag: {
+				artwork_id: 'a1',
+				image_id: 'i1',
+				pin_id: 'p1',
+				reason: 'pin',
+				comment: 'Too far left',
+				question,
+				holds: true
+			}
+		});
+	});
+
+	it('says why a flag cannot come back', async () => {
+		rpc.mockResolvedValueOnce({ data: null, error: { message: 'Failed to fetch' } } as never);
+
+		await expect(
+			restoreFlag({
+				reason: 'data',
+				comment: null,
+				question: null,
+				artworkId: 'a1',
+				termId: null,
+				symbolId: null,
+				imageId: null,
+				pinId: null,
+				holds: false
+			})
+		).resolves.toEqual({ error: m.common.network });
 	});
 });

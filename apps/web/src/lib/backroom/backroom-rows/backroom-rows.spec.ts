@@ -19,6 +19,8 @@ function flag(extra: Partial<FlagRecord>): FlagRecord {
 		termId: null,
 		symbolId: null,
 		symbolName: null,
+		imageId: null,
+		pinId: null,
 		imageNumber: null,
 		holds: false,
 		...extra
@@ -44,7 +46,7 @@ describe('flag rows', () => {
 				path: '/atelier/12/edit',
 				field: 'image',
 				note: m.backroom.note(reason, 'Blurry'),
-				flagId: 'flag-1'
+				flagIds: ['flag-1']
 			}
 		});
 	});
