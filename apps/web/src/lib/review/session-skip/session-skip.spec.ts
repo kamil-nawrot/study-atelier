@@ -92,4 +92,32 @@ describe('SessionSkip', () => {
 
 		expect(loadItemFlags).not.toHaveBeenCalled();
 	});
+
+	it('keeps the question locked while the skip loads and leaves another question alone', async () => {
+		let release: (flags: StoredFlag[]) => void = () => {};
+		vi.mocked(loadItemFlags).mockReturnValue(new Promise((resolve) => (release = resolve)));
+		const session = new ReviewSession(
+			[
+				{ artwork: jerome, card: null, mode: 'quiz_title', quiz },
+				{ artwork: david, card: null, mode: 'flashcard' }
+			],
+			new Map()
+		);
+
+		const skipping = skip().skip(session, vi.fn());
+		expect(session.saving).toBe(true);
+		await session.answer(0);
+		expect(session.chosen).toBeUndefined();
+
+		session.position = 1;
+		release([flag({ artworkId: jerome.id })]);
+		await skipping;
+
+		expect(session.saving).toBe(false);
+		expect(session.queue.map((step) => 'artwork' in step && step.artwork.id)).toEqual([
+			jerome.id,
+			david.id
+		]);
+		expect(loadFreshItem).not.toHaveBeenCalled();
+	});
 });

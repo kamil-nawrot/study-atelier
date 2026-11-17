@@ -35,7 +35,10 @@
 	class="flag"
 	class:filled={count > 0}
 	aria-label={flagLabel(count)}
-	onclick={() => (open = true)}
+	onclick={() => {
+		skipping = false;
+		open = true;
+	}}
 	type="button"
 >
 	<Icon icon={Flag} />

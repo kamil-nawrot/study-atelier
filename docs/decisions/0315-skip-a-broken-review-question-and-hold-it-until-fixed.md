@@ -1,6 +1,6 @@
 # 0315. Skip a broken review question and hold it until it is fixed
 
-- Status: accepted
+- Status: accepted; what holds a symbol question is superseded by [0320](0320-hold-the-symbol-question-of-a-held-pin.md)
 - Date: 2026-11-16
 
 ## Context and problem statement
