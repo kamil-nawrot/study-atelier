@@ -106,6 +106,15 @@ begin
   end;
   assert rejected, 'the count of event questions takes 4';
 
+  update public.profiles set review_events_on = true, review_event_questions = 3;
+  perform public.save_flag(jsonb_build_object('event_id', battle, 'reason', 'date', 'holds', true));
+  round := public.extra_round(today, 0);
+  assert not (round -> 'events') @> jsonb_build_array(jsonb_build_object('id', battle)),
+    'the round asks about an event held by its flag';
+  assert public.flag_count() = 1, 'the flag of an event is not counted';
+  delete from public.timeline_events where id = battle;
+  assert not exists (select 1 from public.learner_flags), 'the flag of a deleted event stays';
+
   delete from public.timeline_events where id = war;
   assert not exists (select 1 from public.extra_cards where timeline_event_id = war),
     'the card of a deleted event stays';

@@ -8,6 +8,7 @@ export type FlagPayload = {
 	artwork_id?: string;
 	term_id?: string;
 	symbol_id?: string;
+	event_id?: string;
 	image_id?: string;
 	pin_id?: string;
 	reason: FlagReason;
@@ -19,6 +20,7 @@ export type FlagPayload = {
 function itemColumns(item: FlagItem, reason: FlagReason): Partial<FlagPayload> {
 	if (item.kind === 'term') return { term_id: item.id };
 	if (item.kind === 'symbol') return { symbol_id: item.id };
+	if (item.kind === 'event') return { event_id: item.id };
 	if (reason === 'pin' && item.pin) {
 		return {
 			artwork_id: item.id,

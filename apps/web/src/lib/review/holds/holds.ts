@@ -9,7 +9,8 @@ export const NO_HOLDS: Holds = {
 	artworks: new Set(),
 	kinds: new Map(),
 	terms: new Set(),
-	symbols: new Set()
+	symbols: new Set(),
+	events: new Set()
 };
 
 export function holdsOf(flags: readonly StoredFlag[]): Holds {
@@ -17,16 +18,18 @@ export function holdsOf(flags: readonly StoredFlag[]): Holds {
 	const kinds = new Map<string, Set<string>>();
 	const terms = new Set<string>();
 	const symbols = new Set<string>();
+	const events = new Set<string>();
 	for (const flag of flags) {
 		if (!flag.holds) continue;
 		if (flag.termId) terms.add(flag.termId);
 		if (flag.symbolId) symbols.add(flag.symbolId);
+		if (flag.eventId) events.add(flag.eventId);
 		if (!flag.artworkId) continue;
 		const kind = flag.reason === 'pin' ? 'quiz_pin' : flag.mode;
 		if (!KIND_REASONS.has(flag.reason) || !kind) artworks.add(flag.artworkId);
 		else kinds.set(flag.artworkId, new Set([...(kinds.get(flag.artworkId) ?? []), kind]));
 	}
-	return { artworks, kinds, terms, symbols };
+	return { artworks, kinds, terms, symbols, events };
 }
 
 function heldKind(holds: Holds, artworkId: string, kind: string): boolean {
@@ -59,7 +62,7 @@ export function heldStep(step: SessionStep, holds: Holds): SessionStep | undefin
 				? undefined
 				: step;
 		case 'event_year':
-			return step;
+			return holds.events.has(step.event.id) ? undefined : step;
 		case 'quiz_pair':
 		case 'quiz_relation':
 		case 'year':

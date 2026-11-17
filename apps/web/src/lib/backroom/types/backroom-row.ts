@@ -3,7 +3,7 @@ import type { FixEntry } from './fix-entry.ts';
 import type { FlagRecord } from './flag-record.ts';
 
 export type BackroomRow = {
-	kind: 'artwork' | 'term' | 'symbol';
+	kind: 'artwork' | 'term' | 'symbol' | 'event';
 	title: string;
 	artwork?: WallArtwork;
 	reason: string;

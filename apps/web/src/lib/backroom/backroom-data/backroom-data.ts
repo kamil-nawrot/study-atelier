@@ -16,15 +16,17 @@ type FlagRow = {
 	artwork_id: string | null;
 	term_id: string | null;
 	symbol_id: string | null;
+	event_id: string | null;
 	image_id: string | null;
 	pin_id: string | null;
 	artwork_images: { position: number } | null;
 	symbols: { name: string } | null;
+	timeline_events: { name: string } | null;
 	holds: boolean;
 };
 
 const COLUMNS =
-	'id, reason, comment, question, holds, artwork_id, term_id, symbol_id, image_id, pin_id, artwork_images(position), symbols(name)';
+	'id, reason, comment, question, holds, artwork_id, term_id, symbol_id, event_id, image_id, pin_id, artwork_images(position), symbols(name), timeline_events(name)';
 
 function recordOf(row: FlagRow): FlagRecord {
 	return {
@@ -36,6 +38,8 @@ function recordOf(row: FlagRow): FlagRecord {
 		termId: row.term_id,
 		symbolId: row.symbol_id,
 		symbolName: row.symbols?.name ?? null,
+		eventId: row.event_id,
+		eventName: row.timeline_events?.name ?? null,
 		imageId: row.image_id,
 		imageNumber: row.artwork_images ? row.artwork_images.position + 1 : null,
 		pinId: row.pin_id,
@@ -81,6 +85,7 @@ type StoredRow = {
 	artwork_id: string | null;
 	term_id: string | null;
 	symbol_id: string | null;
+	event_id: string | null;
 	image_id: string | null;
 	pin_id: string | null;
 	holds: boolean;
@@ -89,12 +94,13 @@ type StoredRow = {
 };
 
 const STORED_COLUMNS =
-	'id, reason, comment, artwork_id, term_id, symbol_id, image_id, pin_id, holds, question, artwork_images(position)';
+	'id, reason, comment, artwork_id, term_id, symbol_id, event_id, image_id, pin_id, holds, question, artwork_images(position)';
 
 const TARGET_COLUMNS = {
 	artworkId: 'artwork_id',
 	termId: 'term_id',
-	symbolId: 'symbol_id'
+	symbolId: 'symbol_id',
+	eventId: 'event_id'
 } as const;
 
 function storedOf(row: StoredRow): StoredFlag {
@@ -105,6 +111,7 @@ function storedOf(row: StoredRow): StoredFlag {
 		artworkId: row.artwork_id,
 		termId: row.term_id,
 		symbolId: row.symbol_id,
+		eventId: row.event_id,
 		imageId: row.image_id,
 		imageNumber: row.artwork_images ? row.artwork_images.position + 1 : null,
 		pinId: row.pin_id,

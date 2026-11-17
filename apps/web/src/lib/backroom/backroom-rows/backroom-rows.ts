@@ -33,9 +33,9 @@ function symbolPath(id: string, reason: FlagReason): string {
 		: resolve('/(app)/atelier/glossary/symbols/[id]', { id });
 }
 
-function originOf(flag: FlagRecord, kind: BackroomRow['kind']): string {
+function originOf(flag: FlagRecord, kind: BackroomRow['kind']): string | undefined {
 	const question = flag.question;
-	if (!question) return m.backroom.origins[kind];
+	if (!question) return kind === 'event' ? undefined : m.backroom.origins[kind];
 	if (question.mode === 'note_gap' && question.note !== undefined) {
 		return m.backroom.origins.note(formatRecordNumber(question.note));
 	}
@@ -61,6 +61,15 @@ function target(
 		const field = fieldOf('term', flag.reason);
 		return { kind: 'term', title: term.name, path: termPath(term.id), field };
 	}
+	if (flag.eventId) {
+		if (!flag.eventName) return undefined;
+		return {
+			kind: 'event',
+			title: flag.eventName,
+			path: resolve('/(app)/atelier/timeline/events/[id]/edit', { id: flag.eventId }),
+			field: fieldOf('event', flag.reason)
+		};
+	}
 	if (!flag.symbolId || !flag.symbolName) return undefined;
 	const field = fieldOf('symbol', flag.reason);
 	return {
@@ -74,6 +83,7 @@ function target(
 function flagTarget(flag: FlagRecord): FlagTarget | undefined {
 	if (flag.artworkId) return { artworkId: flag.artworkId };
 	if (flag.termId) return { termId: flag.termId };
+	if (flag.eventId) return { eventId: flag.eventId };
 	return flag.symbolId ? { symbolId: flag.symbolId } : undefined;
 }
 
@@ -89,11 +99,12 @@ export function flagRows(
 		if (!found) return [];
 		const { path, field, ...item } = found;
 		const reason = reasonText(flag.reason, flag.imageNumber);
+		const origin = originOf(flag, item.kind);
 		return [
 			{
 				...item,
 				reason,
-				origin: originOf(flag, item.kind),
+				...(origin ? { origin } : {}),
 				...(flag.comment ? { comment: flag.comment } : {}),
 				...(flag.holds ? { held: true } : {}),
 				flag,

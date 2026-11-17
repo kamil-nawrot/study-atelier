@@ -44,6 +44,7 @@ export async function restoreFlag(flag: RestorableFlag): Promise<{ error?: strin
 		...(flag.artworkId ? { artwork_id: flag.artworkId } : {}),
 		...(flag.termId ? { term_id: flag.termId } : {}),
 		...(flag.symbolId ? { symbol_id: flag.symbolId } : {}),
+		...(flag.eventId ? { event_id: flag.eventId } : {}),
 		...(flag.imageId ? { image_id: flag.imageId } : {}),
 		...(flag.pinId ? { pin_id: flag.pinId } : {}),
 		reason: flag.reason,

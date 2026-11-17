@@ -1,6 +1,6 @@
 # 0318. Ask for the dates of Kalendarium events on cards of their own
 
-- Status: accepted
+- Status: accepted; the event question without a flag (point 8) is superseded by [0321](0321-flag-the-date-of-a-kalendarium-event.md)
 - Date: 2026-11-17
 
 ## Context and problem statement

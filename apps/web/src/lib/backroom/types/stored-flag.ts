@@ -8,6 +8,7 @@ export type StoredFlag = {
 	artworkId: string | null;
 	termId: string | null;
 	symbolId: string | null;
+	eventId: string | null;
 	imageId: string | null;
 	imageNumber: number | null;
 	pinId: string | null;

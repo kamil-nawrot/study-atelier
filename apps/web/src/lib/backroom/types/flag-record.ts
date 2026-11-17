@@ -10,6 +10,8 @@ export type FlagRecord = {
 	termId: string | null;
 	symbolId: string | null;
 	symbolName: string | null;
+	eventId: string | null;
+	eventName: string | null;
 	imageId: string | null;
 	imageNumber: number | null;
 	pinId: string | null;

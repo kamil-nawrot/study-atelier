@@ -26,6 +26,7 @@ const stored = {
 	artworkId: null,
 	termId: 'term-1',
 	symbolId: null,
+	eventId: null,
 	imageId: null,
 	pinId: null,
 	imageNumber: null,

@@ -9,6 +9,7 @@ const ARTWORK_FIELDS: Record<FlagReason, FixField> = {
 	data: 'data',
 	note: 'note',
 	answers: 'data',
+	date: 'top',
 	hidden: 'top',
 	definition: 'top',
 	meaning: 'top',
@@ -24,6 +25,7 @@ const TERM_FIELDS: Partial<Record<FlagReason, FixField>> = {
 export function fieldOf(kind: FlagKind, reason: FlagReason): FixField {
 	if (kind === 'artwork') return ARTWORK_FIELDS[reason];
 	if (kind === 'term') return TERM_FIELDS[reason] ?? 'top';
+	if (kind === 'event') return reason === 'date' ? 'date' : 'top';
 	return reason === 'other' ? 'top' : 'meanings';
 }
 
