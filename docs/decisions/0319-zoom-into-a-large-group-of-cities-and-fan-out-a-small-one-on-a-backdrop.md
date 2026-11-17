@@ -24,9 +24,9 @@ The mockups are in ATL-802.
 
 ## Decision outcome
 
-Chosen by the owner on 2026-11-17: zoom into a large group, cities towards their place, the other circles faded and a disc under the fan, lines to each city's place.
+Chosen by the owner on 2026-11-17: zoom into a group of more than 6 cities on every screen (rather than 10 on a larger one), cities towards their place, the other circles faded and a disc under the fan, lines to each city's place.
 
-1. **A large group zooms in.** A click on a group of more than 10 cities on a larger screen, or more than 6 on a phone (below 768 px), zooms the map to the area of the group's cities, as far as the closest view of 16×, and it splits into smaller groups and single cities. No fan opens.
+1. **A large group zooms in.** A click on a group of more than 6 cities, on any screen, zooms the map to the area of the group's cities, as far as the closest view of 16×, and it splits into smaller groups and single cities. No fan opens.
 2. **A small group fans out.** A click on a group within the threshold, or on any group the closest view does not split, fans it out as in ADR-0278.
 3. **Cities towards their place.** The cities of a fan take the places of the ring in the order of the direction from the group's centre to their own place, turned so that each stands as close as it can to that direction. The hairlines then rarely cross.
 4. **Apart from the map.** While a fan is open, the other circles and names of the map fade to a quarter, and a partly transparent disc of the map's background lies under the fan, a little wider than the ring.
@@ -38,7 +38,7 @@ This decision supersedes the fan of every group in ADR-0278 and its ring ordered
 
 ### Consequences
 
-- Good: a fan holds at most 10 cities, or 6 on a phone, and its lines rarely cross.
+- Good: a fan holds at most 6 cities, and its lines rarely cross.
 - Good: the map behaves like other clustered maps, and the zoom shows where the cities of a large group lie.
 - Bad: a city of a large group is two or more clicks away.
 - Bad: with the other circles faded, the map around an open fan cannot be read until it folds.
