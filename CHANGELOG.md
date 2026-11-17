@@ -2,6 +2,34 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.25.0] - 2026-11-17
+
+Weak spots get a place of their own: any question can be flagged "Do poprawki" and fixed later in Zaplecze, terms, symbols and the dates of Kalendarium events come back at the pace of the learner's memory, and the map opens a crowded group without a tangle of lines.
+
+### Added
+
+- "Do poprawki" on every review question and in the views of an artwork, a term and a symbol opens "Co poprawić?": the item and a reason, such as "Obraz jest nieostry albo zły" or "Definicja jest niejasna albo błędna", with an optional comment. "Pomiń to pytanie i wstrzymaj je do poprawki" skips a broken question and holds it until it is fixed; a flag already set can be changed or withdrawn.
+- Zaplecze, under Archiwum in the menu with the number of flags: "Twoje flagi" and "Braki danych" (artworks without a style, year or image, terms without a definition), "Popraw" to open the item's form at the field, "Poprawiaj po kolei" to go through them one after another, and "Oznacz jako poprawione" with "Cofnij". Every form shows the flags of its item.
+- Questions about the dates of Kalendarium events ("Pytanie dodatkowe z Kalendarium") on the year slider: "Kiedy miało miejsce to wydarzenie historyczne?", and for a period by turns "Kiedy zaczęło się…" and "Kiedy skończyło się…". "Pytania z Kalendarium" in Ustawienia turns them on with 1–3 questions, and the round summary adds "Trafione daty z Kalendarium:". A wrong date can be flagged with "Data jest błędna".
+- The artwork relation "Znajduje się w" / "Ma w sobie" for a work inside another artwork without being its part, such as a painting in a chapel.
+
+### Changed
+
+- Glossary terms and symbols have review cards of their own: due ones come first and new ones fill the places left, and "Liczba pytań w sesji" goes up to 5 for them.
+- No review comes back later than a year after the last answer.
+- On the map a group of more than 6 cities zooms in until it splits; a smaller one fans out with each city on the side of its own place, the other circles faded and a disc under the fan.
+- Internal: the notes editor loads only where it is used, paged reads, page snapshots on SvelteKit 3, the data model generated in CI, more component tests, and a code review of the version with its fixes.
+
+### Fixed
+
+- Note link suggestions did not open in the notes of a new artwork; they do now.
+- A few held artworks could take a small atelier below the 20 artworks a round needs and stop its reviews; held ones no longer count against it.
+- "Cofnij" in a toast now stays while the keyboard is on it.
+
+### Migrations run on production
+
+11 migrations run on production with this release and change no existing data. They add the tables `learner_flags`, `extra_cards` and `extra_review_log`, the profile columns of the event questions and the relation kind `inside`, and the functions `save_flag`, `flag_count`, `extra_round` and `record_extra_review`; they replace `review_round`, `next_style_card`, `note_link_labels`, `set_place_point` and `import_atelier` with the same arguments, so the 0.24.1 app keeps working with them. `record_extra_review` gains a sixth argument with a default.
+
 ## [0.24.1] - 2026-11-16
 
 The review counter ends the day at zero again, the confused-pair question fits the screen, and the poster editor shows just the image.
@@ -1094,3 +1122,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.23.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.23.1
 [0.24.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.24.0
 [0.24.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.24.1
+[0.25.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.25.0
