@@ -11,7 +11,8 @@ import BackroomView from './BackroomView.svelte';
 
 vi.mock('#lib/backroom/backroom-data/backroom-data.ts', () => ({
 	countFlags: vi.fn().mockResolvedValue(1),
-	deleteFlag: vi.fn().mockResolvedValue({})
+	deleteFlag: vi.fn().mockResolvedValue({}),
+	deleteItemFlags: vi.fn().mockResolvedValue({})
 }));
 vi.mock('#lib/backroom/flags-data/flags-data.ts', () => ({
 	restoreFlag: vi.fn().mockResolvedValue({})

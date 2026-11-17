@@ -8,7 +8,11 @@ import FixBar from './FixBar.svelte';
 
 vi.mock('$app/state', () => ({ page: { url: new URL('http://localhost/atelier/1/edit') } }));
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
-vi.mock('#lib/backroom/backroom-data/backroom-data.ts', () => ({ deleteFlag: vi.fn() }));
+vi.mock('#lib/backroom/backroom-data/backroom-data.ts', () => ({
+	deleteFlag: vi.fn(),
+	deleteItemFlags: vi.fn().mockResolvedValue({}),
+	countFlags: vi.fn()
+}));
 
 const entries = [
 	{ key: 'a', path: '/atelier/1/edit', field: 'image' as const, note: 'Blurry' },
