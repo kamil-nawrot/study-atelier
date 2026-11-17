@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { MapCity } from '#lib/map/types/map-city.ts';
-import { type CitySpot, fanOut, groupCities, labelledCities } from './map-groups.ts';
+import { type CitySpot, fanOut, groupCities, labelledCities, towardsPlaces } from './map-groups.ts';
 
 function city(key: string, count: number, seen = 0): MapCity {
 	return {
@@ -64,6 +64,25 @@ describe('fanOut', () => {
 		expect(fanned[1].x).toBeCloseTo(100);
 		expect(fanned[1].y).toBeCloseTo(100 + 32);
 		expect(fanned[1].from).toEqual({ x: 101, y: 100 });
+	});
+});
+
+describe('towardsPlaces', () => {
+	it('puts every city on the side of the ring towards its own place', () => {
+		const centre = { key: 'g', cities: [], x: 0, y: 0, radius: 10, count: 0, seen: 0 };
+		const spots: CitySpot[] = [
+			{ city: city('Dół', 1), x: 0, y: 10 },
+			{ city: city('Prawo', 1), x: 10, y: 0 },
+			{ city: city('Góra', 1), x: 0, y: -10 },
+			{ city: city('Lewo', 1), x: -10, y: 0 }
+		];
+
+		expect(towardsPlaces(spots, centre).map((spot) => spot.city.key)).toEqual([
+			'Góra',
+			'Prawo',
+			'Dół',
+			'Lewo'
+		]);
 	});
 });
 

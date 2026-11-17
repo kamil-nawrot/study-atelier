@@ -120,19 +120,55 @@ export function labelledCities(
 	return labelled;
 }
 
+function angleOf(spot: CitySpot, group: CityGroup): number {
+	return Math.atan2(spot.y - group.y, spot.x - group.x);
+}
+
+function slotAngle(slot: number, count: number): number {
+	return (2 * Math.PI * slot) / count - Math.PI / 2;
+}
+
+function turn(from: number, to: number): number {
+	const apart = Math.abs(from - to) % (2 * Math.PI);
+	return apart > Math.PI ? 2 * Math.PI - apart : apart;
+}
+
+export function towardsPlaces(members: readonly CitySpot[], group: CityGroup): CitySpot[] {
+	const sorted = [...members].sort(
+		(first, second) => angleOf(first, group) - angleOf(second, group)
+	);
+	const count = sorted.length;
+	const cost = (shift: number): number =>
+		sorted.reduce(
+			(sum, spot, index) =>
+				sum + turn(slotAngle((index + shift) % count, count), angleOf(spot, group)),
+			0
+		);
+	const shifts = Array.from({ length: count }, (_, shift) => shift);
+	const best = shifts.reduce((chosen, shift) => (cost(shift) < cost(chosen) ? shift : chosen), 0);
+	const ordered = new Array<CitySpot>(count);
+	sorted.forEach((spot, index) => {
+		ordered[(index + best) % count] = spot;
+	});
+	return ordered;
+}
+
 export function fanOut(
 	group: CityGroup,
 	spots: readonly CitySpot[],
 	radius: (count: number) => number,
 	labelWidth: (city: MapCity) => number
 ): FannedCity[] {
-	const members = group.cities.flatMap((city) => spots.filter((spot) => spot.city === city));
+	const members = towardsPlaces(
+		group.cities.flatMap((city) => spots.filter((spot) => spot.city === city)),
+		group
+	);
 	const step = Math.max(
 		...members.map((spot) => Math.max(radius(spot.city.count) * 2, labelWidth(spot.city)))
 	);
 	const ring = (step + CITY_GAP) / (2 * Math.sin(Math.PI / members.length));
 	return members.map((spot, index) => {
-		const angle = (2 * Math.PI * index) / members.length - Math.PI / 2;
+		const angle = slotAngle(index, members.length);
 		return {
 			key: spot.city.key,
 			cities: [spot.city],

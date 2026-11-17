@@ -51,6 +51,15 @@ export class MapZoom {
 		this.#clamp();
 	}
 
+	zoomOnto(centreX: number, centreY: number, factor: number): void {
+		this.zoomAt(centreX, centreY, factor);
+		this.panBy(this.#width / 2 - centreX, this.#height / 2 - centreY);
+	}
+
+	get closest(): boolean {
+		return this.scale >= MAX_ZOOM;
+	}
+
 	panBy(deltaX: number, deltaY: number): void {
 		this.x += deltaX;
 		this.y += deltaY;

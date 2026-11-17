@@ -14,6 +14,7 @@
 		groupCities,
 		labelledCities
 	} from '#lib/map/map-groups/map-groups.ts';
+	import { groupBox, intoView, discReach, zoomFactor, zoomsIn } from '#lib/map/map-fan/map-fan.ts';
 	import { MapPointer } from '#lib/map/map-pointer/map-pointer.ts';
 	import { MapZoom, ZOOM_STEP } from '#lib/map/map-zoom/map-zoom.svelte.ts';
 	import { mapBounds, mapProjection } from '#lib/map/projection/projection.ts';
@@ -76,6 +77,19 @@
 	);
 	let groups = $derived(groupCities(spots, radius));
 	let labelled = $derived(labelledCities(groups, labelSize, selected));
+	let fanGroup = $derived(groups.find((group) => group.key === fanned));
+	let fan = $derived(
+		fanGroup ? fanOut(fanGroup, spots, radius, (city) => labelSize(city).width) : []
+	);
+
+	$effect(() => {
+		if (!fanned) return;
+		untrack(() => {
+			if (!fanGroup || fan.length === 0) return;
+			const move = intoView(fanGroup, discReach(fanGroup, fan), width, height);
+			zoom.panBy(move.x, move.y);
+		});
+	});
 
 	$effect(() => {
 		if (width === 0 || height === 0 || frame?.key === fitKey) return;
@@ -126,7 +140,14 @@
 
 	function open(group: CityGroup): void {
 		if (group.cities.length === 1) onselect?.(group.cities[0]);
+		else if (zoomsIn(group, !zoom.closest)) zoomOnto(group);
 		else fanned = group.key;
+	}
+
+	function zoomOnto(group: CityGroup): void {
+		const box = groupBox(group, spots);
+		const factor = zoomFactor(box, width, height);
+		zoom.zoomOnto((box.left + box.right) / 2, (box.top + box.bottom) / 2, factor);
 	}
 
 	function fold(): void {
@@ -183,27 +204,31 @@
 			<path class="borders" d={borders} />
 		</g>
 	</svg>
-	{#each groups as group (group.key)}
-		{#if group.key !== fanned}
-			<CityMarker
-				{group}
-				labelled={labelled.has(group.key)}
-				{narrow}
-				onclick={() => open(group)}
-				selected={group.cities.some((city) => city.key === selected)}
-			/>
-		{/if}
-	{/each}
-	{#each groups.filter((group) => group.key === fanned) as group (group.key)}
+	<div class="markers" class:faded={fanGroup}>
+		{#each groups as group (group.key)}
+			{#if group.key !== fanned}
+				<CityMarker
+					{group}
+					labelled={labelled.has(group.key)}
+					{narrow}
+					onclick={() => open(group)}
+					selected={group.cities.some((city) => city.key === selected)}
+					zooms={zoomsIn(group, !zoom.closest)}
+				/>
+			{/if}
+		{/each}
+	</div>
+	{#if fanGroup}
 		<div class="fan">
 			<CityFan
-				cities={fanOut(group, spots, radius, (city) => labelSize(city).width)}
+				centre={fanGroup}
+				cities={fan}
 				{narrow}
 				onselect={(city) => onselect?.(city)}
 				{selected}
 			/>
 		</div>
-	{/each}
+	{/if}
 	{#if marker}
 		{@const spot = place(marker)}
 		{#if spot}
@@ -284,15 +309,24 @@
 		stroke-width: 0.3;
 	}
 
+	.markers,
 	.fan {
 		position: absolute;
 		inset: 0;
-		z-index: 2;
 		pointer-events: none;
 	}
 
+	.fan {
+		z-index: 2;
+	}
+
+	.markers :global(button),
 	.fan :global(button) {
 		pointer-events: auto;
+	}
+
+	.faded {
+		opacity: 0.25;
 	}
 
 	.zoom {
