@@ -19,6 +19,8 @@ export const ARTWORK_RELATION_TYPES: readonly TypeDefinition[] = [
 	{ type: 'version', kind: 'version', side: 'from' },
 	{ type: 'partFrom', kind: 'part', side: 'from' },
 	{ type: 'partTo', kind: 'part', side: 'to' },
+	{ type: 'insideFrom', kind: 'inside', side: 'from' },
+	{ type: 'insideTo', kind: 'inside', side: 'to' },
 	{ type: 'referenceFrom', kind: 'reference', side: 'from' },
 	{ type: 'referenceTo', kind: 'reference', side: 'to' },
 	{ type: 'related', kind: 'related', side: 'from' }

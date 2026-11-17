@@ -840,6 +840,8 @@ export const pl = {
 				version: 'Które dzieło jest inną wersją dzieła',
 				partFrom: 'Częścią jakiego dzieła jest',
 				partTo: 'Które dzieło jest częścią dzieła',
+				insideFrom: 'W jakim dziele znajduje się',
+				insideTo: 'Które dzieło znajduje się w dziele',
 				referenceFrom: 'Do jakiego dzieła nawiązuje',
 				referenceTo: 'Które dzieło nawiązuje do dzieła'
 			},
@@ -2798,6 +2800,8 @@ export const pl = {
 			version: 'Inna wersja',
 			partFrom: 'Jest częścią',
 			partTo: 'Składa się z',
+			insideFrom: 'Znajduje się w',
+			insideTo: 'Ma w sobie',
 			referenceFrom: 'Nawiązuje do',
 			referenceTo: 'Jest punktem odniesienia dla',
 			related: 'Powiązane z'
