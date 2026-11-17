@@ -23,6 +23,7 @@ export class FormFlags {
 		this.#kind = kind;
 		$effect(() => {
 			const current = target();
+			if (JSON.stringify(current) === JSON.stringify(this.#target)) return;
 			this.#target = current;
 			this.#fixed = [];
 			if (current) void this.#items.load(current);

@@ -7,7 +7,11 @@ export function itemEntries(entries: readonly FixEntry[]): FixEntry[] {
 		byPath.set(
 			entry.path,
 			first
-				? { ...first, flagIds: [...(first.flagIds ?? []), ...(entry.flagIds ?? [])] }
+				? {
+						...first,
+						target: first.target ?? entry.target,
+						flagIds: [...(first.flagIds ?? []), ...(entry.flagIds ?? [])]
+					}
 				: { ...entry }
 		);
 	}

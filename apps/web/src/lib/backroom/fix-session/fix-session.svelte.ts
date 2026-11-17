@@ -1,4 +1,5 @@
-import { deleteFlag } from '#lib/backroom/backroom-data/backroom-data.ts';
+import { deleteFlag, deleteItemFlags } from '#lib/backroom/backroom-data/backroom-data.ts';
+import { flagCount } from '#lib/backroom/flag-count/flag-count.svelte.ts';
 import type { FixEntry } from '#lib/backroom/types/fix-entry.ts';
 import type { FixStep } from '#lib/backroom/types/fix-step.ts';
 import { readStoredJson, writeStored } from '#lib/shared/utils/storage/storage.ts';
@@ -54,13 +55,34 @@ export class FixSession {
 		const entry = this.entryFor(path);
 		const stored = this.#stored;
 		if (!entry || !stored) return undefined;
-		await Promise.all((entry.flagIds ?? []).map((id) => deleteFlag(id)));
+		const results = entry.target
+			? [await deleteItemFlags(entry.target)]
+			: await Promise.all((entry.flagIds ?? []).map((id) => deleteFlag(id)));
+		if (results.some((result) => result.error)) return undefined;
+		if (results.length > 0) void flagCount.refresh();
 		this.#save({ ...stored, fixed: stored.fixed + 1 });
 		return this.#advance();
 	}
 
+	nextStep(path: string): FixStep | undefined {
+		const stored = this.#stored;
+		if (!stored || !this.entryFor(path)) return undefined;
+		const next = stored.entries[stored.position + 1];
+		return stored.queue && next
+			? { path: next.path }
+			: { done: true, fixed: stored.fixed, queue: stored.queue };
+	}
+
 	skip(path: string): FixStep | undefined {
 		return this.entryFor(path) ? this.#advance() : undefined;
+	}
+
+	leave(path: string): void {
+		const stored = this.#stored;
+		if (!stored) return;
+		const here = stored.entries[stored.position]?.path;
+		const next = stored.queue ? stored.entries[stored.position + 1]?.path : undefined;
+		if (path !== here && path !== next) this.clear();
 	}
 
 	clear(): void {
