@@ -25,7 +25,7 @@ declare
   scheduled boolean;
   rejected boolean;
 begin
-  insert into public.profiles (review_event_questions) values (1);
+  insert into public.profiles (review_event_questions) values (2);
   insert into public.timeline_events (name, year_from, year_to) values ('Thirty Years War', 1618, 1648)
     returning id into war;
   insert into public.timeline_events (name, year_to) values ('Battle of Grunwald', 1410)
@@ -63,7 +63,7 @@ begin
   assert rejected, 'a card takes a term and an event at once';
 
   round := public.extra_round(today);
-  assert jsonb_array_length(round -> 'events') = 2, 'the round does not take the count and the reserve of events';
+  assert jsonb_array_length(round -> 'events') = 2, 'the round does not take the count of events';
   assert (round -> 'events' -> 0 ->> 'id')::uuid = war, 'a due event does not come first';
   assert round -> 'events' -> 0 ->> 'kind' = 'end', 'a period asked for its start is not asked for its end';
   assert round -> 'events' -> 0 -> 'card' ->> 'id' is not null, 'a due event comes without its card';
@@ -83,7 +83,9 @@ begin
       else '2026-11-15T08:00:00Z'::timestamptz end
     where owner_id = '00000000-0000-0000-0000-00000000000a';
   set local role authenticated;
-  round := public.extra_round(today, 0);
+  update public.profiles set review_event_questions = 1;
+  round := public.extra_round(today, 2);
+  assert jsonb_array_length(round -> 'events') = 1, 'the round adds a reserve of events, which are never skipped';
   assert round -> 'events' -> 0 ->> 'kind' = 'start', 'the end asked longest ago does not come next';
 
   perform public.record_extra_review(null, null, due_card,

@@ -41,8 +41,22 @@ export class SessionSkip {
 		ondetails: (details: Map<string, ReviewDetails>) => void
 	): Promise<void> {
 		const step = session.current;
-		if (!step) return;
+		if (!step || session.saving) return;
+		session.saving = true;
+		try {
+			await this.#skip(session, step, ondetails);
+		} finally {
+			session.saving = false;
+		}
+	}
+
+	async #skip(
+		session: ReviewSession,
+		step: SessionStep,
+		ondetails: (details: Map<string, ReviewDetails>) => void
+	): Promise<void> {
 		const holds = await this.loadHolds();
+		if (session.current !== step) return;
 		const replacement = await skipReplacement(step, holds, {
 			reserve: this.reserve,
 			queue: session.queue,
@@ -63,6 +77,7 @@ export class SessionSkip {
 				return found.item;
 			}
 		});
+		if (session.current !== step) return;
 		session.replaceCurrent(skippedQueue(session.queue, session.position, replacement, holds));
 	}
 }

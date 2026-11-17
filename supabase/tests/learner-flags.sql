@@ -190,6 +190,34 @@ begin
 end;
 $$;
 
+do $$
+declare
+  ids uuid[] := '{}';
+  round jsonb;
+  shown integer;
+begin
+  select count(*) into shown
+    from public.artworks as artwork
+    join public.artwork_images as image on image.artwork_id = artwork.id and image.position = 0
+    where artwork.deleted_at is null;
+  for position in 1..(20 - shown) loop
+    ids := ids || (select id from public.save_artwork(
+      jsonb_build_object('title', 'Work ' || position, 'author_unknown', true), '{}', null,
+      jsonb_build_array(jsonb_build_object(
+        'own_image_url', 'https://example.com/' || position || '.jpg', 'image_width', 10, 'image_height', 10))));
+  end loop;
+  perform public.save_flag(jsonb_build_object('artwork_id', ids[1], 'reason', 'image', 'holds', true));
+
+  round := public.review_round('2026-11-16T00:00:00Z');
+  assert not exists (
+    select 1 from jsonb_array_elements(round -> 'facts') as fact where (fact ->> 'id')::uuid = ids[1]
+  ), 'a held artwork stays in the round';
+  assert jsonb_array_length(round -> 'picked') > 0,
+    'a held artwork takes an atelier of 20 below the minimum of a round';
+  delete from public.artworks where id = any (ids);
+end;
+$$;
+
 select set_config('request.jwt.claims',
   '{"sub": "00000000-0000-0000-0000-00000000000b", "role": "authenticated"}', true);
 

@@ -125,6 +125,12 @@ begin
   round := public.extra_round(today, 0);
   assert round -> 'terms' = '[]'::jsonb, 'the round takes terms with the glossary questions off';
   assert jsonb_array_length(round -> 'symbols') = 2, 'the round makes up symbols it cannot ask';
+
+  perform public.save_flag(jsonb_build_object('artwork_id', painting, 'pin_id', dove_pin, 'reason', 'pin',
+    'holds', true));
+  round := public.extra_round(today, 0);
+  assert not (round -> 'symbols') @> jsonb_build_array(jsonb_build_object('symbol_id', dove)),
+    'a held pin still asks its symbol';
 end;
 $$;
 
