@@ -42,6 +42,12 @@ begin
       where from_id = least(sketch, trashed) and to_id = greatest(sketch, trashed) and kind = 'related'),
     'a symmetric relation is not stored in the order of its ids';
 
+  perform public.save_artwork('{"title": "Replica", "author_unknown": true}', '{}', replica, null, null,
+    jsonb_build_array(jsonb_build_object('kind', 'inside', 'side', 'to', 'artwork_id', copy)));
+  assert exists (select 1 from public.artwork_relations
+      where from_id = copy and to_id = replica and kind = 'inside'),
+    'a work inside another is not stored from the contained work to the place';
+
   perform public.save_artwork('{"title": "Painting", "author_unknown": true}', '{}', painting, null, null,
     jsonb_build_array(jsonb_build_object('kind', 'version', 'side', 'to', 'artwork_id', replica)));
   assert not exists (select 1 from public.artwork_relations where kind = 'study'),

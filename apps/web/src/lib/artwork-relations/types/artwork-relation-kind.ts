@@ -1,1 +1,2 @@
-export type ArtworkRelationKind = 'study' | 'copy' | 'version' | 'part' | 'reference' | 'related';
+export type ArtworkRelationKind =
+	'study' | 'copy' | 'version' | 'part' | 'inside' | 'reference' | 'related';

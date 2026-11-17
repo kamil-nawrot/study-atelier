@@ -104,7 +104,7 @@ Table artwork_relations {
   owner_id uuid [not null, default: `auth.uid()`]
   from_id uuid [not null]
   to_id uuid [not null]
-  kind text [not null, note: 'study, copy, version, part, reference, related']
+  kind text [not null, note: 'study, copy, version, part, inside, reference, related']
   created_at "timestamp with time zone" [not null, default: `now()`]
 
   indexes {
