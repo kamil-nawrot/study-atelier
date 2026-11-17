@@ -164,4 +164,41 @@ describe('WorldMap', () => {
 		await page.getByRole('button', { name: m.map.zoomIn }).click();
 		await expect.element(page.getByRole('button', { name: /^Watykan/ })).not.toBeInTheDocument();
 	});
+
+	it('zooms into a group of more than six cities instead of fanning it out', async () => {
+		await page.viewport(1000, 800);
+		const near = Array.from({ length: 7 }, (_, index): MapCity => ({
+			...florence,
+			key: `IT:Miasto ${index}`,
+			name: `Miasto ${index}`,
+			point: { latitude: 41.9 + index * 0.05, longitude: 12.5 + index * 0.05 },
+			count: 1
+		}));
+		const tokyo: MapCity = {
+			...florence,
+			key: 'JP:Tokio',
+			name: 'Tokio',
+			point: { latitude: 35.68, longitude: 139.69 },
+			count: 1
+		};
+		render(WorldMap, {
+			geography: testGeography(),
+			fit: [paris.point, near[0].point, tokyo.point],
+			cities: [paris, ...near, tokyo]
+		});
+
+		const parisButton = page.getByRole('button', { name: /^Paryż/ }).element() as HTMLElement;
+		const before = parisButton.style.left;
+		await page
+			.getByRole('button', {
+				name: m.map.zoomGroup(
+					near.map((city) => city.name),
+					7
+				)
+			})
+			.click();
+
+		await expect.poll(() => parisButton.style.left).not.toBe(before);
+		expect(document.querySelector('.fan')).toBeNull();
+	});
 });
