@@ -65,10 +65,11 @@ describe('BackroomList', () => {
 		});
 
 		await expect.element(page.getByText(m.backroom.held)).toBeVisible();
-		const marks = page.getByRole('button', { name: m.backroom.markFixed });
+		const marks = page.getByRole('button', { name: m.backroom.markFixedOf(rows[0].title) });
 		await expect.element(marks).toBeVisible();
 		await marks.click();
 
 		expect(onfixed).toHaveBeenCalledWith(expect.objectContaining({ flag }));
+		await expect.poll(() => document.activeElement?.closest('li')).toBeTruthy();
 	});
 });

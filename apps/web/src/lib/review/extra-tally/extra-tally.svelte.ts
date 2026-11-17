@@ -13,6 +13,7 @@ import type { EventItem } from '#lib/review/types/event-item.ts';
 
 export class ExtraTally {
 	answers = $state<ExtraAnswer[]>([]);
+	failed = $state(0);
 	readonly #free: boolean;
 	#asked = new SvelteSet<string>();
 	#missed = new SvelteMap<string, number>();
@@ -45,12 +46,12 @@ export class ExtraTally {
 		mode: ExtraMode,
 		correct: boolean,
 		now: Date,
-		record: () => Promise<void>
+		record: () => Promise<boolean>
 	): boolean {
 		if (!this.#asked.has(key)) {
 			this.#asked.add(key);
 			this.answers.push({ mode, right: correct });
-			if (!this.#free) void record();
+			if (!this.#free) void this.#save(record);
 		}
 		if (correct) {
 			if (!this.#free && !this.#missed.has(key)) void recordRightAnswer(startOfDay(now));
@@ -59,5 +60,9 @@ export class ExtraTally {
 		const missed = this.#missed.get(key) ?? 0;
 		this.#missed.set(key, missed + 1);
 		return missed < MAX_REPEATS;
+	}
+
+	async #save(record: () => Promise<boolean>): Promise<void> {
+		if (!(await record().catch(() => false))) this.failed += 1;
 	}
 }

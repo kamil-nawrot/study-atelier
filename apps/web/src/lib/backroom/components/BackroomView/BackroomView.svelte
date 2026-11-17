@@ -117,7 +117,7 @@
 		<BackroomList
 			{busy}
 			onfix={(index) => fix(index, false)}
-			onfixed={(row) => void markFixed(row)}
+			onfixed={markFixed}
 			{onimage}
 			rows={shown}
 		/>

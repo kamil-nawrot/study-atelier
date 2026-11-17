@@ -23,7 +23,7 @@ vi.mock('#lib/review/review-data/review-data.ts', () => ({
 }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({ supabase: {} }));
 vi.mock('#lib/review/extra-cards-data/extra-cards-data.ts', () => ({
-	recordExtraReview: vi.fn().mockResolvedValue(undefined)
+	recordExtraReview: vi.fn().mockResolvedValue(true)
 }));
 
 const start = new Date(2026, 9, 16, 9, 0);
@@ -591,6 +591,15 @@ describe('ReviewSession', () => {
 		);
 		expect(recordRightAnswer).not.toHaveBeenCalled();
 		expect(extraScoreOf(review.extraAnswers, 'event_year')).toEqual({ asked: 1, right: 0 });
+	});
+
+	it('counts an extra answer whose save fails', async () => {
+		vi.mocked(recordExtraReview).mockResolvedValueOnce(false);
+		const review = new ReviewSession([eventStep('start')], new Map(), () => start);
+
+		await review.guess(1618);
+
+		await expect.poll(() => review.extraFailures).toBe(1);
 	});
 
 	it('counts an event guess in a free round without saving it', async () => {

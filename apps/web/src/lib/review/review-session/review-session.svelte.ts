@@ -75,6 +75,10 @@ export class ReviewSession {
 		return this.#extras.answers;
 	}
 
+	get extraFailures(): number {
+		return this.#extras.failed;
+	}
+
 	get started(): number {
 		return this.answers.filter((answer) => answer.item.card === null).length;
 	}

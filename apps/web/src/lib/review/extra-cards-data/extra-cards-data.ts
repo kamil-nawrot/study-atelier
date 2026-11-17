@@ -99,8 +99,8 @@ export async function recordExtraReview(
 	card: ReviewCard,
 	answer: ExtraAnswerInput,
 	now: Date = new Date()
-): Promise<void> {
-	await supabase.rpc('record_extra_review', {
+): Promise<boolean> {
+	const { error } = await supabase.rpc('record_extra_review', {
 		target_term: 'termId' in target ? target.termId : (null as unknown as string),
 		target_symbol: 'symbolId' in target ? target.symbolId : (null as unknown as string),
 		...('eventId' in target ? { target_event: target.eventId } : {}),
@@ -124,4 +124,5 @@ export async function recordExtraReview(
 		},
 		day_start: startOfDay(now).toISOString()
 	});
+	return !error;
 }

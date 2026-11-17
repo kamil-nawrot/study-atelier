@@ -51,14 +51,11 @@ export async function loadExtraSteps(input: ExtraInput): Promise<ExtraSteps> {
 	const { preferences, glossary, images } = input;
 	const now = input.now ?? new Date();
 	const holds = input.holds ?? NO_HOLDS;
-	const round = await loadExtraRound(startOfDay(now));
+	const roundRead = loadExtraRound(startOfDay(now));
 	const termCount = definitionCount(preferences);
 	const symbolCount = preferences.reviewSymbolsOn ? preferences.reviewSymbolQuestions : 0;
 	const eventCount = preferences.reviewEventsOn ? preferences.reviewEventQuestions : 0;
-	const eventsRead = loadTimelineEventsById(round.events.map((event) => event.eventId));
-	const drawn = roundTerms(round.terms, glossary);
 	const shownImages = images.resolve(input.shown);
-	const definedRead = loadTermDefinitions(drawn.map((term) => term.id));
 	const pairsRead = preferences.reviewPairsOn ? loadConfusedPairs() : Promise.resolve([]);
 	const relationsRead = preferences.reviewRelationsOn
 		? loadReviewRelations()
@@ -70,6 +67,10 @@ export async function loadExtraSteps(input: ExtraInput): Promise<ExtraSteps> {
 		input.artworksById,
 		glossary
 	);
+	const round = await roundRead;
+	const eventsRead = loadTimelineEventsById(round.events.map((event) => event.eventId));
+	const drawn = roundTerms(round.terms, glossary);
+	const definedRead = loadTermDefinitions(drawn.map((term) => term.id));
 	const gapArtworks = gaps.map((gap) => gap.artwork);
 	const pairs = pairItems(await pairsRead, input.atelier, preferences.reviewPairQuestions);
 	const relations = relationItems(

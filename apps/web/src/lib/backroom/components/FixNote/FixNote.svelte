@@ -2,6 +2,7 @@
 	import Check from '@lucide/svelte/icons/check';
 	import Flag from '@lucide/svelte/icons/flag';
 	import { Button, Icon, TextButton } from '@study-atelier/ui';
+	import { tick } from 'svelte';
 	import { page } from '$app/state';
 	import { fixSession } from '#lib/backroom/fix-session/fix-session.svelte.ts';
 	import type { FormFlags } from '#lib/backroom/form-flags/form-flags.svelte.ts';
@@ -22,6 +23,17 @@
 	let notes = $derived(flags?.notes(field) ?? []);
 	let focused = $derived(entry?.field === field);
 
+	let box = $state<HTMLElement>();
+
+	async function act(id: string, run: (id: string) => Promise<void>): Promise<void> {
+		await run(id);
+		await tick();
+		const button =
+			box?.querySelector<HTMLElement>(`[data-note="${id}"] button`) ??
+			box?.querySelector<HTMLElement>('button');
+		button?.focus();
+	}
+
 	function bringIntoView(element: HTMLElement): void {
 		const smooth = matchMedia('(prefers-reduced-motion: no-preference)').matches;
 		requestAnimationFrame(() =>
@@ -31,7 +43,11 @@
 </script>
 
 {#if missing || notes.length > 0}
-	<div class="notes" {@attach (element) => (focused ? bringIntoView(element) : undefined)}>
+	<div
+		bind:this={box}
+		class="notes"
+		{@attach (element) => (focused ? bringIntoView(element) : undefined)}
+	>
 		{#if missing}
 			<p class="note">
 				<Icon icon={Flag} size="sm" />
@@ -39,11 +55,14 @@
 			</p>
 		{/if}
 		{#each notes as note (note.id)}
-			<div class="note" class:fixed={note.fixed}>
+			<div class="note" class:fixed={note.fixed} data-note={note.id}>
 				<Icon icon={note.fixed ? Check : Flag} size="sm" />
 				<span class="text">{note.fixed ? m.backroom.markedFixed : note.text}</span>
 				{#if note.fixed}
-					<TextButton disabled={flags?.busy === note.id} onclick={() => flags?.undo(note.id)}>
+					<TextButton
+						disabled={flags?.busy === note.id}
+						onclick={() => flags && act(note.id, (id) => flags.undo(id))}
+					>
 						{m.backroom.undo}
 					</TextButton>
 				{:else}
@@ -52,7 +71,7 @@
 						compact
 						disabled={flags?.busy === note.id}
 						icon={Check}
-						onclick={() => flags?.markFixed(note.id)}
+						onclick={() => flags && act(note.id, (id) => flags.markFixed(id))}
 					>
 						{m.backroom.markFixed}
 					</Button>

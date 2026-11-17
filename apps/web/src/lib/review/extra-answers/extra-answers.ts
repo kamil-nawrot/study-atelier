@@ -11,9 +11,12 @@ export async function recordExtraAnswer(
 	now: Date,
 	shownAt: number,
 	wrongAnswer?: string
-): Promise<void> {
-	if (item.mode === 'quiz_pair') return recordPairAnswer(item, correct);
-	if (item.mode !== 'quiz_definition' && item.mode !== 'quiz_symbol') return;
+): Promise<boolean> {
+	if (item.mode === 'quiz_pair') {
+		await recordPairAnswer(item, correct);
+		return true;
+	}
+	if (item.mode !== 'quiz_definition' && item.mode !== 'quiz_symbol') return true;
 	const card = extraOutcome(item.card ?? null, correct, now);
 	const answer = {
 		correct,
@@ -35,7 +38,7 @@ export async function recordEventAnswer(
 	rating: ReviewRating,
 	now: Date,
 	shownAt: number
-): Promise<void> {
+): Promise<boolean> {
 	return recordExtraReview(
 		{ eventId: item.event.id },
 		ratedOutcome(item.card, rating, now),
