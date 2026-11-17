@@ -86,7 +86,8 @@
 		if (!fanned) return;
 		untrack(() => {
 			if (!fanGroup || fan.length === 0) return;
-			const move = intoView(fanGroup, discReach(fanGroup, fan), width, height);
+			const reach = discReach(fanGroup, fan, (city) => labelSize(city.cities[0]).width / 2);
+			const move = intoView(fanGroup, reach, width, height);
 			zoom.panBy(move.x, move.y);
 		});
 	});
@@ -145,6 +146,7 @@
 	}
 
 	function zoomOnto(group: CityGroup): void {
+		fold();
 		const box = groupBox(group, spots);
 		const factor = zoomFactor(box, width, height);
 		zoom.zoomOnto((box.left + box.right) / 2, (box.top + box.bottom) / 2, factor);

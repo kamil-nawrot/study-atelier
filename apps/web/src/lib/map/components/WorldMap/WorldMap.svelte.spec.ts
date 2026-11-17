@@ -141,12 +141,9 @@ describe('WorldMap', () => {
 		});
 
 		const group = page.getByRole('button', { name: m.map.group(['Rzym', 'Watykan'], 7) });
-		const tokyoButton = page.getByRole('button', { name: /^Tokio/ }).element() as HTMLElement;
-		const before = tokyoButton.style.left;
 		await group.click();
 
 		expect(onselect).not.toHaveBeenCalled();
-		expect(tokyoButton.style.left).toBe(before);
 		await expect.element(page.getByRole('button', { name: /^Rzym/ })).toBeInTheDocument();
 		const surface = document.querySelector('.map > svg') as SVGSVGElement;
 		const drag = (type: string, x: number): void => {
