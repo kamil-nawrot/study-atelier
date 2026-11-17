@@ -259,13 +259,14 @@ reads:
   - id: R14
     name: Review session
     route: /atelier/review
-    shows: due cards, flashcards with marked notes, questions about artworks and term definitions
+    shows: due cards, flashcards with marked notes, questions about artworks, term definitions and the dates of Kalendarium events
     needs:
       - 'review cards: due'
       - 'artwork facts: of the drawn cards'
       - 'term index with a has-definition flag: to pick definition questions'
       - 'extra cards of terms and symbols: due by the end of the day, with the last mode of each symbol card (ADR-0312)'
       - 'term definitions: of the picked terms'
+      - 'timeline events: name, years and description of the events picked by extra_round with the asked end (ADR-0318)'
       - 'counts, streak, preferences'
     scope: few
     frequency: view
@@ -807,16 +808,17 @@ writes:
     side_effects: [list, Archiwum, '"Na wystawach"']
     frequency: 'write, from the dialog "Afisz wystawy" (set_exhibition_cover), apart from the document autosave and its revision'
   - id: W34
-    name: Answer a glossary or symbol question in review
+    name: Answer a glossary, symbol or Kalendarium event question in review
     changes: [extra_cards, extra_review_log, point_events]
     side_effects:
       [
-        the next glossary and symbol questions,
+        the next glossary,
+        symbol and event questions,
         a point for a right first answer as today,
         only the first answer of the day of a card schedules it; later ones are practice,
         nothing in a free round
       ]
-    frequency: 'write, record_extra_review (ADR-0312)'
+    frequency: 'write, record_extra_review (ADR-0312, ADR-0318)'
 
   - id: W35
     name: Flag a weak item
