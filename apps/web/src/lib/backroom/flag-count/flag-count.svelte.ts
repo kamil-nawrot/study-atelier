@@ -13,7 +13,7 @@ export class FlagCount {
 
 	async refresh(): Promise<void> {
 		const owner = this.#owner;
-		const counted = await countFlags();
+		const counted = await countFlags().catch(() => undefined);
 		if (counted !== undefined && owner === this.#owner) this.value = counted;
 	}
 }
