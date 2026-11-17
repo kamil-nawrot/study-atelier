@@ -4,6 +4,7 @@
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Shapes from '@lucide/svelte/icons/shapes';
 	import { Button, Icon, Tag } from '@study-atelier/ui';
+	import { tick } from 'svelte';
 	import type { ResolvedPathname } from '$app/types';
 	import type { BackroomRow } from '#lib/backroom/types/backroom-row.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -12,19 +13,29 @@
 	type Props = {
 		rows: readonly BackroomRow[];
 		onfix: (index: number) => void;
-		onfixed?: (row: BackroomRow) => void;
+		onfixed?: (row: BackroomRow) => void | Promise<void>;
 		busy?: string;
 		onimage?: (artwork: WallArtwork) => void;
 	};
 
 	let { rows, onfix, onfixed, busy, onimage }: Props = $props();
 
+	let list = $state<HTMLUListElement>();
+
+	async function markFixed(row: BackroomRow, index: number): Promise<void> {
+		await onfixed?.(row);
+		await tick();
+		const items = list?.querySelectorAll<HTMLElement>(':scope > li') ?? [];
+		const next = items[Math.min(index, items.length - 1)];
+		next?.querySelector<HTMLElement>('a, button')?.focus();
+	}
+
 	$effect(() => {
 		for (const row of rows) if (row.artwork?.pendingImage) onimage?.(row.artwork);
 	});
 </script>
 
-<ul>
+<ul bind:this={list}>
 	{#each rows as row, index (row.entry.key)}
 		<li>
 			<div class="thumbnail">
@@ -65,11 +76,11 @@
 				{#if row.flag && onfixed}
 					{@const flag = row.flag}
 					<Button
-						aria-label={m.backroom.markFixed}
+						aria-label={m.backroom.markFixedOf(row.title)}
 						compact
 						disabled={busy === flag.id}
 						icon={Check}
-						onclick={() => onfixed(row)}
+						onclick={() => markFixed(row, index)}
 					>
 						{m.backroom.markFixed}
 					</Button>

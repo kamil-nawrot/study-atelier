@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Alert } from '@study-atelier/ui';
+	import { Alert, Toast } from '@study-atelier/ui';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import SymbolQuiz from '#lib/review/components/SymbolQuiz/SymbolQuiz.svelte';
 	import PairQuiz from '#lib/review/components/PairQuiz/PairQuiz.svelte';
@@ -27,7 +27,15 @@
 	};
 
 	let { flow, error, glossary, rankForm }: Props = $props();
+
+	let toast = $state<Toast>();
+
+	$effect(() => {
+		if ((flow.session?.extraFailures ?? 0) > 0) toast?.show(m.review.extraSaveFailed);
+	});
 </script>
+
+<Toast bind:this={toast} />
 
 {#if error}
 	<Alert title={m.review.loadErrorTitle} tone="danger">{error}</Alert>

@@ -973,6 +973,7 @@ export const pl = {
 		},
 		saveErrorTitle: 'Nie udało się zapisać odpowiedzi',
 		saveFailed: 'Nie udało się zapisać odpowiedzi. Spróbuj jeszcze raz.',
+		extraSaveFailed: 'Nie udało się zapisać odpowiedzi.',
 		done: 'Gotowe',
 		groups: {
 			1: 'Do poprawki',
@@ -1453,6 +1454,7 @@ export const pl = {
 		fixAll: 'Poprawiaj po kolei',
 		fix: 'Popraw',
 		markFixed: 'Oznacz jako poprawione',
+		markFixedOf: (name: string): string => `Oznacz jako poprawione: ${name}`,
 		markedFixed: 'Oznaczono jako poprawione.',
 		undo: 'Cofnij',
 		fixErrorTitle: 'Nie udało się zmienić flagi',
