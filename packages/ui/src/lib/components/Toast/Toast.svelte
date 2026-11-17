@@ -31,20 +31,41 @@
 		timer = setTimeout(hide, remaining);
 	}
 
-	function pause(event: PointerEvent): void {
-		if (!message || event.pointerType !== 'mouse') return;
+	let focused = false;
+
+	function hold(): void {
 		clearTimeout(timer);
 		remaining = Math.max(0, remaining - (Date.now() - startedAt));
 	}
 
-	function resume(event: PointerEvent): void {
-		if (!message || event.pointerType !== 'mouse') return;
+	function release(): void {
 		remaining = Math.min(remaining, LEAVE_GRACE);
 		start();
 	}
 
+	function pause(event: PointerEvent): void {
+		if (message && event.pointerType === 'mouse' && !focused) hold();
+	}
+
+	function resume(event: PointerEvent): void {
+		if (message && event.pointerType === 'mouse' && !focused) release();
+	}
+
+	function focusin(): void {
+		if (!message) return;
+		focused = true;
+		hold();
+	}
+
+	function focusout(): void {
+		if (!message) return;
+		focused = false;
+		release();
+	}
+
 	function hide(): void {
 		clearTimeout(timer);
+		focused = false;
 		message = '';
 		action = undefined;
 	}
@@ -71,6 +92,8 @@
 		{#if message}
 			<div
 				class="toast"
+				onfocusin={focusin}
+				onfocusout={focusout}
 				onpointerenter={pause}
 				onpointerleave={resume}
 				role="presentation"

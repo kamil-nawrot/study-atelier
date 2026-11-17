@@ -58,6 +58,23 @@ describe('Toast', () => {
 		await expect.element(toast).not.toBeInTheDocument();
 	});
 
+	it('stays while the keyboard is on its action and hides soon after focus leaves', async () => {
+		const run = vi.fn();
+		const { component } = await render(Toast, { duration: 5000 });
+
+		component.show('Oznaczono jako poprawione.', { label: 'Cofnij', run });
+		const action = page.getByRole('button', { name: 'Cofnij' });
+		await expect.element(action).toBeVisible();
+		(action.element() as HTMLElement).focus();
+		vi.advanceTimersByTime(10000);
+		await expect.element(action).toBeVisible();
+
+		(action.element() as HTMLElement).blur();
+		vi.advanceTimersByTime(1000);
+		await expect.element(action).not.toBeInTheDocument();
+		expect(run).not.toHaveBeenCalled();
+	});
+
 	it('hides within a second once the pointer leaves, however long it stayed', async () => {
 		const { component } = await render(Toast, { duration: 5000 });
 

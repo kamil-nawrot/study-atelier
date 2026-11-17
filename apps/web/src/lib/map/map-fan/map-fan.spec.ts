@@ -41,6 +41,7 @@ describe('groupBox and zoomFactor', () => {
 
 		expect(box).toEqual({ left: 90, top: 80, right: 110, bottom: 100 });
 		expect(zoomFactor(box, 296, 496)).toBe(10);
+		expect(zoomFactor({ left: 0, top: 0, right: 400, bottom: 300 }, 360, 320)).toBe(1.6);
 	});
 });
 
@@ -55,6 +56,10 @@ describe('discReach and intoView', () => {
 
 	it('reaches past the farthest city of the fan', () => {
 		expect(discReach({ x: 0, y: 0 }, [fanned(30, 40), fanned(-6, 8)])).toBe(50 + 10 + 28);
+	});
+
+	it('reaches past a name wider than its circle', () => {
+		expect(discReach({ x: 0, y: 0 }, [fanned(30, 40)], () => 60)).toBe(50 + 60 + 28);
 	});
 
 	it('moves a fan at the edge into the view and leaves one inside alone', () => {
