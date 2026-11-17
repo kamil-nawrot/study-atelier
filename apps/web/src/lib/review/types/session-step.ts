@@ -1,4 +1,5 @@
 import type { DefinitionItem } from './definition-item.ts';
+import type { EventItem } from './event-item.ts';
 import type { NoteGapItem } from './note-gap-item.ts';
 import type { OrderItem } from './order-item.ts';
 import type { PairItem } from './pair-item.ts';
@@ -15,4 +16,5 @@ export type SessionStep =
 	| PairItem
 	| RelationItem
 	| YearItem
-	| OrderItem;
+	| OrderItem
+	| EventItem;

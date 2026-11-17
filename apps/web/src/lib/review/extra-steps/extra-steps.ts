@@ -16,6 +16,8 @@ import type { ResolvedImages } from '#lib/review/resolved-images/resolved-images
 import { loadConfusedPairs, loadReviewDetails } from '#lib/review/review-data/review-data.ts';
 import { loadSymbolSteps } from '#lib/review/symbol-steps/symbol-steps.ts';
 import { loadExtraRound } from '#lib/review/extra-cards-data/extra-cards-data.ts';
+import { eventItems } from '#lib/review/event-questions/event-questions.ts';
+import { loadTimelineEventsById } from '#lib/timeline/timeline-data/timeline-data.ts';
 import { startOfDay } from '#lib/review/queue/queue.ts';
 import { timeQuestions, withTimeImages } from '#lib/review/time-questions/time-questions.ts';
 import type { ReviewDetails } from '#lib/review/types/review-details.ts';
@@ -52,6 +54,8 @@ export async function loadExtraSteps(input: ExtraInput): Promise<ExtraSteps> {
 	const round = await loadExtraRound(startOfDay(now));
 	const termCount = definitionCount(preferences);
 	const symbolCount = preferences.reviewSymbolsOn ? preferences.reviewSymbolQuestions : 0;
+	const eventCount = preferences.reviewEventsOn ? preferences.reviewEventQuestions : 0;
+	const eventsRead = loadTimelineEventsById(round.events.map((event) => event.eventId));
 	const drawn = roundTerms(round.terms, glossary);
 	const shownImages = images.resolve(input.shown);
 	const definedRead = loadTermDefinitions(drawn.map((term) => term.id));
@@ -74,7 +78,7 @@ export async function loadExtraSteps(input: ExtraInput): Promise<ExtraSteps> {
 		preferences.reviewRelationQuestions
 	);
 	const relationArtworks = relations.map((item) => item.artwork);
-	const [, , , , found, defined, symbolSteps] = await Promise.all([
+	const [, , , , found, defined, symbolSteps, events] = await Promise.all([
 		shownImages,
 		images.resolve(gapArtworks),
 		images.resolve(pairArtworks(pairs)),
@@ -83,7 +87,8 @@ export async function loadExtraSteps(input: ExtraInput): Promise<ExtraSteps> {
 			[...input.asked, ...gapArtworks, ...relationArtworks].map((artwork) => artwork.id)
 		),
 		definedRead,
-		loadSymbolSteps(round.symbols, glossary)
+		loadSymbolSteps(round.symbols, glossary),
+		eventsRead
 	]);
 	const definitions = definitionItems(
 		withDefinitionsOf(drawn, defined.definitions),
@@ -99,6 +104,7 @@ export async function loadExtraSteps(input: ExtraInput): Promise<ExtraSteps> {
 			[
 				...definitions.slice(0, termCount),
 				...symbolSteps.slice(0, symbolCount),
+				...eventItems(round.events, events).slice(0, eventCount),
 				...gaps.map((gap) => ({ ...gap, artwork: images.withImage(gap.artwork) })),
 				...pairs.map((pair) => ({
 					...pair,

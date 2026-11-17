@@ -400,7 +400,8 @@ describe('review page', () => {
 	it('adds as many definitions to a session as the preferences ask for', async () => {
 		vi.mocked(loadExtraRound).mockResolvedValueOnce({
 			terms: terms.slice(0, 4).map(({ id }) => ({ id, card: null })),
-			symbols: []
+			symbols: [],
+			events: []
 		});
 		const artworks = collection(25);
 		renderReview(
@@ -425,7 +426,8 @@ describe('review page', () => {
 	it('loads the definitions of the drawn terms and their reserve in one request and runs without them when it fails', async () => {
 		vi.mocked(loadExtraRound).mockResolvedValueOnce({
 			terms: terms.slice(0, 4).map(({ id }) => ({ id, card: null })),
-			symbols: []
+			symbols: [],
+			events: []
 		});
 		vi.mocked(loadTermDefinitions).mockResolvedValue({
 			definitions: new Map(),

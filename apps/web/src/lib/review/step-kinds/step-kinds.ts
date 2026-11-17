@@ -14,12 +14,13 @@ const EXTRA_MODES = new Set([
 	'quiz_pair',
 	'quiz_relation',
 	'year',
-	'order'
+	'order',
+	'event_year'
 ]);
 
 export type ExtraQuizItem = DefinitionItem | SymbolItem | NoteGapItem | PairItem | RelationItem;
 
-export type ExtraMode = ExtraQuizItem['mode'];
+export type ExtraMode = ExtraQuizItem['mode'] | 'event_year';
 
 export type ExtraAnswer = { mode: ExtraMode; right: boolean };
 

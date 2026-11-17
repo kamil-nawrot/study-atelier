@@ -17,6 +17,7 @@ const card: ExtraCard = {
 	id: 'card-1',
 	termId: null,
 	symbolId: 'symbol-1',
+	eventId: null,
 	due: new Date('2026-11-15T08:00:00'),
 	stability: 4,
 	difficulty: 5,

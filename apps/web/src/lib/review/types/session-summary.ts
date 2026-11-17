@@ -11,6 +11,7 @@ export type SessionSummary = {
 	styles: { asked: number; right: number };
 	definitions: { asked: number; right: number };
 	symbols: { asked: number; right: number };
+	events: { asked: number; right: number };
 	notes: { asked: number; right: number };
 	pairs: { asked: number; right: number };
 	relations: { asked: number; right: number };

@@ -24,7 +24,12 @@ function stepArtworks(step: OrderItem | PairItem): WallArtwork[] {
 
 export function preloadSteps(steps: SessionStep[]): void {
 	for (const step of steps) {
-		if (step.mode === 'quiz_definition' || step.mode === 'quiz_symbol') continue;
+		if (
+			step.mode === 'quiz_definition' ||
+			step.mode === 'quiz_symbol' ||
+			step.mode === 'event_year'
+		)
+			continue;
 		if (step.mode === 'order' || step.mode === 'quiz_pair') {
 			for (const artwork of stepArtworks(step)) preload(artwork, QUIZ_TILE_SIZES);
 			continue;

@@ -29,7 +29,7 @@
 		<Tag>{m.review.freeTag}</Tag>
 	{/if}
 	<div class="end">
-		{#if session.current}
+		{#if session.current && session.current.mode !== 'event_year'}
 			<ReviewFlag {answered} chosen={session.chosen} {onskip} step={session.current} />
 		{/if}
 		<div

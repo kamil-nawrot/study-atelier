@@ -29,7 +29,7 @@ begin
   perform set_config('test.skull', skull::text, true);
 
   scheduled := public.record_extra_review(term, null, first_card,
-    '{"mode": "quiz_definition", "rating": 2, "correct": true, "answer_ms": 3200}', '2026-11-16T00:00:00Z');
+    '{"mode": "quiz_definition", "rating": 2, "correct": true, "answer_ms": 3200}', date_trunc('day', now()));
   assert scheduled, 'the first answer of a term does not schedule it';
   select id into term_card from public.extra_cards where glossary_entry_id = term;
   assert term_card is not null, 'the first answer does not create the card of the term';
@@ -40,7 +40,7 @@ begin
 
   scheduled := public.record_extra_review(term, null, later_card,
     '{"mode": "quiz_definition", "rating": 1, "correct": false, "wrong_answer": " Tympanum "}',
-    '2026-11-16T00:00:00Z');
+    date_trunc('day', now()));
   assert not scheduled, 'a second answer on the same day schedules the term';
   assert (select due from public.extra_cards where id = term_card) = '2026-11-18T08:00:00Z',
     'a second answer on the same day changes the card';
@@ -49,7 +49,7 @@ begin
     'a second answer on the same day is not logged as practice with the wrong answer';
 
   scheduled := public.record_extra_review(term, null, later_card,
-    '{"mode": "quiz_definition", "rating": 2, "correct": true}', '2026-11-18T00:00:00Z');
+    '{"mode": "quiz_definition", "rating": 2, "correct": true}', date_trunc('day', now()) + interval '2 days');
   assert scheduled, 'the first answer of the next day does not schedule the term';
   assert (select due = '2026-11-30T08:00:00Z' and reps = 2 and last_rating = 2
       from public.extra_cards where id = term_card),
@@ -59,7 +59,7 @@ begin
     'an answer does not keep the due date the card had before';
 
   perform public.record_extra_review(null, skull, first_card,
-    '{"mode": "symbol_meaning", "rating": 1, "correct": false}', '2026-11-16T00:00:00Z');
+    '{"mode": "symbol_meaning", "rating": 1, "correct": false}', date_trunc('day', now()));
   assert (select count(*) from public.extra_cards) = 2, 'a symbol does not get a card of its own';
 
   begin
@@ -103,7 +103,7 @@ begin
   begin
     perform public.record_extra_review(current_setting('test.term')::uuid, null,
       '{"due": "2026-11-18T08:00:00Z", "stability": 2, "difficulty": 5, "state": 2}',
-      '{"mode": "quiz_definition", "rating": 2, "correct": true}', '2026-11-16T00:00:00Z');
+      '{"mode": "quiz_definition", "rating": 2, "correct": true}', date_trunc('day', now()));
     rejected := false;
   exception when foreign_key_violation then
     rejected := true;

@@ -43,6 +43,8 @@ function questionText(step: SessionStep): string {
 			return m.review.year.question;
 		case 'order':
 			return m.review.order.question;
+		case 'event_year':
+			return m.review.event.questions[step.kind];
 		default:
 			return artworkQuestion(step);
 	}

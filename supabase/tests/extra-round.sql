@@ -137,7 +137,7 @@ declare
   rejected boolean;
 begin
   round := public.extra_round('2026-11-16T00:00:00Z');
-  assert round = '{"terms": [], "symbols": []}'::jsonb, 'B gets the terms or symbols of A';
+  assert round = '{"terms": [], "symbols": [], "events": []}'::jsonb, 'B gets the terms, symbols or events of A';
 
   insert into public.glossary_entries (name, category, definition) values
     ('Fresco', 'technique', 'Paint on wet plaster'),

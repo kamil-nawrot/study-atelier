@@ -10,6 +10,7 @@ const CARD_QUESTIONS = [1, 2, 3, 4, 5] as const;
 export const EXTRA_KINDS = [
 	{ on: 'reviewGlossaryOn', count: 'reviewGlossaryQuestions', choices: CARD_QUESTIONS },
 	{ on: 'reviewSymbolsOn', count: 'reviewSymbolQuestions', choices: CARD_QUESTIONS },
+	{ on: 'reviewEventsOn', count: 'reviewEventQuestions', choices: FEW_QUESTIONS },
 	{ on: 'reviewNotesOn', count: 'reviewNoteQuestions', choices: FEW_QUESTIONS },
 	{ on: 'reviewPairsOn', count: 'reviewPairQuestions', choices: FEW_QUESTIONS },
 	{ on: 'reviewRelationsOn', count: 'reviewRelationQuestions', choices: FEW_QUESTIONS }
@@ -50,6 +51,8 @@ export const defaultPreferences: Preferences = {
 	reviewGlossaryQuestions: 1,
 	reviewSymbolsOn: true,
 	reviewSymbolQuestions: 1,
+	reviewEventsOn: true,
+	reviewEventQuestions: 1,
 	reviewNotesOn: false,
 	reviewNoteQuestions: 1,
 	reviewPairsOn: true,
@@ -77,6 +80,8 @@ const PART_FIELDS: Record<PreferencesPart, readonly (keyof Preferences)[]> = {
 		'reviewGlossaryQuestions',
 		'reviewSymbolsOn',
 		'reviewSymbolQuestions',
+		'reviewEventsOn',
+		'reviewEventQuestions',
 		'reviewNotesOn',
 		'reviewNoteQuestions',
 		'reviewPairsOn',

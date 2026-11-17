@@ -4,4 +4,5 @@ export type ExtraCard = Omit<ReviewCard, 'artworkId'> & {
 	id: string;
 	termId: string | null;
 	symbolId: string | null;
+	eventId: string | null;
 };
