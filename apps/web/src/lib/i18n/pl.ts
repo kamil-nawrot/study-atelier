@@ -1411,7 +1411,8 @@ export const pl = {
 		groups: {
 			artwork: (title: string): string => `Dzieło „${title}”`,
 			term: (name: string): string => `Pojęcie „${name}”`,
-			symbol: (name: string): string => `Symbol „${name}”`
+			symbol: (name: string): string => `Symbol „${name}”`,
+			event: (name: string): string => `Wydarzenie „${name}”`
 		},
 		reasons: {
 			image: 'Obraz jest nieostry albo zły',
@@ -1422,6 +1423,7 @@ export const pl = {
 			definition: 'Definicja jest niejasna albo błędna',
 			meaning: 'Znaczenie jest źle opisane',
 			answers: 'Pasuje więcej niż jedna odpowiedź',
+			date: 'Data jest błędna',
 			other: 'Coś innego'
 		},
 		pinChoice: 'Która pinezka?',

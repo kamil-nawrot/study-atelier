@@ -18,7 +18,9 @@ function flag(extra: Partial<FlagRecord>): FlagRecord {
 		artworkId: null,
 		termId: null,
 		symbolId: null,
+		eventId: null,
 		symbolName: null,
+		eventName: null,
 		imageId: null,
 		pinId: null,
 		imageNumber: null,
@@ -136,5 +138,30 @@ describe('missing rows', () => {
 			[]
 		);
 		expect(row.entry.field).toBe('year');
+	});
+
+	it('opens the event form at the date of a flagged event', () => {
+		const [row] = flagRows(
+			[
+				flag({
+					eventId: 'event-1',
+					eventName: 'Wojna trzydziestoletnia',
+					reason: 'date',
+					question: { mode: 'event_year', text: 'Kiedy zaczęło się to wydarzenie historyczne?' }
+				})
+			],
+			[],
+			[]
+		);
+
+		expect(row).toMatchObject({
+			kind: 'event',
+			title: 'Wojna trzydziestoletnia',
+			entry: {
+				path: '/atelier/timeline/events/event-1/edit',
+				field: 'date',
+				target: { eventId: 'event-1' }
+			}
+		});
 	});
 });

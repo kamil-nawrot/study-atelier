@@ -137,4 +137,28 @@ describe('flag groups of a review question', () => {
 			['artwork-2', ['data', 'other']]
 		]);
 	});
+
+	it('flags the date of a Kalendarium event', () => {
+		const step: SessionStep = {
+			mode: 'event_year',
+			kind: 'start',
+			event: {
+				id: 'war',
+				name: 'Wojna trzydziestoletnia',
+				yearFrom: 1618,
+				yearTo: 1648,
+				yearApproximate: false,
+				description: '',
+				source: null
+			},
+			card: null
+		};
+
+		expect(stepGroups(step)).toEqual([
+			{
+				item: { kind: 'event', id: 'war', name: 'Wojna trzydziestoletnia' },
+				reasons: ['date', 'other']
+			}
+		]);
+	});
 });

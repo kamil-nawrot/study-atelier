@@ -12,6 +12,7 @@ function flag(extra: Partial<StoredFlag>): StoredFlag {
 		artworkId: null,
 		termId: null,
 		symbolId: null,
+		eventId: null,
 		imageId: null,
 		pinId: null,
 		imageNumber: null,
@@ -94,5 +95,27 @@ describe('holds', () => {
 
 		expect(withoutHeld(steps, holds)).toEqual([{ mode: 'year', artwork: david, card: null }]);
 		expect(withoutHeld(steps, NO_HOLDS)).toHaveLength(6);
+	});
+
+	it('leaves out the question about a held event', () => {
+		const holds = holdsOf([flag({ eventId: 'war', reason: 'date' })]);
+		const step: SessionStep = {
+			mode: 'event_year',
+			kind: 'start',
+			event: {
+				id: 'war',
+				name: 'Wojna trzydziestoletnia',
+				yearFrom: 1618,
+				yearTo: 1648,
+				yearApproximate: false,
+				description: '',
+				source: null
+			},
+			card: null
+		};
+
+		expect([...holds.events]).toEqual(['war']);
+		expect(heldStep(step, holds)).toBeUndefined();
+		expect(heldStep(step, NO_HOLDS)).toBe(step);
 	});
 });

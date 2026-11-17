@@ -141,6 +141,7 @@ describe('restoreFlag', () => {
 				artworkId: 'a1',
 				termId: null,
 				symbolId: null,
+				eventId: null,
 				imageId: 'i1',
 				pinId: 'p1',
 				holds: true
@@ -171,6 +172,7 @@ describe('restoreFlag', () => {
 				artworkId: 'a1',
 				termId: null,
 				symbolId: null,
+				eventId: null,
 				imageId: null,
 				pinId: null,
 				holds: false

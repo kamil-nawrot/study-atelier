@@ -12,7 +12,8 @@
 		TextField
 	} from '@study-atelier/ui';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
-	import { formatDate } from '#lib/catalogue/years/years.ts';
+	import FixNote from '#lib/backroom/components/FixNote/FixNote.svelte';
+	import type { FormFlags } from '#lib/backroom/form-flags/form-flags.svelte.ts';
 	import YearGroup from '#lib/shared/forms/YearGroup/YearGroup.svelte';
 	import YearInput from '#lib/shared/forms/YearInput/YearInput.svelte';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
@@ -34,7 +35,8 @@
 		hasNoDates,
 		validateEventForm,
 		withDates,
-		withoutDates
+		withoutDates,
+		articleDates
 	} from '#lib/timeline/event-form/event-form.ts';
 	import type { EventFormErrors } from '#lib/timeline/types/event-form-errors.ts';
 	import type { EventFormState } from '#lib/timeline/types/event-form-state.ts';
@@ -48,12 +50,14 @@
 
 	type Props = {
 		event?: TimelineEvent;
+		labels?: { save: string; cancel: string };
+		flags?: FormFlags;
 		cancelHref: string;
 		oncancel?: (event: MouseEvent) => void;
 		onsaved: (draft: TimelineEventDraft) => void | Promise<void>;
 	};
 
-	let { event, cancelHref, oncancel, onsaved }: Props = $props();
+	let { event, cancelHref, oncancel, onsaved, labels, flags }: Props = $props();
 
 	const SEARCH_DELAY_MS = 600;
 	const formId = $props.id();
@@ -74,7 +78,6 @@
 	let filling = $state<{ dates: boolean; description: boolean } | null>(null);
 	let stoppedName = '';
 	let request = 0;
-
 	const formState = new FormState<EventFormState>(initial());
 
 	let query = $derived(form.name.trim());
@@ -197,12 +200,6 @@
 		autoDates = null;
 	}
 
-	function datesOf(article: EventArticle): string {
-		return (
-			formatDate(article.dates.yearFrom, article.dates.yearTo, article.dates.approximate) ?? ''
-		);
-	}
-
 	export function confirmLeave(): Promise<boolean> {
 		return changes.confirmLeave();
 	}
@@ -227,6 +224,7 @@
 <div class="page">
 	<Form error={formState.error} errorTitle={m.timeline.form.errorTitle} onsubmit={submit}>
 		<div class="fields">
+			<FixNote field="top" {flags} />
 			<TextField
 				autocomplete="off"
 				error={errors.current.name}
@@ -274,6 +272,7 @@
 					bind:beforeCommonEra={form.toBeforeCommonEra}
 				/>
 			</YearGroup>
+			<FixNote field="date" {flags} />
 
 			<div class="description">
 				<TextArea
@@ -324,10 +323,10 @@
 
 		<FormActions>
 			<Button href={cancelHref} onclick={oncancel}>
-				{m.common.cancel}
+				{labels?.cancel ?? m.common.cancel}
 			</Button>
 			<Button disabled={formState.busy || filling !== null} type="submit" variant="primary">
-				{formState.busy ? m.common.saving : m.common.save}
+				{formState.busy ? m.common.saving : (labels?.save ?? m.common.save)}
 			</Button>
 		</FormActions>
 	</Form>
@@ -339,7 +338,7 @@
 	{articles}
 	currentTitle={form.source?.title}
 	description={m.timeline.articles.description(form.name.trim())}
-	detail={datesOf}
+	detail={articleDates}
 	failedText={m.timeline.articles.failed}
 	noneText={m.timeline.articles.none}
 	onuse={useArticle}

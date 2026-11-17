@@ -24,6 +24,7 @@ function flag(extra: Partial<StoredFlag>): StoredFlag {
 		artworkId: null,
 		termId: null,
 		symbolId: null,
+		eventId: null,
 		imageId: null,
 		pinId: null,
 		imageNumber: null,

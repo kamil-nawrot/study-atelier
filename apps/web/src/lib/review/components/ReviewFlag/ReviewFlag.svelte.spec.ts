@@ -67,6 +67,7 @@ describe('ReviewFlag', () => {
 				artworkId: 'artwork-1',
 				termId: null,
 				symbolId: null,
+				eventId: null,
 				imageId: null,
 				pinId: null,
 				imageNumber: null,

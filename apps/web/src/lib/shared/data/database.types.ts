@@ -1145,6 +1145,7 @@ export type Database = {
           artwork_id: string | null;
           comment: string | null;
           created_at: string;
+          event_id: string | null;
           holds: boolean;
           id: string;
           image_id: string | null;
@@ -1161,6 +1162,7 @@ export type Database = {
           artwork_id?: string | null;
           comment?: string | null;
           created_at?: string;
+          event_id?: string | null;
           holds?: boolean;
           id?: string;
           image_id?: string | null;
@@ -1176,6 +1178,7 @@ export type Database = {
           artwork_id?: string | null;
           comment?: string | null;
           created_at?: string;
+          event_id?: string | null;
           holds?: boolean;
           id?: string;
           image_id?: string | null;
@@ -1193,6 +1196,13 @@ export type Database = {
             columns: ["artwork_id", "owner_id"];
             isOneToOne: false;
             referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "learner_flags_event_id_owner_id_fkey";
+            columns: ["event_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "timeline_events";
             referencedColumns: ["id", "owner_id"];
           },
           {

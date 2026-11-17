@@ -8,6 +8,7 @@ export type RestorableFlag = Pick<
 	| 'artworkId'
 	| 'termId'
 	| 'symbolId'
+	| 'eventId'
 	| 'imageId'
 	| 'pinId'
 	| 'holds'

@@ -3,4 +3,5 @@ export type Holds = {
 	kinds: ReadonlyMap<string, ReadonlySet<string>>;
 	terms: ReadonlySet<string>;
 	symbols: ReadonlySet<string>;
+	events: ReadonlySet<string>;
 };

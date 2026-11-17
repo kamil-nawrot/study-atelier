@@ -2,8 +2,11 @@
 	import { LoadFailure } from '@study-atelier/ui';
 	import { afterNavigate, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
 	import { arrivedFromApp, goBackThroughHistory } from '#lib/shared/navigation/history/history.ts';
+	import { BACKROOM_PATH, FixRoute } from '#lib/backroom/fix-route/fix-route.svelte.ts';
+	import { FormFlags } from '#lib/backroom/form-flags/form-flags.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { TimelineEventDraft } from '#lib/timeline/types/timeline-event-draft.ts';
 	import type { TimelineEventResult } from '#lib/timeline/types/timeline-event-result.ts';
@@ -20,6 +23,8 @@
 	const cardIndexPath = resolve('/(app)/atelier/values');
 
 	let form = $state<EventForm>();
+	const fix = new FixRoute(() => page.url.pathname);
+	const flags = new FormFlags('event', () => (data.event ? { eventId: data.event.id } : undefined));
 	let cameFromApp = false;
 	let cameFromTimeline = false;
 	let returnPath: ResolvedPathname | undefined;
@@ -57,6 +62,7 @@
 
 	async function showSaved(draft: TimelineEventDraft): Promise<void> {
 		if (draft.yearTo === null) return;
+		if (await fix.afterSave()) return;
 		if (returnPath !== undefined) {
 			await returnTo(returnPath, draft);
 			return;
@@ -92,9 +98,11 @@
 {:else}
 	<EventForm
 		bind:this={form}
-		cancelHref={data.event ? eventPath(data.event.id) : timelinePath}
+		cancelHref={fix.progress ? BACKROOM_PATH : data.event ? eventPath(data.event.id) : timelinePath}
 		event={data.event}
-		oncancel={goBack}
+		{flags}
+		labels={fix.labels}
+		oncancel={fix.progress ? undefined : goBack}
 		onsaved={showSaved}
 	/>
 {/if}

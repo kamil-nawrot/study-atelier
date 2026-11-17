@@ -9,7 +9,14 @@ const david = testArtwork(2, 'David');
 const quiz = { options: [{ label: 'A' }], answer: 0 };
 
 function holds(extra: Partial<Holds>): Holds {
-	return { artworks: new Set(), kinds: new Map(), terms: new Set(), symbols: new Set(), ...extra };
+	return {
+		artworks: new Set(),
+		kinds: new Map(),
+		terms: new Set(),
+		symbols: new Set(),
+		events: new Set(),
+		...extra
+	};
 }
 
 function definition(id: string): SessionStep {

@@ -880,12 +880,13 @@ Table learner_flags {
   symbol_id uuid
   image_id uuid
   pin_id uuid
-  reason text [not null, note: 'image, pin, data, note, hidden, definition, meaning, answers, other']
+  reason text [not null, note: 'image, pin, data, note, hidden, definition, meaning, answers, date, other']
   comment text
   question jsonb
   holds boolean [not null, default: false]
   created_at "timestamp with time zone" [not null, default: `now()`]
   updated_at "timestamp with time zone" [not null, default: `now()`]
+  event_id uuid [note: 'ADR-0321']
 
   indexes {
     (owner_id, created_at) [name: 'learner_flags_owner_id_idx']
@@ -894,11 +895,13 @@ Table learner_flags {
     symbol_id [name: 'learner_flags_symbol_id_idx', note: 'where symbol_id is not null']
     image_id [name: 'learner_flags_image_id_idx', note: 'where image_id is not null']
     pin_id [name: 'learner_flags_pin_id_idx', note: 'where pin_id is not null']
+    event_id [name: 'learner_flags_event_id_idx', note: 'where event_id is not null']
   }
-  Note: 'RLS on; exactly one of artwork_id, term_id, symbol_id; image_id and pin_id only with artwork_id; a comment for other (ADR-0313)'
+  Note: 'RLS on; exactly one of artwork_id, term_id, symbol_id, event_id; image_id and pin_id only with artwork_id; a comment for other (ADR-0313)'
 }
 
 Ref learner_flags_artwork_id_owner_id_fkey: learner_flags.(artwork_id, owner_id) > artworks.(id, owner_id) [delete: cascade]
+Ref learner_flags_event_id_owner_id_fkey: learner_flags.(event_id, owner_id) > timeline_events.(id, owner_id) [delete: cascade]
 Ref learner_flags_image_id_artwork_id_fkey: learner_flags.(image_id, artwork_id) > artwork_images.(id, artwork_id) [delete: set null]
 Ref learner_flags_owner_id_fkey: learner_flags.owner_id > auth.users.id [delete: cascade]
 Ref learner_flags_pin_id_owner_id_fkey: learner_flags.(pin_id, owner_id) > artwork_pins.(id, owner_id) [delete: set null]

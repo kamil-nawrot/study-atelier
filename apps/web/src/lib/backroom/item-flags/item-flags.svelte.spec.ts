@@ -12,6 +12,7 @@ const flag = (id: string): StoredFlag => ({
 	artworkId: 'a1',
 	termId: null,
 	symbolId: null,
+	eventId: null,
 	imageId: null,
 	pinId: null,
 	imageNumber: null,

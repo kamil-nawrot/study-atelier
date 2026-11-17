@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
-import { draftOfEventForm, emptyEventForm, eventFormOf, validateEventForm } from './event-form.ts';
+import {
+	articleDates,
+	draftOfEventForm,
+	emptyEventForm,
+	eventFormOf,
+	validateEventForm
+} from './event-form.ts';
 
 describe('validateEventForm', () => {
 	it('asks for a name and a year', () => {
@@ -53,5 +59,10 @@ describe('draftOfEventForm and eventFormOf', () => {
 	it('ignores the start year when the span is switched off', () => {
 		const form = { ...emptyEventForm(), name: 'Chrzest Polski', yearFrom: '900', yearTo: '966' };
 		expect(draftOfEventForm(form).yearFrom).toBeNull();
+	});
+
+	it('writes the dates of an article for its suggestion', () => {
+		const article = { dates: { yearFrom: 1618, yearTo: 1648, approximate: false } };
+		expect(articleDates(article as Parameters<typeof articleDates>[0])).toBe('1618–1648');
 	});
 });

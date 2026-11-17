@@ -20,6 +20,7 @@ const flag = (id: string, extra: Partial<StoredFlag> = {}): StoredFlag => ({
 	artworkId: null,
 	termId: 't1',
 	symbolId: null,
+	eventId: null,
 	imageId: null,
 	pinId: null,
 	imageNumber: null,
