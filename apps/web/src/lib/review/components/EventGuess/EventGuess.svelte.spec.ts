@@ -45,9 +45,7 @@ describe('EventGuess', () => {
 		await expect
 			.element(page.getByRole('heading', { name: m.review.event.questions.end }))
 			.toBeInTheDocument();
-		await expect
-			.element(page.getByText(m.review.event.hint('nowożytności', '1492 – 1789')))
-			.toBeInTheDocument();
+		await expect.element(page.getByText(m.review.event.hint('nowożytności'))).toBeInTheDocument();
 		await expect.element(page.getByText('Wojna w Europie Środkowej.')).not.toBeInTheDocument();
 	});
 

@@ -910,17 +910,17 @@ export const pl = {
 		event: {
 			tag: 'Pytanie dodatkowe z Kalendarium',
 			questions: {
-				year: 'Kiedy to miało miejsce?',
-				start: 'Kiedy to się zaczęło?',
-				end: 'Kiedy to się skończyło?'
+				year: 'Kiedy miało miejsce to wydarzenie historyczne?',
+				start: 'Kiedy zaczęło się to wydarzenie historyczne?',
+				end: 'Kiedy skończyło się to wydarzenie historyczne?'
 			},
-			hint: (era: string, years: string): string =>
-				`Odpowiedź mieści się w granicach ${era} (${years}). Gdzie to umieścisz?`,
+			hint: (era: string): string =>
+				`Wydarzenie miało miejsce w granicach ${era}. Gdzie na osi czasu tej epoki powinno się ono znaleźć?`,
 			slider: 'Rok wydarzenia',
 			made: {
-				year: (year: string): string => `To miało miejsce w roku ${year}.`,
-				start: (year: string): string => `To się zaczęło w roku ${year}.`,
-				end: (year: string): string => `To się skończyło w roku ${year}.`
+				year: (year: string): string => `To wydarzenie miało miejsce w roku ${year}.`,
+				start: (year: string): string => `To wydarzenie zaczęło się w roku ${year}.`,
+				end: (year: string): string => `To wydarzenie skończyło się w roku ${year}.`
 			}
 		},
 		order: {

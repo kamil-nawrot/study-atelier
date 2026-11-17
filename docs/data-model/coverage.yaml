@@ -584,7 +584,7 @@ alternatives:
 
   - id: M14
     name: Schedule Kalendarium events on extra cards
-    status: 'designed in 0.25 (ATL-222, ADR-0318)'
+    status: 'designed in 0.25 (ATL-222, ADR-0318); built in ATL-801'
     kind: schema
     tables: [extra_cards, extra_review_log, profiles]
     serves: [R14, W34]

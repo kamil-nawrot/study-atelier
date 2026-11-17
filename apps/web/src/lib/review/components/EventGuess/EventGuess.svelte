@@ -99,7 +99,7 @@
 			<h1 bind:this={heading} id="quiz-heading" tabindex="-1">
 				{m.review.event.questions[item.kind]}
 			</h1>
-			<p class="lead">{m.review.event.hint(eraName, m.atelier.eraSpan(bounds[0], bounds[1]))}</p>
+			<p class="lead">{m.review.event.hint(eraName)}</p>
 		</div>
 		{#if wide.current}
 			{@render guess()}
