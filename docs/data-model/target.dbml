@@ -1,4 +1,4 @@
-// Target schema: current.dbml with the schema changes M1, M3, M4 and M13 of coverage.yaml.
+// Target schema: current.dbml with the schema changes M1, M3, M4, M13 and M14 of coverage.yaml.
 // Every change carries a note naming it; the rest is the same as current.dbml.
 
 Table auth.users {
@@ -475,6 +475,8 @@ Table profiles {
   review_glossary_questions smallint [not null, default: `1`]
   review_symbol_questions smallint [not null, default: `1`]
   review_symbols_on boolean [not null, default: `true`]
+  review_events_on boolean [not null, default: `true`, note: 'M14']
+  review_event_questions smallint [not null, default: `1`, note: 'M14; 1-3']
   rank_form text [not null, default: `'masculine'::text`]
   career_shown boolean [not null, default: `true`]
   rank_seen smallint [not null, default: `0`]
@@ -821,6 +823,7 @@ Table extra_cards {
   owner_id uuid [not null, default: `auth.uid()`]
   glossary_entry_id uuid
   symbol_id uuid
+  timeline_event_id uuid [note: 'M14']
   due "timestamp with time zone" [not null]
   stability "double precision" [not null]
   difficulty "double precision" [not null]
@@ -837,16 +840,17 @@ Table extra_cards {
     (id, owner_id) [unique]
     glossary_entry_id [unique, note: 'where (glossary_entry_id IS NOT NULL)']
     symbol_id [unique, note: 'where (symbol_id IS NOT NULL)']
+    timeline_event_id [unique, note: 'M14; where (timeline_event_id IS NOT NULL)']
     (owner_id, due) [name: 'extra_cards_owner_id_due_idx']
   }
-  Note: 'RLS on; M13; exactly one of glossary_entry_id, symbol_id; created by the first scheduling answer'
+  Note: 'RLS on; M13; exactly one of glossary_entry_id, symbol_id, timeline_event_id (M14); created by the first scheduling answer'
 }
 
 Table extra_review_log {
   id bigint [pk, increment, note: 'generated always as identity']
   card_id uuid [not null]
   owner_id uuid [not null, default: `auth.uid()`]
-  mode text [not null, note: 'quiz_definition, symbol_symbol, symbol_meaning, symbol_attribute']
+  mode text [not null, note: 'quiz_definition, symbol_symbol, symbol_meaning, symbol_attribute; event_year, event_start, event_end (M14)']
   rating smallint [not null]
   correct boolean [not null]
   answer_ms integer
@@ -864,6 +868,7 @@ Table extra_review_log {
 
 Ref: extra_cards.glossary_entry_id > glossary_entries.id [delete: cascade]
 Ref: extra_cards.symbol_id > symbols.id [delete: cascade]
+Ref: extra_cards.timeline_event_id > timeline_events.id [delete: cascade]
 Ref: extra_cards.owner_id > auth.users.id [delete: cascade]
 Ref: extra_review_log.card_id > extra_cards.id [delete: cascade]
 

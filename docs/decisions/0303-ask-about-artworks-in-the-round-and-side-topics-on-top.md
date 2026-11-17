@@ -1,6 +1,6 @@
 # 0303. Ask about artworks in the round and about side topics on top of it
 
-- Status: accepted; what the menu counter and the review start count is superseded by [0305](0305-count-the-whole-round-in-the-menu-and-on-the-review-start.md), the count of glossary and symbol questions by [0312](0312-schedule-glossary-terms-and-symbols-on-cards-of-their-own.md)
+- Status: accepted; what the menu counter and the review start count is superseded by [0305](0305-count-the-whole-round-in-the-menu-and-on-the-review-start.md), the count of glossary and symbol questions by [0312](0312-schedule-glossary-terms-and-symbols-on-cards-of-their-own.md), leaving the questions about events for later by [0318](0318-ask-for-the-dates-of-kalendarium-events-on-cards-of-their-own.md)
 - Date: 2026-11-15
 
 ## Context and problem statement
