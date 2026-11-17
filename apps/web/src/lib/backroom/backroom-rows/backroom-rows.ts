@@ -5,6 +5,7 @@ import type { FixField } from '#lib/backroom/types/fix-field.ts';
 import type { FlagReason } from '#lib/backroom/types/flag-reason.ts';
 import { fieldOf, reasonText } from '#lib/backroom/flag-fields/flag-fields.ts';
 import type { FlagRecord } from '#lib/backroom/types/flag-record.ts';
+import type { FlagTarget } from '#lib/backroom/types/flag-target.ts';
 import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import { m } from '#lib/i18n/i18n.ts';
@@ -70,6 +71,12 @@ function target(
 	};
 }
 
+function flagTarget(flag: FlagRecord): FlagTarget | undefined {
+	if (flag.artworkId) return { artworkId: flag.artworkId };
+	if (flag.termId) return { termId: flag.termId };
+	return flag.symbolId ? { symbolId: flag.symbolId } : undefined;
+}
+
 export function flagRows(
 	flags: readonly FlagRecord[],
 	artworks: readonly WallArtwork[],
@@ -95,7 +102,8 @@ export function flagRows(
 					path,
 					field,
 					note: m.backroom.note(reason, flag.comment ?? undefined),
-					flagIds: [flag.id]
+					flagIds: [flag.id],
+					target: flagTarget(flag)
 				}
 			}
 		];

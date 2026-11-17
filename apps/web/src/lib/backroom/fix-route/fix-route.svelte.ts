@@ -46,7 +46,10 @@ export class FixRoute {
 	}
 
 	async skip(): Promise<void> {
-		const step = fixSession.skip(this.#path());
-		if (step) await goOn(step);
+		const from = this.#path();
+		const step = fixSession.nextStep(from);
+		if (!step) return;
+		await goOn(step);
+		if (this.#path() !== from) fixSession.skip(from);
 	}
 }

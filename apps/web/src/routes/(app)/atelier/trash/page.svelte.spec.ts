@@ -3,6 +3,7 @@ import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { invalidate } from '$app/navigation';
 import { findDuplicates } from '#lib/artworks/duplicates-data/duplicates-data.ts';
+import { flagCount } from '#lib/backroom/flag-count/flag-count.svelte.ts';
 import { deletePermanently, restoreArtwork } from '#lib/artworks/trash-data/trash-data.ts';
 import type { ArchivedExhibition } from '#lib/exhibitions/exhibition-page-data/exhibition-page-data.ts';
 import type { TrashArtwork } from '#lib/wall/types/trash-artwork.ts';
@@ -13,6 +14,9 @@ import { testSession } from '#lib/testing/auth/auth.ts';
 import TrashPage from './+page.svelte';
 
 vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidate: vi.fn() }));
+vi.mock('#lib/backroom/flag-count/flag-count.svelte.ts', () => ({
+	flagCount: { refresh: vi.fn(), forLearner: vi.fn(), value: 0 }
+}));
 vi.mock('#lib/artworks/trash-data/trash-data.ts', () => ({
 	restoreArtwork: vi.fn(),
 	deletePermanently: vi.fn()
@@ -102,6 +106,7 @@ describe('trash page', () => {
 		await expect.element(row('Night Watch')).not.toBeInTheDocument();
 		await expect.element(page.getByText(m.atelier.count(1))).toBeVisible();
 		expect(invalidate).toHaveBeenCalledWith(REVIEW_COUNTS_DEPENDENCY);
+		expect(flagCount.refresh).toHaveBeenCalled();
 	});
 
 	it('shows an alert when restoring fails and keeps the artwork', async () => {

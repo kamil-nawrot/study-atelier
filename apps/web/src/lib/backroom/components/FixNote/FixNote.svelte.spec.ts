@@ -7,7 +7,11 @@ import { m } from '#lib/i18n/i18n.ts';
 import FixNote from './FixNote.svelte';
 
 vi.mock('$app/state', () => ({ page: { url: new URL('http://localhost/atelier/1/edit') } }));
-vi.mock('#lib/backroom/backroom-data/backroom-data.ts', () => ({ deleteFlag: vi.fn() }));
+vi.mock('#lib/backroom/backroom-data/backroom-data.ts', () => ({
+	deleteFlag: vi.fn(),
+	deleteItemFlags: vi.fn().mockResolvedValue({}),
+	countFlags: vi.fn()
+}));
 
 function formFlags(notes: FormNote[]): FormFlags {
 	return {

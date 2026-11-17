@@ -60,6 +60,15 @@ export async function countFlags(): Promise<number | undefined> {
 	return error ? undefined : data;
 }
 
+export async function deleteItemFlags(target: FlagTarget): Promise<{ error?: string }> {
+	const [key, value] = Object.entries(target)[0];
+	const { error } = await supabase
+		.from('learner_flags')
+		.delete()
+		.eq(TARGET_COLUMNS[key as keyof typeof TARGET_COLUMNS], value as string);
+	return error ? { error: await failureMessage(error, flagErrorMessage) } : {};
+}
+
 export async function deleteFlag(id: string): Promise<{ error?: string }> {
 	const { error } = await supabase.from('learner_flags').delete().eq('id', id);
 	return error ? { error: await failureMessage(error, flagErrorMessage) } : {};

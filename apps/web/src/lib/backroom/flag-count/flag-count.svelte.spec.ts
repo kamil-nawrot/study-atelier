@@ -23,11 +23,15 @@ describe('FlagCount', () => {
 	});
 
 	it('starts again at zero for another learner and keeps the count when the request fails', async () => {
-		count.mockResolvedValueOnce(4).mockResolvedValueOnce(undefined);
+		count
+			.mockResolvedValueOnce(4)
+			.mockResolvedValueOnce(undefined)
+			.mockRejectedValueOnce(new TypeError('Failed to fetch'));
 		const flags = new FlagCount();
 
 		flags.forLearner('learner-1');
 		await expect.poll(() => flags.value).toBe(4);
+		await flags.refresh();
 		await flags.refresh();
 
 		expect(flags.value).toBe(4);

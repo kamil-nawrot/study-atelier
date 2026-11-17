@@ -1,10 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { deleteFlag } from '#lib/backroom/backroom-data/backroom-data.ts';
+import { deleteFlag, deleteItemFlags } from '#lib/backroom/backroom-data/backroom-data.ts';
 import type { FixEntry } from '#lib/backroom/types/fix-entry.ts';
 import { FixSession } from './fix-session.svelte.ts';
 
 vi.mock('#lib/backroom/backroom-data/backroom-data.ts', () => ({
-	deleteFlag: vi.fn().mockResolvedValue({})
+	deleteFlag: vi.fn().mockResolvedValue({}),
+	deleteItemFlags: vi.fn().mockResolvedValue({})
+}));
+vi.mock('#lib/backroom/flag-count/flag-count.svelte.ts', () => ({
+	flagCount: { refresh: vi.fn() }
 }));
 
 const entries: FixEntry[] = [
@@ -63,5 +67,53 @@ describe('FixSession', () => {
 			queue: false
 		});
 		expect(deleteFlag).not.toHaveBeenCalled();
+	});
+
+	it('withdraws every flag the item has at the save, also one brought back under a new id', async () => {
+		const session = new FixSession();
+		session.start([{ ...entries[0], target: { artworkId: 'a1' } }], 0, true);
+
+		await session.saved('/atelier/1/edit');
+
+		expect(deleteItemFlags).toHaveBeenCalledWith({ artworkId: 'a1' });
+		expect(deleteFlag).not.toHaveBeenCalled();
+	});
+
+	it('stays on the item and counts nothing when its flags cannot be withdrawn', async () => {
+		vi.mocked(deleteFlag).mockResolvedValueOnce({ error: 'Offline' });
+		const session = new FixSession();
+		session.start(entries, 0, true);
+
+		await expect(session.saved('/atelier/1/edit')).resolves.toBeUndefined();
+		expect(session.entryFor('/atelier/1/edit')).toMatchObject({ key: 'flag:1' });
+	});
+
+	it('names the next step without moving on, so a cancelled navigation keeps the queue', () => {
+		const session = new FixSession();
+		session.start(entries, 0, true);
+
+		expect(session.nextStep('/atelier/1/edit')).toEqual({ path: '/atelier/2/edit' });
+		expect(session.entryFor('/atelier/1/edit')).toBeDefined();
+	});
+
+	it('ends when the learner leaves for a page outside the queue', () => {
+		const session = new FixSession();
+		session.start(entries, 0, true);
+
+		session.leave('/atelier/1/edit');
+		session.leave('/atelier/2/edit');
+		expect(session.entryFor('/atelier/1/edit')).toBeDefined();
+
+		session.leave('/atelier/1');
+		expect(session.entryFor('/atelier/1/edit')).toBeUndefined();
+	});
+
+	it('ends a single fix as soon as the learner leaves its page', () => {
+		const session = new FixSession();
+		session.start(entries, 0, false);
+
+		session.leave('/atelier/2/edit');
+
+		expect(session.entryFor('/atelier/1/edit')).toBeUndefined();
 	});
 });

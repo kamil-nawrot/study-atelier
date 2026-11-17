@@ -28,6 +28,7 @@ vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 vi.mock('#lib/backroom/backroom-data/backroom-data.ts', () => ({
 	loadFlags: vi.fn(),
 	countFlags: vi.fn().mockResolvedValue(0),
+	deleteItemFlags: vi.fn().mockResolvedValue({}),
 	deleteFlag: vi.fn()
 }));
 vi.mock('#lib/wall/wall-data/wall-data.ts', async (original) => ({

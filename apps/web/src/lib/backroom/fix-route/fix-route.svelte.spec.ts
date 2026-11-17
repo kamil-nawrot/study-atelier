@@ -6,7 +6,9 @@ import { BACKROOM_PATH, FixRoute } from './fix-route.svelte.ts';
 
 vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
 vi.mock('#lib/backroom/backroom-data/backroom-data.ts', () => ({
-	deleteFlag: vi.fn().mockResolvedValue({})
+	deleteFlag: vi.fn().mockResolvedValue({}),
+	deleteItemFlags: vi.fn().mockResolvedValue({}),
+	countFlags: vi.fn()
 }));
 
 const entries = [
