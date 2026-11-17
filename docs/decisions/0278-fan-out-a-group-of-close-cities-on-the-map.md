@@ -1,6 +1,6 @@
 # 0278. Fan out a group of close cities on the map
 
-- Status: accepted
+- Status: accepted; the fan of every group and its ring ordered from the largest city are superseded by [0319](0319-zoom-into-a-large-group-of-cities-and-fan-out-a-small-one-on-a-backdrop.md)
 - Date: 2026-11-13
 
 ## Context and problem statement

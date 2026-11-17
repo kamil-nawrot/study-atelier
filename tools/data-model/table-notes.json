@@ -1,0 +1,10 @@
+{
+	"artwork_relations": "Written through save_artwork; a symmetric kind is stored once, whichever way it was entered (ADR-0259)",
+	"author_relations": "Written through save_value_details (ADR-0259)",
+	"exhibition_artworks": "Written only by a private trigger function of exhibitions.document; position 0 is the cover",
+	"exhibitions": "Written through save_exhibition, the poster through set_exhibition_cover; at most 200 per owner, 512 KB, 300 blocks and 100 artworks per document",
+	"extra_cards": "M13, M14; exactly one of glossary_entry_id, symbol_id, timeline_event_id; created by the first scheduling answer",
+	"extra_review_log": "M13",
+	"learner_flags": "Exactly one of artwork_id, term_id, symbol_id, event_id; image_id and pin_id only with artwork_id; a comment for other (ADR-0313)",
+	"note_links": "Rows the triggers of the note sources keep in step; skipped on import, which rebuilds them (M1)"
+}

@@ -5,13 +5,15 @@ import type { PreferencesPart } from '#lib/profile/types/preferences-part.ts';
 
 export const SESSION_SIZES = [10, 20, 30, 40] as const;
 export const NEW_PER_DAY_CHOICES = [5, 10, 15, 20] as const;
-export const EXTRA_QUESTION_CHOICES = [1, 2, 3] as const;
+const FEW_QUESTIONS = [1, 2, 3] as const;
+const CARD_QUESTIONS = [1, 2, 3, 4, 5] as const;
 export const EXTRA_KINDS = [
-	{ on: 'reviewGlossaryOn', count: 'reviewGlossaryQuestions' },
-	{ on: 'reviewSymbolsOn', count: 'reviewSymbolQuestions' },
-	{ on: 'reviewNotesOn', count: 'reviewNoteQuestions' },
-	{ on: 'reviewPairsOn', count: 'reviewPairQuestions' },
-	{ on: 'reviewRelationsOn', count: 'reviewRelationQuestions' }
+	{ on: 'reviewGlossaryOn', count: 'reviewGlossaryQuestions', choices: CARD_QUESTIONS },
+	{ on: 'reviewSymbolsOn', count: 'reviewSymbolQuestions', choices: CARD_QUESTIONS },
+	{ on: 'reviewEventsOn', count: 'reviewEventQuestions', choices: FEW_QUESTIONS },
+	{ on: 'reviewNotesOn', count: 'reviewNoteQuestions', choices: FEW_QUESTIONS },
+	{ on: 'reviewPairsOn', count: 'reviewPairQuestions', choices: FEW_QUESTIONS },
+	{ on: 'reviewRelationsOn', count: 'reviewRelationQuestions', choices: FEW_QUESTIONS }
 ] as const;
 export const REVIEW_FORMS: readonly ReviewForm[] = ['mixed', 'flashcards', 'quizzes'];
 export const QUIZ_KINDS: readonly QuizMode[] = [
@@ -49,6 +51,8 @@ export const defaultPreferences: Preferences = {
 	reviewGlossaryQuestions: 1,
 	reviewSymbolsOn: true,
 	reviewSymbolQuestions: 1,
+	reviewEventsOn: true,
+	reviewEventQuestions: 1,
 	reviewNotesOn: false,
 	reviewNoteQuestions: 1,
 	reviewPairsOn: true,
@@ -76,6 +80,8 @@ const PART_FIELDS: Record<PreferencesPart, readonly (keyof Preferences)[]> = {
 		'reviewGlossaryQuestions',
 		'reviewSymbolsOn',
 		'reviewSymbolQuestions',
+		'reviewEventsOn',
+		'reviewEventQuestions',
 		'reviewNotesOn',
 		'reviewNoteQuestions',
 		'reviewPairsOn',

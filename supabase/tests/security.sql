@@ -110,7 +110,7 @@ declare
     'record_legal_read',
     'save_symbol', 'symbol_atlas',
     'set_place_point', 'set_symbol_cover', 'assign_symbol_meaning', 'ensure_city_place',
-    'set_exhibition_cover'
+    'set_exhibition_cover', 'save_flag', 'flag_count', 'record_extra_review', 'extra_round'
   ];
   table_name text;
   routine record;
@@ -262,6 +262,10 @@ select public.save_exhibition(
 select public.save_symbol('Skull', jsonb_build_array(jsonb_build_object('text', 'transience', 'contexts',
   jsonb_build_array(jsonb_build_object('era_code', 'early_modern')))));
 update public.artwork_pins set symbol_id = (select id from public.symbols);
+select public.save_flag(jsonb_build_object('symbol_id', (select id from public.symbols), 'reason', 'meaning'));
+select public.record_extra_review(null, (select id from public.symbols),
+  '{"due": "2026-11-18T08:00:00Z", "stability": 2, "difficulty": 5, "state": 2}',
+  '{"mode": "symbol_symbol", "rating": 2, "correct": true}', '2026-11-16T00:00:00Z');
 
 insert into public.category_values (category_code, name) values ('material', 'Oil on canvas'), ('author', 'Sculptor');
 insert into public.material_details (value_id, summary)
@@ -359,6 +363,7 @@ begin
   assert (select count(*) from public.artwork_images) = 0, 'B reads artwork images of A';
   assert (select count(*) from public.artwork_pins) = 0, 'B reads pins of A';
   assert (select count(*) from public.artwork_relations) = 0, 'B reads relations of artworks of A';
+  assert (select count(*) from public.learner_flags) = 0, 'B reads flags of A';
   assert (select count(*) from public.author_relations) = 0, 'B reads relations of authors of A';
   assert (select count(*) from public.period_eras) = 0, 'B reads period eras of A';
   assert (select count(*) from public.style_periods) = 0, 'B reads style periods of A';
@@ -566,11 +571,16 @@ begin
   assert security_test.denied(format(
     'select public.save_symbol(''Mine'', ''[]'', %L)', a_symbol)),
     'B renames a symbol of A through save_symbol';
+  assert security_test.denied(format(
+    'select public.save_flag(jsonb_build_object(''symbol_id'', %L::uuid, ''reason'', ''meaning''))', a_symbol)),
+    'B flags a symbol of A through save_flag';
   assert security_test.denied(format('select public.set_symbol_cover(%L)', a_symbol)),
     'B changes the main detail of a symbol of A through set_symbol_cover';
   assert security_test.denied(format('select public.assign_symbol_meaning(%L, ''{}'')', a_meaning)),
     'B moves the details of a meaning of A through assign_symbol_meaning';
   assert (select count(*) from public.symbol_atlas()) = 0, 'B sees the symbol atlas of A';
+  assert public.extra_round(now()) = '{"terms": [], "symbols": [], "events": []}'::jsonb,
+    'B gets the terms, symbols or events of A through extra_round';
   perform public.set_place_point(a_place, 48.86, 2.34, 'Q19675');
   assert security_test.denied(format(
     'insert into public.exhibitions (owner_id, title) values (%L, ''Forged'')', a)),
@@ -992,6 +1002,7 @@ begin
   assert security_test.denied('select * from public.review_cards'), 'anon reads review cards';
   assert security_test.denied('select public.review_counts(now())'), 'anon executes review_counts';
   assert security_test.denied('select public.confused_pairs()'), 'anon executes confused_pairs';
+  assert security_test.denied('select public.extra_round(now())'), 'anon executes extra_round';
   assert security_test.denied(format('select public.record_pair_answer(%L, ''author'', ''a'', ''b'', true)',
     gen_random_uuid())), 'anon executes record_pair_answer';
   assert security_test.denied('select public.review_session(now())'), 'anon executes review_session';

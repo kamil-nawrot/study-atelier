@@ -8,6 +8,7 @@ import SymbolQuiz from './SymbolQuiz.svelte';
 const item: SymbolItem = {
 	mode: 'quiz_symbol',
 	kind: 'meaning',
+	symbol: { id: 'symbol-keys', name: 'Keys' },
 	key: 'pin-1:meaning',
 	lens: { thumbnail: { left: 0, top: 0, width: 100, height: 100 } },
 	quiz: {

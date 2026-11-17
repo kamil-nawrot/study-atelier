@@ -7,6 +7,7 @@ import { goto } from '$app/navigation';
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { career } from '#lib/career/career-state/career-state.svelte.ts';
+import { flagCount } from '#lib/backroom/flag-count/flag-count.svelte.ts';
 import { sendFeedback } from '#lib/feedback/feedback-data/feedback-data.ts';
 import { pending } from '#lib/testing/auth/auth.ts';
 import { setRailExpanded } from '#lib/shell/rail/rail.svelte.ts';
@@ -34,6 +35,7 @@ vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 }));
 
 vi.mock('#lib/feedback/feedback-data/feedback-data.ts', () => ({ sendFeedback: vi.fn() }));
+vi.mock('#lib/backroom/backroom-data/backroom-data.ts', () => ({ countFlags: vi.fn() }));
 vi.mock('#lib/career/career-data/career-data.ts', async (original) => ({
 	...(await original<typeof import('#lib/career/career-data/career-data.ts')>()),
 	recordNightLight: vi.fn().mockResolvedValue({})
@@ -200,8 +202,20 @@ describe('AtelierLayout', () => {
 		pageState.url = new URL('http://localhost/atelier');
 	});
 
+	it('links to Zaplecze under Archiwum with the number of flags', async () => {
+		await page.viewport(1280, 800);
+		flagCount.value = 3;
+		renderLayout(views.empty);
+
+		const link = page.getByRole('link', { name: new RegExp(`^${m.backroom.title}`) });
+		await expect.element(link).toHaveAttribute('href', '/atelier/backroom');
+		await expect.element(link).toHaveAccessibleName(new RegExp(m.backroom.menuCount(3)));
+		flagCount.value = 0;
+	});
+
 	it('switches between the dark and the light theme from the menu, between the feedback item and signing out', async () => {
 		await page.viewport(1280, 800);
+		flagCount.value = 0;
 		renderLayout(views.empty);
 
 		const items = page
@@ -209,8 +223,9 @@ describe('AtelierLayout', () => {
 			.element()
 			.querySelectorAll('a, button');
 		const names = [...items].map((item) => item.textContent?.trim());
-		expect(names.slice(-4)).toEqual([
+		expect(names.slice(-5)).toEqual([
 			m.menu.trash,
+			m.backroom.title,
 			m.menu.feedback,
 			m.menu.lightTheme,
 			m.menu.signOut

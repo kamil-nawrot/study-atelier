@@ -901,6 +901,137 @@ export type Database = {
           },
         ];
       };
+      extra_cards: {
+        Row: {
+          created_at: string;
+          difficulty: number;
+          due: string;
+          glossary_entry_id: string | null;
+          id: string;
+          lapses: number;
+          last_rating: number | null;
+          last_review: string | null;
+          learning_steps: number;
+          owner_id: string;
+          reps: number;
+          scheduled_days: number;
+          stability: number;
+          state: number;
+          symbol_id: string | null;
+          timeline_event_id: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          difficulty: number;
+          due: string;
+          glossary_entry_id?: string | null;
+          id?: string;
+          lapses?: number;
+          last_rating?: number | null;
+          last_review?: string | null;
+          learning_steps?: number;
+          owner_id?: string;
+          reps?: number;
+          scheduled_days?: number;
+          stability: number;
+          state: number;
+          symbol_id?: string | null;
+          timeline_event_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          difficulty?: number;
+          due?: string;
+          glossary_entry_id?: string | null;
+          id?: string;
+          lapses?: number;
+          last_rating?: number | null;
+          last_review?: string | null;
+          learning_steps?: number;
+          owner_id?: string;
+          reps?: number;
+          scheduled_days?: number;
+          stability?: number;
+          state?: number;
+          symbol_id?: string | null;
+          timeline_event_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "extra_cards_glossary_entry_id_owner_id_fkey";
+            columns: ["glossary_entry_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "glossary_entries";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "extra_cards_symbol_id_owner_id_fkey";
+            columns: ["symbol_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "symbols";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "extra_cards_timeline_event_id_owner_id_fkey";
+            columns: ["timeline_event_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "timeline_events";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
+      };
+      extra_review_log: {
+        Row: {
+          answer_ms: number | null;
+          card_id: string;
+          correct: boolean;
+          due_before: string | null;
+          id: number;
+          mode: string;
+          owner_id: string;
+          practice: boolean;
+          rating: number;
+          reviewed_at: string;
+          wrong_answer: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          answer_ms?: number | null;
+          card_id: string;
+          correct: boolean;
+          due_before?: string | null;
+          id?: never;
+          mode: string;
+          owner_id?: string;
+          practice?: boolean;
+          rating: number;
+          reviewed_at?: string;
+          wrong_answer?: string | null;
+        };
+        Update: {
+          answer_ms?: number | null;
+          card_id?: string;
+          correct?: boolean;
+          due_before?: string | null;
+          id?: never;
+          mode?: string;
+          owner_id?: string;
+          practice?: boolean;
+          rating?: number;
+          reviewed_at?: string;
+          wrong_answer?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "extra_review_log_card_id_owner_id_fkey";
+            columns: ["card_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "extra_cards";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
+      };
       feedback: {
         Row: {
           browser: string | null;
@@ -1008,6 +1139,101 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      learner_flags: {
+        Row: {
+          artwork_id: string | null;
+          comment: string | null;
+          created_at: string;
+          event_id: string | null;
+          holds: boolean;
+          id: string;
+          image_id: string | null;
+          owner_id: string;
+          pin_id: string | null;
+          question: Json | null;
+          reason: string;
+          symbol_id: string | null;
+          term_id: string | null;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          artwork_id?: string | null;
+          comment?: string | null;
+          created_at?: string;
+          event_id?: string | null;
+          holds?: boolean;
+          id?: string;
+          image_id?: string | null;
+          owner_id?: string;
+          pin_id?: string | null;
+          question?: Json | null;
+          reason: string;
+          symbol_id?: string | null;
+          term_id?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          artwork_id?: string | null;
+          comment?: string | null;
+          created_at?: string;
+          event_id?: string | null;
+          holds?: boolean;
+          id?: string;
+          image_id?: string | null;
+          owner_id?: string;
+          pin_id?: string | null;
+          question?: Json | null;
+          reason?: string;
+          symbol_id?: string | null;
+          term_id?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "learner_flags_artwork_id_owner_id_fkey";
+            columns: ["artwork_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artworks";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "learner_flags_event_id_owner_id_fkey";
+            columns: ["event_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "timeline_events";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "learner_flags_image_id_artwork_id_fkey";
+            columns: ["image_id", "artwork_id"];
+            isOneToOne: false;
+            referencedRelation: "artwork_images";
+            referencedColumns: ["id", "artwork_id"];
+          },
+          {
+            foreignKeyName: "learner_flags_pin_id_owner_id_fkey";
+            columns: ["pin_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "artwork_pins";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "learner_flags_symbol_id_owner_id_fkey";
+            columns: ["symbol_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "symbols";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "learner_flags_term_id_owner_id_fkey";
+            columns: ["term_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "glossary_entries";
+            referencedColumns: ["id", "owner_id"];
+          },
+        ];
       };
       location_details: {
         Row: {
@@ -1333,6 +1559,8 @@ export type Database = {
           owner_id: string;
           rank_form: string;
           rank_seen: number;
+          review_event_questions: number;
+          review_events_on: boolean;
           review_form: string;
           review_free: boolean;
           review_glossary_on: boolean;
@@ -1374,6 +1602,8 @@ export type Database = {
           owner_id?: string;
           rank_form?: string;
           rank_seen?: number;
+          review_event_questions?: number;
+          review_events_on?: boolean;
           review_form?: string;
           review_free?: boolean;
           review_glossary_on?: boolean;
@@ -1414,6 +1644,8 @@ export type Database = {
           owner_id?: string;
           rank_form?: string;
           rank_seen?: number;
+          review_event_questions?: number;
+          review_events_on?: boolean;
           review_form?: string;
           review_free?: boolean;
           review_glossary_on?: boolean;
@@ -1991,6 +2223,11 @@ export type Database = {
         };
         Returns: string;
       };
+      extra_round: {
+        Args: { day_start: string; reserve?: number };
+        Returns: Json;
+      };
+      flag_count: { Args: Record<PropertyKey, never>; Returns: number };
       import_atelier: { Args: { payload: Json }; Returns: Json };
       keep_alive: { Args: Record<PropertyKey, never>; Returns: string };
       learner_points: { Args: Record<PropertyKey, never>; Returns: number };
@@ -2052,6 +2289,17 @@ export type Database = {
           era_code: string;
           period_id: string;
         }[];
+      };
+      record_extra_review: {
+        Args: {
+          answer: Json;
+          card: Json;
+          day_start?: string;
+          target_event?: string;
+          target_symbol: string;
+          target_term: string;
+        };
+        Returns: boolean;
       };
       record_free_answers: {
         Args: { answers: number; day_start: string };
@@ -2165,6 +2413,7 @@ export type Database = {
         };
         Returns: number;
       };
+      save_flag: { Args: { flag: Json }; Returns: boolean };
       save_symbol: {
         Args: {
           new_description?: string;
@@ -2210,8 +2459,8 @@ export type Database = {
       };
       set_place_point: {
         Args: {
-          latitude: number;
-          longitude: number;
+          latitude?: number;
+          longitude?: number;
           place: string;
           wikidata_id?: string;
         };

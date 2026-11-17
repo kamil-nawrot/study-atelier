@@ -63,6 +63,15 @@ export async function loadTimelineEvents(): Promise<TimelineEventsResult> {
 	return { events: rows.map(eventOf) };
 }
 
+export async function loadTimelineEventsById(ids: readonly string[]): Promise<TimelineEvent[]> {
+	if (ids.length === 0) return [];
+	const { data, error } = await supabase
+		.from('timeline_events')
+		.select('*')
+		.in('id', [...ids]);
+	return error || !data ? [] : data.map(eventOf);
+}
+
 export async function loadTimelineEvent(id: string): Promise<TimelineEventResult> {
 	if (!isUuid(id)) return { notFound: true };
 	const { data, error } = await supabase

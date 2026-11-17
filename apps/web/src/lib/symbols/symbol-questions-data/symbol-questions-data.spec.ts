@@ -26,6 +26,12 @@ function answer(result: unknown): void {
 	vi.mocked(supabase.from).mockReturnValue(query as never);
 }
 
+function answerPins(result: unknown): void {
+	answer(result);
+	query.in.mockReset();
+	query.in.mockReturnValue(query);
+}
+
 const image = {
 	id: 'image-1',
 	artwork_id: 'artwork-1',
@@ -46,7 +52,7 @@ describe('symbol questions data', () => {
 	beforeEach(() => vi.clearAllMocks());
 
 	it('reads the pins with a symbol and a crop, with the meaning and its persons', async () => {
-		answer({
+		answerPins({
 			data: [
 				{
 					id: 'pin-1',
@@ -55,7 +61,7 @@ describe('symbol questions data', () => {
 					text: null,
 					view_width: 0.2,
 					crop_path: 'owner/crop.jpg',
-					symbols: { name: 'Keys' },
+					symbols: { id: 'symbol-keys', name: 'Keys' },
 					symbol_meanings: {
 						id: 'meaning-1',
 						text: 'Power of the Church',
@@ -75,7 +81,7 @@ describe('symbol questions data', () => {
 					text: 'Lily',
 					view_width: 0.1,
 					crop_path: 'owner/crop2.jpg',
-					symbols: { name: 'Lily' },
+					symbols: { id: 'symbol-lily', name: 'Lily' },
 					symbol_meanings: null,
 					artwork_images: pinImage
 				}
@@ -83,10 +89,12 @@ describe('symbol questions data', () => {
 			error: null
 		});
 
-		const { pins } = await loadSymbolQuestionPins();
+		const { pins } = await loadSymbolQuestionPins(['pin-1']);
 
+		expect(query.in).toHaveBeenCalledWith('id', ['pin-1']);
 		expect(pins[0]).toMatchObject({
 			pinId: 'pin-1',
+			symbolId: 'symbol-keys',
 			symbolName: 'Keys',
 			meaning: { id: 'meaning-1', text: 'Power of the Church', persons: ['Peter', 'Paul'] },
 			fragment: { artworkId: 'artwork-1', cropPath: 'owner/crop.jpg', viewWidth: 0.2 }
@@ -99,43 +107,19 @@ describe('symbol questions data', () => {
 	});
 
 	it('says so when the pins cannot be loaded', async () => {
-		answer({ data: null, error: { message: 'Failed to fetch' } });
+		answerPins({ data: null, error: { message: 'Failed to fetch' } });
 
-		await expect(loadSymbolQuestionPins()).resolves.toEqual({
+		await expect(loadSymbolQuestionPins(['pin-1'])).resolves.toEqual({
 			pins: [],
 			error: m.common.network
 		});
 	});
 
-	it('reads every page of the pins', async () => {
-		const row = (id: string): unknown => ({
-			id,
-			x: 0,
-			y: 0,
-			text: null,
-			view_width: 0.1,
-			crop_path: 'owner/crop.jpg',
-			symbols: { name: 'Keys' },
-			symbol_meanings: null,
-			artwork_images: pinImage
-		});
-		query.select.mockReturnValue(query);
-		query.not.mockReturnValue(query);
-		query.is.mockReturnValue(query);
-		query.order.mockReturnValue(query);
-		query.range
-			.mockResolvedValueOnce({
-				data: Array.from({ length: 1000 }, (_, index) => row(`pin-${index}`)),
-				error: null
-			})
-			.mockResolvedValueOnce({ data: [row('pin-last')], error: null });
-		vi.mocked(supabase.from).mockReturnValue(query as never);
+	it('reads no pins when the round picked none', async () => {
+		vi.mocked(supabase.from).mockClear();
 
-		const { pins } = await loadSymbolQuestionPins();
-
-		expect(pins).toHaveLength(1001);
-		expect(query.range).toHaveBeenNthCalledWith(1, 0, 999);
-		expect(query.range).toHaveBeenNthCalledWith(2, 1000, 1999);
+		await expect(loadSymbolQuestionPins([])).resolves.toEqual({ pins: [] });
+		expect(supabase.from).not.toHaveBeenCalled();
 	});
 
 	it('reads the images of the drawn pins only', async () => {

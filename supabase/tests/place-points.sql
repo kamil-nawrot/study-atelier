@@ -77,6 +77,11 @@ begin
   perform public.set_place_point(rome, null, null);
   assert (select latitude from public.location_details where value_id = rome) is null,
     'the point of a place cannot be removed';
+  perform public.set_place_point(rome, 41.9, 12.5);
+  perform public.set_place_point(rome);
+  assert (select latitude from public.location_details where value_id = rome) is null
+      and (select longitude from public.location_details where value_id = rome) is null,
+    'a place point set without coordinates keeps the old point';
   update public.location_details set latitude = 41.9, longitude = 12.5 where value_id = rome;
   assert (select latitude from public.location_details where value_id = rome) = 41.9,
     'the learner cannot change the point of a place';

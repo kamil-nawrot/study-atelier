@@ -53,6 +53,7 @@
 		loupeOnOpen: boolean;
 		flipLinks?: Record<FlipDirection, ResolvedPathname | null>;
 		onflip?: (direction: FlipDirection) => void;
+		onstage?: (imageId: string | undefined) => void;
 	};
 
 	let {
@@ -65,7 +66,8 @@
 		showPinsOnOpen,
 		loupeOnOpen,
 		flipLinks,
-		onflip
+		onflip,
+		onstage
 	}: Props = $props();
 
 	const pinEntries = new PinEntries(
@@ -128,6 +130,10 @@
 
 	$effect(() => {
 		if (paletteOn) void palette.load(current);
+	});
+
+	$effect(() => {
+		onstage?.(imageId);
 	});
 
 	function step(by: -1 | 1): void {

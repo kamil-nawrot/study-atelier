@@ -6,8 +6,11 @@ import {
 	recordReview,
 	recordRightAnswer
 } from '#lib/review/review-data/review-data.ts';
+import { recordExtraReview } from '#lib/review/extra-cards-data/extra-cards-data.ts';
+import { extraScoreOf } from '#lib/review/step-kinds/step-kinds.ts';
 import { ReviewSession } from './review-session.svelte.ts';
 import type { DefinitionItem } from '#lib/review/types/definition-item.ts';
+import type { EventItem } from '#lib/review/types/event-item.ts';
 import type { NoteGapItem } from '#lib/review/types/note-gap-item.ts';
 import type { PairItem } from '#lib/review/types/pair-item.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
@@ -19,6 +22,9 @@ vi.mock('#lib/review/review-data/review-data.ts', () => ({
 	recordRightAnswer: vi.fn()
 }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({ supabase: {} }));
+vi.mock('#lib/review/extra-cards-data/extra-cards-data.ts', () => ({
+	recordExtraReview: vi.fn().mockResolvedValue(true)
+}));
 
 const start = new Date(2026, 9, 16, 9, 0);
 
@@ -349,9 +355,9 @@ describe('ReviewSession', () => {
 		);
 		await first.answer(0);
 		expect(recordRightAnswer).toHaveBeenCalledOnce();
-		expect(review.extraScore('note_gap')).toEqual({ asked: 1, right: 0 });
-		expect(first.extraScore('note_gap')).toEqual({ asked: 1, right: 1 });
-		expect(first.extraScore('quiz_definition')).toEqual({ asked: 0, right: 0 });
+		expect(extraScoreOf(review.extraAnswers, 'note_gap')).toEqual({ asked: 1, right: 0 });
+		expect(extraScoreOf(first.extraAnswers, 'note_gap')).toEqual({ asked: 1, right: 1 });
+		expect(extraScoreOf(first.extraAnswers, 'quiz_definition')).toEqual({ asked: 0, right: 0 });
 	});
 
 	it('asks a missed extra question again at most twice', async () => {
@@ -416,7 +422,7 @@ describe('ReviewSession', () => {
 		await review.answer(review.current?.mode === 'quiz_pair' ? review.current.quiz.answer : 0);
 		expect(recordPairAnswer).toHaveBeenCalledOnce();
 		expect(recordRightAnswer).not.toHaveBeenCalled();
-		expect(review.extraScore('quiz_pair')).toEqual({ asked: 1, right: 0 });
+		expect(extraScoreOf(review.extraAnswers, 'quiz_pair')).toEqual({ asked: 1, right: 0 });
 
 		const free = new ReviewSession(
 			[pair, ...items(2)],
@@ -427,7 +433,7 @@ describe('ReviewSession', () => {
 		);
 		await free.answer(0);
 		expect(recordPairAnswer).toHaveBeenCalledOnce();
-		expect(free.extraScore('quiz_pair')).toEqual({ asked: 1, right: 1 });
+		expect(extraScoreOf(free.extraAnswers, 'quiz_pair')).toEqual({ asked: 1, right: 1 });
 	});
 
 	it('does not rate a quiz like a flashcard', async () => {
@@ -540,6 +546,80 @@ describe('ReviewSession', () => {
 		expect(review.guessed).toBeUndefined();
 	});
 
+	it('schedules the asked end of an event with the rating of the guess and gives a point', async () => {
+		vi.mocked(recordExtraReview).mockClear();
+		vi.mocked(recordRightAnswer).mockClear();
+		const war = eventStep('start');
+		const review = new ReviewSession([war], new Map(), () => start);
+
+		await review.guess(1620);
+
+		expect(recordExtraReview).toHaveBeenCalledWith(
+			{ eventId: 'war' },
+			expect.objectContaining({ due: expect.any(Date) }),
+			expect.objectContaining({ mode: 'event_start', rating: 3, correct: true }),
+			start
+		);
+		expect(recordRightAnswer).toHaveBeenCalledTimes(1);
+		expect(review.guessed).toBe(1620);
+		expect(extraScoreOf(review.extraAnswers, 'event_year')).toEqual({ asked: 1, right: 1 });
+		review.proceed();
+		expect(review.finished).toBe(true);
+	});
+
+	it('asks a far event guess again without saving or counting the second answer', async () => {
+		vi.mocked(recordExtraReview).mockClear();
+		vi.mocked(recordRightAnswer).mockClear();
+		const review = new ReviewSession(
+			[eventStep('end')],
+			new Map(),
+			() => start,
+			() => 0
+		);
+
+		await review.guess(1500);
+		expect(review.queue).toHaveLength(2);
+		review.proceed();
+		await review.guess(1648);
+
+		expect(recordExtraReview).toHaveBeenCalledTimes(1);
+		expect(recordExtraReview).toHaveBeenCalledWith(
+			{ eventId: 'war' },
+			expect.anything(),
+			expect.objectContaining({ mode: 'event_end', rating: 1, correct: false }),
+			start
+		);
+		expect(recordRightAnswer).not.toHaveBeenCalled();
+		expect(extraScoreOf(review.extraAnswers, 'event_year')).toEqual({ asked: 1, right: 0 });
+	});
+
+	it('counts an extra answer whose save fails', async () => {
+		vi.mocked(recordExtraReview).mockResolvedValueOnce(false);
+		const review = new ReviewSession([eventStep('start')], new Map(), () => start);
+
+		await review.guess(1618);
+
+		await expect.poll(() => review.extraFailures).toBe(1);
+	});
+
+	it('counts an event guess in a free round without saving it', async () => {
+		vi.mocked(recordExtraReview).mockClear();
+		vi.mocked(recordRightAnswer).mockClear();
+		const review = new ReviewSession(
+			[eventStep('start')],
+			new Map(),
+			() => start,
+			Math.random,
+			true
+		);
+
+		await review.guess(1618);
+
+		expect(recordExtraReview).not.toHaveBeenCalled();
+		expect(recordRightAnswer).not.toHaveBeenCalled();
+		expect(extraScoreOf(review.extraAnswers, 'event_year')).toEqual({ asked: 1, right: 1 });
+	});
+
 	it('keeps a year question when its guess cannot be saved', async () => {
 		vi.mocked(recordReview).mockResolvedValue({ error: 'Not saved.' });
 		const review = new ReviewSession([yearStep(null, 1503)], new Map(), () => start);
@@ -623,6 +703,56 @@ describe('ReviewSession', () => {
 		await review.answer(0);
 		expect(recordRightAnswer).not.toHaveBeenCalled();
 	});
+
+	it('schedules a term with its first answer and the wrong pick and saves nothing in a free round', async () => {
+		vi.mocked(recordExtraReview).mockClear();
+		const later = new Date(start.getTime() + 4000);
+		let now = start;
+		const review = new ReviewSession(
+			[definition('Apse'), ...items(2)],
+			new Map(),
+			() => now,
+			() => 0
+		);
+		now = later;
+
+		await review.answer(2);
+
+		expect(recordExtraReview).toHaveBeenCalledWith(
+			{ termId: 'Apse' },
+			expect.objectContaining({ lastRating: 1 }),
+			{ correct: false, answerMs: 4000, wrongAnswer: 'Choir', mode: 'quiz_definition' },
+			later
+		);
+
+		const free = new ReviewSession(
+			[definition('Apse'), ...items(2)],
+			new Map(),
+			() => start,
+			() => 0,
+			true
+		);
+		await free.answer(0);
+		expect(recordExtraReview).toHaveBeenCalledOnce();
+	});
+
+	it('puts another question in place of a skipped one and starts it afresh', async () => {
+		const review = new ReviewSession(
+			quizItems(3),
+			new Map(),
+			() => start,
+			() => 0
+		);
+		const replacement = items(1)[0];
+
+		review.replaceCurrent([replacement, ...review.queue.slice(1)]);
+
+		expect(review.current).toEqual(replacement);
+		expect(review.position).toBe(0);
+		expect(review.answers).toHaveLength(0);
+		review.replaceCurrent(review.queue.slice(1));
+		expect(review.queue).toHaveLength(2);
+	});
 });
 
 function yearStep(yearFrom: number | null, yearTo: number): YearItem {
@@ -642,4 +772,21 @@ function quizItems(count: number): ReviewItem[] {
 			options: ['Other A', item.artwork.title, 'Other B', 'Other C'].map((label) => ({ label }))
 		}
 	}));
+}
+
+function eventStep(kind: EventItem['kind']): EventItem {
+	return {
+		mode: 'event_year',
+		kind,
+		event: {
+			id: 'war',
+			name: 'Wojna trzydziestoletnia',
+			yearFrom: 1618,
+			yearTo: 1648,
+			yearApproximate: false,
+			description: '',
+			source: null
+		},
+		card: null
+	};
 }

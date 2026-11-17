@@ -45,6 +45,8 @@
 	import { suggestValues } from '#lib/card-index/value-suggestions/value-suggestions.ts';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import ArtworkEraFields from '#lib/artworks/components/ArtworkEraFields/ArtworkEraFields.svelte';
+	import FixNote from '#lib/backroom/components/FixNote/FixNote.svelte';
+	import { FormFlags } from '#lib/backroom/form-flags/form-flags.svelte.ts';
 	import ArtworkImages from '#lib/artworks/components/ArtworkImages/ArtworkImages.svelte';
 	import ArtworkRelationsField from '#lib/artwork-relations/components/ArtworkRelationsField/ArtworkRelationsField.svelte';
 	import ArtworkOwnFields from '#lib/artworks/components/ArtworkOwnFields/ArtworkOwnFields.svelte';
@@ -73,6 +75,7 @@
 		cancelHref: string;
 		oncancel?: (event: MouseEvent) => void;
 		onsaved: (number: number, next: boolean) => void | Promise<void>;
+		labels?: { save: string; cancel: string };
 	};
 
 	let {
@@ -83,10 +86,12 @@
 		pinsError,
 		cancelHref,
 		oncancel,
-		onsaved
+		onsaved,
+		labels
 	}: Props = $props();
 
 	const titleId = $props.id();
+	const flags = new FormFlags('artwork', () => (artwork ? { artworkId: artwork.id } : undefined));
 	const yearToId = `${titleId}-year-to`;
 	const typeTiles = artworkTypeTiles();
 	const imageTexts = artworkImageTexts();
@@ -136,10 +141,10 @@
 		duplicateCheck.answer(false);
 	});
 
-	function suggestionsFor(code: CategoryCode, existing: readonly string[]): ValueSuggestion[] {
+	function options(code: CategoryCode): ValueSuggestion[] {
 		return suggestValues({
 			query: form.queries[code],
-			existing,
+			existing: suggestions.categoryValues[code],
 			selected: form.values[code],
 			...(code === 'location'
 				? { starter: suggestions.placeStarter.museums, notes: suggestions.placeStarter.notes }
@@ -150,10 +155,6 @@
 	function wantSuggestions(event: FocusEvent): void {
 		const target = event.target as HTMLElement;
 		if (target.matches('[role="combobox"], [contenteditable="true"]')) void suggestions.load();
-	}
-
-	function options(code: CategoryCode): ValueSuggestion[] {
-		return suggestionsFor(code, suggestions.categoryValues[code]);
 	}
 
 	function chooseType(code: string | null): void {
@@ -216,8 +217,10 @@
 </script>
 
 <Form error={formState.error} errorTitle={m.artworkForm.errorTitle} onsubmit={submit}>
+	<FixNote field="top" {flags} />
 	<div class="columns" onfocusin={wantSuggestions}>
 		<div class="fields head">
+			<FixNote field="data" {flags} />
 			<TextField
 				id={titleId}
 				autocomplete="off"
@@ -244,27 +247,31 @@
 			</div>
 		</div>
 
-		<ArtworkImages
-			alt={imageAlt}
-			autoMatch={!artwork}
-			compactEmpty
-			entries={suggestions.glossary}
-			onmatching={(matching) => (imageMatching = matching)}
-			{pinsError}
-			query={{
-				kind: 'artwork',
-				title: form.title,
-				authors: form.authorUnknown ? [] : form.values.author
-			}}
-			searchReady={imageSearchReady}
-			symbols={suggestions.symbols}
-			texts={imageTexts}
-			bind:image={form.image}
-			bind:images={form.images}
-			bind:pins={pinList}
-		/>
+		<div class="images">
+			<FixNote field="image" {flags} />
+			<ArtworkImages
+				alt={imageAlt}
+				autoMatch={!artwork}
+				compactEmpty
+				entries={suggestions.glossary}
+				onmatching={(matching) => (imageMatching = matching)}
+				{pinsError}
+				query={{
+					kind: 'artwork',
+					title: form.title,
+					authors: form.authorUnknown ? [] : form.values.author
+				}}
+				searchReady={imageSearchReady}
+				symbols={suggestions.symbols}
+				texts={imageTexts}
+				bind:image={form.image}
+				bind:images={form.images}
+				bind:pins={pinList}
+			/>
+		</div>
 
 		<div class="fields">
+			<FixNote field="year" {flags} />
 			<YearGroup
 				columns={form.spanMode}
 				labelFor={form.spanMode ? undefined : yearToId}
@@ -305,6 +312,7 @@
 				value={form.typeCode || null}
 			/>
 
+			<FixNote field="style" {flags} />
 			<ArtworkEraFields valueLinks={suggestions.valueLinks} bind:form />
 
 			{#each describedCategories as category (category.code)}
@@ -334,6 +342,7 @@
 				bind:rows={form.relations}
 			/>
 
+			<FixNote field="note" {flags} />
 			<NotesEditor
 				hint={m.artworkForm.notesLinkHint}
 				label={m.common.notes}
@@ -346,7 +355,7 @@
 
 	<FormActions bind:height={barHeight}>
 		<Button href={cancelHref} onclick={oncancel}>
-			{m.common.cancel}
+			{labels?.cancel ?? m.common.cancel}
 		</Button>
 		{#if !artwork}
 			<Button disabled={formState.busy || imageMatching} onclick={saveAndAddNext}>
@@ -354,7 +363,7 @@
 			</Button>
 		{/if}
 		<Button disabled={formState.busy || imageMatching} type="submit" variant="primary">
-			{formState.busy && !savingNext ? m.common.saving : m.common.save}
+			{formState.busy && !savingNext ? m.common.saving : (labels?.save ?? m.common.save)}
 		</Button>
 	</FormActions>
 </Form>
@@ -386,8 +395,10 @@
 		min-width: 0;
 	}
 
-	.group {
+	.group,
+	.images {
 		display: grid;
+		align-content: start;
 		gap: var(--spacing-3);
 	}
 

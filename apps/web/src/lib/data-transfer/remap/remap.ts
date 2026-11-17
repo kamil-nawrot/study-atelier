@@ -34,8 +34,11 @@ export const IMPORT_TABLES = [
 	'visits',
 	'visit_artworks',
 	'exhibitions',
+	'learner_flags',
 	'review_cards',
 	'review_log',
+	'extra_cards',
+	'extra_review_log',
 	'point_events',
 	'exhibit_tiers',
 	'free_review_days'

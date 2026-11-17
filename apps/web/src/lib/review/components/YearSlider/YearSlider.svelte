@@ -14,10 +14,17 @@
 		bounds: Years;
 		value: number;
 		disabled?: boolean;
+		label?: string;
 		oncheck: () => void;
 	};
 
-	let { bounds, value = $bindable(), disabled = false, oncheck }: Props = $props();
+	let {
+		bounds,
+		value = $bindable(),
+		disabled = false,
+		label = m.review.year.slider,
+		oncheck
+	}: Props = $props();
 
 	const TICKS = 9;
 	const HOLD_START = 400;
@@ -106,7 +113,7 @@
 	</div>
 	<input
 		id="year-slider"
-		aria-label={m.review.year.slider}
+		aria-label={label}
 		aria-valuetext={text}
 		{disabled}
 		max={bounds[1]}

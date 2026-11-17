@@ -1,6 +1,6 @@
 # 0259. Relate artworks and authors with typed relations
 
-- Status: accepted
+- Status: accepted; the list of artwork types is extended by [0322](0322-add-the-artwork-relation-inside.md)
 - Date: 2026-11-12
 
 ## Context and problem statement

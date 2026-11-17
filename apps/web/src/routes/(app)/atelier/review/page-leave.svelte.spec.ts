@@ -51,6 +51,12 @@ vi.mock('#lib/symbols/symbol-questions-data/symbol-questions-data.ts', () => ({
 	loadSymbolQuestionPins: vi.fn().mockResolvedValue({ pins: [] }),
 	loadSymbolQuestionImages: vi.fn().mockResolvedValue(new Map())
 }));
+vi.mock('#lib/review/extra-cards-data/extra-cards-data.ts', async () => ({
+	loadExtraRound: vi
+		.fn()
+		.mockResolvedValue((await import('#lib/review/extra-cards/extra-cards.ts')).NO_EXTRA_ROUND),
+	recordExtraReview: vi.fn().mockResolvedValue(undefined)
+}));
 vi.mock('#lib/symbols/symbols-data/symbols-data.ts', () => ({
 	loadSymbolOptions: vi.fn().mockResolvedValue({ symbols: [] })
 }));

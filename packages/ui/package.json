@@ -1,8 +1,11 @@
 {
 	"name": "@study-atelier/ui",
 	"private": true,
-	"version": "0.24.1",
+	"version": "0.25.0",
 	"type": "module",
+	"sideEffects": [
+		"**/*.css"
+	],
 	"exports": {
 		".": {
 			"types": "./src/lib/index.ts",

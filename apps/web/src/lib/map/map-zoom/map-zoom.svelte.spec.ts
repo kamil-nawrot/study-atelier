@@ -59,4 +59,17 @@ describe('MapZoom', () => {
 		zoom.panBy(500, 500);
 		expect([zoom.x, zoom.y]).toEqual([100, 50]);
 	});
+
+	it('zooms onto a spot and brings it to the middle of the view', () => {
+		const zoom = new MapZoom();
+		zoom.limit({ left: 0, top: 0, right: 400, bottom: 400 }, 400, 400);
+
+		zoom.zoomOnto(300, 100, 4);
+
+		expect(zoom.scale).toBe(4);
+		expect(zoom.toScreen(300, 100)).toEqual([200, 200]);
+		expect(zoom.closest).toBe(false);
+		zoom.zoomOnto(200, 200, 100);
+		expect(zoom.closest).toBe(true);
+	});
 });

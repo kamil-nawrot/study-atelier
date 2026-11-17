@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'supabase/**'
+      - 'docs/data-model/current.dbml'
+      - 'tools/data-model/**'
       - 'apps/web/src/lib/shared/data/database.types.ts'
       - '.github/workflows/migrations.yml'
   workflow_call:
@@ -36,6 +38,9 @@ jobs:
             | npx --yes prettier@3.9.10 --no-config --parser typescript > "$RUNNER_TEMP/database.types.ts"
           diff --unified apps/web/src/lib/shared/data/database.types.ts "$RUNNER_TEMP/database.types.ts" \
             || { echo "::error::apps/web/src/lib/shared/data/database.types.ts is stale. Run pnpm db:types and commit the result."; exit 1; }
+
+      - name: Check the data model
+        run: node tools/data-model/generate-dbml.mjs --check
 
       - name: Run the SQL tests
         run: |

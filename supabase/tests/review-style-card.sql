@@ -269,4 +269,21 @@ begin
 end;
 $$;
 
+do $$
+declare
+  settled public.review_cards;
+  next_card public.review_cards;
+begin
+  settled := jsonb_populate_record(null::public.review_cards, jsonb_build_object(
+    'stability', 900, 'difficulty', 3, 'state', 2, 'reps', 12, 'lapses', 0, 'scheduled_days', 300,
+    'learning_steps', 0, 'last_review', '2026-01-01 09:00+00'));
+  next_card := private.next_style_card(settled, '2026-10-01 09:00+00', 2);
+  assert next_card.scheduled_days = 365 and next_card.due = '2027-10-01 09:00+00',
+    'a right style answer waits more than a year: ' || next_card.scheduled_days;
+  next_card := private.next_style_card(settled, '2026-10-01 09:00+00', 1);
+  assert next_card.scheduled_days <= 365,
+    'a wrong style answer waits more than a year: ' || next_card.scheduled_days;
+end;
+$$;
+
 rollback;

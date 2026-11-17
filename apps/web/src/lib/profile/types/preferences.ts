@@ -11,6 +11,8 @@ export type Preferences = {
 	reviewGlossaryQuestions: number;
 	reviewSymbolsOn: boolean;
 	reviewSymbolQuestions: number;
+	reviewEventsOn: boolean;
+	reviewEventQuestions: number;
 	reviewNotesOn: boolean;
 	reviewNoteQuestions: number;
 	reviewPairsOn: boolean;

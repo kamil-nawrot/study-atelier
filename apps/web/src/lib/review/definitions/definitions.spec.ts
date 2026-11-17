@@ -2,12 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
 import type { DefinedTerm } from '#lib/review/types/defined-term.ts';
 import type { DefinitionItem } from '#lib/review/types/definition-item.ts';
-import {
-	definitionItems,
-	definitionsOffered,
-	drawnTerms,
-	withDefinitionsOf
-} from './definitions.ts';
+import { definitionCount, definitionItems, roundTerms, withDefinitionsOf } from './definitions.ts';
 
 function entry(
 	name: string,
@@ -26,7 +21,7 @@ function entry(
 }
 
 function drawnItems(count: number, random: () => number = Math.random): DefinitionItem[] {
-	const drawn = drawnTerms(glossary, count, random);
+	const drawn = glossary.slice(0, count);
 	return definitionItems(
 		withDefinitionsOf(drawn, new Map(glossary.map((term) => [term.id, term.definition]))),
 		glossary,
@@ -43,28 +38,22 @@ const glossary = [
 	entry('Sfumato', 'technique')
 ];
 
-describe('definitionsOffered', () => {
-	it('needs four different terms with a definition', () => {
-		const three = [
-			...glossary.slice(0, 3),
-			entry('Apse', 'general'),
-			entry('Portal', 'architecture', ' ')
-		];
-		expect(definitionsOffered(three)).toBe(false);
-		expect(definitionsOffered(glossary.slice(0, 4))).toBe(true);
+describe('definitionCount', () => {
+	it('asks the count of glossary questions only with the switch on', () => {
+		expect(definitionCount({ reviewGlossaryOn: true, reviewGlossaryQuestions: 3 })).toBe(3);
+		expect(definitionCount({ reviewGlossaryOn: false, reviewGlossaryQuestions: 3 })).toBe(0);
 	});
 });
 
-describe('drawnTerms', () => {
-	it('draws the asked number of terms with a definition', () => {
-		const drawn = drawnTerms([...glossary, entry('Portal', 'architecture', '')], 10, () => 0);
+describe('roundTerms', () => {
+	it('keeps the order of the round and leaves out a term no longer in the glossary', () => {
+		const picked = [
+			{ id: 'Nave', card: null },
+			{ id: 'Gone', card: null },
+			{ id: 'Apse', card: null }
+		];
 
-		expect(drawn).toHaveLength(6);
-		expect(drawn.every((term) => term.hasDefinition)).toBe(true);
-	});
-
-	it('draws nothing with fewer than four defined terms', () => {
-		expect(drawnTerms(glossary.slice(0, 3), 2)).toEqual([]);
+		expect(roundTerms(picked, glossary).map((term) => term.name)).toEqual(['Nave', 'Apse']);
 	});
 });
 

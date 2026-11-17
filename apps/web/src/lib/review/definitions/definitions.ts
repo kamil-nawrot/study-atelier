@@ -1,30 +1,19 @@
 import type { Preferences } from '#lib/profile/types/preferences.ts';
 import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 import { shuffle, shuffleQuiz } from '#lib/review/quiz/quiz.ts';
+import type { ExtraCard } from '#lib/review/types/extra-card.ts';
+import type { RoundTerm } from '#lib/review/types/round-term.ts';
 import type { DefinedTerm } from '#lib/review/types/defined-term.ts';
 import type { DefinitionItem } from '#lib/review/types/definition-item.ts';
-
-export const MIN_DEFINITION_TERMS = 4;
 
 function nameKey(term: GlossaryTerm): string {
 	return term.name.trim().toLocaleLowerCase('pl');
 }
 
-function defined(glossary: readonly GlossaryTerm[]): GlossaryTerm[] {
-	return glossary.filter((term) => term.hasDefinition);
-}
-
-export function definitionsOffered(glossary: readonly GlossaryTerm[]): boolean {
-	return new Set(defined(glossary).map(nameKey)).size >= MIN_DEFINITION_TERMS;
-}
-
 export function definitionCount(
-	preferences: Pick<Preferences, 'reviewGlossaryOn' | 'reviewGlossaryQuestions'>,
-	glossary: readonly GlossaryTerm[]
+	preferences: Pick<Preferences, 'reviewGlossaryOn' | 'reviewGlossaryQuestions'>
 ): number {
-	return preferences.reviewGlossaryOn && definitionsOffered(glossary)
-		? preferences.reviewGlossaryQuestions
-		: 0;
+	return preferences.reviewGlossaryOn ? preferences.reviewGlossaryQuestions : 0;
 }
 
 export function wrongNames(
@@ -40,19 +29,19 @@ export function wrongNames(
 	return [...names.values()].slice(0, 3);
 }
 
-export function drawnTerms(
-	glossary: readonly GlossaryTerm[],
-	count: number,
-	random: () => number = Math.random
+export function roundTerms(
+	picked: readonly RoundTerm[],
+	glossary: readonly GlossaryTerm[]
 ): GlossaryTerm[] {
-	if (!definitionsOffered(glossary)) return [];
-	return shuffle(defined(glossary), random).slice(0, count);
+	const byId = new Map(glossary.map((term) => [term.id, term]));
+	return picked.flatMap(({ id }) => byId.get(id) ?? []);
 }
 
 export function definitionItems(
 	drawn: readonly DefinedTerm[],
 	glossary: readonly GlossaryTerm[],
-	random: () => number = Math.random
+	random: () => number = Math.random,
+	cards: ReadonlyMap<string, ExtraCard> = new Map()
 ): DefinitionItem[] {
 	return drawn.map((term) => {
 		const options = [term.name, ...wrongNames(term, glossary, random)].map((label) => ({
@@ -61,6 +50,7 @@ export function definitionItems(
 		return {
 			mode: 'quiz_definition' as const,
 			term,
+			card: cards.get(term.id) ?? null,
 			quiz: shuffleQuiz({ options, answer: 0 }, random)
 		};
 	});

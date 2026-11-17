@@ -6,6 +6,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
 import {
 	ARTWORK_PINS,
+	LEARNER_FLAGS,
 	ARTWORKS,
 	ARTWORK_RELATIONS,
 	AUTHOR_RELATIONS,
@@ -949,6 +950,13 @@ async function mockSupabase(context) {
 			return json(route, reviewSession(request.postDataJSON() ?? {}));
 		}
 		if (url.pathname === '/rest/v1/rpc/confused_pairs') return json(route, CONFUSED_PAIRS);
+		if (url.pathname === '/rest/v1/rpc/save_flag') return json(route, true);
+		if (url.pathname === '/rest/v1/rpc/flag_count') return json(route, LEARNER_FLAGS.length);
+		if (url.pathname === '/rest/v1/learner_flags') {
+			if (request.method() === 'DELETE')
+				return route.fulfill({ status: 204, headers: corsHeaders() });
+			return json(route, LEARNER_FLAGS);
+		}
 		if (url.pathname === '/rest/v1/rpc/record_pair_answer') {
 			return route.fulfill({ status: 204, headers: corsHeaders() });
 		}

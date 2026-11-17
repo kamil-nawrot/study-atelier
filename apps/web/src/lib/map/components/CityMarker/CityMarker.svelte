@@ -7,16 +7,17 @@
 		selected: boolean;
 		labelled: boolean;
 		narrow: boolean;
+		zooms?: boolean;
 		onclick: () => void;
 	};
 
-	let { group, selected, labelled, narrow, onclick }: Props = $props();
+	let { group, selected, labelled, narrow, zooms = false, onclick }: Props = $props();
 
 	let single = $derived(group.cities.length === 1);
 	let label = $derived(
 		single
 			? `${group.cities[0].name}, ${m.map.city.artworks(group.count)}`
-			: m.map.group(
+			: (zooms ? m.map.zoomGroup : m.map.group)(
 					group.cities.map((city) => city.name),
 					group.count
 				)

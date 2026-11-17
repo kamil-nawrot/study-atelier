@@ -6,6 +6,8 @@ export type ArtworkRelationType =
 	| 'version'
 	| 'partFrom'
 	| 'partTo'
+	| 'insideFrom'
+	| 'insideTo'
 	| 'referenceFrom'
 	| 'referenceTo'
 	| 'related';

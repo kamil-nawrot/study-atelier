@@ -7,6 +7,7 @@
 	import faviconPng from '#lib/assets/favicon-32.png';
 	import favicon from '#lib/assets/favicon.svg';
 	import { SESSION_DEPENDENCY, watchSession } from '#lib/auth/session-data/session-data.ts';
+	import { fixSession } from '#lib/backroom/fix-session/fix-session.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { resolvedImages } from '#lib/images/resolved-images/resolved-images.ts';
 	import { cacheForLearner, watchCache } from '#lib/shared/data/data-cache/data-cache.ts';
@@ -27,6 +28,9 @@
 
 	beforeNavigate(forgetRestoredBackPlace);
 	afterNavigate(recordArrival);
+	afterNavigate(({ to }) => {
+		if (to) fixSession.leave(to.url.pathname);
+	});
 	onNavigate((navigation) => loadNewVersion(navigation, updated.current));
 	snapshot({ id: 'back-place', capture: currentBackPlace, restore: setBackPlace });
 

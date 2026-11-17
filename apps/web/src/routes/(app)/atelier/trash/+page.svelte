@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { flagCount } from '#lib/backroom/flag-count/flag-count.svelte.ts';
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import Trash from '@lucide/svelte/icons/trash-2';
 	import {
@@ -59,6 +60,7 @@
 		}
 		removed.push(artwork.id);
 		void invalidate(REVIEW_COUNTS_DEPENDENCY);
+		void flagCount.refresh();
 		toast.show(m.trash.restored(formatRecordNumber(artwork.number)));
 	}
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Alert } from '@study-atelier/ui';
+	import { Alert, Toast } from '@study-atelier/ui';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import SymbolQuiz from '#lib/review/components/SymbolQuiz/SymbolQuiz.svelte';
 	import PairQuiz from '#lib/review/components/PairQuiz/PairQuiz.svelte';
@@ -13,6 +13,7 @@
 	import OrderGuess from '#lib/review/components/OrderGuess/OrderGuess.svelte';
 	import ReviewSummary from '#lib/review/components/ReviewSummary/ReviewSummary.svelte';
 	import YearGuess from '#lib/review/components/YearGuess/YearGuess.svelte';
+	import EventGuess from '#lib/review/components/EventGuess/EventGuess.svelte';
 	import { formatWhen } from '#lib/review/overview/overview.ts';
 	import type { ReviewFlow } from '#lib/review/review-flow/review-flow.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -26,7 +27,15 @@
 	};
 
 	let { flow, error, glossary, rankForm }: Props = $props();
+
+	let toast = $state<Toast>();
+
+	$effect(() => {
+		if ((flow.session?.extraFailures ?? 0) > 0) toast?.show(m.review.extraSaveFailed);
+	});
 </script>
+
+<Toast bind:this={toast} />
 
 {#if error}
 	<Alert title={m.review.loadErrorTitle} tone="danger">{error}</Alert>
@@ -38,11 +47,13 @@
 			? current.artworks[0].id
 			: current.mode === 'quiz_definition'
 				? current.term.id
-				: current.mode === 'quiz_symbol' ||
-					  current.mode === 'quiz_pair' ||
-					  current.mode === 'quiz_relation'
-					? current.key
-					: current.artwork.id}
+				: current.mode === 'event_year'
+					? current.event.id
+					: current.mode === 'quiz_symbol' ||
+						  current.mode === 'quiz_pair' ||
+						  current.mode === 'quiz_relation'
+						? current.key
+						: current.artwork.id}
 	{#key `${session.position}:${id}`}
 		{#if current.mode === 'order'}
 			<OrderGuess
@@ -98,6 +109,13 @@
 				onnext={() => flow.proceed()}
 				saving={session.saving}
 			/>
+		{:else if current.mode === 'event_year'}
+			<EventGuess
+				guessed={session.guessed}
+				item={current}
+				onguess={(year) => flow.guess(year)}
+				onnext={() => flow.proceed()}
+			/>
 		{:else if current.mode === 'quiz_typed'}
 			<TypedTitle
 				artworks={[...flow.artworksById.values()]}
@@ -136,6 +154,7 @@
 	<ReviewSummary
 		count={flow.summary.count}
 		definitions={flow.summary.definitions}
+		events={flow.summary.events}
 		free={flow.summary.free}
 		freeOpen={flow.freeOpen}
 		groups={flow.summary.groups.map((group) => ({

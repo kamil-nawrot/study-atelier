@@ -36,4 +36,10 @@ describe('Icon', () => {
 
 		expect(svg().getBoundingClientRect().width).toBe(20);
 	});
+
+	it('is 16 pixels in the extra small size', async () => {
+		render(Icon, { icon: ImageIcon, size: 'xs' });
+
+		expect(svg().getBoundingClientRect().width).toBe(16);
+	});
 });

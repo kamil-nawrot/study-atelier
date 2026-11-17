@@ -42,6 +42,8 @@ describe('relationTypeOptions', () => {
 			m.artworkRelations.types.version,
 			m.artworkRelations.types.partFrom,
 			m.artworkRelations.types.partTo,
+			m.artworkRelations.types.insideFrom,
+			m.artworkRelations.types.insideTo,
 			m.artworkRelations.types.referenceFrom,
 			m.artworkRelations.types.referenceTo,
 			m.artworkRelations.types.related

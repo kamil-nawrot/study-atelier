@@ -1,4 +1,6 @@
 import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
+import type { ExtraCard } from '#lib/review/types/extra-card.ts';
+import type { RoundSymbol } from '#lib/review/types/round-symbol.ts';
 import { shuffle, shuffleQuiz } from '#lib/review/quiz/quiz.ts';
 import type { SymbolItem } from '#lib/review/types/symbol-item.ts';
 import type { SymbolQuestionKind } from '#lib/review/types/symbol-question-kind.ts';
@@ -18,6 +20,7 @@ export type SymbolQuestion = {
 	kind: SymbolQuestionKind;
 	right: string;
 	wrong: string[];
+	card?: ExtraCard | null;
 };
 
 function key(text: string): string {
@@ -63,23 +66,22 @@ export function possibleQuestions(
 	});
 }
 
-export function drawnSymbolQuestions(
+export function roundSymbolQuestions(
+	picked: readonly RoundSymbol[],
 	pins: readonly SymbolQuestionPin[],
 	symbols: readonly SymbolOption[],
 	glossary: readonly GlossaryTerm[],
-	count: number,
 	random: () => number = Math.random
 ): SymbolQuestion[] {
-	if (count <= 0) return [];
 	const pool = poolOf(symbols, glossary);
-	const drawn: SymbolQuestion[] = [];
-	for (const pin of shuffle([...pins], random)) {
-		if (drawn.length === count) break;
-		const questions = possibleQuestions(pin, pool, random);
-		if (questions.length === 0) continue;
-		drawn.push(questions[Math.min(questions.length - 1, Math.floor(random() * questions.length))]);
-	}
-	return drawn;
+	const byId = new Map(pins.map((pin) => [pin.pinId, pin]));
+	return picked.flatMap(({ pinId, kind, card }) => {
+		const pin = byId.get(pinId);
+		const question = pin
+			? possibleQuestions(pin, pool, random).find((possible) => possible.kind === kind)
+			: undefined;
+		return question ? [{ ...question, card }] : [];
+	});
 }
 
 export function symbolItems(
@@ -87,11 +89,13 @@ export function symbolItems(
 	lenses: ReadonlyMap<string, NonNullable<SymbolItem['lens']>>,
 	random: () => number = Math.random
 ): SymbolItem[] {
-	return questions.map(({ pin, kind, right, wrong }) => {
+	return questions.map(({ pin, kind, right, wrong, card }) => {
 		const lens = lenses.get(pin.pinId);
 		return {
 			mode: 'quiz_symbol' as const,
 			kind,
+			symbol: { id: pin.symbolId, name: pin.symbolName },
+			card: card ?? null,
 			key: `${pin.pinId}:${kind}`,
 			...(lens ? { lens } : {}),
 			quiz: shuffleQuiz(

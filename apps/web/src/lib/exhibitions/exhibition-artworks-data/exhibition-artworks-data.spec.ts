@@ -41,6 +41,25 @@ describe('loadArtworksByIds', () => {
 		expect(artworks.map((artwork) => artwork.id)).toEqual(['artwork-1', 'artwork-2']);
 	});
 
+	it('orders every page of artworks by id', async () => {
+		rows.mockResolvedValue({ rows: [] } as never);
+		const query: Record<string, unknown> = {};
+		const orders: string[] = [];
+		for (const method of ['select', 'in', 'eq', 'is', 'limit', 'range']) {
+			query[method] = vi.fn(() => query);
+		}
+		query.order = vi.fn((column: string) => {
+			orders.push(column);
+			return query;
+		});
+		from.mockReturnValue(query as never);
+
+		await loadArtworksByIds(['artwork-1']);
+		await (rows.mock.calls[0][0] as (from: number, to: number) => unknown)(0, 999);
+
+		expect(orders).toEqual(['id']);
+	});
+
 	it('asks for at most fifty artworks at a time', async () => {
 		rows.mockResolvedValue({ rows: [] } as never);
 

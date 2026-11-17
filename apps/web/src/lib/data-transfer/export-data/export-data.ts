@@ -3,6 +3,7 @@ import { IMAGES_BUCKET, ownThumbnailPath } from '#lib/images/bucket/bucket.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { m } from '#lib/i18n/i18n.ts';
+import type { ServiceError } from '#lib/shared/types/service-error.ts';
 import type { AtelierData } from '#lib/data-transfer/types/atelier-data.ts';
 import type { ExportRow } from '#lib/data-transfer/types/export-row.ts';
 import { EXPORT_TABLES } from '#lib/data-transfer/tables/tables.ts';
@@ -23,7 +24,7 @@ function withoutOwner(row: ExportRow): ExportRow {
 	return Object.fromEntries(Object.entries(row).filter(([column]) => column !== 'owner_id'));
 }
 
-async function readTable(spec: ExportTable): Promise<{ rows: ExportRow[]; error?: unknown }> {
+async function readTable(spec: ExportTable): Promise<{ rows: ExportRow[]; error?: ServiceError }> {
 	const { rows, error } = await fetchAll<ExportRow>((from, to) => {
 		let query = supabase.from(spec.table as 'artworks').select('*');
 		if (spec.ownedOnly) query = query.not('owner_id', 'is', null);
@@ -37,7 +38,7 @@ export async function readAtelier(): Promise<ReadResult> {
 	const data: AtelierData = {};
 	for (const spec of EXPORT_TABLES) {
 		const { rows, error } = await readTable(spec);
-		if (error) return { error: await failureMessage(error as never, () => m.settings.data.failed) };
+		if (error) return { error: await failureMessage(error, () => m.settings.data.failed) };
 		data[spec.table] = rows;
 	}
 	return { data };

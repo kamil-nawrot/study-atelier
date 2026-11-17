@@ -10,7 +10,10 @@
 	import { page } from '$app/state';
 	import { m } from '#lib/i18n/i18n.ts';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
+	import FixBar from '#lib/backroom/components/FixBar/FixBar.svelte';
 	import MoreActions from '#lib/shared/navigation/MoreActions/MoreActions.svelte';
+	import FlagButton, { flagAction } from '#lib/backroom/components/FlagButton/FlagButton.svelte';
+	import ItemFlagDialog from '#lib/backroom/components/ItemFlagDialog/ItemFlagDialog.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import SymbolDeleteDialog from '#lib/symbols/components/SymbolDeleteDialog/SymbolDeleteDialog.svelte';
 	import SymbolView from '#lib/symbols/components/SymbolView/SymbolView.svelte';
@@ -24,6 +27,7 @@
 	let toast: Toast;
 	let view: ReturnType<typeof SymbolView> | undefined = $state();
 	let deleteOpen = $state(false);
+	let flag = $state({ open: false, count: 0 });
 	let reordering = $state(false);
 	let symbol = $derived(data.symbol);
 	let title = $derived(
@@ -49,6 +53,7 @@
 <AtelierLayout email={data.session.user.email ?? ''} {title}>
 	{#snippet bar()}
 		<BackLink fallbackHref={glossaryPath} fallbackName={m.glossary.back} />
+		<FixBar />
 		{#if symbol}
 			{#if symbol.meanings.length > 1}
 				{@const label = reordering ? m.symbols.view.reorderDone : m.symbols.view.reorder}
@@ -82,9 +87,11 @@
 			</Button>
 			<MoreActions
 				actions={[
+					flagAction(() => (flag.open = true), flag.count),
 					{ label: m.common.delete, icon: Trash, onclick: () => (deleteOpen = true), danger: true }
 				]}
 			>
+				<FlagButton count={flag.count} onclick={() => (flag.open = true)} />
 				<Button
 					aria-label={m.common.delete}
 					compact
@@ -115,4 +122,16 @@
 
 {#if symbol}
 	<SymbolDeleteDialog {symbol} bind:open={deleteOpen} />
+	<ItemFlagDialog
+		flagsOf={{ symbolId: symbol.id }}
+		groups={[
+			{
+				item: { kind: 'symbol', id: symbol.id, name: symbol.name },
+				reasons: ['meaning', 'other']
+			}
+		]}
+		oncount={(count) => (flag.count = count)}
+		onflagged={(message) => toast.show(message)}
+		bind:open={flag.open}
+	/>
 {/if}

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import { goto } from '$app/navigation';
+import { goto, snapshot } from '$app/navigation';
 import { m } from '#lib/i18n/i18n.ts';
 import { GLOSSARY_INDEX_MIN_ENTRIES } from '#lib/glossary/glossary/glossary.ts';
 import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
@@ -22,7 +22,11 @@ vi.mock('$app/state', () => ({
 	navigating: { to: null },
 	updated: { current: false }
 }));
-vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
+vi.mock('$app/navigation', () => ({ goto: vi.fn(), snapshot: vi.fn() }));
+
+type Registered = { capture: () => unknown; restore: (value: unknown) => void };
+const registered = (): Registered =>
+	vi.mocked(snapshot).mock.calls.at(-1)![0] as unknown as Registered;
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
@@ -311,17 +315,17 @@ describe('glossary page', () => {
 			params: {}
 		});
 		await userEvent.fill(page.getByRole('searchbox', { name: m.glossary.search }), 'Tymp');
-		const saved = first.component.snapshot.capture();
+		const saved = registered().capture();
 		first.unmount();
 
-		const second = await render(GlossaryPage, {
+		await render(GlossaryPage, {
 			data: {
 				session: testSession(),
 				entries: manyEntries(GLOSSARY_INDEX_MIN_ENTRIES)
 			},
 			params: {}
 		});
-		second.component.snapshot.restore(saved);
+		registered().restore(saved);
 
 		await expect
 			.element(page.getByRole('searchbox', { name: m.glossary.search }))
@@ -344,15 +348,15 @@ describe('glossary page', () => {
 		await expect.element(entryLink('Term 00')).not.toBeInTheDocument();
 		const place = Math.round((document.documentElement.scrollHeight - window.innerHeight) / 2);
 		window.scrollTo({ top: place, behavior: 'instant' });
-		const saved = first.component.snapshot.capture();
+		const saved = registered().capture();
 		first.unmount();
 
-		const second = await render(GlossaryPage, {
+		await render(GlossaryPage, {
 			data: { session: testSession(), entries },
 			params: {}
 		});
 		window.scrollTo({ top: place, behavior: 'instant' });
-		second.component.snapshot.restore(saved);
+		registered().restore(saved);
 		window.scrollTo({ top: place / 2, behavior: 'instant' });
 
 		await expect.element(entryLink('Term 00')).not.toBeInTheDocument();

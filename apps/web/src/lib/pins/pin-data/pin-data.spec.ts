@@ -254,7 +254,7 @@ describe('pin data', () => {
 	});
 
 	it('finds the first pin of every artwork with a glossary entry', async () => {
-		query.order.mockReturnValueOnce(query).mockResolvedValueOnce({
+		query.range.mockResolvedValueOnce({
 			data: [
 				entryPinRow('pin-1', 'artwork-1'),
 				entryPinRow('pin-2', 'artwork-2'),
@@ -274,7 +274,7 @@ describe('pin data', () => {
 	});
 
 	it('keeps every pin of a glossary entry with a loupe view as a fragment', async () => {
-		query.order.mockReturnValueOnce(query).mockResolvedValueOnce({
+		query.range.mockResolvedValueOnce({
 			data: [
 				entryPinRow('pin-1', 'artwork-1', { view_width: 0.1, crop_path: 'owner/pin-1-crop-a.jpg' }),
 				entryPinRow('pin-2', 'artwork-1', { view_width: 0.2 }),
@@ -302,9 +302,10 @@ describe('pin data', () => {
 	});
 
 	it('reports a failure to find the pins of a glossary entry', async () => {
-		query.order
-			.mockReturnValueOnce(query)
-			.mockResolvedValueOnce({ data: null, error: { code: '', message: 'Failed to fetch' } });
+		query.range.mockResolvedValueOnce({
+			data: null,
+			error: { code: '', message: 'Failed to fetch' }
+		});
 
 		await expect(loadEntryPins('term-1')).resolves.toEqual({
 			pins: [],

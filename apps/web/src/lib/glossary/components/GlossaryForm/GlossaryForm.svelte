@@ -13,6 +13,8 @@
 	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
+	import FixNote from '#lib/backroom/components/FixNote/FixNote.svelte';
+	import { FormFlags } from '#lib/backroom/form-flags/form-flags.svelte.ts';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { LiveErrors } from '#lib/shared/forms/live-errors/live-errors.svelte.ts';
@@ -49,9 +51,11 @@
 		cancelHref: string;
 		oncancel?: (event: MouseEvent) => void;
 		onsaved: (path: ResolvedPathname, message: string) => void | Promise<void>;
+		labels?: { save: string; cancel: string };
 	};
 
-	let { entry, entries, index, cancelHref, oncancel, onsaved }: Props = $props();
+	let { entry, entries, index, cancelHref, oncancel, onsaved, labels }: Props = $props();
+	const flags = new FormFlags('term', () => (entry ? { termId: entry.id } : undefined));
 
 	const tiles = glossaryCategoryTiles();
 	const existing = untrack(() => entry);
@@ -125,6 +129,7 @@
 
 <div class="page">
 	<Form error={formState.error} errorTitle={m.glossary.form.errorTitle} onsubmit={submit}>
+		<FixNote field="top" {flags} />
 		<div class="fields">
 			<div class="name">
 				<TextField
@@ -169,21 +174,23 @@
 				{/if}
 			</div>
 
+			<FixNote field="definition" {flags} />
 			<GlossaryDefinition search={definition} />
 
+			<FixNote field="forms" {flags} />
 			<GlossaryWordForms {existing} onfilling={(filling) => (formsFilling = filling)} bind:form />
 		</div>
 
 		<FormActions>
 			<Button href={cancelHref} onclick={oncancel}>
-				{m.common.cancel}
+				{labels?.cancel ?? m.common.cancel}
 			</Button>
 			<Button
 				disabled={formState.busy || definition.filling || formsFilling}
 				type="submit"
 				variant="primary"
 			>
-				{formState.busy ? m.common.saving : m.common.save}
+				{formState.busy ? m.common.saving : (labels?.save ?? m.common.save)}
 			</Button>
 		</FormActions>
 	</Form>

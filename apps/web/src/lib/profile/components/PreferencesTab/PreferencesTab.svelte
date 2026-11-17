@@ -5,7 +5,6 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import {
 		EXTRA_KINDS,
-		EXTRA_QUESTION_CHOICES,
 		NEW_PER_DAY_CHOICES,
 		preferencesChanged,
 		QUIZ_KINDS,
@@ -173,7 +172,7 @@
 									{m.settings.preferences.extraCount}
 								</span>
 								<div class="tags">
-									{#each EXTRA_QUESTION_CHOICES as option (option)}
+									{#each extra.choices as option (option)}
 										<ToggleTag
 											disabled={!draft[extra.on]}
 											bind:pressed={

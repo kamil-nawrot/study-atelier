@@ -20,9 +20,11 @@ const names = ['Keys', 'Lily', 'Skull', 'Dove', 'Globe'];
 const symbols = names.map((name) => ({ id: name, name, meanings: [] }));
 const pin = {
 	pinId: 'pin-1',
+	symbolId: 'symbol-keys',
 	symbolName: 'Keys',
 	fragment: { pinId: 'pin-1', artworkId: 'a', x: 0, y: 0, viewWidth: 0.1, text: '' }
 };
+const picked = [{ symbolId: 'symbol-keys', pinId: 'pin-1', kind: 'symbol' as const, card: null }];
 
 describe('symbol steps', () => {
 	beforeEach(() => {
@@ -31,28 +33,29 @@ describe('symbol steps', () => {
 		vi.mocked(loadSymbolQuestionImages).mockResolvedValue(new Map());
 	});
 
-	it('loads nothing for a count of zero', async () => {
-		await expect(loadSymbolSteps(0, [])).resolves.toEqual([]);
+	it('loads nothing when the round picked no symbol', async () => {
+		await expect(loadSymbolSteps([], [])).resolves.toEqual([]);
 		expect(loadSymbolQuestionPins).not.toHaveBeenCalled();
 	});
 
-	it('builds the drawn questions as session steps', async () => {
-		const [step] = await loadSymbolSteps(1, [] as GlossaryTerm[]);
+	it('builds the picked questions as session steps from the pins of the round', async () => {
+		const [step] = await loadSymbolSteps(picked, [] as GlossaryTerm[]);
 
 		expect(step).toMatchObject({ mode: 'quiz_symbol', kind: 'symbol', key: 'pin-1:symbol' });
 		expect(step.quiz.options).toHaveLength(4);
+		expect(loadSymbolQuestionPins).toHaveBeenCalledWith(['pin-1']);
 		expect(loadSymbolQuestionImages).toHaveBeenCalledWith(['pin-1']);
 	});
 
 	it('runs without the questions when their images cannot be loaded', async () => {
 		vi.mocked(loadSymbolQuestionImages).mockResolvedValue(undefined);
 
-		await expect(loadSymbolSteps(1, [])).resolves.toEqual([]);
+		await expect(loadSymbolSteps(picked, [])).resolves.toEqual([]);
 	});
 
 	it('runs without the questions when a load fails', async () => {
 		vi.mocked(loadSymbolOptions).mockResolvedValue({ symbols: [], error: 'Brak sieci.' });
 
-		await expect(loadSymbolSteps(1, [])).resolves.toEqual([]);
+		await expect(loadSymbolSteps(picked, [])).resolves.toEqual([]);
 	});
 });

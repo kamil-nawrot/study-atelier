@@ -13,6 +13,8 @@
 	import { preloadArtwork } from '#lib/artworks/artwork-preload/artwork-preload.ts';
 	import { compareHref } from '#lib/compare/compare-address/compare-address.ts';
 	import { followLongLook, watchLongLook } from '#lib/career/long-look/long-look.ts';
+	import FlagButton, { flagAction } from '#lib/backroom/components/FlagButton/FlagButton.svelte';
+	import ArtworkFlag from '#lib/artworks/components/ArtworkFlag/ArtworkFlag.svelte';
 	import ArtworkTrashDialog from '#lib/artworks/components/ArtworkTrashDialog/ArtworkTrashDialog.svelte';
 	import ArtworkView from '#lib/artworks/components/ArtworkView/ArtworkView.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
@@ -32,10 +34,9 @@
 
 	let { data, params }: PageProps = $props();
 
-	const atelierPath = resolve('/(app)/atelier');
-
 	let toast: Toast;
 	let trashOpen = $state(false);
+	let flag = $state<{ open: boolean; image?: string; count?: number }>({ open: false });
 	const favouriteMark = new ArtworkMark(setFavourite);
 	const wantToSeeMark = new ArtworkMark(setWantToSee);
 
@@ -45,7 +46,6 @@
 	let wantToSee = $derived(
 		data.artwork ? wantToSeeMark.value(data.artwork.id, data.artwork.wantToSee === true) : false
 	);
-	let markError = $derived(favouriteMark.error ?? wantToSeeMark.error);
 	let number = $derived(parseRecordNumber(params.number));
 	let label = $derived(number === null ? params.number : formatRecordNumber(number));
 	let artworkPath = $derived(resolve('/(app)/atelier/[number]', { number: params.number }));
@@ -120,6 +120,7 @@
 			</Button>
 			<MoreActions
 				actions={[
+					flagAction(() => (flag.open = true), flag.count),
 					canCompare
 						? { label: m.compare.label, icon: Columns2, href: comparePath }
 						: { label: m.compare.label, icon: Columns2, reason: m.compare.unavailable },
@@ -129,6 +130,7 @@
 				{#snippet kept()}
 					{@render editButton()}
 				{/snippet}
+				<FlagButton count={flag.count} onclick={() => (flag.open = true)} />
 				{#if canCompare}
 					<Button aria-label={m.compare.label} compact href={comparePath} icon={Columns2}>
 						{m.compare.label}
@@ -163,9 +165,9 @@
 	{/snippet}
 
 	{#if data.artwork}
-		{#if markError}
+		{#if favouriteMark.error ?? wantToSeeMark.error}
 			<Alert tone="danger">
-				{markError}
+				{favouriteMark.error ?? wantToSeeMark.error}
 			</Alert>
 		{/if}
 		{#if data.pinsError}
@@ -185,6 +187,7 @@
 			mentions={data.mentions}
 			noteLinks={data.noteLinks}
 			onflip={(direction) => flip.flip(direction)}
+			onstage={(id) => (flag.image = id)}
 			ownFields={data.ownFields}
 			pins={data.pins}
 			showPinsOnOpen={data.preferences?.viewShowPins}
@@ -194,7 +197,7 @@
 		/>
 	{:else}
 		<LoadFailure
-			backHref={atelierPath}
+			backHref={resolve('/(app)/atelier')}
 			backLabel={m.artworkForm.back}
 			heading={title}
 			message={data.error ?? ''}
@@ -204,6 +207,19 @@
 </AtelierLayout>
 
 <ArtworkTrashDialog artwork={data.artwork} {label} bind:open={trashOpen} />
+
+{#if data.artwork}
+	<ArtworkFlag
+		artwork={data.artwork}
+		glossary={data.glossary}
+		imageId={flag.image}
+		oncount={(count) => (flag.count = count)}
+		onflagged={(message) => toast.show(message)}
+		pins={data.pins}
+		symbols={data.symbols}
+		bind:open={flag.open}
+	/>
+{/if}
 
 <Toast bind:this={toast} />
 

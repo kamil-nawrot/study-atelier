@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vitest';
 import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
 import type { SymbolQuestionPin } from '#lib/symbols/types/symbol-question-pin.ts';
-import { drawnSymbolQuestions, possibleQuestions, symbolItems } from './symbol-questions.ts';
+import type { ExtraCard } from '#lib/review/types/extra-card.ts';
+import type { RoundSymbol } from '#lib/review/types/round-symbol.ts';
+import type { SymbolQuestionKind } from '#lib/review/types/symbol-question-kind.ts';
+import { possibleQuestions, roundSymbolQuestions, symbolItems } from './symbol-questions.ts';
 
 const symbols: SymbolOption[] = ['Lily', 'Skull', 'Keys', 'Dove', 'Globe'].map((name, index) => ({
 	id: `symbol-${index}`,
@@ -17,6 +20,7 @@ const persons = ['Peter', 'Paul', 'Mary', 'John'].map(
 function pin(id: string, extra: Partial<SymbolQuestionPin> = {}): SymbolQuestionPin {
 	return {
 		pinId: id,
+		symbolId: 'symbol-keys',
 		symbolName: 'Keys',
 		fragment: { pinId: id, artworkId: 'a', x: 0, y: 0, viewWidth: 0.1, text: '' },
 		...extra
@@ -24,34 +28,80 @@ function pin(id: string, extra: Partial<SymbolQuestionPin> = {}): SymbolQuestion
 }
 
 const first = (): number => 0;
+function round(
+	pinId: string,
+	kind: SymbolQuestionKind = 'symbol',
+	card: ExtraCard | null = null
+): RoundSymbol {
+	return { symbolId: 'symbol-keys', pinId, kind, card };
+}
+
+function picked(
+	pins: SymbolQuestionPin[],
+	symbolsOfRound: RoundSymbol[],
+	options: SymbolOption[] = symbols
+): ReturnType<typeof roundSymbolQuestions> {
+	return roundSymbolQuestions(symbolsOfRound, pins, options, persons, first);
+}
+
+function card(symbolId: string, due: string): ExtraCard {
+	return {
+		id: `card-${symbolId}`,
+		termId: null,
+		symbolId,
+		eventId: null,
+		due: new Date(due),
+		stability: 2,
+		difficulty: 5,
+		state: 2,
+		reps: 1,
+		lapses: 0,
+		scheduledDays: 2,
+		learningSteps: 0,
+		lastReview: null,
+		lastRating: 2
+	};
+}
 
 describe('symbol questions', () => {
 	it('asks for the symbol with three other names', () => {
-		const [question] = drawnSymbolQuestions([pin('p1')], symbols, persons, 1, first);
+		const [question] = picked([pin('p1')], [round('p1')]);
 
 		expect(question.kind).toBe('symbol');
 		expect(question.right).toBe('Keys');
 		expect(question.wrong).toHaveLength(3);
 		expect(question.wrong).not.toContain('Keys');
+		expect(question.card).toBeNull();
 	});
 
-	it('offers the meaning and the attribute only when the pin has them', () => {
+	it('asks the kind the round picked on its pin, with the card of the symbol', () => {
 		const withMeaning = pin('p1', {
 			meaning: { id: 'meaning-2', text: 'Meaning of Keys', persons: ['Peter'] }
 		});
-		const kinds = new Set<string>();
-		for (let seed = 0; seed < 30; seed += 1) {
-			let step = seed;
-			const random = (): number => {
-				step = (step * 7 + 3) % 11;
-				return step / 11;
-			};
-			for (const question of drawnSymbolQuestions([withMeaning], symbols, persons, 1, random)) {
-				kinds.add(question.kind);
-			}
-		}
+		const due = card('symbol-keys', '2026-11-14T08:00:00');
 
-		expect([...kinds].sort()).toEqual(['attribute', 'meaning', 'symbol']);
+		const [meaning] = picked([withMeaning], [round('p1', 'meaning', due)]);
+		const [attribute] = picked([withMeaning], [round('p1', 'attribute')]);
+
+		expect(meaning).toMatchObject({ kind: 'meaning', right: 'Meaning of Keys' });
+		expect(meaning.card?.id).toBe('card-symbol-keys');
+		expect(attribute).toMatchObject({ kind: 'attribute', right: 'Peter' });
+	});
+
+	it('keeps the order of the round and leaves out a pin not loaded or a kind it cannot build', () => {
+		const lily = pin('p2', { symbolId: 'symbol-lily', symbolName: 'Lily' });
+
+		const questions = picked(
+			[pin('p1'), lily],
+			[
+				{ ...round('p2'), symbolId: 'symbol-lily' },
+				round('gone'),
+				round('p1', 'meaning'),
+				round('p1')
+			]
+		);
+
+		expect(questions.map((question) => question.pin.symbolName)).toEqual(['Lily', 'Keys']);
 	});
 
 	it('never offers another person of the same meaning as a wrong attribute', () => {
@@ -80,16 +130,11 @@ describe('symbol questions', () => {
 	it('skips a question without four sensible answers', () => {
 		const few = symbols.slice(0, 3);
 
-		expect(drawnSymbolQuestions([pin('p1')], few, persons, 1, first)).toEqual([]);
-	});
-
-	it('draws nothing for a count of zero and one question per pin', () => {
-		expect(drawnSymbolQuestions([pin('p1')], symbols, persons, 0)).toEqual([]);
-		expect(drawnSymbolQuestions([pin('p1')], symbols, persons, 3)).toHaveLength(1);
+		expect(picked([pin('p1')], [round('p1')], few)).toEqual([]);
 	});
 
 	it('builds items whose right answer is among the shuffled options', () => {
-		const questions = drawnSymbolQuestions([pin('p1')], symbols, persons, 1, first);
+		const questions = picked([pin('p1')], [round('p1')]);
 		const [item] = symbolItems(questions, new Map(), first);
 
 		expect(item.mode).toBe('quiz_symbol');

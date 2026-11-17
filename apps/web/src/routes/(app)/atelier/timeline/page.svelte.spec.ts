@@ -9,7 +9,7 @@ import { testSession } from '#lib/testing/auth/auth.ts';
 import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
 import { deleteTimelineEvent } from '#lib/timeline/timeline-data/timeline-data.ts';
 import { DOT_SIZE } from '#lib/timeline/placement/placement.ts';
-import { invalidateAll } from '$app/navigation';
+import { invalidateAll, snapshot } from '$app/navigation';
 import TimelinePage from './+page.svelte';
 
 const navigation = vi.hoisted(() => ({
@@ -23,7 +23,11 @@ vi.mock('$app/state', () => ({
 	navigating: { to: null },
 	updated: { current: false }
 }));
-vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidateAll: vi.fn() }));
+vi.mock('$app/navigation', () => ({ goto: vi.fn(), snapshot: vi.fn(), invalidateAll: vi.fn() }));
+
+type Registered = { capture: () => unknown; restore: (value: unknown) => void };
+const registered = (): Registered =>
+	vi.mocked(snapshot).mock.calls.at(-1)![0] as unknown as Registered;
 vi.mock('#lib/timeline/timeline-data/timeline-data.ts', () => ({ deleteTimelineEvent: vi.fn() }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
@@ -804,12 +808,12 @@ describe('timeline page', () => {
 				.getByRole('complementary', { name: m.atelier.filters.title })
 				.getByRole('button', { name: /Ulubione/ })
 		);
-		const saved = first.component.snapshot.capture();
+		const saved = registered().capture();
 		first.unmount();
 
 		localStorage.setItem(ERA_KEY, 'modern');
-		const second = await render(TimelinePage, { data, params: {} });
-		second.component.snapshot.restore(saved);
+		await render(TimelinePage, { data, params: {} });
+		registered().restore(saved);
 
 		await expectEra('Nowożytność');
 		await expect.element(stage()).toHaveAttribute('aria-valuenow', '1690');

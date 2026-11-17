@@ -4,7 +4,12 @@ import type { ReviewRating } from '#lib/review/types/review-rating.ts';
 import type { ReviewState } from '#lib/review/types/review-state.ts';
 
 const scheduler = fsrs(
-	generatorParameters({ request_retention: 0.9, enable_fuzz: true, enable_short_term: false })
+	generatorParameters({
+		request_retention: 0.9,
+		maximum_interval: 365,
+		enable_fuzz: true,
+		enable_short_term: false
+	})
 );
 
 export const RATINGS: readonly ReviewRating[] = [1, 2, 3];

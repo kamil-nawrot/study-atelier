@@ -109,11 +109,7 @@ describe('places data', () => {
 		});
 
 		await setPlacePoint('place-1', null);
-		expect(supabase.rpc).toHaveBeenLastCalledWith('set_place_point', {
-			place: 'place-1',
-			latitude: null,
-			longitude: null
-		});
+		expect(supabase.rpc).toHaveBeenLastCalledWith('set_place_point', { place: 'place-1' });
 	});
 
 	it('returns the message to show when saving fails', async () => {

@@ -1,9 +1,10 @@
 import { parseYear } from '#lib/artworks/artwork-form/artwork-form.ts';
 import { validateYears } from '#lib/artworks/artwork-record/artwork-record.ts';
 import type { YearsInput } from '#lib/artworks/types/years-input.ts';
-import { signedYear } from '#lib/catalogue/years/years.ts';
+import { formatDate, signedYear } from '#lib/catalogue/years/years.ts';
 import { m } from '#lib/i18n/i18n.ts';
 
+import type { EventArticle } from '#lib/timeline/types/event-article.ts';
 import type { EventDates } from '#lib/timeline/types/event-dates.ts';
 import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
 import type { TimelineEventDraft } from '#lib/timeline/types/timeline-event-draft.ts';
@@ -115,4 +116,8 @@ export function hasNoDates(form: EventFormState): boolean {
 
 export function eventFormChanged(form: EventFormState, saved: EventFormState): boolean {
 	return JSON.stringify(form) !== JSON.stringify(saved);
+}
+
+export function articleDates(article: EventArticle): string {
+	return formatDate(article.dates.yearFrom, article.dates.yearTo, article.dates.approximate) ?? '';
 }

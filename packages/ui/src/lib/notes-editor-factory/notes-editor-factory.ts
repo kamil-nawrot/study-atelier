@@ -11,7 +11,7 @@ export type NotesEditorOptions = {
 	editable: boolean;
 	content: string;
 	attributes: () => Record<string, string>;
-	links?: NoteLinks;
+	links: () => NoteLinks | undefined;
 	onChange: (trigger: NoteLinkTrigger, state: SuggestionState | null) => void;
 	onKeyDown: (event: KeyboardEvent) => boolean;
 	onRefresh: (editor: Editor) => void;
@@ -19,7 +19,6 @@ export type NotesEditorOptions = {
 };
 
 export function createNotesEditor(options: NotesEditorOptions): Editor {
-	const { links } = options;
 	return new Editor({
 		element: options.element,
 		editable: options.editable,
@@ -42,7 +41,7 @@ export function createNotesEditor(options: NotesEditorOptions): Editor {
 			Markdown,
 			NoteLink,
 			NoteLinkSuggestion.configure({
-				items: (trigger, query, signal) => links?.suggest(trigger, query, signal) ?? [],
+				items: (trigger, query, signal) => options.links()?.suggest(trigger, query, signal) ?? [],
 				onChange: options.onChange,
 				onKeyDown: options.onKeyDown
 			})
