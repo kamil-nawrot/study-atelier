@@ -58,6 +58,8 @@ export function heldStep(step: SessionStep, holds: Holds): SessionStep | undefin
 			return holds.terms.has(step.term.id) || holds.artworks.has(step.artwork.id)
 				? undefined
 				: step;
+		case 'event_year':
+			return step;
 		case 'quiz_pair':
 		case 'quiz_relation':
 		case 'year':

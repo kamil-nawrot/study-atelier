@@ -918,6 +918,7 @@ export type Database = {
           stability: number;
           state: number;
           symbol_id: string | null;
+          timeline_event_id: string | null;
         };
         ComputedFields: never;
         Insert: {
@@ -936,6 +937,7 @@ export type Database = {
           stability: number;
           state: number;
           symbol_id?: string | null;
+          timeline_event_id?: string | null;
         };
         Update: {
           created_at?: string;
@@ -953,6 +955,7 @@ export type Database = {
           stability?: number;
           state?: number;
           symbol_id?: string | null;
+          timeline_event_id?: string | null;
         };
         Relationships: [
           {
@@ -967,6 +970,13 @@ export type Database = {
             columns: ["symbol_id", "owner_id"];
             isOneToOne: false;
             referencedRelation: "symbols";
+            referencedColumns: ["id", "owner_id"];
+          },
+          {
+            foreignKeyName: "extra_cards_timeline_event_id_owner_id_fkey";
+            columns: ["timeline_event_id", "owner_id"];
+            isOneToOne: false;
+            referencedRelation: "timeline_events";
             referencedColumns: ["id", "owner_id"];
           },
         ];
@@ -1539,6 +1549,8 @@ export type Database = {
           owner_id: string;
           rank_form: string;
           rank_seen: number;
+          review_event_questions: number;
+          review_events_on: boolean;
           review_form: string;
           review_free: boolean;
           review_glossary_on: boolean;
@@ -1580,6 +1592,8 @@ export type Database = {
           owner_id?: string;
           rank_form?: string;
           rank_seen?: number;
+          review_event_questions?: number;
+          review_events_on?: boolean;
           review_form?: string;
           review_free?: boolean;
           review_glossary_on?: boolean;
@@ -1620,6 +1634,8 @@ export type Database = {
           owner_id?: string;
           rank_form?: string;
           rank_seen?: number;
+          review_event_questions?: number;
+          review_events_on?: boolean;
           review_form?: string;
           review_free?: boolean;
           review_glossary_on?: boolean;
@@ -2269,6 +2285,7 @@ export type Database = {
           answer: Json;
           card: Json;
           day_start?: string;
+          target_event?: string;
           target_symbol: string;
           target_term: string;
         };

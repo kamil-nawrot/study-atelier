@@ -381,21 +381,23 @@ Table extra_cards {
   last_review "timestamp with time zone"
   last_rating smallint
   created_at "timestamp with time zone" [not null, default: `now()`]
+  timeline_event_id uuid
 
   indexes {
     (id, owner_id) [unique]
     glossary_entry_id [name: 'extra_cards_glossary_entry_id_key', unique, note: 'where (glossary_entry_id IS NOT NULL)']
     (owner_id, due) [name: 'extra_cards_owner_id_due_idx']
     symbol_id [name: 'extra_cards_symbol_id_key', unique, note: 'where (symbol_id IS NOT NULL)']
+    timeline_event_id [name: 'extra_cards_timeline_event_id_key', unique, note: 'where (timeline_event_id IS NOT NULL)']
   }
-  Note: 'RLS on. M13; exactly one of glossary_entry_id, symbol_id; created by the first scheduling answer'
+  Note: 'RLS on. M13, M14; exactly one of glossary_entry_id, symbol_id, timeline_event_id; created by the first scheduling answer'
 }
 
 Table extra_review_log {
   id bigint [pk, increment]
   card_id uuid [not null]
   owner_id uuid [not null, default: `auth.uid()`]
-  mode text [not null, note: 'quiz_definition, symbol_symbol, symbol_meaning, symbol_attribute']
+  mode text [not null, note: 'quiz_definition, symbol_symbol, symbol_meaning, symbol_attribute, event_year, event_start, event_end']
   rating smallint [not null]
   correct boolean [not null]
   answer_ms integer
@@ -635,6 +637,8 @@ Table profiles {
   review_relation_questions smallint [not null, default: `1`]
   review_note_questions smallint [not null, default: `1`]
   legal_read_at "timestamp with time zone"
+  review_events_on boolean [not null, default: `true`]
+  review_event_questions smallint [not null, default: `1`]
   Note: 'RLS on'
 }
 
@@ -780,6 +784,7 @@ Table timeline_events {
   source_fetched_on date
 
   indexes {
+    (id, owner_id) [unique]
     (owner_id, year_to) [name: 'timeline_events_owner_year_to_idx']
   }
   Note: 'RLS on'
@@ -860,6 +865,7 @@ Ref exhibits_room_code_fkey: exhibits.room_code > exhibit_rooms.code
 Ref extra_cards_glossary_entry_id_owner_id_fkey: extra_cards.(glossary_entry_id, owner_id) > glossary_entries.(id, owner_id) [delete: cascade]
 Ref extra_cards_owner_id_fkey: extra_cards.owner_id > auth.users.id [delete: cascade]
 Ref extra_cards_symbol_id_owner_id_fkey: extra_cards.(symbol_id, owner_id) > symbols.(id, owner_id) [delete: cascade]
+Ref extra_cards_timeline_event_id_owner_id_fkey: extra_cards.(timeline_event_id, owner_id) > timeline_events.(id, owner_id) [delete: cascade]
 Ref extra_review_log_card_id_owner_id_fkey: extra_review_log.(card_id, owner_id) > extra_cards.(id, owner_id) [delete: cascade]
 Ref extra_review_log_owner_id_fkey: extra_review_log.owner_id > auth.users.id [delete: cascade]
 Ref feedback_owner_id_fkey: feedback.owner_id > auth.users.id [delete: cascade]

@@ -49,6 +49,7 @@ function card(symbolId: string, due: string): ExtraCard {
 		id: `card-${symbolId}`,
 		termId: null,
 		symbolId,
+		eventId: null,
 		due: new Date(due),
 		stability: 2,
 		difficulty: 5,

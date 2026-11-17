@@ -92,6 +92,8 @@ export function stepGroups(step: SessionStep): FlagGroup[] {
 			return [artworkGroup(artworkFlag(step.artwork), step.artwork.hasImage)];
 		case 'order':
 			return step.artworks.map((artwork) => artworkGroup(artworkFlag(artwork), artwork.hasImage));
+		case 'event_year':
+			return [];
 		default:
 			return reviewItemGroups(step);
 	}

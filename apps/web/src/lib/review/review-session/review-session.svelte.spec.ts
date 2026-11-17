@@ -10,6 +10,7 @@ import { recordExtraReview } from '#lib/review/extra-cards-data/extra-cards-data
 import { extraScoreOf } from '#lib/review/step-kinds/step-kinds.ts';
 import { ReviewSession } from './review-session.svelte.ts';
 import type { DefinitionItem } from '#lib/review/types/definition-item.ts';
+import type { EventItem } from '#lib/review/types/event-item.ts';
 import type { NoteGapItem } from '#lib/review/types/note-gap-item.ts';
 import type { PairItem } from '#lib/review/types/pair-item.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
@@ -545,6 +546,71 @@ describe('ReviewSession', () => {
 		expect(review.guessed).toBeUndefined();
 	});
 
+	it('schedules the asked end of an event with the rating of the guess and gives a point', async () => {
+		vi.mocked(recordExtraReview).mockClear();
+		vi.mocked(recordRightAnswer).mockClear();
+		const war = eventStep('start');
+		const review = new ReviewSession([war], new Map(), () => start);
+
+		await review.guess(1620);
+
+		expect(recordExtraReview).toHaveBeenCalledWith(
+			{ eventId: 'war' },
+			expect.objectContaining({ due: expect.any(Date) }),
+			expect.objectContaining({ mode: 'event_start', rating: 3, correct: true }),
+			start
+		);
+		expect(recordRightAnswer).toHaveBeenCalledTimes(1);
+		expect(review.guessed).toBe(1620);
+		expect(extraScoreOf(review.extraAnswers, 'event_year')).toEqual({ asked: 1, right: 1 });
+		review.proceed();
+		expect(review.finished).toBe(true);
+	});
+
+	it('asks a far event guess again without saving or counting the second answer', async () => {
+		vi.mocked(recordExtraReview).mockClear();
+		vi.mocked(recordRightAnswer).mockClear();
+		const review = new ReviewSession(
+			[eventStep('end')],
+			new Map(),
+			() => start,
+			() => 0
+		);
+
+		await review.guess(1500);
+		expect(review.queue).toHaveLength(2);
+		review.proceed();
+		await review.guess(1648);
+
+		expect(recordExtraReview).toHaveBeenCalledTimes(1);
+		expect(recordExtraReview).toHaveBeenCalledWith(
+			{ eventId: 'war' },
+			expect.anything(),
+			expect.objectContaining({ mode: 'event_end', rating: 1, correct: false }),
+			start
+		);
+		expect(recordRightAnswer).not.toHaveBeenCalled();
+		expect(extraScoreOf(review.extraAnswers, 'event_year')).toEqual({ asked: 1, right: 0 });
+	});
+
+	it('counts an event guess in a free round without saving it', async () => {
+		vi.mocked(recordExtraReview).mockClear();
+		vi.mocked(recordRightAnswer).mockClear();
+		const review = new ReviewSession(
+			[eventStep('start')],
+			new Map(),
+			() => start,
+			Math.random,
+			true
+		);
+
+		await review.guess(1618);
+
+		expect(recordExtraReview).not.toHaveBeenCalled();
+		expect(recordRightAnswer).not.toHaveBeenCalled();
+		expect(extraScoreOf(review.extraAnswers, 'event_year')).toEqual({ asked: 1, right: 1 });
+	});
+
 	it('keeps a year question when its guess cannot be saved', async () => {
 		vi.mocked(recordReview).mockResolvedValue({ error: 'Not saved.' });
 		const review = new ReviewSession([yearStep(null, 1503)], new Map(), () => start);
@@ -697,4 +763,21 @@ function quizItems(count: number): ReviewItem[] {
 			options: ['Other A', item.artwork.title, 'Other B', 'Other C'].map((label) => ({ label }))
 		}
 	}));
+}
+
+function eventStep(kind: EventItem['kind']): EventItem {
+	return {
+		mode: 'event_year',
+		kind,
+		event: {
+			id: 'war',
+			name: 'Wojna trzydziestoletnia',
+			yearFrom: 1618,
+			yearTo: 1648,
+			yearApproximate: false,
+			description: '',
+			source: null
+		},
+		card: null
+	};
 }

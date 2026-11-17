@@ -332,6 +332,7 @@ export const pl = {
 			extraLabels: {
 				reviewGlossaryOn: 'Pytania ze Słowniczka',
 				reviewSymbolsOn: 'Pytania z atlasu symboli',
+				reviewEventsOn: 'Pytania z Kalendarium',
 				reviewNotesOn: 'Pytania z notatek',
 				reviewPairsOn: 'Pytania z mylonych par',
 				reviewRelationsOn: 'Pytania z powiązań'
@@ -906,6 +907,22 @@ export const pl = {
 					: `Strzał w rok ${guess} to dokładnie ten rok.`,
 			axis: 'Oś epoki z prawdziwymi latami dzieła i Twoim strzałem'
 		},
+		event: {
+			tag: 'Pytanie dodatkowe z Kalendarium',
+			questions: {
+				year: 'Kiedy miało miejsce to wydarzenie historyczne?',
+				start: 'Kiedy zaczęło się to wydarzenie historyczne?',
+				end: 'Kiedy skończyło się to wydarzenie historyczne?'
+			},
+			hint: (era: string): string =>
+				`Wydarzenie miało miejsce w granicach ${era}. Gdzie na osi czasu tej epoki powinno się ono znaleźć?`,
+			slider: 'Rok wydarzenia',
+			made: {
+				year: (year: string): string => `To wydarzenie miało miejsce w roku ${year}.`,
+				start: (year: string): string => `To wydarzenie zaczęło się w roku ${year}.`,
+				end: (year: string): string => `To wydarzenie skończyło się w roku ${year}.`
+			}
+		},
 		order: {
 			tag: 'Ułóż chronologicznie',
 			question: 'W jakiej kolejności powstały te dzieła?',
@@ -938,6 +955,7 @@ export const pl = {
 			styles: 'Poprawnie dopasowane style:',
 			definitions: 'Poprawnie odgadnięte pojęcia:',
 			symbols: 'Poprawnie rozpoznane symbole:',
+			events: 'Trafione daty z Kalendarium:',
 			notes: 'Poprawnie uzupełnione luki w notatkach:',
 			pairs: 'Poprawnie rozróżnione pary:',
 			relations: 'Poprawnie wskazane powiązania:'

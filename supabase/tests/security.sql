@@ -579,8 +579,8 @@ begin
   assert security_test.denied(format('select public.assign_symbol_meaning(%L, ''{}'')', a_meaning)),
     'B moves the details of a meaning of A through assign_symbol_meaning';
   assert (select count(*) from public.symbol_atlas()) = 0, 'B sees the symbol atlas of A';
-  assert public.extra_round(now()) = '{"terms": [], "symbols": []}'::jsonb,
-    'B gets the terms or symbols of A through extra_round';
+  assert public.extra_round(now()) = '{"terms": [], "symbols": [], "events": []}'::jsonb,
+    'B gets the terms, symbols or events of A through extra_round';
   perform public.set_place_point(a_place, 48.86, 2.34, 'Q19675');
   assert security_test.denied(format(
     'insert into public.exhibitions (owner_id, title) values (%L, ''Forged'')', a)),

@@ -16,6 +16,7 @@ export function roundSummary(session: ReviewSession, tomorrow: number): SessionS
 		styles: session.styles,
 		definitions: extraScoreOf(session.extraAnswers, 'quiz_definition'),
 		symbols: extraScoreOf(session.extraAnswers, 'quiz_symbol'),
+		events: extraScoreOf(session.extraAnswers, 'event_year'),
 		notes: extraScoreOf(session.extraAnswers, 'note_gap'),
 		pairs: extraScoreOf(session.extraAnswers, 'quiz_pair'),
 		relations: extraScoreOf(session.extraAnswers, 'quiz_relation')

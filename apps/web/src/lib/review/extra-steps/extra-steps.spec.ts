@@ -111,7 +111,8 @@ describe('loadExtraSteps', () => {
 				{ id: 'Apse', card: null },
 				{ id: 'Crypt', card: null }
 			],
-			symbols
+			symbols,
+			events: []
 		});
 		vi.mocked(loadTermDefinitions).mockResolvedValueOnce({
 			definitions: new Map(glossary.map((term) => [term.id, `About ${term.name}.`]))

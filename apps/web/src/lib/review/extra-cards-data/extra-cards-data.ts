@@ -6,12 +6,14 @@ import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewRating } from '#lib/review/types/review-rating.ts';
 import type { ReviewState } from '#lib/review/types/review-state.ts';
 import type { SymbolQuestionKind } from '#lib/review/types/symbol-question-kind.ts';
+import type { EventQuestionKind } from '#lib/review/types/event-question-kind.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 
 type CardRow = {
 	id: string;
 	glossary_entry_id: string | null;
 	symbol_id: string | null;
+	timeline_event_id: string | null;
 	due: string;
 	stability: number;
 	difficulty: number;
@@ -33,13 +35,17 @@ type SymbolRow = {
 	card: CardRow | null;
 };
 
-type RoundRow = { terms: TermRow[]; symbols: SymbolRow[] };
+type EventRow = { id: string; kind: EventQuestionKind; card: CardRow | null };
 
-export type ExtraMode = 'quiz_definition' | `symbol_${SymbolQuestionKind}`;
+type RoundRow = { terms: TermRow[]; symbols: SymbolRow[]; events?: EventRow[] };
+
+export type ExtraMode =
+	'quiz_definition' | `symbol_${SymbolQuestionKind}` | `event_${EventQuestionKind}`;
 
 export type ExtraAnswerInput = {
 	mode: ExtraMode;
 	correct: boolean;
+	rating?: ReviewRating;
 	answerMs: number;
 	wrongAnswer?: string;
 };
@@ -49,6 +55,7 @@ function cardOf(row: CardRow): ExtraCard {
 		id: row.id,
 		termId: row.glossary_entry_id,
 		symbolId: row.symbol_id,
+		eventId: row.timeline_event_id,
 		due: new Date(row.due),
 		stability: row.stability,
 		difficulty: row.difficulty,
@@ -78,12 +85,17 @@ export async function loadExtraRound(dayStart: Date): Promise<ExtraRound> {
 			pinId: symbol.pin_id,
 			kind: symbol.kind,
 			card: symbol.card && cardOf(symbol.card)
+		})),
+		events: (round.events ?? []).map((event) => ({
+			eventId: event.id,
+			kind: event.kind,
+			card: event.card && cardOf(event.card)
 		}))
 	};
 }
 
 export async function recordExtraReview(
-	target: { termId: string } | { symbolId: string },
+	target: { termId: string } | { symbolId: string } | { eventId: string },
 	card: ReviewCard,
 	answer: ExtraAnswerInput,
 	now: Date = new Date()
@@ -91,6 +103,7 @@ export async function recordExtraReview(
 	await supabase.rpc('record_extra_review', {
 		target_term: 'termId' in target ? target.termId : (null as unknown as string),
 		target_symbol: 'symbolId' in target ? target.symbolId : (null as unknown as string),
+		...('eventId' in target ? { target_event: target.eventId } : {}),
 		card: {
 			due: card.due.toISOString(),
 			stability: card.stability,
@@ -104,7 +117,7 @@ export async function recordExtraReview(
 		},
 		answer: {
 			mode: answer.mode,
-			rating: answer.correct ? 2 : 1,
+			rating: answer.rating ?? (answer.correct ? 2 : 1),
 			correct: answer.correct,
 			answer_ms: Math.max(0, Math.round(answer.answerMs)),
 			...(answer.wrongAnswer === undefined ? {} : { wrong_answer: answer.wrongAnswer })

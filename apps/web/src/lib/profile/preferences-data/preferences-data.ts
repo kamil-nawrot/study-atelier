@@ -28,6 +28,8 @@ type Row = Pick<
 	| 'review_glossary_questions'
 	| 'review_symbols_on'
 	| 'review_symbol_questions'
+	| 'review_events_on'
+	| 'review_event_questions'
 	| 'review_notes_on'
 	| 'review_note_questions'
 	| 'review_pairs_on'
@@ -45,7 +47,7 @@ type Row = Pick<
 >;
 
 export const PREFERENCES_COLUMNS =
-	'review_session_size, review_new_per_day, review_form, review_quiz_kinds, review_free, review_glossary_on, review_glossary_questions, review_symbols_on, review_symbol_questions, review_notes_on, review_note_questions, review_pairs_on, review_pair_questions, review_relations_on, review_relation_questions, review_year_questions, review_order_questions, view_show_pins, view_loupe_on, fetch_image, fetch_definition, fetch_forms, fetch_event';
+	'review_session_size, review_new_per_day, review_form, review_quiz_kinds, review_free, review_glossary_on, review_glossary_questions, review_symbols_on, review_symbol_questions, review_events_on, review_event_questions, review_notes_on, review_note_questions, review_pairs_on, review_pair_questions, review_relations_on, review_relation_questions, review_year_questions, review_order_questions, view_show_pins, view_loupe_on, fetch_image, fetch_definition, fetch_forms, fetch_event';
 
 export function preferencesOf(row: Row | null): Preferences {
 	if (!row) return defaultPreferences;
@@ -64,6 +66,8 @@ export function preferencesOf(row: Row | null): Preferences {
 		reviewGlossaryQuestions: row.review_glossary_questions,
 		reviewSymbolsOn: row.review_symbols_on,
 		reviewSymbolQuestions: row.review_symbol_questions,
+		reviewEventsOn: row.review_events_on,
+		reviewEventQuestions: row.review_event_questions,
 		reviewNotesOn: row.review_notes_on,
 		reviewNoteQuestions: row.review_note_questions,
 		reviewPairsOn: row.review_pairs_on,
@@ -103,6 +107,8 @@ function columnsOf(part: PreferencesPart, preferences: Preferences): Partial<Row
 		review_glossary_questions: preferences.reviewGlossaryQuestions,
 		review_symbols_on: preferences.reviewSymbolsOn,
 		review_symbol_questions: preferences.reviewSymbolQuestions,
+		review_events_on: preferences.reviewEventsOn,
+		review_event_questions: preferences.reviewEventQuestions,
 		review_notes_on: preferences.reviewNotesOn,
 		review_note_questions: preferences.reviewNoteQuestions,
 		review_pairs_on: preferences.reviewPairsOn,

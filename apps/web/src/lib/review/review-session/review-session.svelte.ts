@@ -1,9 +1,9 @@
-import { SvelteMap, SvelteSet } from 'svelte/reactivity';
+import { SvelteMap } from 'svelte/reactivity';
 import { currentDate, MAX_REPEATS, retryLater, startOfDay } from '#lib/review/queue/queue.ts';
 import { shuffleQuiz } from '#lib/review/quiz/quiz.ts';
 import { recordReview, recordRightAnswer } from '#lib/review/review-data/review-data.ts';
 import { outcomes, quizRating } from '#lib/review/scheduler/scheduler.ts';
-import { recordExtraAnswer } from '#lib/review/extra-answers/extra-answers.ts';
+import { ExtraTally } from '#lib/review/extra-tally/extra-tally.svelte.ts';
 import type { ReviewCard } from '#lib/review/types/review-card.ts';
 import type { ReviewItem } from '#lib/review/types/review-item.ts';
 import type { ReviewRating } from '#lib/review/types/review-rating.ts';
@@ -15,13 +15,11 @@ import { ORDER_SIZE, placedRight } from '#lib/review/order-guess/order-guess.ts'
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import {
 	artworkItem,
-	extraKey,
 	extraQuiz,
 	pickedWrong,
 	scoreOf,
 	yearScore,
-	type ExtraAnswer,
-	type ExtraQuizItem
+	type ExtraAnswer
 } from '#lib/review/step-kinds/step-kinds.ts';
 
 export class ReviewSession {
@@ -37,15 +35,13 @@ export class ReviewSession {
 	yearAnswers = $state<YearAnswerLog[]>([]);
 	ordered = $state<WallArtwork[]>();
 	orderAnswers = $state<boolean[]>([]);
-	extraAnswers = $state<ExtraAnswer[]>([]);
 	styleAnswers = $state<boolean[]>([]);
 	readonly cards: Map<string, ReviewCard>;
 	readonly styleCards = new SvelteMap<string, ReviewCard>();
 	readonly startedAt: number;
 	readonly free: boolean;
 	#shownAt: number;
-	#missed = new SvelteMap<string, number>();
-	#asked = new SvelteSet<string>();
+	#extras: ExtraTally;
 	#repeats = new SvelteMap<string, number>();
 	#now: () => Date;
 	#random: () => number;
@@ -59,6 +55,7 @@ export class ReviewSession {
 	) {
 		this.queue = items;
 		this.free = free;
+		this.#extras = new ExtraTally(free);
 		this.cards = new SvelteMap(cards);
 		this.#now = now;
 		this.#random = random;
@@ -72,6 +69,10 @@ export class ReviewSession {
 
 	get finished(): boolean {
 		return this.position >= this.queue.length;
+	}
+
+	get extraAnswers(): ExtraAnswer[] {
+		return this.#extras.answers;
 	}
 
 	get started(): number {
@@ -129,6 +130,7 @@ export class ReviewSession {
 			!item ||
 			item.mode === 'year' ||
 			item.mode === 'order' ||
+			item.mode === 'event_year' ||
 			!item.quiz ||
 			this.chosen !== undefined ||
 			this.saving
@@ -137,7 +139,8 @@ export class ReviewSession {
 		}
 		const correct = choice === item.quiz.answer;
 		if (extraQuiz(item)) {
-			this.#answerExtra(item, correct, pickedWrong(item.quiz, choice));
+			const wrong = pickedWrong(item.quiz, choice);
+			if (this.#extras.quiz(item, correct, this.#now(), this.#shownAt, wrong)) this.#retry(item);
 			this.chosen = choice;
 			return;
 		}
@@ -147,23 +150,6 @@ export class ReviewSession {
 				? await this.#saveStyle(item, correct, wrongAnswer)
 				: await this.#save(item, quizRating(correct), undefined, correct, wrongAnswer);
 		if (saved) this.chosen = choice;
-	}
-
-	#answerExtra(item: ExtraQuizItem, correct: boolean, wrongAnswer?: string): void {
-		const key = extraKey(item);
-		if (!this.#asked.has(key)) {
-			this.#asked.add(key);
-			this.extraAnswers.push({ mode: item.mode, right: correct });
-			if (!this.free)
-				void recordExtraAnswer(item, correct, this.#now(), this.#shownAt, wrongAnswer);
-		}
-		if (!correct) {
-			const missed = this.#missed.get(key) ?? 0;
-			this.#missed.set(key, missed + 1);
-			if (missed < MAX_REPEATS) this.#retry(item);
-		} else if (!this.free && !this.#missed.has(key)) {
-			void recordRightAnswer(startOfDay(this.#now()));
-		}
 	}
 
 	async #saveStyle(item: ReviewItem, correct: boolean, wrongAnswer?: string): Promise<boolean> {
@@ -202,6 +188,11 @@ export class ReviewSession {
 
 	async guess(year: number): Promise<void> {
 		const item = this.current;
+		if (item?.mode === 'event_year' && this.guessed === undefined) {
+			if (this.#extras.event(item, year, this.#now(), this.#shownAt)) this.#retry(item);
+			this.guessed = year;
+			return;
+		}
 		if (item?.mode !== 'year' || this.guessed !== undefined || this.saving) return;
 		const now = this.#now();
 		const years = yearsOf(item.artwork);
@@ -248,7 +239,7 @@ export class ReviewSession {
 		const item = this.current;
 		if (!item) return;
 		if (
-			item.mode === 'year'
+			item.mode === 'year' || item.mode === 'event_year'
 				? this.guessed !== undefined
 				: item.mode === 'order'
 					? this.ordered !== undefined
