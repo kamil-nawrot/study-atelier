@@ -1,6 +1,5 @@
 <script generics="T extends WikipediaArticle" lang="ts">
 	import { Alert, Button, Dialog, Primer } from '@study-atelier/ui';
-	import FillingStatus from '#lib/shared/forms/FillingStatus/FillingStatus.svelte';
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { WikipediaArticle } from '#lib/glossary/types/wikipedia-article.ts';
 
@@ -46,11 +45,8 @@
 <Dialog {description} title={m.glossary.articles.title} bind:open>
 	{#if open}
 		{#if status === 'searching'}
-			<div class="searching">
-				<div class="primed" aria-busy="true">
-					<Primer />
-				</div>
-				<FillingStatus message={m.glossary.articles.searching} />
+			<div class="primed" aria-busy="true" aria-label={m.glossary.articles.searching} role="status">
+				<Primer />
 			</div>
 		{:else if status === 'found'}
 			<div class="list" aria-label={m.glossary.articles.listLabel} role="radiogroup">
@@ -94,11 +90,6 @@
 </Dialog>
 
 <style>
-	.searching {
-		display: grid;
-		gap: var(--spacing-3);
-	}
-
 	.primed {
 		position: relative;
 		height: 160px;
