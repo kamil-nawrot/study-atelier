@@ -77,3 +77,39 @@ describe('eventsIn and yearsLong', () => {
 		expect(yearsLong(event('jesus', null, -4))).toBe(0);
 	});
 });
+
+describe('layEvents with a lane cap', () => {
+	it('spreads the events over the lanes so the names have room', () => {
+		const laid = layEvents(
+			[event('a', null, 1500, 'Long name'), event('b', null, 1510), event('c', null, 1520)],
+			earlyModern,
+			4,
+			width,
+			2
+		);
+		const lane = (id: string): number | undefined =>
+			laid.find((item) => item.event.id === id)?.lane;
+		expect(lane('a')).toBe(0);
+		expect(lane('b')).toBe(1);
+		expect(lane('c')).toBe(1);
+	});
+
+	it('keeps every event whose shape has room in a lane, even without room for its name', () => {
+		const events = [1500, 1505, 1510, 1515, 1520].map((year) =>
+			event(`e${year}`, null, year, 'A rather long event name')
+		);
+		const laid = layEvents(events, earlyModern, 4, width, 2);
+		expect(laid.every((item) => item.lane < 2)).toBe(true);
+	});
+
+	it('puts an event past the last lane only when its shape has room in none', () => {
+		const laid = layEvents(
+			[event('a', 1600, 1650), event('b', 1600, 1650), event('c', 1600, 1650)],
+			earlyModern,
+			4,
+			width,
+			2
+		);
+		expect(laid.map((item) => item.lane).sort()).toEqual([0, 1, 2]);
+	});
+});
