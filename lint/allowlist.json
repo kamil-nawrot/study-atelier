@@ -109,7 +109,6 @@
 		"apps/web/src/lib/values/components/PeriodErasField/PeriodErasField.svelte",
 		"apps/web/src/lib/values/components/StylePeriodsField/StylePeriodsField.svelte",
 		"apps/web/src/lib/values/components/ValueForm/ValueForm.svelte",
-		"apps/web/src/lib/wall/components/GroupingChoice/GroupingChoice.svelte",
 		"apps/web/src/lib/wall/components/PeriodRail/PeriodRail.svelte",
 		"apps/web/src/lib/wall/components/PeriodStrip/PeriodStrip.svelte",
 		"apps/web/src/lib/wall/components/WallPage/WallPage.svelte",
