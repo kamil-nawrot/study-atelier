@@ -34,6 +34,13 @@
 		width: auto;
 	}
 
+	.grouping-panel:not(.fill) :global(.steps .label) {
+		flex: none;
+		width: 0;
+		min-width: 100%;
+		margin-inline-end: calc(-1 * var(--spacing-3));
+	}
+
 	.grouping-panel:not(.fill) .caption {
 		width: 0;
 		min-width: 100%;
