@@ -59,7 +59,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		gap: var(--spacing-2);
+		gap: var(--spacing-2) var(--spacing-4);
 	}
 
 	.label {
@@ -71,7 +71,6 @@
 		display: inline-flex;
 		align-items: center;
 		gap: var(--spacing-1);
-		margin-inline-end: var(--spacing-3);
 		font-size: var(--font-size-sm);
 		line-height: var(--line-height-sm);
 		white-space: nowrap;

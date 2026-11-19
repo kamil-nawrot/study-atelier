@@ -95,10 +95,13 @@
 		gap: var(--spacing-2);
 	}
 
+	.span h3 {
+		padding-block-end: var(--spacing-2);
+	}
+
 	.strip {
 		position: relative;
 		height: var(--spacing-6);
-		margin-block-start: var(--spacing-2);
 	}
 
 	.track,
