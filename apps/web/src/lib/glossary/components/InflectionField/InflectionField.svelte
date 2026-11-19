@@ -46,7 +46,6 @@
 	};
 
 	let filling = $derived(status === 'searching');
-	let open = $derived(expanded || forms.length === 0 || filling);
 	let summary = $derived(
 		message ??
 			(status === 'searching' || forms.length === 0
@@ -64,37 +63,32 @@
 						? m.glossary.form.formsRefetch
 						: undefined
 	);
-	let framed = $derived(summary !== undefined || action !== undefined || forms.length > 0);
 </script>
 
 <div class="inflection" aria-describedby={hintId} aria-labelledby={labelId} role="group">
 	<span id={labelId} class="label">{m.glossary.form.forms}</span>
-	{#if framed}
-		<div class="frame">
-			<span class="summary" aria-live="polite">{summary ?? ''}</span>
-			<span class="actions">
-				{#if action}
-					<button class="link" onclick={onfetch} type="button">{action}</button>
-				{/if}
-				{#if filling && onstop}
-					<button class="link" onclick={onstop} type="button">{m.common.stopFetch}</button>
-				{/if}
-				{#if forms.length > 0}
-					<button
-						class="link"
-						aria-controls={fieldId}
-						aria-expanded={expanded}
-						onclick={() => (expanded = !expanded)}
-						type="button"
-					>
-						{expanded ? m.glossary.form.hideForms : m.glossary.form.showForms}
-						<Icon icon={expanded ? ChevronUp : ChevronDown} size="sm" />
-					</button>
-				{/if}
-			</span>
-		</div>
-	{/if}
-	{#if open}
+	<div class="frame">
+		<span class="summary" aria-live="polite">{summary ?? ''}</span>
+		<span class="actions">
+			{#if action}
+				<button class="link" onclick={onfetch} type="button">{action}</button>
+			{/if}
+			{#if filling && onstop}
+				<button class="link" onclick={onstop} type="button">{m.common.stopFetch}</button>
+			{/if}
+			<button
+				class="link"
+				aria-controls={fieldId}
+				aria-expanded={expanded}
+				onclick={() => (expanded = !expanded)}
+				type="button"
+			>
+				{expanded ? m.glossary.form.hideForms : m.glossary.form.showForms}
+				<Icon icon={expanded ? ChevronUp : ChevronDown} size="sm" />
+			</button>
+		</span>
+	</div>
+	{#if expanded}
 		<div class="forms">
 			<ValueField
 				id={fieldId}
