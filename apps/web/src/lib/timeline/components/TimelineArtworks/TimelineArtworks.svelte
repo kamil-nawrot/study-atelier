@@ -2,7 +2,8 @@
 	import { onDestroy } from 'svelte';
 	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 	import { resolve } from '$app/paths';
-	import { ArtworkTile, Button } from '@study-atelier/ui';
+	import ArrowRight from '@lucide/svelte/icons/arrow-right';
+	import { ArtworkTile, Icon } from '@study-atelier/ui';
 	import { resolveImages } from '#lib/wall/wall-data/wall-data.ts';
 	import { eraIcon, eraName } from '#lib/catalogue/eras/eras.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -296,11 +297,10 @@
 			number={artwork.number}
 			title={artwork.title}
 		/>
-		<div class="details">
-			<Button href={resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}>
-				{m.timeline.showDetails}
-			</Button>
-		</div>
+		<a class="open" href={resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}>
+			{m.timeline.openInAtelier}
+			<Icon icon={ArrowRight} size="sm" />
+		</a>
 	</div>
 {/if}
 
@@ -413,8 +413,21 @@
 		background: var(--color-bg);
 	}
 
-	.details {
-		display: grid;
-		padding: var(--spacing-2);
+	.open {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--spacing-2);
+		margin: var(--spacing-2) var(--spacing-3) 0;
+		padding: var(--spacing-3) 0;
+		border-top: var(--border-width-base) solid var(--color-line);
+		color: var(--color-fg);
+		font-size: var(--font-size-sm);
+		font-weight: var(--font-weight-medium);
+		line-height: var(--line-height-sm);
+		text-decoration: none;
+	}
+
+	.open:hover {
+		text-decoration: underline;
 	}
 </style>

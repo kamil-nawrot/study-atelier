@@ -246,7 +246,7 @@ describe('timeline page', () => {
 		const preview = page.getByRole('group', { name: 'Straż nocna' });
 		await expect.element(preview).toBeVisible();
 		await expect
-			.element(preview.getByRole('link', { name: m.timeline.showDetails }))
+			.element(preview.getByRole('link', { name: m.timeline.openInAtelier }))
 			.toHaveAttribute('href', '/atelier/7');
 
 		button.dispatchEvent(new PointerEvent('pointerleave', { pointerType: 'mouse' }));

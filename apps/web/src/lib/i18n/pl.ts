@@ -2733,7 +2733,7 @@ export const pl = {
 			description: 'Zniknie z Kalendarium. Żadne dzieło się nie zmieni.'
 		},
 		deleted: (name: string): string => `Usunięto wydarzenie „${name}”.`,
-		showDetails: 'Pokaż szczegóły',
+		openInAtelier: 'Otwórz w atelier',
 		noEvents: 'Nie ma tu jeszcze wydarzeń.',
 		hiddenEvents: (count: number): string =>
 			`${count} ${plural(count, { one: 'wydarzenie', few: 'wydarzenia', many: 'wydarzeń' })} poza widokiem. Przybliż, żeby je zobaczyć.`,

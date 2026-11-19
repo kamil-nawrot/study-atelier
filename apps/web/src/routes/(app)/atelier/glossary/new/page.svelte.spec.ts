@@ -72,6 +72,10 @@ async function fillAndSearch(
 	await vi.advanceTimersByTimeAsync(700);
 }
 
+async function showForms(): Promise<void> {
+	await page.getByRole('button', { name: m.glossary.form.showForms, exact: true }).click();
+}
+
 describe('new glossary entry page', () => {
 	beforeEach(async () => {
 		vi.clearAllMocks();
@@ -405,6 +409,7 @@ describe('new glossary entry page', () => {
 	it('saves the entry with its source and other forms, then opens its page with a toast', async () => {
 		renderNew();
 		await fillAndSearch([NAWA]);
+		await showForms();
 		await page.getByRole('combobox', { name: m.glossary.form.forms }).fill('nawy');
 		await userEvent.keyboard('{Enter}');
 		await page.getByRole('combobox', { name: m.glossary.form.forms }).fill('nawie');
@@ -458,8 +463,10 @@ describe('new glossary entry page', () => {
 		);
 	});
 
-	it('keeps the forms of a new entry open while the learner adds them', async () => {
+	it('keeps the forms of a new entry closed until the learner opens them, then open while adding', async () => {
 		renderNew();
+		expect(page.getByRole('combobox', { name: m.glossary.form.forms }).elements()).toHaveLength(0);
+		await showForms();
 		const forms = page.getByRole('combobox', { name: m.glossary.form.forms });
 
 		await forms.fill('nawy');
@@ -476,6 +483,7 @@ describe('new glossary entry page', () => {
 		vi.mocked(fetchForms).mockReturnValue(new Promise(() => {}));
 		renderNew();
 		await fillAndSearch([NAWA]);
+		await showForms();
 
 		const forms = page.getByRole('combobox', { name: m.glossary.form.forms });
 		await expect.element(forms).toHaveAttribute('readonly');
@@ -521,11 +529,12 @@ describe('new glossary entry page', () => {
 		await expect.element(page.getByText('nawy', { exact: true })).not.toBeInTheDocument();
 	});
 
-	it('says Wiktionary has no entry and leaves the forms open for typing', async () => {
+	it('says Wiktionary has no entry and lets the learner open the forms for typing', async () => {
 		renderNew();
 		await fillAndSearch([NAWA]);
 
 		await expect.element(page.getByText(m.glossary.form.formsNone)).toBeVisible();
+		await showForms();
 		await expect.element(page.getByRole('combobox', { name: m.glossary.form.forms })).toBeVisible();
 	});
 
@@ -561,6 +570,7 @@ describe('new glossary entry page', () => {
 	it('offers a form that differs from the name only by its diacritics, but not the name itself', async () => {
 		renderNew();
 		await nameField().fill('Nawa');
+		await showForms();
 		const forms = page.getByRole('combobox', { name: m.glossary.form.forms });
 
 		await forms.fill('nawa');
