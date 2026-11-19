@@ -109,12 +109,7 @@
 				onclear={() => (filter = emptyTimelineFilter())}
 				bind:open={panelOpen}
 			>
-				<TimelineFilterPanel
-					artworks={eraArtworks}
-					bind:filter
-					bind:showEvents
-					bind:showSpans
-				/>
+				<TimelineFilterPanel artworks={eraArtworks} bind:filter bind:showEvents bind:showSpans />
 			</FilterSidePanel>
 		{/if}
 	{/snippet}

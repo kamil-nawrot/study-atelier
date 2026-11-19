@@ -275,12 +275,12 @@
 		style={previewStyle(shown)}
 		style:--artwork-max-height="{imageHeight}px"
 		class="preview"
+		aria-label={artwork.title}
 		onfocusin={keep}
 		onfocusout={leavePreview}
 		onpointerenter={keep}
 		onpointerleave={leavePreview}
 		role="group"
-		aria-label={artwork.title}
 		bind:clientHeight={previewHeight}
 	>
 		<ArtworkTile

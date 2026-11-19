@@ -17,8 +17,7 @@
 		onwhole: (event: TimelineEvent) => void;
 	};
 
-	let { event, anchor, artworks, boundary, view, onclose, onartwork, onwhole }: Props =
-		$props();
+	let { event, anchor, artworks, boundary, view, onclose, onartwork, onwhole }: Props = $props();
 
 	const id = $props.id();
 	const popover = new PopoverState();

@@ -158,8 +158,7 @@ describe('EventPopover', () => {
 	it('closes when the event page is opened and gives the focus back to the event', async () => {
 		document.addEventListener('click', (event) => event.preventDefault(), { once: true });
 		await closesOn(
-			(popover) =>
-				(popover.getByRole('link', { name: war.name }).element() as HTMLElement).click(),
+			(popover) => (popover.getByRole('link', { name: war.name }).element() as HTMLElement).click(),
 			() => undefined
 		);
 	});

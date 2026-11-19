@@ -240,6 +240,7 @@ describe('timeline page', () => {
 		renderTimeline([testArtwork(7, 'Straż nocna', { yearTo: 1642, date: '1642' })]);
 		const dot = page.getByRole('button', { name: 'Straż nocna, 1642' });
 		const button = dot.element() as HTMLButtonElement;
+		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
 
 		button.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
 		const preview = page.getByRole('group', { name: 'Straż nocna' });
@@ -252,12 +253,14 @@ describe('timeline page', () => {
 		(preview.element() as HTMLElement).dispatchEvent(
 			new PointerEvent('pointerenter', { pointerType: 'mouse' })
 		);
-		await new Promise((resolve) => setTimeout(resolve, 300));
+		vi.advanceTimersByTime(300);
 		await expect.element(preview).toBeVisible();
 
 		(preview.element() as HTMLElement).dispatchEvent(
 			new PointerEvent('pointerleave', { pointerType: 'mouse' })
 		);
+		vi.advanceTimersByTime(300);
+		vi.useRealTimers();
 		await expect.element(preview).not.toBeInTheDocument();
 	});
 
@@ -649,9 +652,7 @@ describe('timeline page', () => {
 
 		await press(page.getByRole('button', { name: m.atelier.filters.button }));
 		const panel = page.getByRole('complementary', { name: m.atelier.filters.title });
-		await expect
-			.element(panel.getByText(m.timeline.filters.intro))
-			.toBeVisible();
+		await expect.element(panel.getByText(m.timeline.filters.intro)).toBeVisible();
 		await press(panel.getByRole('button', { name: /Barok/ }));
 		await press(panel.getByRole('button', { name: /Tenebryzm/ }));
 
