@@ -137,7 +137,6 @@ function renderReview(
 			session: testSession(),
 			artworks,
 			cards: reviewCards,
-			styleCards: new Map(),
 			newToday,
 			plan:
 				plan ??
@@ -201,11 +200,11 @@ describe('review page', () => {
 			.not.toBeInTheDocument();
 	});
 
-	it('counts the style, year and order questions with the returning artworks', async () => {
+	it('counts the year and order questions with the returning artworks', async () => {
 		const artworks = collection(25);
 		const reviewCards = cards(artworks.slice(0, 20), (index) => (index < 9 ? -1 : 5));
 		const plan = testReviewPlan(artworks, reviewCards);
-		plan.scopes[0] = { ...plan.scopes[0], known: 9, fresh: 4, styles: 4, years: 2, orders: 1 };
+		plan.scopes[0] = { ...plan.scopes[0], known: 13, fresh: 4, years: 2, orders: 1 };
 		renderReview(
 			artworks,
 			reviewCards,
@@ -501,7 +500,6 @@ describe('review page', () => {
 			scope: { kind: 'style', name: 'Caravaggism' },
 			known: 12,
 			fresh: 8,
-			styles: 0,
 			years: 0,
 			orders: 0,
 			artworks: 21

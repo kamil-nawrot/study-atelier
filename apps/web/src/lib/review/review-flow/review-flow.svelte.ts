@@ -55,7 +55,6 @@ export class ReviewFlow {
 	form = $state<ReviewForm>('mixed');
 	freeRound = $state(0);
 	cards = $state.raw(mapOf<string, ReviewCard>());
-	styleCards = $state.raw(mapOf<string, ReviewCard>());
 	newToday = $state(0);
 	plan = $state.raw<ReviewPlan>(EMPTY_PLAN);
 	now = $state(currentDate());
@@ -82,7 +81,6 @@ export class ReviewFlow {
 		const data = source();
 		this.form = data.preferences.reviewForm;
 		this.cards = data.cards;
-		this.styleCards = data.styleCards;
 		this.newToday = data.newToday;
 		this.plan = data.plan ?? EMPTY_PLAN;
 		this.#plannedForm = data.preferences.reviewForm;
@@ -142,7 +140,6 @@ export class ReviewFlow {
 			scope,
 			known: 0,
 			fresh: 0,
-			styles: 0,
 			years: 0,
 			orders: 0,
 			artworks: free ? MIN_ARTWORKS : 0
@@ -305,7 +302,6 @@ export class ReviewFlow {
 		if (!session) return;
 		if (!session.free) {
 			this.cards = mapOf(session.cards);
-			this.styleCards = mapOf([...this.styleCards, ...session.styleCards]);
 			this.newToday += session.started;
 		}
 		this.now = currentDate();

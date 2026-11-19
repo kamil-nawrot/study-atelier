@@ -121,7 +121,7 @@ describe('session items', () => {
 		expect(items).toEqual([{ artwork: byId.get('artwork-1'), card: null, mode: 'quiz_typed' }]);
 	});
 
-	it('asks for the style on the style card that came with the question', () => {
+	it('asks for the style on the recognition card and falls back to a flashcard without answers', () => {
 		const recognition = testReviewCard('artwork-1', new Date(2026, 9, 16));
 		const options = [
 			{ label: 'Baroque' },
@@ -131,38 +131,21 @@ describe('session items', () => {
 		];
 		const items = sessionItems(
 			[
-				{
-					artwork_id: 'artwork-1',
-					mode: 'quiz_style',
-					facet: 'style',
-					options,
-					card: {
-						due: '2026-10-18T08:00:00.000Z',
-						stability: 2.3,
-						difficulty: 6,
-						state: 2,
-						reps: 1,
-						lapses: 0,
-						scheduled_days: 2,
-						learning_steps: 0,
-						last_review: '2026-10-16T08:00:00.000Z'
-					}
-				},
-				{ artwork_id: 'artwork-2', mode: 'quiz_style', facet: 'style', options, card: null },
-				{ artwork_id: 'artwork-3', mode: 'quiz_style', facet: 'style', options: [], card: null }
+				{ artwork_id: 'artwork-1', mode: 'quiz_style', options },
+				{ artwork_id: 'artwork-2', mode: 'quiz_style', options: [] }
 			],
 			byId,
 			new Map([['artwork-1', recognition]])
 		);
 
-		expect(items).toHaveLength(2);
-		expect(items[0]).toMatchObject({
-			mode: 'quiz_style',
-			facet: 'style',
-			card: { artworkId: 'artwork-1', stability: 2.3, due: new Date('2026-10-18T08:00:00.000Z') },
-			quiz: { answer: 1 }
-		});
-		expect(items[1]).toMatchObject({ artwork: byId.get('artwork-2'), card: null, facet: 'style' });
+		expect(items).toEqual([
+			expect.objectContaining({
+				mode: 'quiz_style',
+				card: recognition,
+				quiz: expect.objectContaining({ answer: 1 })
+			}),
+			{ artwork: byId.get('artwork-2'), card: null, mode: 'flashcard' }
+		]);
 	});
 
 	it('asks what a pinned detail is with the image and the place of the pin', () => {

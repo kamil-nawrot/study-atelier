@@ -30,7 +30,6 @@ export const load: PageLoad = async ({ parent, untrack }) => {
 	return {
 		artworks: atelier.artworks,
 		cards: review.cards,
-		styleCards: review.styleCards,
 		newToday: counts.counts?.newToday ?? 0,
 		waiting: counts.counts?.waiting,
 		plan: planned.plan,
