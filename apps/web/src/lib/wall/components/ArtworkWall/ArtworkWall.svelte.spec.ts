@@ -150,7 +150,7 @@ describe('ArtworkWall', () => {
 
 		it('fades a tile while less than a fifth of it is on screen and shows it again after', async () => {
 			const { container } = await render(ArtworkWall, { artworks: long });
-			const tile = container.querySelector('li')!;
+			const tile = container.querySelector('ul.column:first-child li:nth-child(2)')!;
 			function see(ratio: number): void {
 				for (const { callback, targets } of watchers) {
 					if (targets.includes(tile)) {
@@ -172,9 +172,22 @@ describe('ArtworkWall', () => {
 			expect(tile.classList.contains('faded')).toBe(true);
 		});
 
+		it('never fades the tiles of the first row', async () => {
+			const { container } = await render(ArtworkWall, { artworks: long });
+			const firstRow = Array.from(container.querySelectorAll('ul.column > li:first-child'));
+
+			for (const tile of firstRow) {
+				const faders = watchers.filter(
+					(watcher) =>
+						watcher.targets.includes(tile) && watcher.options?.rootMargin?.startsWith('-')
+				);
+				expect(faders).toHaveLength(0);
+			}
+		});
+
 		it('leaves the area under a sticky strip out of what counts as visible', async () => {
 			const { container } = await render(ArtworkWall, { artworks: long, inset: 40 });
-			const tile = container.querySelector('li')!;
+			const tile = container.querySelector('ul.column:first-child li:nth-child(2)')!;
 
 			const faders = watchers.filter(
 				(watcher) =>

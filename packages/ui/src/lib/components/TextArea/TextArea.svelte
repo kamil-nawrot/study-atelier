@@ -50,6 +50,7 @@
 		<textarea
 			id={inputId}
 			style:--max-rows={maxRows}
+			class:counted
 			class:invalid={!!error}
 			class:limited={maxRows !== undefined}
 			{@attach overlayScrollbarBeside()}
@@ -62,6 +63,15 @@
 			{rows}
 			bind:value
 			{...rest}></textarea>
+		{#if counted}
+			<span class="counter">
+				<FieldMessage
+					id={counterId}
+					error={full ? `${value.length}/${maxlength}` : undefined}
+					hint={`${value.length}/${maxlength}`}
+				/>
+			</span>
+		{/if}
 		{#if filling}
 			<FillingLines lines={Math.max(1, Math.min(4, Number(rows) - 2))} />
 			{#if fillingNote}
@@ -69,21 +79,8 @@
 			{/if}
 		{/if}
 	</div>
-	{#if message || counted}
-		<div class="messages">
-			{#if message}
-				<FieldMessage id={messageId} {error} {hint} />
-			{/if}
-			{#if counted}
-				<span class="counter">
-					<FieldMessage
-						id={counterId}
-						error={full ? `${value.length}/${maxlength}` : undefined}
-						hint={`${value.length}/${maxlength}`}
-					/>
-				</span>
-			{/if}
-		</div>
+	{#if message}
+		<FieldMessage id={messageId} {error} {hint} />
 	{/if}
 </div>
 
@@ -117,6 +114,10 @@
 		font-size: var(--font-size-md);
 		line-height: var(--line-height-md);
 		resize: vertical;
+	}
+
+	textarea.counted {
+		padding-bottom: var(--spacing-6);
 	}
 
 	textarea.limited {
@@ -155,13 +156,11 @@
 		cursor: not-allowed;
 	}
 
-	.messages {
-		display: flex;
-		gap: var(--spacing-3);
-	}
-
 	.counter {
-		margin-left: auto;
+		position: absolute;
+		right: var(--spacing-6);
+		bottom: var(--spacing-1);
 		font-variant-numeric: tabular-nums;
+		pointer-events: none;
 	}
 </style>
