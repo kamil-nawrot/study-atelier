@@ -15,11 +15,9 @@
 		onclose: () => void;
 		onartwork: (artwork: WallArtwork) => void;
 		onwhole: (event: TimelineEvent) => void;
-		ondelete: (event: TimelineEvent) => void;
 	};
 
-	let { event, anchor, artworks, boundary, view, onclose, onartwork, onwhole, ondelete }: Props =
-		$props();
+	let { event, anchor, artworks, boundary, view, onclose, onartwork, onwhole }: Props = $props();
 
 	const id = $props.id();
 	const popover = new PopoverState();
@@ -95,7 +93,6 @@
 			event={shown}
 			headingId="{id}-name"
 			onartwork={(artwork) => act(() => onartwork(artwork))}
-			ondelete={() => act(() => ondelete(shown))}
 			onleave={() => act(() => {})}
 			onwhole={() => act(() => onwhole(shown), true)}
 		/>

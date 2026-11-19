@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onDestroy, untrack } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
-	import { eraTitle } from '#lib/catalogue/eras/eras.ts';
 	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -49,7 +48,6 @@
 	import { labelCut, labelWidth as measureLabel } from '#lib/timeline/label-width/label-width.ts';
 	import EraStrip from '#lib/timeline/components/EraStrip/EraStrip.svelte';
 	import EventCard from '#lib/timeline/components/EventCard/EventCard.svelte';
-	import EventDeleteDialog from '#lib/timeline/components/EventDeleteDialog/EventDeleteDialog.svelte';
 	import EventPopover from '#lib/timeline/components/EventPopover/EventPopover.svelte';
 	import TimelineControls from '#lib/timeline/components/TimelineControls/TimelineControls.svelte';
 	import TimelineEvents from '#lib/timeline/components/TimelineEvents/TimelineEvents.svelte';
@@ -61,7 +59,6 @@
 		initialFocus?: TimeSpan;
 		artworks?: readonly WallArtwork[];
 		events?: readonly TimelineEvent[];
-		ondeleted?: (event: TimelineEvent) => void | Promise<void>;
 		onerachange?: (code: EraCode) => void;
 		filter?: TimelineFilter;
 		showEvents?: boolean;
@@ -73,7 +70,6 @@
 		initialFocus,
 		artworks = [],
 		events = [],
-		ondeleted,
 		onerachange,
 		filter = $bindable(emptyTimelineFilter()),
 		showEvents = true,
@@ -97,8 +93,6 @@
 	let selected = $state<TimelineSelection>(null);
 	let width = $state(0);
 	let viewportHeight = $state(0);
-	let deleteOpen = $state(false);
-	let deleting = $state<TimelineEvent>();
 	let anchor = $state<HTMLElement>();
 	let stageBox = $state<HTMLElement>();
 	const axisRoom = new AxisRoom();
@@ -174,11 +168,6 @@
 		selected = selected?.kind === kind && selected.id === id ? null : { kind, id };
 	}
 
-	function askDelete(event: TimelineEvent): void {
-		deleting = event;
-		deleteOpen = true;
-	}
-
 	function showWhole(event: TimelineEvent): void {
 		const focus = focusView(era, spanOfYears(event.yearFrom, event.yearTo));
 		camera.step = focus.step;
@@ -220,8 +209,6 @@
 
 <div class="timeline">
 	<EraStrip current={code} eras={allEras} onselect={openEra} />
-
-	<p class="era-name" class:visually-hidden={!wide.current} aria-live="polite">{eraTitle(code)}</p>
 
 	<TimelineControls
 		{code}
@@ -304,7 +291,6 @@
 			artworks={artworksOf(event)}
 			{event}
 			onartwork={chooseArtwork}
-			ondelete={() => askDelete(event)}
 			onwhole={() => showWhole(event)}
 		/>
 	{/if}
@@ -318,20 +304,8 @@
 		event={selectedEvent}
 		onartwork={chooseArtwork}
 		onclose={() => (selected = null)}
-		ondelete={askDelete}
 		onwhole={showWhole}
 		view={camera.view}
-	/>
-{/if}
-
-{#if deleting}
-	<EventDeleteDialog
-		event={deleting}
-		ondeleted={(event) => {
-			selected = null;
-			return ondeleted?.(event);
-		}}
-		bind:open={deleteOpen}
 	/>
 {/if}
 
@@ -339,15 +313,5 @@
 	.timeline {
 		display: grid;
 		gap: var(--spacing-3);
-	}
-
-	.era-name {
-		justify-self: center;
-		padding-block: var(--spacing-3);
-		font-family: var(--font-family-title), Georgia, serif;
-		font-size: var(--font-size-2xl);
-		font-style: italic;
-		font-weight: var(--font-weight-regular);
-		line-height: var(--line-height-2xl);
 	}
 </style>

@@ -1,8 +1,5 @@
 <script lang="ts">
-	import Pencil from '@lucide/svelte/icons/pencil';
-	import Trash from '@lucide/svelte/icons/trash-2';
-	import { Button, Icon, MetaLine, TextButton, Tooltip } from '@study-atelier/ui';
-	import { resolve } from '$app/paths';
+	import { MetaLine, TextButton } from '@study-atelier/ui';
 	import { formatDate } from '#lib/catalogue/years/years.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { WIKIPEDIA_LICENCE_URL } from '#lib/glossary/wikipedia/wikipedia.ts';
@@ -16,7 +13,6 @@
 		artworks: readonly WallArtwork[];
 		onartwork: (artwork: WallArtwork) => void;
 		onwhole: () => void;
-		ondelete: () => void;
 		compact?: boolean;
 		headingId?: string;
 		onleave?: () => void;
@@ -27,7 +23,6 @@
 		artworks,
 		onartwork,
 		onwhole,
-		ondelete,
 		compact = false,
 		headingId,
 		onleave
@@ -38,33 +33,10 @@
 	let period = $derived(event.yearFrom !== null);
 	let length = $derived(yearsLong(event));
 	let date = $derived(formatDate(event.yearFrom, event.yearTo, event.yearApproximate));
-	let editPath = $derived(resolve('/(app)/atelier/timeline/events/[id]/edit', { id: event.id }));
 </script>
 
 {#snippet lengthPart()}
 	<span class="muted">{m.timeline.card.length(length)}</span>
-{/snippet}
-
-{#snippet iconActions()}
-	<Tooltip align="end" placement="bottom" text={m.common.edit}>
-		{#snippet children(id)}
-			<Button aria-describedby={id} aria-label={m.common.edit} href={editPath} onclick={onleave}>
-				<Icon icon={Pencil} size="sm" />
-			</Button>
-		{/snippet}
-	</Tooltip>
-	<Tooltip align="end" placement="bottom" text={m.common.delete}>
-		{#snippet children(id)}
-			<Button
-				aria-describedby={id}
-				aria-label={m.common.delete}
-				onclick={ondelete}
-				variant="danger"
-			>
-				<Icon icon={Trash} size="sm" />
-			</Button>
-		{/snippet}
-	</Tooltip>
 {/snippet}
 
 <section
@@ -79,20 +51,6 @@
 			<p>
 				<MetaLine parts={[date, period && length > 0 && lengthPart]} />
 			</p>
-		</div>
-		<div class="actions">
-			{#if compact}
-				{@render iconActions()}
-			{:else}
-				<Button href={editPath}>
-					<Icon icon={Pencil} size="sm" />
-					{m.common.edit}
-				</Button>
-				<Button onclick={ondelete} variant="danger">
-					<Icon icon={Trash} size="sm" />
-					{m.common.delete}
-				</Button>
-			{/if}
 		</div>
 	</div>
 	{#if event.description}
@@ -182,11 +140,6 @@
 
 	.muted {
 		color: var(--color-fg-muted);
-	}
-
-	.actions {
-		display: flex;
-		gap: var(--spacing-2);
 	}
 
 	.artworks {

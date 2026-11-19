@@ -58,8 +58,8 @@
 	);
 	let size = $derived(stageSize(geometry));
 	let length = $derived(geometry.length);
-	let before = $derived(Math.max(0, geometry.position(era.start)));
-	let after = $derived(Math.max(0, length - geometry.position(era.end)));
+	let before = $derived(Math.max(0, Math.min(geometry.position(era.start), length)));
+	let after = $derived(Math.max(0, Math.min(length - geometry.position(era.end), length)));
 	let lines = $derived(
 		lineTimes(view, length, era).map((time) => ({ time, at: geometry.position(time) }))
 	);

@@ -35,7 +35,6 @@ type Rendered = {
 		onclose: ReturnType<typeof vi.fn>;
 		onartwork: ReturnType<typeof vi.fn>;
 		onwhole: ReturnType<typeof vi.fn>;
-		ondelete: ReturnType<typeof vi.fn>;
 	};
 };
 
@@ -51,8 +50,7 @@ async function renderPopover(
 		artworks: [testArtwork(1, 'Straż nocna', { yearTo: 1642, date: '1642' })],
 		onclose: vi.fn(),
 		onartwork: vi.fn(),
-		onwhole: vi.fn(),
-		ondelete: vi.fn()
+		onwhole: vi.fn()
 	};
 	const { rerender } = await render(EventPopover, { props });
 	return { anchor, props, rerender: async (next) => rerender(next) };
@@ -86,18 +84,16 @@ describe('EventPopover', () => {
 		for (const element of placed.splice(0)) element.remove();
 	});
 
-	it('shows the event with its edit and delete actions as icon buttons with tooltips', async () => {
+	it('shows the event without edit and delete actions', async () => {
 		await renderPopover();
 
 		await expect
 			.element(card().getByRole('link', { name: war.name }))
 			.toHaveAttribute('href', '/atelier/timeline/events/war');
+		await expect.element(card().getByRole('link', { name: m.common.edit })).not.toBeInTheDocument();
 		await expect
-			.element(card().getByRole('link', { name: m.common.edit }))
-			.toHaveAttribute('href', '/atelier/timeline/events/war/edit');
-		const remove = card().getByRole('button', { name: m.common.delete });
-		await expect.element(remove).toHaveAccessibleDescription(m.common.delete);
-		await expect.element(remove).not.toHaveTextContent(m.common.delete);
+			.element(card().getByRole('button', { name: m.common.delete }))
+			.not.toBeInTheDocument();
 		await expect.element(card().getByText(m.timeline.card.showWhole)).toBeVisible();
 		const description = card().getByText(war.description).element();
 		expect(getComputedStyle(description).getPropertyValue('-webkit-line-clamp')).toBe('6');
@@ -159,19 +155,10 @@ describe('EventPopover', () => {
 		expect(props.onclose).not.toHaveBeenCalled();
 	});
 
-	it('closes when the delete is asked for and gives the focus back to the event', async () => {
-		await closesOn(
-			(popover) =>
-				(popover.getByRole('button', { name: m.common.delete }).element() as HTMLElement).click(),
-			(props) => expect(props.ondelete).toHaveBeenCalledWith(war)
-		);
-	});
-
-	it('closes when the edit form is opened and gives the focus back to the event', async () => {
+	it('closes when the event page is opened and gives the focus back to the event', async () => {
 		document.addEventListener('click', (event) => event.preventDefault(), { once: true });
 		await closesOn(
-			(popover) =>
-				(popover.getByRole('link', { name: m.common.edit }).element() as HTMLElement).click(),
+			(popover) => (popover.getByRole('link', { name: war.name }).element() as HTMLElement).click(),
 			() => undefined
 		);
 	});

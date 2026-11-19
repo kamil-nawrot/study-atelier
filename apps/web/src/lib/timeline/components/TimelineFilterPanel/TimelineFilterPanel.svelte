@@ -4,11 +4,9 @@
 	import Heart from '@lucide/svelte/icons/heart';
 	import FlagToggle from '#lib/wall/components/FlagToggle/FlagToggle.svelte';
 	import FilterValues from '#lib/wall/components/FilterValues/FilterValues.svelte';
-	import { eraName } from '#lib/catalogue/eras/eras.ts';
 	import { UNKNOWN_AUTHOR } from '#lib/wall/filter/filter.ts';
 	import { optionLabel } from '#lib/wall/filter-tags/filter-tags.ts';
 	import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts';
-	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import {
@@ -28,7 +26,6 @@
 
 	type Props = {
 		artworks: readonly WallArtwork[];
-		era: EraCode;
 		filter: TimelineFilter;
 		showEvents: boolean;
 		showSpans: boolean;
@@ -38,7 +35,6 @@
 
 	let {
 		artworks,
-		era,
 		filter = $bindable(),
 		showEvents = $bindable(),
 		showSpans = $bindable()
@@ -77,34 +73,7 @@
 {/snippet}
 
 <div class="panel">
-	<section class="group">
-		<h3>{m.timeline.filters.lanes}</h3>
-		<p class="caption" aria-live="polite">
-			{full ? m.timeline.filters.lanesFull : m.timeline.filters.lanesHint(eraName(era))}
-		</p>
-		<FilterValues
-			name={(value) => value}
-			chosen={chosenLaneValues(filter, 'periods')}
-			disabled={(value) => unavailable('periods', value)}
-			heading="h4"
-			limit={FREQUENT_LIMIT}
-			mark={periodSwatch}
-			onchoose={(value) => (filter = toggleLane(filter, { field: 'periods', value }))}
-			options={laneOptions(artworks, filter, 'periods')}
-			title={m.timeline.filters.periods}
-		/>
-		<FilterValues
-			name={(value) => value}
-			chosen={chosenLaneValues(filter, 'styles')}
-			disabled={(value) => unavailable('styles', value)}
-			heading="h4"
-			limit={FREQUENT_LIMIT}
-			mark={styleSwatch}
-			onchoose={(value) => (filter = toggleLane(filter, { field: 'styles', value }))}
-			options={laneOptions(artworks, filter, 'styles')}
-			title={m.timeline.filters.styles}
-		/>
-	</section>
+	<p class="intro">{m.timeline.filters.intro}</p>
 
 	<FlagToggle
 		count={timelineFavouriteCount(artworks, filter)}
@@ -134,6 +103,35 @@
 	/>
 
 	<section class="group">
+		<h3>{m.timeline.filters.lanes}</h3>
+		{#if full}
+			<p class="caption" aria-live="polite">{m.timeline.filters.lanesFull}</p>
+		{/if}
+		<FilterValues
+			name={(value) => value}
+			chosen={chosenLaneValues(filter, 'periods')}
+			disabled={(value) => unavailable('periods', value)}
+			heading="h4"
+			limit={FREQUENT_LIMIT}
+			mark={periodSwatch}
+			onchoose={(value) => (filter = toggleLane(filter, { field: 'periods', value }))}
+			options={laneOptions(artworks, filter, 'periods')}
+			title={m.timeline.filters.periods}
+		/>
+		<FilterValues
+			name={(value) => value}
+			chosen={chosenLaneValues(filter, 'styles')}
+			disabled={(value) => unavailable('styles', value)}
+			heading="h4"
+			limit={FREQUENT_LIMIT}
+			mark={styleSwatch}
+			onchoose={(value) => (filter = toggleLane(filter, { field: 'styles', value }))}
+			options={laneOptions(artworks, filter, 'styles')}
+			title={m.timeline.filters.styles}
+		/>
+	</section>
+
+	<section class="group">
 		<h3>{m.timeline.filters.view}</h3>
 		<div class="switches">
 			<Switch label={m.timeline.filters.events} bind:checked={showEvents} />
@@ -146,6 +144,12 @@
 	.panel {
 		display: grid;
 		gap: var(--spacing-8);
+	}
+
+	.intro {
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-sm);
+		line-height: var(--line-height-sm);
 	}
 
 	.group {

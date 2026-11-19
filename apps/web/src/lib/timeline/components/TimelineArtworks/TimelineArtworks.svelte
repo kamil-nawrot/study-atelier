@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { onDestroy } from 'svelte';
 	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 	import { resolve } from '$app/paths';
-	import { ArtworkTile } from '@study-atelier/ui';
+	import ArrowRight from '@lucide/svelte/icons/arrow-right';
+	import { ArtworkTile, Icon } from '@study-atelier/ui';
 	import { resolveImages } from '#lib/wall/wall-data/wall-data.ts';
 	import { eraIcon, eraName } from '#lib/catalogue/eras/eras.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -54,10 +56,15 @@
 	const VISIBLE_MARGIN = 40;
 	const PREVIEW_GAP = 8;
 	const LANE_LABEL = 22;
+	const HIDE_DELAY_MS = 150;
+	const PREVIEW_CHROME = 140;
+	const PREVIEW_IMAGE_MIN = 96;
+	const PREVIEW_IMAGE_MAX = 240;
 
 	let hovered = $state<string | null>(null);
 	let pinnedKey = $state<string | null>(null);
 	let previewHeight = $state(0);
+	let hideTimer: ReturnType<typeof setTimeout> | undefined;
 	const resolved = new SvelteMap<string, WallArtwork>();
 	const loading = new SvelteSet<string>();
 
@@ -67,7 +74,10 @@
 	let zoneSize = $derived(geometry.artworksSize);
 	let zoneFrom = $derived(geometry.artworksFrom);
 	let laned = $derived(lanes.length > 0 && !vertical);
-	let before = $derived(Math.max(0, geometry.position(era.start)));
+	let before = $derived(Math.max(0, Math.min(geometry.position(era.start), geometry.length)));
+	let imageHeight = $derived(
+		Math.max(PREVIEW_IMAGE_MIN, Math.min(PREVIEW_IMAGE_MAX, geometry.artworksSize - PREVIEW_CHROME))
+	);
 	let laneMarks = $derived(
 		(laned ? lanes : [undefined]).map((lane) => ({
 			lane,
@@ -128,14 +138,28 @@
 		}
 	}
 
+	function keep(): void {
+		clearTimeout(hideTimer);
+	}
+
 	function show(key: string, artwork: WallArtwork): void {
+		keep();
 		hovered = key;
 		void loadImage(artwork);
 	}
 
 	function hide(key: string): void {
-		if (hovered === key) hovered = null;
+		keep();
+		hideTimer = setTimeout(() => {
+			if (hovered === key) hovered = null;
+		}, HIDE_DELAY_MS);
 	}
+
+	function leavePreview(): void {
+		if (hovered !== null) hide(hovered);
+	}
+
+	onDestroy(keep);
 
 	function choose(key: string, artwork: WallArtwork, event: MouseEvent): void {
 		if (event instanceof PointerEvent && event.pointerType === 'mouse') return;
@@ -250,9 +274,14 @@
 	{@const artwork = artworkOf(shown.mark)}
 	<div
 		style={previewStyle(shown)}
+		style:--artwork-max-height="{imageHeight}px"
 		class="preview"
-		aria-hidden="true"
-		inert
+		aria-label={artwork.title}
+		onfocusin={keep}
+		onfocusout={leavePreview}
+		onpointerenter={keep}
+		onpointerleave={leavePreview}
+		role="group"
 		bind:clientHeight={previewHeight}
 	>
 		<ArtworkTile
@@ -268,6 +297,10 @@
 			number={artwork.number}
 			title={artwork.title}
 		/>
+		<a class="open" href={resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}>
+			{m.timeline.openInAtelier}
+			<Icon icon={ArrowRight} size="sm" />
+		</a>
 	</div>
 {/if}
 
@@ -376,6 +409,24 @@
 		position: absolute;
 		z-index: 5;
 		display: grid;
-		pointer-events: none;
+		background: var(--color-mat-bg);
+		color: var(--color-mat-fg);
+	}
+
+	.open {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--spacing-2);
+		padding: var(--spacing-3);
+		border-top: var(--border-width-base) solid var(--color-mat-window);
+		color: inherit;
+		font-size: var(--font-size-sm);
+		font-weight: var(--font-weight-medium);
+		line-height: var(--line-height-sm);
+		text-decoration: none;
+	}
+
+	.open:hover {
+		text-decoration: underline;
 	}
 </style>

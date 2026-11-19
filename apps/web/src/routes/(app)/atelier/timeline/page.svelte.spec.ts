@@ -7,9 +7,8 @@ import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
-import { deleteTimelineEvent } from '#lib/timeline/timeline-data/timeline-data.ts';
 import { DOT_SIZE } from '#lib/timeline/placement/placement.ts';
-import { invalidateAll, snapshot } from '$app/navigation';
+import { snapshot } from '$app/navigation';
 import TimelinePage from './+page.svelte';
 
 const navigation = vi.hoisted(() => ({
@@ -28,7 +27,6 @@ vi.mock('$app/navigation', () => ({ goto: vi.fn(), snapshot: vi.fn(), invalidate
 type Registered = { capture: () => unknown; restore: (value: unknown) => void };
 const registered = (): Registered =>
 	vi.mocked(snapshot).mock.calls.at(-1)![0] as unknown as Registered;
-vi.mock('#lib/timeline/timeline-data/timeline-data.ts', () => ({ deleteTimelineEvent: vi.fn() }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
@@ -238,6 +236,34 @@ describe('timeline page', () => {
 		await expect.element(dot).toHaveAttribute('aria-pressed', 'true');
 	});
 
+	it('keeps the preview of an artwork open while the pointer is on it and offers its details', async () => {
+		renderTimeline([testArtwork(7, 'Straż nocna', { yearTo: 1642, date: '1642' })]);
+		const dot = page.getByRole('button', { name: 'Straż nocna, 1642' });
+		const button = dot.element() as HTMLButtonElement;
+		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+
+		button.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
+		const preview = page.getByRole('group', { name: 'Straż nocna' });
+		await expect.element(preview).toBeVisible();
+		await expect
+			.element(preview.getByRole('link', { name: m.timeline.openInAtelier }))
+			.toHaveAttribute('href', '/atelier/7');
+
+		button.dispatchEvent(new PointerEvent('pointerleave', { pointerType: 'mouse' }));
+		(preview.element() as HTMLElement).dispatchEvent(
+			new PointerEvent('pointerenter', { pointerType: 'mouse' })
+		);
+		vi.advanceTimersByTime(300);
+		await expect.element(preview).toBeVisible();
+
+		(preview.element() as HTMLElement).dispatchEvent(
+			new PointerEvent('pointerleave', { pointerType: 'mouse' })
+		);
+		vi.advanceTimersByTime(300);
+		vi.useRealTimers();
+		await expect.element(preview).not.toBeInTheDocument();
+	});
+
 	it('closes a pinned preview with a click on the empty stage or with Escape', async () => {
 		renderTimeline([testArtwork(7, 'Straż nocna', { yearTo: 1642, date: '1642' })]);
 		const dot = page.getByRole('button', { name: 'Straż nocna, 1642' });
@@ -373,8 +399,12 @@ describe('timeline page', () => {
 		await expect.element(card.getByRole('button', { name: 'Straż nocna' })).toBeVisible();
 		await expect.element(card.getByRole('button', { name: 'Mona Lisa' })).not.toBeInTheDocument();
 		await expect
-			.element(card.getByRole('link', { name: m.common.edit }))
-			.toHaveAttribute('href', '/atelier/timeline/events/thirty/edit');
+			.element(card.getByRole('link', { name: 'Wojna trzydziestoletnia' }))
+			.toHaveAttribute('href', '/atelier/timeline/events/thirty');
+		await expect.element(card.getByRole('link', { name: m.common.edit })).not.toBeInTheDocument();
+		await expect
+			.element(card.getByRole('button', { name: m.common.delete }))
+			.not.toBeInTheDocument();
 		await expect
 			.element(page.getByRole('region', { name: m.timeline.card.period }))
 			.not.toBeInTheDocument();
@@ -434,7 +464,8 @@ describe('timeline page', () => {
 		await press(page.getByRole('button', { name: 'Wojna trzydziestoletnia, 1618–1648' }));
 
 		const card = page.getByRole('region', { name: m.timeline.card.period });
-		await expect.element(card.getByRole('link', { name: m.common.edit })).toBeVisible();
+		await expect.element(card.getByRole('link', { name: 'Wojna trzydziestoletnia' })).toBeVisible();
+		await expect.element(card.getByRole('link', { name: m.common.edit })).not.toBeInTheDocument();
 		await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
 	});
 
@@ -476,40 +507,6 @@ describe('timeline page', () => {
 			.element(card.getByRole('link', { name: '„Wojna trzydziestoletnia”' }))
 			.toHaveAttribute('href', 'https://pl.wikipedia.org/wiki/Wojna_trzydziestoletnia');
 		await expect.element(card.getByRole('link', { name: 'CC BY-SA 4.0' })).toBeVisible();
-	});
-
-	it('deletes an event after asking and confirms it', async () => {
-		vi.mocked(deleteTimelineEvent).mockResolvedValue({});
-		renderTimeline([], undefined, [testEvent('treaty', 'Pokój westfalski', null, 1648)]);
-
-		await press(page.getByRole('button', { name: 'Pokój westfalski, 1648' }));
-		await press(eventPopover('Pokój westfalski').getByRole('button', { name: m.common.delete }));
-		await expect.element(eventPopover('Pokój westfalski')).not.toBeInTheDocument();
-		const dialog = page.getByRole('alertdialog');
-		await expect
-			.element(dialog.getByText(m.timeline.deleteConfirm.title('Pokój westfalski')))
-			.toBeVisible();
-		await expect.element(dialog.getByText(m.timeline.deleteConfirm.description)).toBeVisible();
-		await press(dialog.getByRole('button', { name: m.common.delete }));
-
-		await vi.waitFor(() => expect(deleteTimelineEvent).toHaveBeenCalledWith('treaty'));
-		await vi.waitFor(() => expect(invalidateAll).toHaveBeenCalled());
-		await expect.element(page.getByText(m.timeline.deleted('Pokój westfalski'))).toBeVisible();
-	});
-
-	it('keeps the dialog open with the error when deleting fails', async () => {
-		vi.mocked(deleteTimelineEvent).mockResolvedValue({ error: m.common.unexpectedError });
-		renderTimeline([], undefined, [testEvent('treaty', 'Pokój westfalski', null, 1648)]);
-
-		await press(page.getByRole('button', { name: 'Pokój westfalski, 1648' }));
-		await press(eventPopover('Pokój westfalski').getByRole('button', { name: m.common.delete }));
-		await expect.element(page.getByRole('alertdialog')).toBeVisible();
-		await press(page.getByRole('alertdialog').getByRole('button', { name: m.common.delete }));
-
-		await expect
-			.element(page.getByRole('alertdialog').getByText(m.common.unexpectedError))
-			.toBeVisible();
-		expect(invalidateAll).not.toHaveBeenCalled();
 	});
 
 	it('offers to add an event in the top bar', async () => {
@@ -621,14 +618,16 @@ describe('timeline page', () => {
 		await expect.element(stage()).not.toBeInTheDocument();
 	});
 
-	it('shows the name of the current era above the scale and every era as wide on the strip', async () => {
+	it('shows every era as wide on the strip, the current one bolder, without repeating its name', async () => {
 		localStorage.setItem(ERA_KEY, 'early_modern');
 		renderTimeline();
 
 		await expect
 			.element(page.getByRole('paragraph').filter({ hasText: /^Nowożytność$/ }))
-			.toBeVisible();
+			.not.toBeInTheDocument();
 		const strip = page.getByRole('navigation', { name: m.timeline.strip });
+		const current = strip.element().querySelector('[aria-current="true"]') as HTMLElement;
+		expect(Number(getComputedStyle(current).fontWeight)).toBeGreaterThan(500);
 		const widths = strip
 			.getByRole('button')
 			.elements()
@@ -653,9 +652,7 @@ describe('timeline page', () => {
 
 		await press(page.getByRole('button', { name: m.atelier.filters.button }));
 		const panel = page.getByRole('complementary', { name: m.atelier.filters.title });
-		await expect
-			.element(panel.getByText(m.timeline.filters.lanesHint('nowożytność')))
-			.toBeVisible();
+		await expect.element(panel.getByText(m.timeline.filters.intro)).toBeVisible();
 		await press(panel.getByRole('button', { name: /Barok/ }));
 		await press(panel.getByRole('button', { name: /Tenebryzm/ }));
 
@@ -706,22 +703,28 @@ describe('timeline page', () => {
 		await expect.element(page.getByText(/w tym czasie/)).not.toBeInTheDocument();
 	});
 
-	it('hides the date ranges of the artworks with the switch, keeping their dots', async () => {
+	it('starts without the date ranges of the artworks and shows them with the switch', async () => {
 		localStorage.setItem(ERA_KEY, 'early_modern');
 		renderTimeline([
 			testArtwork(1, 'Straż nocna', { yearFrom: 1600, yearTo: 1700, date: '1600–1700' })
 		]);
 		const mark = page.getByRole('button', { name: 'Straż nocna, 1600–1700' });
 		await expect.element(mark).toBeInTheDocument();
-		expect(mark.element().getBoundingClientRect().width).toBeGreaterThan(DOT_SIZE * 2);
+		expect(mark.element().getBoundingClientRect().width).toBeLessThanOrEqual(DOT_SIZE + 1);
 
 		await press(page.getByRole('button', { name: m.atelier.filters.button }));
 		const panel = page.getByRole('complementary', { name: m.atelier.filters.title });
+		await expect
+			.element(panel.getByRole('switch', { name: m.timeline.filters.events }))
+			.toBeChecked();
+		await expect
+			.element(panel.getByRole('switch', { name: m.timeline.filters.spans }))
+			.not.toBeChecked();
 		await press(panel.getByRole('switch', { name: m.timeline.filters.spans }));
 
 		await expect.element(mark).toBeInTheDocument();
 		await vi.waitFor(() =>
-			expect(mark.element().getBoundingClientRect().width).toBeLessThanOrEqual(DOT_SIZE + 1)
+			expect(mark.element().getBoundingClientRect().width).toBeGreaterThan(DOT_SIZE * 2)
 		);
 	});
 
