@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { removeOwnImage } from '#lib/images/own-image-data/own-image-data.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { deletePermanently, moveToTrash, restoreArtwork } from './trash-data.ts';
+import { clearTrash, deletePermanently, moveToTrash, restoreArtwork } from './trash-data.ts';
 
 vi.mock('#lib/images/own-image-data/own-image-data.ts', () => ({ removeOwnImage: vi.fn() }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({ supabase: { from: vi.fn() } }));
@@ -81,6 +81,59 @@ describe('trash actions', () => {
 		await expect(deletePermanently('artwork-1')).resolves.toEqual({
 			error: m.common.unexpectedError
 		});
+		expect(removeOwnImage).not.toHaveBeenCalled();
+	});
+});
+
+describe('clearing the trash', () => {
+	const read = { select: vi.fn(), not: vi.fn() };
+	const remove = { delete: vi.fn(), not: vi.fn(), select: vi.fn() };
+
+	beforeEach(() => {
+		vi.clearAllMocks();
+		let call = 0;
+		vi.mocked(supabase.from).mockImplementation(() => (call++ === 0 ? read : remove) as never);
+		read.select.mockReturnValue(read);
+		read.not.mockResolvedValue({
+			data: [
+				{ id: 'a', artwork_images: [{ own_image_path: 'owner/a.jpg' }, { own_image_path: null }] },
+				{ id: 'b', artwork_images: [{ own_image_path: 'owner/b.jpg' }] }
+			],
+			error: null
+		});
+		remove.delete.mockReturnValue(remove);
+		remove.not.mockReturnValue(remove);
+		remove.select.mockResolvedValue({ data: [{ id: 'a' }, { id: 'b' }], error: null });
+	});
+
+	it('deletes every artwork in the trash and the uploaded files of their images', async () => {
+		await expect(clearTrash()).resolves.toEqual({});
+		expect(read.not).toHaveBeenCalledWith('deleted_at', 'is', null);
+		expect(remove.not).toHaveBeenCalledWith('deleted_at', 'is', null);
+		expect(removeOwnImage).toHaveBeenCalledWith('owner/a.jpg');
+		expect(removeOwnImage).toHaveBeenCalledWith('owner/b.jpg');
+		expect(removeOwnImage).toHaveBeenCalledTimes(2);
+	});
+
+	it('keeps the files of an artwork restored meanwhile', async () => {
+		remove.select.mockResolvedValue({ data: [{ id: 'a' }], error: null });
+
+		await expect(clearTrash()).resolves.toEqual({});
+		expect(removeOwnImage).toHaveBeenCalledWith('owner/a.jpg');
+		expect(removeOwnImage).toHaveBeenCalledTimes(1);
+	});
+
+	it('deletes nothing when the trash cannot be read', async () => {
+		read.not.mockResolvedValue({ data: null, error: { message: 'TypeError: Failed to fetch' } });
+
+		await expect(clearTrash()).resolves.toEqual({ error: m.common.network });
+		expect(remove.delete).not.toHaveBeenCalled();
+	});
+
+	it('keeps the files when deleting the artworks fails', async () => {
+		remove.select.mockResolvedValue({ data: null, error: { code: '42501', message: 'denied' } });
+
+		await expect(clearTrash()).resolves.toEqual({ error: m.common.unexpectedError });
 		expect(removeOwnImage).not.toHaveBeenCalled();
 	});
 });
