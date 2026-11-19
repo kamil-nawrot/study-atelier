@@ -36,7 +36,13 @@
 		visitFormOf,
 		withPlaceArtworks
 	} from '#lib/chronicle/visit-form/visit-form.ts';
-	import { linkedTrip, tripOptions } from '#lib/chronicle/visit-trip/visit-trip.ts';
+	import {
+		linkedTrip,
+		tripCountryClash,
+		tripOptions
+	} from '#lib/chronicle/visit-trip/visit-trip.ts';
+	import { TripCountryCheck } from '#lib/chronicle/trip-country-check/trip-country-check.svelte.ts';
+	import TripCountryDialog from '#lib/chronicle/components/TripCountryDialog/TripCountryDialog.svelte';
 	import VisitDateField from '#lib/chronicle/components/VisitDateField/VisitDateField.svelte';
 	import VisitArtworksField from '#lib/chronicle/components/VisitArtworksField/VisitArtworksField.svelte';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -110,6 +116,7 @@
 	let form = $state<VisitFormState>(initial());
 	const errors = new LiveErrors<VisitFormErrors>(() => validateVisitForm(form, tripPlaces));
 
+	const countryCheck = new TripCountryCheck();
 	const formState = new FormState<VisitFormState>(initial());
 	const changes = new UnsavedChanges(
 		() => $state.snapshot(form),
@@ -185,6 +192,7 @@
 		return formState.run(async () => {
 			if (!errors.check()) return;
 			const snapshot = $state.snapshot(form);
+			if (!(await countryCheck.confirm(tripCountryClash(snapshot, trips, tripPlaces)))) return;
 			if (trip && tripTown && valueKey(tripTown.name) === valueKey(placeOf(snapshot))) {
 				const city = await ensureCityPlace(tripTown);
 				if (city.error) {
@@ -295,6 +303,8 @@
 		</FormActions>
 	</Form>
 </div>
+
+<TripCountryDialog check={countryCheck} />
 
 <DiscardDialog {changes} description={m.common.discardDescription} />
 

@@ -47,6 +47,9 @@
 <article class="ticket" class:header class:trip class:whole>
 	<span class="paper" aria-hidden="true"></span>
 	<div class="main">
+		{#if trip}
+			<p class="overline kind">{tripOverline(visit)}</p>
+		{/if}
 		<time class="date" class:year={visit.date.precision === 'year'} datetime={visit.date.on}>
 			<span class="day" aria-hidden="true">{date.main}</span>
 			{#if date.sub}
@@ -55,9 +58,7 @@
 			<span class="visually-hidden">{date.label}</span>
 		</time>
 		<div class="body">
-			{#if trip}
-				<p class="overline kind">{tripOverline(visit)}</p>
-			{:else if header}
+			{#if !trip && header}
 				<p class="overline">{m.chronicle.kind}</p>
 			{/if}
 			{#if header}
@@ -139,9 +140,11 @@
 	}
 
 	.main {
+		--date-width: var(--spacing-12);
+
 		display: grid;
 		grid-area: 1 / 1;
-		grid-template-columns: var(--spacing-12) minmax(0, 1fr);
+		grid-template-columns: var(--date-width) minmax(0, 1fr);
 		gap: var(--spacing-4);
 		padding: var(--spacing-6) var(--spacing-6) calc(var(--spacing-6) + var(--depth));
 	}
@@ -166,7 +169,9 @@
 	}
 
 	.trip .main {
-		grid-template-columns: minmax(var(--spacing-12), max-content) minmax(0, 1fr);
+		grid-template-columns: minmax(var(--date-width), max-content) minmax(0, 1fr);
+		align-items: baseline;
+		row-gap: var(--spacing-2);
 	}
 
 	.trip .day {
@@ -175,6 +180,7 @@
 	}
 
 	.kind {
+		grid-column: 2;
 		color: var(--color-highlight);
 	}
 
@@ -256,7 +262,8 @@
 		}
 
 		.main {
-			grid-template-columns: var(--spacing-16) minmax(0, 1fr);
+			--date-width: var(--spacing-16);
+
 			gap: var(--spacing-6);
 			padding: var(--spacing-8) calc(var(--spacing-8) + var(--depth)) var(--spacing-8)
 				var(--spacing-8);
@@ -267,10 +274,6 @@
 				var(--teeth-down) right top / var(--depth) var(--period) repeat-y,
 				linear-gradient(currentColor, currentColor) left top / calc(100% - var(--depth)) 100%
 					no-repeat;
-		}
-
-		.trip .main {
-			grid-template-columns: minmax(var(--spacing-16), max-content) minmax(0, 1fr);
 		}
 
 		.whole {
