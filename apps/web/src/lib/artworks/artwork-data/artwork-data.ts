@@ -3,6 +3,7 @@ import { removeOwnImage } from '#lib/images/own-image-data/own-image-data.ts';
 import type { Json } from '#lib/shared/data/database.types.ts';
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
 import { cacheKeys, forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
+import { checkCommonsImages } from '#lib/images/broken-images/broken-images.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { ownEntriesOf, valuesOf } from '#lib/card-index/artwork-values/artwork-values.ts';
 import { signedYear } from '#lib/catalogue/years/years.ts';
@@ -59,7 +60,12 @@ type ArtworkRecordRow = {
 	favourite: boolean;
 	want_to_see?: boolean;
 	artwork_values: ArtworkValueRow[];
-	artwork_images: (ImageRow & { id: string; position: number; palette: Json | null })[];
+	artwork_images: (ImageRow & {
+		id: string;
+		position: number;
+		palette: Json | null;
+		broken_at: string | null;
+	})[];
 	artwork_field_entries?: FieldEntryRow[];
 	outgoing_relations?: RelationRow[];
 	incoming_relations?: RelationRow[];
@@ -79,7 +85,7 @@ const RECORD_COLUMNS = [
 	'favourite',
 	'want_to_see',
 	'artwork_values(position, category_values(category_code, name))',
-	`artwork_images(id, position, palette, ${IMAGE_COLUMNS.join(', ')})`,
+	`artwork_images(id, position, palette, broken_at, ${IMAGE_COLUMNS.join(', ')})`,
 	'artwork_field_entries(field_id, text_value)',
 	...RELATION_COLUMNS
 ].join(', ');
@@ -227,6 +233,7 @@ export async function loadArtwork(number: number): Promise<LoadArtworkResult> {
 	if (!data) return { error: m.artworkErrors.notFound, notFound: true };
 	const artwork = artworkRecordFromRow(data as unknown as ArtworkRecordRow);
 	const [image, ...images] = await withPreviews([artwork.image, ...artwork.images]);
+	void checkCommonsImages([image, ...images].filter((item) => item?.broken));
 	return {
 		artwork: {
 			...artwork,

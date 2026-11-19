@@ -569,18 +569,19 @@ reads:
   - id: R36
     name: Zaplecze
     route: /atelier/backroom
-    shows: "the learner's flags (item, reason with the image number, the question, note or view it came from, comment) and the missing data (artworks without a style, year or image, terms without a definition), each opening its editor at the field (ADR-0313)"
+    shows: "the learner's flags (item, reason with the image number, the question, note or view it came from, comment) and the missing data (artworks without a style, year or image, terms without a definition, and from 0.26 images that stopped loading, ADR-0325), each opening its editor at the field (ADR-0313)"
     needs:
       - 'learner_flags: all of the learner, newest first, with the position of the flagged image and the name of a flagged symbol'
+      - 'artwork_images: few, the artwork and position of the images with broken_at (partial index), from 0.26'
       - 'artworks: tile columns, styles, year and image, from the cached collection of the wall; flags of artworks in Archiwum are left out'
       - 'glossary_entries: the cached term index (name, has_definition)'
     scope: all
     frequency: view
     today:
       {
-        requests: 1,
+        requests: 2,
         whole: [],
-        note: 'new in 0.25 (ATL-467): the flags, the rest from the wall and glossary caches'
+        note: 'new in 0.25 (ATL-467): the flags, the rest from the wall and glossary caches; 0.26 adds the broken images (ADR-0325)'
       }
 
 writes:
@@ -832,6 +833,12 @@ writes:
     changes: [learner_flags]
     side_effects: [Zaplecze, menu count of Zaplecze]
     frequency: 'write, after a save in an editor opened from Zaplecze ("Popraw" or "Poprawiaj po kolei"); the flag is deleted, with no history'
+
+  - id: W37
+    name: Remember that an image stopped loading, or loads again
+    changes: [artwork_images.broken_at]
+    side_effects: [Zaplecze, review_round holds the artwork while its main image is broken]
+    frequency: 'write, rare: only when Storage or the Commons API answers that the file is gone (or back) and the stored state differs, at most once per image and session; a changed source clears it in a trigger (ADR-0325)'
 
 relations:
   # Every relation the app shows, whether stored or computed today.

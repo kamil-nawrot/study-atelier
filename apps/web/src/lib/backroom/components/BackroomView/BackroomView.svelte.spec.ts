@@ -59,6 +59,19 @@ describe('BackroomView', () => {
 		await expect.element(page.getByText(m.backroom.missing.year)).toBeVisible();
 	});
 
+	it('lists an artwork whose image stopped loading among the missing data', async () => {
+		render(BackroomView, {
+			flags: [],
+			artworks: [jerome, undated],
+			terms: [],
+			brokenImages: [{ artworkId: jerome.id, position: 0 }]
+		});
+		await userEvent.click(page.getByRole('tab', { name: m.backroom.tabs.missing }));
+
+		await expect.element(page.getByText('Saint Jerome')).toBeVisible();
+		await expect.element(page.getByText(m.backroom.brokenImage())).toBeVisible();
+	});
+
 	it('starts the queue of the open tab', async () => {
 		render(BackroomView, { flags: [flag], artworks: [jerome, undated], terms: [] });
 		await userEvent.click(page.getByRole('tab', { name: m.backroom.tabs.missing }));

@@ -54,17 +54,27 @@ export async function ownImageUrl(path: string): Promise<string | undefined> {
 	return data.signedUrl;
 }
 
-export async function ownImageUrls(paths: string[]): Promise<Map<string, string>> {
-	if (paths.length === 0) return new Map();
+export async function checkedOwnImageUrls(
+	paths: string[]
+): Promise<{ urls: Map<string, string>; missing: string[] }> {
+	if (paths.length === 0) return { urls: new Map(), missing: [] };
 	const { data, error } = await supabase.storage
 		.from(IMAGES_BUCKET)
 		.createSignedUrls(paths, SIGNED_URL_SECONDS);
-	if (error || !data) return new Map();
-	return new Map(
+	if (error || !data) return { urls: new Map(), missing: [] };
+	const urls = new Map(
 		data
 			.filter((entry) => entry.path && entry.signedUrl && !entry.error)
 			.map((entry) => [entry.path as string, entry.signedUrl as string])
 	);
+	const missing = data
+		.filter((entry) => entry.path && entry.error)
+		.map((entry) => entry.path as string);
+	return { urls, missing };
+}
+
+export async function ownImageUrls(paths: string[]): Promise<Map<string, string>> {
+	return (await checkedOwnImageUrls(paths)).urls;
 }
 
 const LIST_PAGE = 1000;

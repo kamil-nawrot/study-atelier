@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import {
-	ownImageUrls,
+	checkedOwnImageUrls,
 	removeOwnImage,
 	uploadOwnImage
 } from '#lib/images/own-image-data/own-image-data.ts';
@@ -17,6 +17,7 @@ vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 vi.mock('#lib/images/own-image-data/own-image-data.ts', () => ({
 	ownImageUrl: vi.fn(),
 	ownImageUrls: vi.fn(),
+	checkedOwnImageUrls: vi.fn(),
 	uploadOwnImage: vi.fn(),
 	removeOwnImage: vi.fn()
 }));
@@ -689,9 +690,12 @@ describe('loadArtwork', () => {
 	});
 
 	it('reads an uploaded image before a Commons image, with a signed preview URL', async () => {
-		vi.mocked(ownImageUrls).mockResolvedValue(
-			new Map([['user-id/artwork-1/photo.jpg', 'https://storage.example.com/signed/photo.jpg']])
-		);
+		vi.mocked(checkedOwnImageUrls).mockResolvedValue({
+			urls: new Map([
+				['user-id/artwork-1/photo.jpg', 'https://storage.example.com/signed/photo.jpg']
+			]),
+			missing: []
+		});
 		query.maybeSingle.mockResolvedValue({
 			data: row({
 				artwork_images: [
@@ -717,7 +721,7 @@ describe('loadArtwork', () => {
 			height: 3,
 			id: 'image-0'
 		});
-		expect(ownImageUrls).toHaveBeenCalledWith(['user-id/artwork-1/photo.jpg']);
+		expect(checkedOwnImageUrls).toHaveBeenCalledWith(['user-id/artwork-1/photo.jpg']);
 	});
 
 	it('reads a Commons image with its licence', async () => {

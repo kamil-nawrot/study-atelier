@@ -8,6 +8,7 @@ import {
 	ARTWORK_PINS,
 	LEARNER_FLAGS,
 	ARTWORKS,
+	BROKEN_IMAGES,
 	ARTWORK_RELATIONS,
 	AUTHOR_RELATIONS,
 	CATALOGUE_MUSEUMS,
@@ -753,6 +754,7 @@ function exhibitionArtworksRoute(route, url) {
 }
 
 function artworkImagesRoute(route, url) {
+	if (url.searchParams.get('broken_at') === 'not.is.null') return json(route, BROKEN_IMAGES);
 	const filter = url.searchParams.get('artwork_id') ?? '';
 	const ids = filter.startsWith('in.(') ? filter.slice(4, -1).split(',') : [];
 	return json(

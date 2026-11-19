@@ -1476,10 +1476,12 @@ export const pl = {
 			image: 'brak obrazu',
 			definition: 'brak definicji'
 		},
+		brokenImage: (number?: number) =>
+			number === undefined ? 'obraz nie działa' : `obraz ${number} nie działa`,
 		emptyFlagsTitle: 'Nic do poprawki',
 		emptyFlags: 'Gdy coś w pytaniu albo w dziele się nie zgadza, oznacz to flagą. Trafi tutaj.',
 		emptyMissingTitle: 'Niczego nie brakuje',
-		emptyMissing: 'Wszystkie dzieła mają styl, rok i obraz, a pojęcia definicje.',
+		emptyMissing: 'Wszystkie dzieła mają styl, rok i działający obraz, a pojęcia definicje.',
 		loadErrorTitle: 'Nie udało się wczytać Zaplecza',
 		progress: (position: number, total: number): string => `${position} z ${total}`,
 		skip: 'Pomiń',

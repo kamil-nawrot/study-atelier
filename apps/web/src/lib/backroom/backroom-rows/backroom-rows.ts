@@ -1,6 +1,7 @@
 import { resolve } from '$app/paths';
 import type { BackroomRow } from '#lib/backroom/types/backroom-row.ts';
 import type { BackroomTerm } from '#lib/backroom/types/backroom-term.ts';
+import type { BrokenImage } from '#lib/backroom/types/broken-image.ts';
 import type { FixField } from '#lib/backroom/types/fix-field.ts';
 import type { FlagReason } from '#lib/backroom/types/flag-reason.ts';
 import { fieldOf, reasonText } from '#lib/backroom/flag-fields/flag-fields.ts';
@@ -131,29 +132,47 @@ function missingOfArtwork(artwork: WallArtwork): Missing[] {
 
 function missingRow(
 	key: string,
-	item: Pick<BackroomRow, 'kind' | 'title' | 'artwork'>,
+	item: Pick<BackroomRow, 'kind' | 'title' | 'artwork' | 'imageBroken'>,
 	path: string,
-	missing: readonly Missing[]
+	missing: readonly Missing[],
+	broken: readonly number[] = []
 ): BackroomRow {
-	const reason = missing.map((kind) => m.backroom.missing[kind]).join(' · ');
-	return {
-		...item,
-		reason,
-		entry: { key, path, field: MISSING_FIELDS[missing[0]], note: reason }
-	};
+	const reason = [
+		...broken.map((position) => m.backroom.brokenImage(position === 0 ? undefined : position + 1)),
+		...missing.map((kind) => m.backroom.missing[kind])
+	].join(' · ');
+	const field = broken.length > 0 ? 'image' : MISSING_FIELDS[missing[0]];
+	return { ...item, reason, entry: { key, path, field, note: reason } };
+}
+
+function brokenByArtwork(images: readonly BrokenImage[]): Map<string, number[]> {
+	const byArtwork = new Map<string, number[]>();
+	for (const { artworkId, position } of images) {
+		byArtwork.set(artworkId, [...(byArtwork.get(artworkId) ?? []), position]);
+	}
+	return byArtwork;
 }
 
 export function missingRows(
 	artworks: readonly WallArtwork[],
-	terms: readonly BackroomTerm[]
+	terms: readonly BackroomTerm[],
+	brokenImages: readonly BrokenImage[] = []
 ): BackroomRow[] {
+	const broken = brokenByArtwork(brokenImages);
 	const ofArtworks = [...artworks]
 		.sort((first, second) => first.number - second.number)
 		.flatMap((artwork) => {
 			const missing = missingOfArtwork(artwork);
-			if (missing.length === 0) return [];
-			const item = { kind: 'artwork' as const, title: artwork.title, artwork };
-			return [missingRow(`missing:${artwork.id}`, item, artworkPath(artwork), missing)];
+			const positions = [...(broken.get(artwork.id) ?? [])].sort((a, b) => a - b);
+			if (missing.length === 0 && positions.length === 0) return [];
+			const item = {
+				kind: 'artwork' as const,
+				title: artwork.title,
+				artwork,
+				...(positions[0] === 0 ? { imageBroken: true as const } : {})
+			};
+			const key = `missing:${artwork.id}`;
+			return [missingRow(key, item, artworkPath(artwork), missing, positions)];
 		});
 	const ofTerms = terms
 		.filter((term) => !term.hasDefinition)

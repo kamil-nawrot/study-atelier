@@ -202,6 +202,14 @@ export const ARTWORKS = [
 	artwork(10, 'Untitled study', ['Learner Example'], null, null, {})
 ];
 
+export const BROKEN_IMAGES = [
+	{ number: 3, position: 0 },
+	{ number: 6, position: 2 }
+].map(({ number, position }) => {
+	const row = ARTWORKS.find((candidate) => candidate.record_number === number);
+	return { artwork_id: row.id, position };
+});
+
 const ARTWORK_PLACES = [
 	[2, 'MoMA, New York'],
 	[3, 'Mauritshuis'],

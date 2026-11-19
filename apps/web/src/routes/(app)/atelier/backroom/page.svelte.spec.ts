@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
-import { loadFlags } from '#lib/backroom/backroom-data/backroom-data.ts';
+import { loadBrokenImages, loadFlags } from '#lib/backroom/backroom-data/backroom-data.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import { loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
@@ -27,6 +27,7 @@ vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 }));
 vi.mock('#lib/backroom/backroom-data/backroom-data.ts', () => ({
 	loadFlags: vi.fn(),
+	loadBrokenImages: vi.fn().mockResolvedValue([]),
 	countFlags: vi.fn().mockResolvedValue(0),
 	deleteItemFlags: vi.fn().mockResolvedValue({}),
 	deleteFlag: vi.fn()
@@ -60,6 +61,7 @@ describe('Zaplecze page', () => {
 		vi.mocked(loadFlags).mockResolvedValue({ flags: [] });
 		vi.mocked(loadAtelier).mockResolvedValue({ artworks: [undated] });
 		vi.mocked(loadTermIndex).mockResolvedValue({ terms: [term], error: m.common.network });
+		vi.mocked(loadBrokenImages).mockResolvedValue([{ artworkId: undated.id, position: 0 }]);
 
 		const data = await load({} as never);
 
@@ -67,6 +69,7 @@ describe('Zaplecze page', () => {
 			flags: [],
 			artworks: [undated],
 			terms: [{ id: 'term-1', name: 'Tympanum', hasDefinition: false }],
+			brokenImages: [{ artworkId: undated.id, position: 0 }],
 			error: m.common.network
 		});
 	});
