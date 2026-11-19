@@ -5,6 +5,7 @@ import {
 	BLANK_DOCUMENT,
 	archiveExhibition,
 	createExhibition,
+	deleteArchivedExhibitions,
 	deleteExhibition,
 	loadExhibition,
 	loadExhibitionSummaries,
@@ -246,6 +247,17 @@ describe('moving between the list and Archiwum', () => {
 
 		chain({ error: { message: 'Failed to fetch' } });
 		expect((await deleteExhibition(ID)).error).toBe(m.common.network);
+	});
+
+	it('deletes every archived exhibition for good and reports a failure', async () => {
+		const query = chain({ error: null });
+		expect(await deleteArchivedExhibitions()).toEqual({});
+		expect(from).toHaveBeenCalledWith('exhibitions');
+		expect(query.delete).toHaveBeenCalled();
+		expect(query.not).toHaveBeenCalledWith('deleted_at', 'is', null);
+
+		chain({ error: { message: 'Failed to fetch' } });
+		expect((await deleteArchivedExhibitions()).error).toBe(m.common.network);
 	});
 });
 

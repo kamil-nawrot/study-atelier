@@ -34,6 +34,16 @@ export function artworkIdsOf(document: ExhibitionDocument): string[] {
 	return [...ids];
 }
 
+export function pictureIdsOf(document: ExhibitionDocument): string[] {
+	const ids = new Set<string>();
+	walk(document, (node) => {
+		const id = node.attrs?.artworkId;
+		const needs = node.type === 'closeUp' || node.attrs?.palette || node.attrs?.paletteOnly;
+		if (needs && typeof id === 'string') ids.add(id);
+	});
+	return [...ids];
+}
+
 export function blockCountOf(document: ExhibitionDocument): number {
 	let count = 0;
 	walk(document, (node, parent) => {

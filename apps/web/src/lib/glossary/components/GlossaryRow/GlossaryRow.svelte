@@ -75,6 +75,7 @@
 
 	.sentence {
 		display: -webkit-box;
+		max-width: var(--size-content-default);
 		overflow: hidden;
 		color: var(--color-fg-muted);
 		-webkit-box-orient: vertical;

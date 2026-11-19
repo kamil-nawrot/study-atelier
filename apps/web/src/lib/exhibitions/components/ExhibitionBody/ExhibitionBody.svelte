@@ -5,7 +5,12 @@
 	import ExhibitionDivider from '#lib/exhibitions/components/ExhibitionDivider/ExhibitionDivider.svelte';
 	import ArtworkFigure from '#lib/exhibitions/components/ArtworkFigure/ArtworkFigure.svelte';
 	import GlossaryNotes from '#lib/glossary/components/GlossaryNotes/GlossaryNotes.svelte';
-	import { isBlankText } from '#lib/exhibitions/exhibition-document/exhibition-document.ts';
+	import { Primer } from '@study-atelier/ui';
+	import {
+		artworkIdsOf,
+		isBlankText,
+		pictureIdsOf
+	} from '#lib/exhibitions/exhibition-document/exhibition-document.ts';
 	import {
 		plainText,
 		textBlockMarkdown
@@ -25,6 +30,32 @@
 	};
 
 	let { document, lookup, entries, symbols }: Props = $props();
+
+	const GIVE_UP_MS = 6000;
+
+	let gaveUp = $state(false);
+	let waiting = $derived.by(() => {
+		if (gaveUp) return false;
+		const unresolved = artworkIdsOf(document).some(
+			(id) => lookup.get(id)?.pendingImage !== undefined
+		);
+		const unpictured = pictureIdsOf(document).some(
+			(id) =>
+				lookup.get(id) !== undefined &&
+				lookup.pictures(id) === undefined &&
+				!lookup.picturesFailed(id)
+		);
+		return unresolved || unpictured;
+	});
+
+	$effect(() => {
+		const timer = setTimeout(() => (gaveUp = true), GIVE_UP_MS);
+		return () => clearTimeout(timer);
+	});
+
+	$effect(() => {
+		for (const id of pictureIdsOf(document)) void lookup.wantPictures(id);
+	});
 
 	let blocks = $derived(
 		(document.content ?? []).filter((block, index, all) => {
@@ -103,17 +134,44 @@
 	{/if}
 {/snippet}
 
-<div class="body">
-	{#each blocks as block, index (index)}
-		{#if block.type === 'columns'}
-			{@render blockOf(block)}
-		{:else}
-			{@render placed(block, false)}
-		{/if}
-	{/each}
+<div class="stage" class:waiting aria-busy={waiting}>
+	{#if waiting}
+		<div class="primer">
+			<Primer />
+		</div>
+	{/if}
+	<div class="body">
+		{#each blocks as block, index (index)}
+			{#if block.type === 'columns'}
+				{@render blockOf(block)}
+			{:else}
+				{@render placed(block, false)}
+			{/if}
+		{/each}
+	</div>
 </div>
 
 <style>
+	.stage {
+		position: relative;
+		width: 100%;
+	}
+
+	.primer {
+		position: absolute;
+		inset: 0;
+		color: var(--color-fg-muted);
+	}
+
+	.stage.waiting {
+		max-height: 80vh;
+		overflow: hidden;
+	}
+
+	.stage.waiting .body {
+		visibility: hidden;
+	}
+
 	.body {
 		display: grid;
 		gap: var(--spacing-8);
