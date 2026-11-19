@@ -111,6 +111,20 @@ describe('loadCardIndex', () => {
 		]);
 	});
 
+	it('keeps the year of the oldest artwork of a value', async () => {
+		cardIndexRows([
+			{ id: 'p1', category_code: 'period', name: 'Barok', artwork_count: 2, first_year: -50 },
+			{ id: 'p2', category_code: 'period', name: 'Gotyk', artwork_count: 0 }
+		]);
+
+		const { index } = await loadCardIndex();
+
+		expect(index.values).toEqual([
+			{ id: 'p1', category: 'period', name: 'Barok', count: 2, firstYear: -50 },
+			{ id: 'p2', category: 'period', name: 'Gotyk', count: 0 }
+		]);
+	});
+
 	it('keeps the number of visits of a place', async () => {
 		cardIndexRows([
 			{ id: 'l1', category_code: 'location', name: 'Louvre', artwork_count: 0, visit_count: 2 },

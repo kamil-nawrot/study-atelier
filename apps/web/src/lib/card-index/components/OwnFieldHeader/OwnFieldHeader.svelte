@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { MetaLine } from '@study-atelier/ui';
+	import { Icon, MetaLine } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
+	import { artworkTypeIcon } from '#lib/catalogue/artwork-types/artwork-types.ts';
 	import { fieldKindLine } from '#lib/card-index/own-fields/own-fields.ts';
 	import type { OwnField } from '#lib/card-index/types/own-field.ts';
 
@@ -22,10 +23,13 @@
 	<p class="types">
 		<span class="label">{m.ownFields.page.appliesTo}</span>
 		{#if field.typeCodes.length === 0}
-			<span class="badge">{m.ownFields.page.allTypes}</span>
+			<span class="type">{m.ownFields.page.allTypes}</span>
 		{:else}
 			{#each field.typeCodes as code (code)}
-				<span class="badge">{m.artworkTypes[code]}</span>
+				<span class="type">
+					<Icon icon={artworkTypeIcon(code)} size="sm" />
+					{m.artworkTypes[code]}
+				</span>
 			{/each}
 		{/if}
 	</p>
@@ -63,9 +67,11 @@
 		font-size: var(--font-size-sm);
 	}
 
-	.badge {
-		padding: 0 var(--spacing-2);
-		border: var(--border-width-hairline) solid var(--color-line);
+	.type {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--spacing-1);
+		margin-inline-end: var(--spacing-3);
 		font-size: var(--font-size-sm);
 		line-height: var(--line-height-sm);
 		white-space: nowrap;

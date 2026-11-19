@@ -209,13 +209,15 @@
 	.types {
 		display: flex;
 		flex-wrap: wrap;
-		gap: var(--spacing-2) var(--spacing-6);
+		gap: var(--spacing-2);
 	}
 
 	.types li {
 		display: inline-flex;
 		align-items: center;
 		gap: var(--spacing-2);
+		padding: var(--spacing-1) var(--spacing-3);
+		background: var(--color-tag);
 	}
 
 	.events {
