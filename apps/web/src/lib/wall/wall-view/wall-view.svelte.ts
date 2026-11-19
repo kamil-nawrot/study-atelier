@@ -40,6 +40,7 @@ import { m } from '#lib/i18n/i18n.ts';
 export const WALL_ORDERS: SelectOption[] = [
 	{ value: 'recent', label: m.atelier.sort.recent },
 	{ value: 'year', label: m.atelier.sort.year },
+	{ value: 'year-newest', label: m.atelier.sort.yearNewest },
 	{ value: 'author', label: m.atelier.sort.author }
 ];
 

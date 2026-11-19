@@ -150,13 +150,26 @@ describe('ComparisonView', () => {
 			.not.toBeInTheDocument();
 	});
 
-	it('dims the loupe when neither image is large enough and says why', async () => {
-		await render(ComparisonView, { sides: { left: 1, right: 2 }, left: LEFT, right: RIGHT });
+	it('dims the loupe when neither image can be shown in it and says why', async () => {
+		const huge = (id: string) =>
+			({ kind: 'url', url: IMAGE, width: 30000, height: 30000, id }) as const;
+		await render(ComparisonView, {
+			sides: { left: 1, right: 2 },
+			left: artwork(1, 'A', { image: huge('a') }),
+			right: artwork(2, 'B', { image: huge('b') })
+		});
 
 		const loupe = page.getByRole('button', { name: m.loupe.label });
 		await expect.element(loupe).toHaveAttribute('aria-disabled', 'true');
 		await loupe.hover();
 		await expect.element(page.getByRole('tooltip').first()).toHaveTextContent(m.loupe.unavailable);
+	});
+
+	it('offers the loupe for images of low resolution', async () => {
+		await render(ComparisonView, { sides: { left: 1, right: 2 }, left: LEFT, right: RIGHT });
+
+		const loupe = page.getByRole('button', { name: m.loupe.label });
+		await expect.element(loupe).not.toHaveAttribute('aria-disabled', 'true');
 	});
 
 	it('switches one loupe on for both large images', async () => {

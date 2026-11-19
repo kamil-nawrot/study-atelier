@@ -34,6 +34,11 @@
 		width: auto;
 	}
 
+	.grouping-panel:not(.fill) .caption {
+		width: 0;
+		min-width: 100%;
+	}
+
 	.caption {
 		font-variant-numeric: tabular-nums;
 	}
