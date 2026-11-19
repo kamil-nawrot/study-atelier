@@ -1,4 +1,4 @@
-# 0323. Link the card of a value to its page in the card index
+# 0326. Link the card of a value to its page in the card index
 
 - Status: accepted
 - Date: 2026-11-19
