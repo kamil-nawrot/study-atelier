@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { ValueField, type ValueOption } from '@study-atelier/ui';
+	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { searchRelatedArtworks } from '#lib/artwork-relations/artwork-relations-data/artwork-relations-data.ts';
 	import type { ArtworkRelationMatch } from '#lib/artwork-relations/types/artwork-relation-match.ts';
@@ -27,7 +28,7 @@
 		matches.map((match) => ({
 			kind: 'found',
 			id: match.id,
-			name: match.title,
+			name: `${formatRecordNumber(match.number)} ${match.title}`,
 			note: match.authors.join(', ')
 		}))
 	);
@@ -65,7 +66,7 @@
 	}
 
 	function values(): string[] {
-		return artwork ? [artwork.title] : [];
+		return artwork ? [`${formatRecordNumber(artwork.number)} ${artwork.title}`] : [];
 	}
 
 	function setValues(next: string[]): void {

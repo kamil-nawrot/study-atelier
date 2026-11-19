@@ -36,7 +36,7 @@ describe('RelatedArtworkSearch', () => {
 		await userEvent.click(page.getByRole('option', { name: /Auguste Rodin/ }));
 
 		expect(artwork()).toEqual({ id: 'kiss-2', number: 8, title: 'The Kiss' });
-		await expect.element(page.getByText('The Kiss', { exact: true })).toBeVisible();
+		await expect.element(page.getByText('#0008 The Kiss', { exact: true })).toBeVisible();
 	});
 
 	it('clears the artwork when its tag is removed', async () => {
