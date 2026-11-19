@@ -417,8 +417,7 @@
 		display: inline-flex;
 		align-items: center;
 		gap: var(--spacing-2);
-		margin: var(--spacing-2) var(--spacing-3) 0;
-		padding: var(--spacing-3) 0;
+		padding: var(--spacing-3);
 		border-top: var(--border-width-base) solid var(--color-line);
 		color: var(--color-fg);
 		font-size: var(--font-size-sm);
