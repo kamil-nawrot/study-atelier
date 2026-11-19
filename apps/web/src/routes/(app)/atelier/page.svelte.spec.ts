@@ -300,6 +300,20 @@ describe('atelier page', () => {
 				.not.toBeInTheDocument();
 		});
 
+		it('orders the whole wall by year from the newest', async () => {
+			renderAtelier(dated);
+
+			await userEvent.selectOptions(orderSelect(), m.atelier.sort.yearNewest);
+
+			await expect.element(page.getByText(m.atelier.count(4))).toBeVisible();
+			expect(titlesOnTheWall(dated)).toEqual([
+				'Water Lilies',
+				'Impression, Sunrise',
+				'Untitled study',
+				'Mona Lisa'
+			]);
+		});
+
 		it('remembers the order on the device', async () => {
 			const view = await render(AtelierPage, {
 				data: { session: testSession(), artworks: dated, ownFields: [] },

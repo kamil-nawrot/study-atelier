@@ -425,7 +425,8 @@ export const pl = {
 		sort: {
 			label: 'Kolejność',
 			recent: 'Ostatnio dodane',
-			year: 'Według daty powstania',
+			year: 'Od najstarszych',
+			yearNewest: 'Od najnowszych',
 			author: 'Według autorów'
 		},
 		grouping: {
