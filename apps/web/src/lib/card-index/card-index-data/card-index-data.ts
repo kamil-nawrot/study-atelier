@@ -71,6 +71,7 @@ type CardIndexRow = {
 	values: (UsageRow & {
 		sort_name?: string;
 		birth_year?: number;
+		first_year?: number;
 		country_code?: string;
 		place_type?: string;
 		city_id?: string;
@@ -90,6 +91,7 @@ function recordOf(row: CardIndexRow['values'][number]): CardIndexRecord[] {
 			...(row.visit_count ? { visits: row.visit_count } : {}),
 			...(row.sort_name ? { sortName: row.sort_name } : {}),
 			...(row.birth_year === undefined ? {} : { birthYear: row.birth_year }),
+			...(row.first_year === undefined ? {} : { firstYear: row.first_year }),
 			...(row.country_code ? { countryCode: row.country_code } : {}),
 			...(isPlaceType(row.place_type) ? { placeType: row.place_type } : {}),
 			...(row.city_id ? { cityId: row.city_id } : {})

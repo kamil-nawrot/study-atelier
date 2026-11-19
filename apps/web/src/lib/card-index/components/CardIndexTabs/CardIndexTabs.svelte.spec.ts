@@ -42,7 +42,7 @@ describe('CardIndexTabs', () => {
 
 		await page
 			.getByRole('combobox', { name: m.cardIndex.sortLabel })
-			.selectOptions(m.cardIndex.sorts.life);
+			.selectOptions(m.cardIndex.sorts.oldest);
 
 		const names = listed();
 		expect(names.indexOf('Giotto')).toBeLessThan(names.indexOf('Rembrandt'));

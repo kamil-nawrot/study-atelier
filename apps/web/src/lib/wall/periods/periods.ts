@@ -16,6 +16,13 @@ export function byYear(a: WallArtwork, b: WallArtwork): number {
 	return a.yearTo - b.yearTo || a.number - b.number;
 }
 
+export function byYearNewest(a: WallArtwork, b: WallArtwork): number {
+	if (a.yearTo === null && b.yearTo === null) return a.number - b.number;
+	if (a.yearTo === null) return 1;
+	if (b.yearTo === null) return -1;
+	return b.yearTo - a.yearTo || a.number - b.number;
+}
+
 function collect<K>(
 	artworks: WallArtwork[],
 	keyOf: (artwork: WallArtwork) => K | null

@@ -48,7 +48,18 @@ describe('VisitView', () => {
 		await expect
 			.element(page.getByRole('link', { name: /Louvre/ }))
 			.toHaveAttribute('href', '/atelier/chronicle/louvre');
-		await expect.element(page.getByText(m.chronicle.trip.view.noArtworks)).toBeInTheDocument();
+		await expect
+			.element(page.getByRole('heading', { name: m.chronicle.trip.view.seenTitle }))
+			.not.toBeInTheDocument();
+	});
+
+	it('shows the wall of a trip when it has artworks', async () => {
+		render(VisitView, { visit: testTrip(), artworks: [testArtwork(1, 'Water Lilies')] });
+
+		await expect
+			.element(page.getByRole('heading', { name: m.chronicle.trip.view.seenTitle }))
+			.toBeInTheDocument();
+		await expect.element(page.getByRole('link', { name: /Water Lilies/ })).toBeInTheDocument();
 	});
 
 	it('shows a failed load of the visits of a trip in their own place', async () => {
@@ -59,6 +70,8 @@ describe('VisitView', () => {
 				page.getByRole('region', { name: m.chronicle.trip.view.visitsTitle }).getByText('offline')
 			)
 			.toBeInTheDocument();
-		await expect.element(page.getByText(m.chronicle.trip.view.noArtworks)).toBeInTheDocument();
+		await expect
+			.element(page.getByRole('heading', { name: m.chronicle.trip.view.seenTitle }))
+			.not.toBeInTheDocument();
 	});
 });

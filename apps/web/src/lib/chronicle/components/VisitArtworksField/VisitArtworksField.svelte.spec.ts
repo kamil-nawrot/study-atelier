@@ -100,4 +100,47 @@ describe('VisitArtworksField', () => {
 
 		await expect.element(page.getByText(m.chronicle.form.noMatch)).toBeInTheDocument();
 	});
+
+	it('keeps the artworks of a trip city apart from those of its sites', async () => {
+		const marais = testArtwork(3, 'Le Marais', { location: 'Paryż' });
+		const rose = testArtwork(4, 'Rozeta', { location: 'Notre-Dame de Paris' });
+		render(VisitArtworksField, {
+			form: form({ kind: 'trip', place: ['Paryż'], chosen: [marais.id, rose.id] }),
+			artworks: [marais, rose],
+			suggested: [marais, rose],
+			isNew: true
+		});
+
+		await expect
+			.element(
+				page
+					.getByRole('group', { name: m.chronicle.trip.form.fromCity })
+					.getByRole('checkbox', { name: 'Le Marais' })
+			)
+			.toBeInTheDocument();
+		await expect
+			.element(
+				page
+					.getByRole('group', { name: m.chronicle.trip.form.fromSites })
+					.getByRole('checkbox', { name: 'Rozeta' })
+			)
+			.toBeInTheDocument();
+	});
+
+	it('leaves out the section of sites when the city has only its own artworks', async () => {
+		const marais = testArtwork(3, 'Le Marais', { location: 'Paryż' });
+		render(VisitArtworksField, {
+			form: form({ kind: 'trip', place: ['Paryż'] }),
+			artworks: [marais],
+			suggested: [marais],
+			isNew: true
+		});
+
+		await expect
+			.element(page.getByRole('group', { name: m.chronicle.trip.form.fromCity }))
+			.toBeVisible();
+		await expect
+			.element(page.getByRole('group', { name: m.chronicle.trip.form.fromSites }))
+			.not.toBeInTheDocument();
+	});
 });

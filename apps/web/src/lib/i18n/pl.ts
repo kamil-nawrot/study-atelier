@@ -425,7 +425,8 @@ export const pl = {
 		sort: {
 			label: 'Kolejność',
 			recent: 'Ostatnio dodane',
-			year: 'Według daty powstania',
+			year: 'Od najstarszych',
+			yearNewest: 'Od najnowszych',
 			author: 'Według autorów'
 		},
 		grouping: {
@@ -1152,7 +1153,7 @@ export const pl = {
 	cardIndex: {
 		title: 'Kartoteka',
 		openInCardIndex: 'Otwórz w kartotece',
-		lead: 'Tu porządkujesz swoje epoki, okresy, style, autorów, miejsca i wydarzenia. Możesz też dodać własne pola, żeby dokładniej opisywać dzieła.',
+		lead: 'Kartoteka pozwala Ci porządkować epoki, okresy, style, autorów, miejsca i wydarzenia. Możesz też dodawać własne pola, żeby dokładniej opisywać swoją kolekcję.',
 		loadErrorTitle: 'Nie udało się wczytać Kartoteki',
 		tabsLabel: 'Rodzaje wartości',
 		tabs: {
@@ -1195,9 +1196,9 @@ export const pl = {
 		sorts: {
 			name: 'Według nazwy',
 			count: 'Według liczby dzieł',
-			life: 'Według lat życia',
-			country: 'Według kraju',
-			date: 'Według daty'
+			oldest: 'Od najstarszych',
+			newest: 'Od najnowszych',
+			country: 'Według kraju'
 		},
 		noResults: (query: string): string =>
 			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment nazwy.`,
@@ -2561,6 +2562,14 @@ export const pl = {
 			'Zapisuj tu swoje wizyty w muzeach, galeriach i zabytkach oraz podróże, podczas których zwiedzasz całe miasto. Przy każdym wpisie możesz zaznaczyć dzieła, które udało Ci się zobaczyć na żywo, i dodać notatkę z wrażeniami.',
 		addFirst: 'Dodaj pierwszy wpis',
 		loadErrorTitle: 'Nie udało się wczytać kroniki',
+		search: 'Szukaj miejsca',
+		sortLabel: 'Sortuj',
+		sorts: {
+			newest: 'Od najnowszych',
+			oldest: 'Od najstarszych'
+		},
+		noResults: (query: string): string =>
+			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment nazwy miejsca.`,
 		back: 'Kronika',
 		seen: (count: number): string => `${workCount(count)} na żywo`,
 		seenCount: (count: number): string =>
@@ -2568,6 +2577,18 @@ export const pl = {
 		kind: 'Wizyta',
 		artworkVisits: (count: number): string => `Widziane na żywo · ${visitCount(count)}`,
 		placeVisits: (count: number): string => `Z Twojej kroniki · ${visitCount(count)}`,
+		tripCountryDialog: {
+			title: 'Czy na pewno zapisać wizytę w tej podróży?',
+			description: (
+				place: string,
+				placeCountry: string,
+				trip: string,
+				tripCountry: string
+			): string =>
+				`Miejsce „${place}” leży w kraju: ${placeCountry}, a podróż „${trip}” dotyczy kraju: ${tripCountry}. Jeśli to pomyłka, wybierz inną podróż albo „Poza podróżą”.`,
+			back: 'Wróć do formularza',
+			confirm: 'Zapisz mimo to'
+		},
 		inYear: (year: number): string => `${year} roku`,
 		saved: (place: string, date: string): string => `Zapisano wizytę: ${place}, ${date}.`,
 		view: {
@@ -2596,7 +2617,7 @@ export const pl = {
 			placeHint: 'Muzeum, galeria albo kościół. Dzieła, które tam są, będą od razu zaznaczone.',
 			placeRequired: 'Wybierz, gdzie była wizyta.',
 			date: 'Data',
-			dateHint: 'Wystarczy sam rok, jeśli dokładniej nie pamiętasz.',
+			dateHint: 'Możesz wpisać datę przybliżoną, dokładny dzień i miesiąc są opcjonalne.',
 			day: 'Dzień',
 			month: 'Miesiąc',
 			year: 'Rok',
@@ -2633,7 +2654,6 @@ export const pl = {
 			view: {
 				visitsTitle: 'Wizyty w czasie podróży',
 				seenTitle: 'Widziane na żywo podczas zwiedzania',
-				noArtworks: 'Do tej podróży nie ma jeszcze dzieł. Kliknij „Edytuj”, żeby je zaznaczyć.',
 				deleted: (dates: string): string => `Usunięto podróż z ${dates}.`
 			},
 			deleteConfirm: {
@@ -2656,6 +2676,8 @@ export const pl = {
 				endBeforeStart: 'Podróż nie może się skończyć, zanim się zaczęła.',
 				endApproximate: 'Bez dokładnych dni podróż ma jedną datę: miesiąc albo rok.',
 				endDayMissing: 'Wpisz dzień wyjazdu.',
+				fromCity: 'Z tego miasta',
+				fromSites: 'Z zabytków w tym mieście',
 				ticked:
 					'Dzieła z miasta i jego zabytków są już zaznaczone. Odznacz to, czego tym razem nie było.',
 				noPlace: 'Po wybraniu miasta pojawią się tu jego dzieła.',

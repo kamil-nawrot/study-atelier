@@ -34,7 +34,7 @@ describe('card index events', () => {
 	});
 
 	it('sorts the events by date with the undated ones last', async () => {
-		render(CardIndexEvents, { entries: events, sort: 'date' });
+		render(CardIndexEvents, { entries: events, sort: 'oldest' });
 
 		expect(
 			page

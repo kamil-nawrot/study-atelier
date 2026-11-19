@@ -8,7 +8,7 @@ const ORDER_KEY = 'study-atelier:wall-order';
 const FORMER_ERA_ORDER = 'period';
 
 export function isWallOrder(value: unknown): value is WallOrder {
-	return value === 'recent' || value === 'year' || value === 'author';
+	return value === 'recent' || value === 'year' || value === 'year-newest' || value === 'author';
 }
 
 export function rememberedWallOrder(): WallOrder {

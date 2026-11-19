@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { page } from 'vitest/browser';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { m } from '#lib/i18n/i18n.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
@@ -80,5 +80,44 @@ describe('VisitList', () => {
 		const images = document.querySelectorAll('.visits img');
 		expect(images).toHaveLength(1);
 		expect(images[0].closest('.nested')).not.toBeNull();
+	});
+
+	describe('search and order', () => {
+		const visits = [
+			testVisit({ id: 'old', place: 'Uffizi', date: { on: '2019-01-01', precision: 'year' } }),
+			testVisit({ id: 'new', place: 'Prado', date: { on: '2026-05-03', precision: 'day' } })
+		];
+
+		beforeEach(() => {
+			localStorage.clear();
+		});
+
+		it('filters by the name of the place, opens the years it finds and says when nothing matches', async () => {
+			render(VisitList, { visits, artworks: new Map() });
+
+			const search = page.getByRole('searchbox', { name: m.chronicle.search });
+			await search.fill('uffi');
+			await expect.element(page.getByRole('link', { name: 'Uffizi' })).toBeVisible();
+			await expect.element(page.getByRole('link', { name: 'Prado' })).not.toBeInTheDocument();
+
+			await search.fill('Luwr');
+			await expect.element(page.getByText(m.chronicle.noResults('Luwr'))).toBeVisible();
+		});
+
+		it('puts the oldest year first and remembers the order', async () => {
+			render(VisitList, { visits, artworks: new Map() });
+
+			await userEvent.selectOptions(
+				page.getByLabelText(m.chronicle.sortLabel),
+				m.chronicle.sorts.oldest
+			);
+
+			const years = page.getByRole('heading', { level: 2 }).elements();
+			expect(years.map((heading) => heading.textContent?.trim().slice(0, 4))).toEqual([
+				'2019',
+				'2026'
+			]);
+			expect(localStorage.getItem('study-atelier:chronicle-sort')).toBe('oldest');
+		});
 	});
 });

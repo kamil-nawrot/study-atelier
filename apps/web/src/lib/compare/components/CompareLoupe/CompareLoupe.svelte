@@ -1,6 +1,11 @@
 <script lang="ts">
 	import LoupeLens from '#lib/images/components/LoupeLens/LoupeLens.svelte';
-	import { LOUPE_MIN_LEVEL, LOUPE_SIZE, LOUPE_START_LEVEL } from '#lib/images/loupe/loupe.ts';
+	import {
+		LOUPE_MIN_LEVEL,
+		LOUPE_SIZE,
+		LOUPE_START_LEVEL,
+		loupeZoomed
+	} from '#lib/images/loupe/loupe.ts';
 	import type { SharedLoupe } from '#lib/compare/shared-loupe/shared-loupe.svelte.ts';
 
 	type Props = {
@@ -9,8 +14,6 @@
 		large: string;
 		sourceWidth: number;
 	};
-
-	const STEP = 1;
 
 	let { loupe, image, large, sourceWidth }: Props = $props();
 
@@ -35,11 +38,7 @@
 	function zoom(node: HTMLElement): () => void {
 		const listener = (event: WheelEvent): void => {
 			event.preventDefault();
-			const next = Math.max(
-				LOUPE_MIN_LEVEL,
-				Math.min(maxLevel, level + (event.deltaY < 0 ? STEP : -STEP))
-			);
-			loupe.level = next;
+			loupe.level = Math.max(LOUPE_MIN_LEVEL, Math.min(maxLevel, loupeZoomed(level, event)));
 		};
 		node.addEventListener('wheel', listener, { passive: false });
 		return () => node.removeEventListener('wheel', listener);

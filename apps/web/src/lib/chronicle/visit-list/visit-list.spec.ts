@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { openYear, visitsByYear } from './visit-list.ts';
+import { matchingVisits, openYear, visitsByYear } from './visit-list.ts';
 import { testTrip, testVisit } from '#lib/testing/chronicle/chronicle.ts';
 import type { Visit } from '#lib/chronicle/types/visit.ts';
 import type { VisitDate } from '#lib/chronicle/types/visit-date.ts';
@@ -56,6 +56,61 @@ describe('visitsByYear', () => {
 	});
 });
 
+describe('visitsByYear in the oldest order', () => {
+	it('puts the oldest year and visit first, and keeps the days of a trip in order', () => {
+		const trip = testTrip({ id: 'trip', date: { on: '2024-05-01', precision: 'day' } });
+		const years = visitsByYear(
+			[
+				visit('new', { on: '2026-10-12', precision: 'day' }),
+				visit('second', { on: '2024-05-03', precision: 'day' }, 'trip'),
+				visit('first', { on: '2024-05-02', precision: 'day' }, 'trip'),
+				trip,
+				visit('mid', { on: '2024-08-01', precision: 'day' })
+			],
+			'oldest'
+		);
+		expect(years.map((year) => year.year)).toEqual([2024, 2026]);
+		expect(years[0].entries.map((item) => item.visit.id)).toEqual(['trip', 'mid']);
+		expect(years[0].entries[0].visits.map((item) => item.id)).toEqual(['first', 'second']);
+	});
+});
+
+describe('matchingVisits', () => {
+	const trip = testTrip({
+		id: 'trip',
+		place: 'Ateny',
+		date: { on: '2026-10-10', precision: 'day' }
+	});
+	const acropolis = testVisit({ id: 'acropolis', place: 'Akropol', tripId: 'trip' });
+	const museum = testVisit({ id: 'museum', place: 'Muzeum Narodowe', tripId: 'trip' });
+	const louvre = testVisit({ id: 'louvre', place: 'Luwr' });
+	const all = [trip, acropolis, museum, louvre];
+	const ids = (list: readonly Visit[]): string[] => list.map(({ id }) => id);
+
+	it('keeps everything without a query', () => {
+		expect(matchingVisits(all, '  ')).toBe(all);
+	});
+
+	it('matches the name of the place, ignoring case and diacritics', () => {
+		expect(ids(matchingVisits(all, 'LUWR'))).toEqual(['louvre']);
+		expect(ids(matchingVisits([testVisit({ id: 'x', place: 'Musée d’Orsay' })], 'musee'))).toEqual([
+			'x'
+		]);
+	});
+
+	it('keeps all the visits of a trip whose place matches', () => {
+		expect(ids(matchingVisits(all, 'ateny'))).toEqual(['trip', 'acropolis', 'museum']);
+	});
+
+	it('keeps the trip of a matching visit, with only the matching visits', () => {
+		expect(ids(matchingVisits(all, 'akropol'))).toEqual(['trip', 'acropolis']);
+	});
+
+	it('gives nothing when nothing matches', () => {
+		expect(matchingVisits(all, 'Prado')).toEqual([]);
+	});
+});
+
 describe('openYear', () => {
 	const now = new Date(2026, 9, 25);
 
@@ -72,6 +127,17 @@ describe('openYear', () => {
 			visit('old', { on: '2019-01-01', precision: 'year' }),
 			visit('newer', { on: '2024-05-03', precision: 'day' })
 		]);
+		expect(openYear(years, now)).toBe(2024);
+	});
+
+	it('opens the newest year also when the oldest come first', () => {
+		const years = visitsByYear(
+			[
+				visit('old', { on: '2019-01-01', precision: 'year' }),
+				visit('newer', { on: '2024-05-03', precision: 'day' })
+			],
+			'oldest'
+		);
 		expect(openYear(years, now)).toBe(2024);
 	});
 

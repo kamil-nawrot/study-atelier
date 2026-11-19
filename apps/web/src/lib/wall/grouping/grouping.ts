@@ -1,6 +1,6 @@
 import { m } from '#lib/i18n/i18n.ts';
 import { ERA_CODES, eraName, isEraCode } from '#lib/catalogue/eras/eras.ts';
-import { byYear, groupByAuthor } from '#lib/wall/periods/periods.ts';
+import { byYear, byYearNewest, groupByAuthor } from '#lib/wall/periods/periods.ts';
 import type { PeriodGroup } from '#lib/wall/types/period-group.ts';
 import type { WallOrder } from '#lib/wall/types/wall-order.ts';
 import type { WallGrouping } from '#lib/wall/types/wall-grouping.ts';
@@ -59,6 +59,7 @@ export function wallParams(filterParams: URLSearchParams, grouping: WallGrouping
 
 export function orderWall(artworks: WallArtwork[], order: WallOrder): WallArtwork[] {
 	if (order === 'year') return [...artworks].sort(byYear);
+	if (order === 'year-newest') return [...artworks].sort(byYearNewest);
 	if (order === 'author') return groupByAuthor(artworks).flatMap((group) => group.artworks);
 	return artworks;
 }

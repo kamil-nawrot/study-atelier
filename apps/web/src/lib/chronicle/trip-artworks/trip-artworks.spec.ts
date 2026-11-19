@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { valueKey } from '#lib/card-index/value-suggestions/value-suggestions.ts';
 import { testArtwork } from '#lib/catalogue/test-artwork/test-artwork.ts';
 import type { TripPlace } from '#lib/chronicle/types/trip-place.ts';
-import { cityKey, tripArtworks, tripPlaceNames } from './trip-artworks.ts';
+import { cityKey, splitTripArtworks, tripArtworks, tripPlaceNames } from './trip-artworks.ts';
 
 function place(name: string, overrides: Partial<TripPlace> = {}): TripPlace {
 	return {
@@ -57,5 +57,24 @@ describe('tripArtworks', () => {
 		const elsewhere = testArtwork(4, 'Bez miejsca', { location: null });
 
 		expect(tripArtworks([city, site, museum, elsewhere], 'Paryż', places)).toEqual([city, site]);
+	});
+});
+
+describe('splitTripArtworks', () => {
+	it('separates the artworks of the city from those of its sites', () => {
+		const city = testArtwork(1, 'Le Marais', { location: 'Paryż' });
+		const sameCity = testArtwork(2, 'Rynek', { location: 'paryż ' });
+		const site = testArtwork(3, 'Rozeta', { location: 'Notre-Dame de Paris' });
+
+		expect(splitTripArtworks([city, site, sameCity], 'Paryż')).toEqual({
+			city: [city, sameCity],
+			sites: [site]
+		});
+	});
+
+	it('gives only sites when the city has no artworks of its own', () => {
+		const site = testArtwork(3, 'Rozeta', { location: 'Notre-Dame de Paris' });
+
+		expect(splitTripArtworks([site], 'Paryż')).toEqual({ city: [], sites: [site] });
 	});
 });

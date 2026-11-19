@@ -1,5 +1,4 @@
 export const LOUPE_SIZE = 220;
-export const LOUPE_MIN_RATIO = 1.5;
 export const LOUPE_MIN_LEVEL = 1.5;
 export const LOUPE_START_LEVEL = 2;
 

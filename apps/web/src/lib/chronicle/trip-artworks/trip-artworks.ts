@@ -34,3 +34,16 @@ export function tripArtworks(
 	if (names.size === 0) return [];
 	return artworks.filter((artwork) => artwork.location && names.has(valueKey(artwork.location)));
 }
+
+export function splitTripArtworks(
+	suggested: readonly WallArtwork[],
+	city: string
+): { city: WallArtwork[]; sites: WallArtwork[] } {
+	const key = valueKey(city);
+	const inCity = (artwork: WallArtwork): boolean =>
+		Boolean(artwork.location) && valueKey(artwork.location ?? '') === key;
+	return {
+		city: suggested.filter((artwork) => inCity(artwork)),
+		sites: suggested.filter((artwork) => !inCity(artwork))
+	};
+}
