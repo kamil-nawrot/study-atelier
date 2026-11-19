@@ -28,6 +28,7 @@ describe('loadValueSummaries', () => {
 			[
 				{
 					category_values: {
+						id: 'author-1',
 						category_code: 'author',
 						name: 'Leonardo da Vinci',
 						author_details: [
@@ -37,6 +38,7 @@ describe('loadValueSummaries', () => {
 				},
 				{
 					category_values: {
+						id: 'period-1',
 						category_code: 'period',
 						name: 'Renaissance',
 						period_details: [{ summary: 'Revival.' }]
@@ -74,8 +76,12 @@ describe('loadValueSummaries', () => {
 		const summaries = await loadValueSummaries(1);
 
 		expect(summaries.values).toEqual({
-			[summaryKey('author', 'Leonardo da Vinci')]: { summary: 'Painter.', lifeYears: '1452–1519' },
-			[summaryKey('period', 'Renaissance')]: { summary: 'Revival.' }
+			[summaryKey('author', 'Leonardo da Vinci')]: {
+				id: 'author-1',
+				summary: 'Painter.',
+				lifeYears: '1452–1519'
+			},
+			[summaryKey('period', 'Renaissance')]: { id: 'period-1', summary: 'Revival.' }
 		});
 		expect(summaries.eras).toEqual({ early_modern: { summary: 'Early modern.' } });
 		expect(summaries.countries).toEqual({ Louvre: 'Francja' });

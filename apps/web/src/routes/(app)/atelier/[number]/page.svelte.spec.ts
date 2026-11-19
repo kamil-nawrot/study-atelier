@@ -735,7 +735,7 @@ describe('artwork page', () => {
 
 			await page.getByRole('button', { name: 'Baroque' }).click();
 
-			const card = page.getByRole('tooltip');
+			const card = page.getByRole('dialog');
 			await expect.element(card).toHaveTextContent('Movement, diagonals and strong light.');
 			await expect
 				.element(card)
@@ -749,8 +749,8 @@ describe('artwork page', () => {
 
 			await page.getByRole('button', { name: 'Johannes Vermeer' }).click();
 
-			await expect.element(page.getByRole('tooltip')).toHaveTextContent('1632–1675');
-			await expect.element(page.getByRole('tooltip')).toHaveTextContent('Painter of quiet rooms.');
+			await expect.element(page.getByRole('dialog')).toHaveTextContent('1632–1675');
+			await expect.element(page.getByRole('dialog')).toHaveTextContent('Painter of quiet rooms.');
 		});
 
 		it('shows the summary of the era', async () => {
@@ -759,7 +759,7 @@ describe('artwork page', () => {
 			await page.getByRole('button', { name: m.eras.early_modern.name, exact: true }).click();
 
 			await expect
-				.element(page.getByRole('tooltip'))
+				.element(page.getByRole('dialog'))
 				.toHaveTextContent('From the discovery of America to the Revolution.');
 		});
 

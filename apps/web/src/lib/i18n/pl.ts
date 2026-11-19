@@ -1152,6 +1152,7 @@ export const pl = {
 	},
 	cardIndex: {
 		title: 'Kartoteka',
+		openInCardIndex: 'Otwórz w kartotece',
 		lead: 'Tu porządkujesz swoje epoki, okresy, style, autorów, miejsca i wydarzenia. Możesz też dodać własne pola, żeby dokładniej opisywać dzieła.',
 		loadErrorTitle: 'Nie udało się wczytać Kartoteki',
 		tabsLabel: 'Rodzaje wartości',
