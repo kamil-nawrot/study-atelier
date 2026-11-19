@@ -9,6 +9,7 @@ export type CardIndexRecord = {
 	visits?: number;
 	sortName?: string;
 	birthYear?: number;
+	firstYear?: number;
 	countryCode?: string;
 	placeType?: PlaceType;
 	cityId?: string;

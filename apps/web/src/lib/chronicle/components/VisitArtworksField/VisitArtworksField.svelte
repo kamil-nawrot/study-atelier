@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { MetaLine, SearchField } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
+	import { splitTripArtworks } from '#lib/chronicle/trip-artworks/trip-artworks.ts';
 	import {
 		placeOf,
 		searchArtworks,
@@ -36,6 +37,16 @@
 	let place = $derived(placeOf(form));
 	let byId = $derived(new Map(artworks.map((artwork) => [artwork.id, artwork])));
 	let atPlace = $derived(suggested);
+	let groups = $derived.by(() => {
+		if (form.kind !== 'trip') {
+			return [{ id: 'place', label: m.chronicle.form.fromPlace, artworks: atPlace }];
+		}
+		const split = splitTripArtworks(atPlace, place);
+		return [
+			{ id: 'city', label: m.chronicle.trip.form.fromCity, artworks: split.city },
+			{ id: 'sites', label: m.chronicle.trip.form.fromSites, artworks: split.sites }
+		].filter((group) => group.artworks.length > 0);
+	});
 	let texts = $derived(form.kind === 'trip' ? m.chronicle.trip.form : m.chronicle.form);
 	let extra = $derived(form.extra.flatMap((id) => byId.get(id) ?? []));
 	let shown = $derived(new Set([...atPlace, ...extra].map((artwork) => artwork.id)));
@@ -91,23 +102,25 @@
 	{:else if atPlace.length === 0}
 		<p class="caption">{m.chronicle.form.placeEmpty}</p>
 	{:else}
-		<div class="group" aria-labelledby="{fieldId}-place" role="group">
-			<p id="{fieldId}-place" class="overline">{m.chronicle.form.fromPlace}</p>
-			{#if isNew}
-				<p class="caption">{texts.ticked}</p>
-			{/if}
-			<div class="grid">
-				{#each atPlace as artwork (artwork.id)}
-					<VisitArtworkTick
-						{artwork}
-						checked={chosen.has(artwork.id)}
-						{onimagefailed}
-						{onnearscreen}
-						ontoggle={toggle}
-					/>
-				{/each}
+		{#each groups as group, index (group.id)}
+			<div class="group" aria-labelledby="{fieldId}-{group.id}" role="group">
+				<p id="{fieldId}-{group.id}" class="overline">{group.label}</p>
+				{#if isNew && index === 0}
+					<p class="caption">{texts.ticked}</p>
+				{/if}
+				<div class="grid">
+					{#each group.artworks as artwork (artwork.id)}
+						<VisitArtworkTick
+							{artwork}
+							checked={chosen.has(artwork.id)}
+							{onimagefailed}
+							{onnearscreen}
+							ontoggle={toggle}
+						/>
+					{/each}
+				</div>
 			</div>
-		</div>
+		{/each}
 	{/if}
 
 	{#if extra.length > 0}

@@ -68,14 +68,40 @@ describe('ComparisonStage', () => {
 		await expect.element(page.getByText(m.ui.unknownAuthor)).toBeVisible();
 	});
 
-	it('says the image is too small while the loupe is on', async () => {
+	it('says the loupe is unavailable for an image too large to load into it', async () => {
 		const loupe = new SharedLoupe();
-		await renderStage({}, { loupe });
+		await renderStage(
+			{ image: { kind: 'url', url: IMAGE, width: 30000, height: 30000, id: 'image-1' } },
+			{ loupe }
+		);
 
 		expect(document.body.textContent).not.toContain(m.loupe.unavailable);
-		loupe.toggle(true);
+		loupe.on = true;
 
 		await expect.element(page.getByText(m.loupe.unavailable)).toBeVisible();
+	});
+
+	it('offers the loupe on an image of low resolution', async () => {
+		const loupe = new SharedLoupe();
+		const onready = vi.fn();
+		await render(ComparisonStage, {
+			artwork: artwork(),
+			changeable: true,
+			loupe,
+			onready,
+			onchange: vi.fn(),
+			palette: new PaletteLoader(),
+			paletteOn: false
+		});
+
+		await expect.poll(() => onready.mock.calls.at(-1)?.[0]).toBe(true);
+	});
+
+	it('centres the author and date line when it wraps', async () => {
+		await renderStage({ title: 'A very long title of an artwork '.repeat(6) });
+
+		const meta = document.querySelector('figcaption .meta') as HTMLElement;
+		expect(getComputedStyle(meta).justifyContent).toBe('center');
 	});
 
 	it('shows a placeholder for an artwork without an image', async () => {

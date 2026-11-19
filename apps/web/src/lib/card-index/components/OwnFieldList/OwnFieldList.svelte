@@ -103,7 +103,7 @@
 	.main {
 		display: inline-flex;
 		flex-wrap: wrap;
-		align-items: baseline;
+		align-items: center;
 		gap: var(--spacing-3);
 		min-width: 0;
 	}

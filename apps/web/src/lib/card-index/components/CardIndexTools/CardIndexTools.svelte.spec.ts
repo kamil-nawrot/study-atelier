@@ -7,7 +7,10 @@ import CardIndexTools from './CardIndexTools.svelte';
 
 describe('CardIndexTools', () => {
 	it('shows the search and the sorts of the tab', async () => {
-		render(CardIndexTools, { searchLabel: 'Szukaj autora', sorts: ['name', 'count', 'life'] });
+		render(CardIndexTools, {
+			searchLabel: 'Szukaj autora',
+			sorts: ['name', 'count', 'oldest', 'newest']
+		});
 
 		await expect.element(page.getByRole('searchbox', { name: 'Szukaj autora' })).toBeVisible();
 		const select = page.getByRole('combobox', { name: m.cardIndex.sortLabel });
@@ -16,7 +19,12 @@ describe('CardIndexTools', () => {
 			[...(select.element() as unknown as HTMLSelectElement).options].map(
 				(option) => option.textContent
 			)
-		).toEqual([m.cardIndex.sorts.name, m.cardIndex.sorts.count, m.cardIndex.sorts.life]);
+		).toEqual([
+			m.cardIndex.sorts.name,
+			m.cardIndex.sorts.count,
+			m.cardIndex.sorts.oldest,
+			m.cardIndex.sorts.newest
+		]);
 	});
 
 	it('offers no sort when the tab has only the name', async () => {

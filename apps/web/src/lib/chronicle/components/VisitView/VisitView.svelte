@@ -59,28 +59,34 @@
 			>
 				<ul class="trip-visits">
 					{#each tripVisits as tripVisit (tripVisit.id)}
-						<li><SmallTicket visit={tripVisit} /></li>
+						<li><SmallTicket visit={tripVisit} wrap /></li>
 					{/each}
 				</ul>
 			</Disclosure>
 		</section>
 	{/if}
 
-	<section aria-labelledby="visit-seen">
-		<Disclosure id="visit-seen" room title={texts.seenTitle}>
-			{#if artworks.length > 0}
-				<ArtworkWall {artworks} {onimagefailed} {onnearscreen} />
-			{:else}
-				<p class="caption">{texts.noArtworks}</p>
-			{/if}
-		</Disclosure>
-	</section>
+	{#if artworks.length > 0 || visit.kind !== 'trip'}
+		<section aria-labelledby="visit-seen">
+			<Disclosure id="visit-seen" room title={texts.seenTitle}>
+				{#if artworks.length > 0}
+					<ArtworkWall {artworks} {onimagefailed} {onnearscreen} />
+				{:else}
+					<p class="caption">{m.chronicle.view.noArtworks}</p>
+				{/if}
+			</Disclosure>
+		</section>
+	{/if}
 </article>
 
 <style>
 	.visit {
 		display: grid;
 		gap: var(--spacing-8);
+	}
+
+	.visit > section {
+		padding-top: var(--spacing-4);
 	}
 
 	.notes {

@@ -382,4 +382,66 @@ describe('VisitForm', () => {
 		await vi.waitFor(() => expect(onsaved).toHaveBeenCalled());
 		expect(save).toHaveBeenCalledWith(expect.objectContaining({ tripId: TRIP_ID }), VISIT_ID);
 	});
+
+	describe('a visit in a trip to another country', () => {
+		function renderClash(): ReturnType<typeof vi.fn> {
+			const onsaved = vi.fn();
+			render(VisitForm, {
+				visit: testVisit({ place: 'Belvedere', date: { on: '2026-10-12', precision: 'day' } }),
+				artworks,
+				places: ['Belvedere'],
+				tripPlaces: [
+					{
+						id: 'paris',
+						name: 'Paris',
+						placeType: 'city',
+						countryCode: 'FR',
+						point: null,
+						cityId: null
+					},
+					{
+						id: 'belvedere',
+						name: 'Belvedere',
+						placeType: 'museum',
+						countryCode: 'AT',
+						point: null,
+						cityId: null
+					}
+				],
+				trips: [testTrip()],
+				cancelHref: '/atelier/chronicle',
+				onsaved
+			});
+			return onsaved;
+		}
+
+		it('asks before saving and saves when the learner confirms', async () => {
+			save.mockResolvedValue({ id: VISIT_ID });
+			const onsaved = renderClash();
+
+			await userEvent.selectOptions(page.getByLabelText(m.chronicle.form.trip), TRIP_ID);
+			await userEvent.click(saveButton());
+
+			await expect.element(page.getByText(m.chronicle.tripCountryDialog.title)).toBeVisible();
+			expect(save).not.toHaveBeenCalled();
+			await userEvent.click(
+				page.getByRole('button', { name: m.chronicle.tripCountryDialog.confirm })
+			);
+
+			await vi.waitFor(() => expect(onsaved).toHaveBeenCalled());
+			expect(save).toHaveBeenCalledWith(expect.objectContaining({ tripId: TRIP_ID }), VISIT_ID);
+		});
+
+		it('goes back to the form without saving', async () => {
+			const onsaved = renderClash();
+
+			await userEvent.selectOptions(page.getByLabelText(m.chronicle.form.trip), TRIP_ID);
+			await userEvent.click(saveButton());
+			await userEvent.click(page.getByRole('button', { name: m.chronicle.tripCountryDialog.back }));
+
+			await expect.element(page.getByText(m.chronicle.tripCountryDialog.title)).not.toBeVisible();
+			expect(save).not.toHaveBeenCalled();
+			expect(onsaved).not.toHaveBeenCalled();
+		});
+	});
 });

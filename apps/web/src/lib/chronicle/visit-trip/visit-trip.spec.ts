@@ -2,7 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { emptyVisitForm } from '#lib/chronicle/visit-form/visit-form.ts';
 import { testTrip } from '#lib/testing/chronicle/chronicle.ts';
-import { linkedTrip, sameCityTrip, tripOptions, tripsCovering } from './visit-trip.ts';
+import {
+	linkedTrip,
+	sameCityTrip,
+	tripCountryClash,
+	tripOptions,
+	tripsCovering
+} from './visit-trip.ts';
 import type { TripPlace } from '#lib/chronicle/types/trip-place.ts';
 import type { VisitFormState } from '#lib/chronicle/types/visit-form-state.ts';
 
@@ -118,5 +124,40 @@ describe('tripOptions', () => {
 			m.chronicle.form.noTrip,
 			expect.stringMatching(/^Vienna, 13–15 października/)
 		]);
+	});
+});
+
+describe('tripCountryClash', () => {
+	const inTrip = (place: string, tripId: string): VisitFormState => ({
+		...emptyVisitForm(),
+		place: [place],
+		tripId
+	});
+
+	it('names both places and countries when the place is in another country than the trip', () => {
+		expect(tripCountryClash(inTrip('Belvedere', 'paris'), trips, tripPlaces)).toEqual({
+			place: 'Belvedere',
+			placeCountry: 'AT',
+			trip: 'Paris',
+			tripCountry: 'FR'
+		});
+	});
+
+	it('takes the country of the trip from its place when the trip has none', () => {
+		const bare = testTrip({ id: 'bare', countryCode: null });
+
+		expect(tripCountryClash(inTrip('Belvedere', 'bare'), [bare], tripPlaces)?.tripCountry).toBe(
+			'FR'
+		);
+	});
+
+	it('does not warn in the same country, outside a trip, or when a country is unknown', () => {
+		expect(tripCountryClash(inTrip('Louvre', 'paris'), trips, tripPlaces)).toBeUndefined();
+		expect(tripCountryClash(inTrip('Belvedere', ''), trips, tripPlaces)).toBeUndefined();
+		expect(tripCountryClash(inTrip('Unknown', 'paris'), trips, tripPlaces)).toBeUndefined();
+		expect(tripCountryClash(inTrip('Belvedere', 'missing'), trips, tripPlaces)).toBeUndefined();
+		expect(
+			tripCountryClash({ ...inTrip('Belvedere', 'paris'), kind: 'trip' }, trips, tripPlaces)
+		).toBeUndefined();
 	});
 });
