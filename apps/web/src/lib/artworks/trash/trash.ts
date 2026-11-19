@@ -10,3 +10,8 @@ export function formatDeletedOn(deletedAt: string, now = new Date()): string {
 	});
 	return m.trash.deletedOn(format.format(date));
 }
+
+export const trashTabs = [
+	{ value: 'artworks', label: m.trash.tabs.artworks },
+	{ value: 'exhibitions', label: m.trash.tabs.exhibitions }
+];

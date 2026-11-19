@@ -9,7 +9,7 @@
 		deleteExhibition,
 		restoreExhibition
 	} from '#lib/exhibitions/exhibition-data/exhibition-data.ts';
-	import { archivedSince } from '#lib/exhibitions/exhibition-dates/exhibition-dates.ts';
+	import { formatDeletedOn } from '#lib/artworks/trash/trash.ts';
 	import type { ArchivedExhibition } from '#lib/exhibitions/exhibition-page-data/exhibition-page-data.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 
@@ -17,10 +17,11 @@
 		exhibitions: readonly ArchivedExhibition[];
 		covers: readonly WallArtwork[];
 		onmessage: (message: string) => void;
+		oncount?: (count: number) => void;
 		removed?: string[];
 	};
 
-	let { exhibitions, covers, onmessage, removed = $bindable([]) }: Props = $props();
+	let { exhibitions, covers, onmessage, oncount, removed = $bindable([]) }: Props = $props();
 
 	const images = new WallImages();
 
@@ -31,6 +32,9 @@
 	let deleteError = $state<string>();
 
 	let shown = $derived(exhibitions.filter((exhibition) => !removed.includes(exhibition.id)));
+	$effect(() => {
+		oncount?.(shown.length);
+	});
 	let coverById = $derived(
 		new Map(images.apply([...covers]).map((artwork) => [artwork.id, artwork]))
 	);
@@ -115,7 +119,7 @@
 						class="meta"
 						text={m.trash.exhibitionMeta(
 							exhibition.artworkCount,
-							archivedSince(exhibition.deletedAt)
+							formatDeletedOn(exhibition.deletedAt)
 						)}
 					/>
 				</div>

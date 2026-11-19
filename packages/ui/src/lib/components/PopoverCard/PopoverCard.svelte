@@ -8,6 +8,7 @@
 		popover: PopoverState;
 		interactive?: boolean;
 		labelledby?: string;
+		label?: string;
 		boundary?: HTMLElement;
 		concealed?: boolean;
 		children: Snippet;
@@ -18,6 +19,7 @@
 		popover,
 		interactive = false,
 		labelledby,
+		label,
 		boundary,
 		concealed = false,
 		children
@@ -88,6 +90,7 @@
 	style:left="{left}px"
 	class="card"
 	class:interactive
+	aria-label={interactive ? label : undefined}
 	aria-labelledby={interactive ? labelledby : undefined}
 	hidden={!popover.open || !popover.ready || concealed}
 	onfocusout={(event) => popover.blur(event)}

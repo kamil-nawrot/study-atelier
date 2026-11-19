@@ -18,7 +18,7 @@
 	import ArchivedExhibitions from '#lib/exhibitions/components/ArchivedExhibitions/ArchivedExhibitions.svelte';
 	import DuplicateDialog from '#lib/artworks/components/DuplicateDialog/DuplicateDialog.svelte';
 	import { DuplicateCheck } from '#lib/artworks/duplicate-check/duplicate-check.svelte.ts';
-	import { formatDeletedOn } from '#lib/artworks/trash/trash.ts';
+	import { formatDeletedOn, trashTabs } from '#lib/artworks/trash/trash.ts';
 	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 	import { deletePermanently, restoreArtwork } from '#lib/artworks/trash-data/trash-data.ts';
 	import type { TrashArtwork } from '#lib/wall/types/trash-artwork.ts';
@@ -30,7 +30,6 @@
 
 	let toast: Toast;
 	let tab = $state('artworks');
-	const tabs = Object.entries(m.trash.tabs).map(([value, label]) => ({ value, label }));
 	const duplicateCheck = new DuplicateCheck();
 	let removed = $state<string[]>([]);
 	let busy = $state<string>();
@@ -38,6 +37,7 @@
 	let deleteOpen = $state(false);
 	let deleteTarget = $state<TrashArtwork>();
 	let deleteError = $state<string>();
+	let exhibitionCount = $state<number>();
 
 	let shown = $derived(data.artworks.filter((artwork) => !removed.includes(artwork.id)));
 	let deleteLabel = $derived(deleteTarget ? formatRecordNumber(deleteTarget.number) : '');
@@ -98,13 +98,15 @@
 	{/snippet}
 	<PageHeader lead={m.trash.lead}>
 		{#snippet aside()}
-			{#if tab === 'artworks' && shown.length > 0}
+			{#if tab === 'artworks' && !data.error && shown.length > 0}
 				<span class="caption">{m.atelier.count(shown.length)}</span>
+			{:else if tab === 'exhibitions' && !data.archivedError && exhibitionCount}
+				<span class="caption">{m.exhibitions.count(exhibitionCount)}</span>
 			{/if}
 		{/snippet}
 	</PageHeader>
 
-	<Tabs label={m.trash.tabsLabel} {tabs} bind:value={tab}>
+	<Tabs label={m.trash.tabsLabel} tabs={trashTabs} bind:value={tab}>
 		{#if tab === 'exhibitions'}
 			{#if data.archivedError}
 				<Alert title={m.exhibitions.loadErrorTitle} tone="danger">
@@ -114,6 +116,7 @@
 				<ArchivedExhibitions
 					covers={data.archivedCovers}
 					exhibitions={data.archived}
+					oncount={(count) => (exhibitionCount = count)}
 					onmessage={(message) => toast.show(message)}
 					bind:removed
 				/>
