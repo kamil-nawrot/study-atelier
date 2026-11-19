@@ -23,9 +23,13 @@ export function layEvents(
 	events: readonly TimelineEvent[],
 	era: Era,
 	perYear: number,
-	labelWidth: (event: TimelineEvent) => number
+	labelWidth: (event: TimelineEvent) => number,
+	lanes = Infinity
 ): LaidEvent[] {
-	const ends: number[] = [];
+	const ends: number[] = Number.isFinite(lanes)
+		? Array.from({ length: lanes }, () => -Infinity)
+		: [];
+	const shapeEnds = ends.map(() => -Infinity);
 	return eventsIn(events, era)
 		.map((event) => {
 			const span = spanOfYears(event.yearFrom, event.yearTo);
@@ -41,7 +45,10 @@ export function layEvents(
 				shape === 'pin'
 					? { from: middle - GAP, to: middle + PIN_ROOM + label }
 					: { from, to: inside ? to + GAP : to + AFTER_RIBBON + label };
+			const shapeReach =
+				shape === 'pin' ? { from: middle - GAP, to: middle + GAP } : { from, to: to + GAP };
 			return {
+				shapeReach,
 				laid: {
 					event,
 					start,
@@ -55,8 +62,18 @@ export function layEvents(
 				reach
 			};
 		})
-		.sort((a, b) => a.reach.from - b.reach.from || a.laid.event.id.localeCompare(b.laid.event.id))
-		.map(({ laid, reach }) => {
+		.sort(
+			(a, b) =>
+				a.shapeReach.from - b.shapeReach.from || a.laid.event.id.localeCompare(b.laid.event.id)
+		)
+		.map(({ laid, reach, shapeReach }) => {
+			if (Number.isFinite(lanes)) {
+				const lane = roomiestLane(ends, shapeEnds, shapeReach.from);
+				if (lane < 0) return { ...laid, lane: lanes };
+				ends[lane] = Math.max(ends[lane], reach.to);
+				shapeEnds[lane] = shapeReach.to;
+				return { ...laid, lane };
+			}
 			let lane = ends.findIndex((end) => end <= reach.from);
 			if (lane < 0) {
 				lane = ends.length;
@@ -65,6 +82,14 @@ export function layEvents(
 			ends[lane] = reach.to;
 			return { ...laid, lane };
 		});
+}
+
+function roomiestLane(ends: readonly number[], shapeEnds: readonly number[], from: number): number {
+	let best = -1;
+	shapeEnds.forEach((shapeEnd, lane) => {
+		if (shapeEnd <= from && (best < 0 || ends[lane] < ends[best])) best = lane;
+	});
+	return best;
 }
 
 export function lanesForEra(
