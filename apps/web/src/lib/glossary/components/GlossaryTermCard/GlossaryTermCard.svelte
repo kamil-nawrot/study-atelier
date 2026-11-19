@@ -105,6 +105,7 @@
 	}
 
 	.source {
+		margin-top: var(--spacing-2);
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-xs);
 		line-height: var(--line-height-xs);

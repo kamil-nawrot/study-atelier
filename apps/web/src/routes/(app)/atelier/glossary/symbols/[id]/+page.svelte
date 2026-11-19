@@ -87,11 +87,10 @@
 			</Button>
 			<MoreActions
 				actions={[
-					flagAction(() => (flag.open = true), flag.count),
-					{ label: m.common.delete, icon: Trash, onclick: () => (deleteOpen = true), danger: true }
+					{ label: m.common.delete, icon: Trash, onclick: () => (deleteOpen = true), danger: true },
+					flagAction(() => (flag.open = true), flag.count)
 				]}
 			>
-				<FlagButton count={flag.count} onclick={() => (flag.open = true)} />
 				<Button
 					aria-label={m.common.delete}
 					compact
@@ -101,6 +100,7 @@
 				>
 					{m.common.delete}
 				</Button>
+				<FlagButton count={flag.count} onclick={() => (flag.open = true)} />
 			</MoreActions>
 		{/if}
 	{/snippet}

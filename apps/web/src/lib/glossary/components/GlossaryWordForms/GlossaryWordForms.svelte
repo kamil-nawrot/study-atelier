@@ -25,7 +25,7 @@
 
 	let synonymsQuery = $state('');
 	let formsQuery = $state('');
-	let formsExpanded = $state(untrack(() => (existing?.forms.length ?? 0) === 0));
+	let formsExpanded = $state(false);
 	let formsStatus = $state<FormsStatus>('idle');
 	let formsAutoFilled = $state<string[] | null>(null);
 	let formsName = $state<string | null>(untrack(() => existing?.name.trim() ?? null));
@@ -100,7 +100,6 @@
 			formsAutoFilled = form.forms;
 			formsName = name;
 			formsStatus = form.forms.length > 0 ? 'found' : 'none';
-			if (form.forms.length > 0) formsExpanded = false;
 		} catch {
 			if (current !== formsRequest) return;
 			formsStatus = 'failed';
