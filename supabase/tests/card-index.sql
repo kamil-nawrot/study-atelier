@@ -19,9 +19,9 @@ declare
   mannerism uuid;
   trashed uuid;
 begin
-  perform public.save_artwork('{"title": "Mona Lisa", "era_code": "early_modern", "year": 1503}',
+  perform public.save_artwork('{"title": "Mona Lisa", "era_code": "early_modern", "year_to": 1503}',
     '{"author": ["Leonardo da Vinci"], "location": ["Louvre"], "period": ["Renaissance"], "style": ["Sfumato"]}');
-  select id into trashed from public.save_artwork('{"title": "Saint Anne", "era_code": "early_modern", "year": 1500}',
+  select id into trashed from public.save_artwork('{"title": "Saint Anne", "era_code": "early_modern", "year_from": 1480, "year_to": 1500}',
     '{"author": ["Leonardo da Vinci"], "period": ["Renaissance"]}');
   update public.artworks set deleted_at = now() where id = trashed;
   perform public.save_visit('{"visited_on": "2026-10-12", "date_precision": "day"}', 'Louvre', '{}');
@@ -56,7 +56,7 @@ begin
     @> '{"visit_count": 1, "country_code": "FR", "place_type": "museum"}',
     'card_index drops the visits, the country or the type of a place';
   assert (select item from jsonb_array_elements(index -> 'values') as item where (item ->> 'id')::uuid = renaissance)
-    @> '{"first_year": 1500}',
+    @> '{"first_year": 1480}',
     'card_index gives a period another first year than the oldest artwork of it';
   assert (select item from jsonb_array_elements(index -> 'values') as item where (item ->> 'id')::uuid = louvre)
     @> '{"first_year": 1503}',

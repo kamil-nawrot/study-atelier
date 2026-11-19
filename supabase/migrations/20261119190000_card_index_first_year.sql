@@ -16,7 +16,7 @@ as $$
           'sort_name', author.sort_name,
           'birth_year', author.birth_year,
           'first_year', (
-            select min(artwork.year)
+            select min(coalesce(artwork.year_from, artwork.year_to))
               from public.artwork_values as link
               join public.artworks as artwork on artwork.id = link.artwork_id
               where link.value_id = value.id
