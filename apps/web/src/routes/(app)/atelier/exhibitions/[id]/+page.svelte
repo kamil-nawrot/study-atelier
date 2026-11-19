@@ -3,6 +3,7 @@
 	import Check from '@lucide/svelte/icons/check';
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Trash from '@lucide/svelte/icons/trash-2';
+	import { untrack } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { Button, LoadFailure } from '@study-atelier/ui';
 	import { goto } from '$app/navigation';
@@ -57,6 +58,7 @@
 					: m.exhibitions.view.loadErrorTitle)
 	);
 
+	untrack(() => lookup.add(data.artworks));
 	$effect(() => lookup.add(data.artworks));
 	$effect(() => {
 		if (session && !editing) void lookup.checkNotes(artworkIdsOf(session.document));
