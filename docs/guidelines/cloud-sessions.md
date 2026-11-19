@@ -12,6 +12,17 @@ How a Claude Code cloud session gets a working environment and how it takes scre
 
 After the hook, `pnpm lint`, `pnpm check`, `pnpm test` and `pnpm build` work without extra steps. The hook is registered in [`.claude/settings.json`](../../.claude/settings.json) and only takes effect for sessions started after it is on the default branch.
 
+### When the hook did not run
+
+A thread of a Claude project can start outside the repository, and then the repository's `.claude/settings.json` is not loaded: neither this hook nor the `guard-bash` hook runs. When `apps/web/node_modules` is missing, run the hook by hand and export what it would have exported, since its exports do not reach the shell:
+
+```sh
+CLAUDE_CODE_REMOTE=true bash .claude/hooks/session-start.sh
+export SUPABASE_URL=https://abcd.supabase.co SUPABASE_PUBLISHABLE_KEY=dummy PLAYWRIGHT_BROWSERS_PATH=~/.cache/study-atelier/pw-browsers
+```
+
+The rules of [Guarded commands](git-workflow.md#guarded-commands) still apply and are followed by hand.
+
 ## Screenshots
 
 ```sh
@@ -67,3 +78,13 @@ A design thread can draw a view that does not exist yet in the app itself, so th
 
 - Do not kill the dev server with `pkill -f 'vite dev'` from a command whose own text contains the same pattern: it kills the shell. The script stops the server it started by itself.
 - `pnpm check` rewrites `.svelte-kit` env; a dev server that was already running then signs the fake session out. Start the screenshot after the check, or let the script start its own server.
+
+## SQL without Docker
+
+A cloud session has no Docker, so neither the local Supabase nor `pnpm db:try` runs. The container has the PostgreSQL 16 binaries in `/usr/lib/postgresql/16/bin`, which are enough to apply the migrations and run `supabase/tests/`:
+
+1. As the `postgres` user (`pg_ctl` refuses root), `initdb -A trust` a data folder in `/var/tmp/<dir>` (the postgres user cannot reach the scratchpad) and start it with `pg_ctl -o '-p 54329 -k <dir>' start`.
+2. Load stubs of what Supabase provides: the roles `anon`, `authenticated` and `service_role` granted to `postgres`; the schemas `auth`, `storage` and `extensions`; `auth.users` with `id`, `email`, `raw_user_meta_data` and `raw_app_meta_data` (jsonb, default `'{}'`), `created_at`, `updated_at` and `email_confirmed_at`; `auth.uid()`, `auth.role()` and `auth.jwt()` reading the setting `request.jwt.claims`; `storage.buckets`, `storage.objects` with row level security on and `storage.foldername(name)` as `string_to_array(name, '/')`; usage grants and default privileges on `public` for the three roles.
+3. Apply `supabase/migrations/*.sql` in order with `ON_ERROR_STOP`, then run each `supabase/tests/*.sql` with `psql`; exit code 3 means an assertion failed. `set role authenticated` and `set request.jwt.claims = '{"sub": "<uuid>"}'` test grants and policies as a learner.
+
+A query with embeds or aliases is checked against PostgREST itself, since the screenshot mock does not follow its rules: download the static `postgrest` binary from its GitHub releases, add a role `authenticator login noinherit` granted the three roles, point `db-uri` at the socket with `db-anon-role=anon` and a `jwt-secret` of 32 characters or more, sign an HS256 token `{sub, role: "authenticated", exp}` with Node's `crypto` and call paths such as `/artworks?select=...` with the filters supabase-js builds.

@@ -83,6 +83,29 @@ describe('BackroomView', () => {
 		expect(fixSession.progressFor('/atelier/3/edit')).toEqual({ position: 1, total: 1 });
 	});
 
+	it('counts the rows and filters them by title while the queue still covers the whole list', async () => {
+		const other = testArtwork(4, 'Another', { styles: ['Gothic'], yearTo: null });
+		render(BackroomView, { flags: [], artworks: [undated, other], terms: [] });
+		await userEvent.click(page.getByRole('tab', { name: m.backroom.tabs.missing }));
+		await expect.element(page.getByText(m.backroom.count(2))).toBeInTheDocument();
+
+		await userEvent.fill(page.getByRole('searchbox', { name: m.backroom.search }), 'anoth');
+
+		await expect.element(page.getByText(m.backroom.count(1))).toBeInTheDocument();
+		expect(page.getByText('Undated').elements()).toHaveLength(0);
+		preventNavigation();
+		await userEvent.click(page.getByRole('link', { name: m.backroom.fixAll }));
+		expect(fixSession.progressFor('/atelier/4/edit')).toEqual({ position: 2, total: 2 });
+	});
+
+	it('says when the search matches nothing', async () => {
+		render(BackroomView, { flags: [flag], artworks: [jerome], terms: [] });
+
+		await userEvent.fill(page.getByRole('searchbox', { name: m.backroom.search }), 'zzz');
+
+		await expect.element(page.getByText(m.backroom.noResults('zzz'))).toBeVisible();
+	});
+
 	it('says when nothing is flagged and shows the message of a finished queue', async () => {
 		render(BackroomView, {
 			flags: [],

@@ -1100,6 +1100,7 @@ async function mockSupabase(context) {
 					artworks: { record_number: number },
 					category_values: {
 						...value,
+						id,
 						[table]: (VALUE_DETAILS[table] ?? []).filter((row) => row.value_id === id)
 					}
 				};

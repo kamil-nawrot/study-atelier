@@ -62,7 +62,7 @@
 				{#if row.kind === 'artwork'}
 					<cite class="artwork-title">{row.title}</cite>
 				{:else}
-					<span class="name">{row.title}</span>
+					<span class="artwork-title">{row.title}</span>
 				{/if}
 				<span class="reason">{row.reason}</span>
 				{#if row.origin || row.held}
@@ -150,11 +150,6 @@
 		min-width: 0;
 	}
 
-	.artwork-title,
-	.name {
-		font-size: var(--font-size-lg);
-	}
-
 	.reason {
 		font-size: var(--font-size-sm);
 	}
@@ -172,8 +167,6 @@
 
 	.actions {
 		display: flex;
-		flex-direction: column;
-		align-items: stretch;
 		gap: var(--spacing-2);
 	}
 </style>
