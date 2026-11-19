@@ -2,6 +2,7 @@
 	import Waypoints from '@lucide/svelte/icons/waypoints';
 	import { Disclosure } from '@study-atelier/ui';
 	import { resolve } from '$app/paths';
+	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { groupRelations } from '#lib/artwork-relations/relation-types/relation-types.ts';
 	import type { ArtworkRelation } from '#lib/artwork-relations/types/artwork-relation.ts';
@@ -25,6 +26,7 @@
 						{#each group.artworks as artwork (artwork.id)}
 							<li>
 								<a href={resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}>
+									<span class="number">{formatRecordNumber(artwork.number)}</span>
 									<cite>{artwork.title}</cite>
 								</a>
 							</li>
@@ -63,7 +65,16 @@
 	}
 
 	a {
+		display: flex;
+		align-items: baseline;
+		gap: var(--spacing-2);
 		color: var(--color-fg);
 		font-family: var(--font-family-title), Georgia, serif;
+	}
+
+	.number {
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-xs);
+		font-variant-numeric: tabular-nums;
 	}
 </style>

@@ -173,18 +173,18 @@
 	<ul class="hints">
 		{#if !searchReady}
 			<li class="caption">
-				<Icon icon={Search} size="sm" />
+				<Icon icon={Search} size="xs" />
 				<span>{texts.findHint}</span>
 			</li>
 		{/if}
 		{#each hints as hint (hint.text)}
 			<li class="caption">
-				<Icon icon={hint.icon} size="sm" />
+				<Icon icon={hint.icon} size="xs" />
 				<span>{hint.text}</span>
 			</li>
 		{/each}
 		<li class="caption paste-hint">
-			<Icon icon={Clipboard} size="sm" />
+			<Icon icon={Clipboard} size="xs" />
 			<span>
 				{m.artworkForm.pasteHintForm}
 				<PasteKeys />
@@ -234,7 +234,7 @@
 	.image {
 		display: grid;
 		align-content: start;
-		gap: var(--spacing-3);
+		gap: var(--spacing-4);
 	}
 
 	.picture {
@@ -293,6 +293,8 @@
 		gap: var(--spacing-2);
 		margin: 0;
 		list-style: none;
+		font-size: var(--font-size-xs);
+		line-height: var(--line-height-xs);
 	}
 
 	.hints li {

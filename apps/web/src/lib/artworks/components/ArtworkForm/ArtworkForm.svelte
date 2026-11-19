@@ -317,7 +317,6 @@
 
 			{#each describedCategories as category (category.code)}
 				<ValueField
-					hint={category.code === 'location' ? m.artworkForm.locationHint : undefined}
 					label={category.label}
 					maxlength={VALUE_NAME_MAX_LENGTH}
 					options={options(category.code)}
