@@ -1,6 +1,6 @@
 # 0291. Give the style of an artwork its own review card
 
-- Status: accepted
+- Status: superseded by [0332](0332-return-the-style-question-to-the-recognition-of-an-artwork.md)
 - Date: 2026-11-14
 
 ## Context and problem statement

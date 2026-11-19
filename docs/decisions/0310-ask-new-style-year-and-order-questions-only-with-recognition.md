@@ -30,3 +30,7 @@ Chosen by the owner on 2026-11-16: without any artwork to recognise, the round h
 
 - Good: the counter reaches 0 when the day is done, and due style cards keep their schedule.
 - Bad: on a day with no recognition left, a short round of only style questions can remain.
+
+## More information
+
+- The style rule is replaced by [ADR-0332](0332-return-the-style-question-to-the-recognition-of-an-artwork.md): the style quiz is again a recognition question, so a round has no style questions of its own. The rule of the year and order questions stays.
