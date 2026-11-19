@@ -145,6 +145,11 @@ export async function deleteExhibition(id: string): Promise<ActionResult> {
 	return error ? { error: await failureMessage(error, exhibitionErrorMessage) } : {};
 }
 
+export async function deleteArchivedExhibitions(): Promise<ActionResult> {
+	const { error } = await supabase.from('exhibitions').delete().not('deleted_at', 'is', null);
+	return error ? { error: await failureMessage(error, exhibitionErrorMessage) } : {};
+}
+
 export async function saveExhibitionPoster(
 	id: string,
 	poster: ExhibitionPoster

@@ -18,13 +18,13 @@
 		covers: readonly WallArtwork[];
 		onmessage: (message: string) => void;
 		oncount?: (count: number) => void;
+		removed?: string[];
 	};
 
-	let { exhibitions, covers, onmessage, oncount }: Props = $props();
+	let { exhibitions, covers, onmessage, oncount, removed = $bindable([]) }: Props = $props();
 
 	const images = new WallImages();
 
-	let removed = $state<string[]>([]);
 	let busy = $state<string>();
 	let actionError = $state<string>();
 	let deleteTarget = $state<ArchivedExhibition>();
