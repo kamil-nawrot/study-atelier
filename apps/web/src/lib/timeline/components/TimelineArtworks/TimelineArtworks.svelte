@@ -409,8 +409,8 @@
 		position: absolute;
 		z-index: 5;
 		display: grid;
-		border: var(--border-width-base) solid var(--color-line);
-		background: var(--color-bg);
+		background: var(--color-mat-bg);
+		color: var(--color-mat-fg);
 	}
 
 	.open {
@@ -418,8 +418,8 @@
 		align-items: center;
 		gap: var(--spacing-2);
 		padding: var(--spacing-3);
-		border-top: var(--border-width-base) solid var(--color-line);
-		color: var(--color-fg);
+		border-top: var(--border-width-base) solid var(--color-mat-window);
+		color: inherit;
 		font-size: var(--font-size-sm);
 		font-weight: var(--font-weight-medium);
 		line-height: var(--line-height-sm);
