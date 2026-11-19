@@ -19,6 +19,7 @@ For now a single user: the project owner, learning art history. In the long run 
 - The learner's own collection is the centre of the app.
 - Artwork images come from open sources by default; the learner can override them with their own image.
 - Running costs stay at zero while the app has a single user.
+- Private learning comes first: features that help one learner study their own atelier come before sharing, onboarding and social features.
 
 ## Scope
 
