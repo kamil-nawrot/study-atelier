@@ -947,6 +947,7 @@ describe('artwork page', () => {
 			});
 
 			await expect.element(loupeButton()).toHaveAttribute('aria-disabled', 'true');
+			await loupeButton().hover();
 			await expect.element(page.getByRole('tooltip')).toHaveTextContent(m.loupe.unavailable);
 			(loupeButton().element() as HTMLElement).click();
 			await expect.element(loupeButton()).not.toHaveAttribute('aria-pressed');
