@@ -627,7 +627,6 @@ export const pl = {
 		styleLocked: 'Najpierw wybierz okres.',
 		material: 'Materiał',
 		location: 'Miejsce',
-		locationHint: 'Gdzie dzieło znajduje się teraz?',
 		notesPlaceholder: 'Co warto zapamiętać? Skąd znasz to dzieło?',
 		notesLinkHint:
 			'Wpisz @, żeby dodać odnośnik do autora, epoki albo miejsca, albo #, żeby dodać odnośnik do dzieła.',
@@ -1499,9 +1498,8 @@ export const pl = {
 	},
 	pins: {
 		switchLabel: (count: number): string => `Pinezki (${count})`,
-		editorNote: 'Pinezki zapisują się od razu, niezależnie od przycisku „Zapisz”.',
 		editHint:
-			'Wskaż miejsce na obrazie, żeby dodać pinezkę. Przeciągnij pinezkę, żeby ją przesunąć.',
+			'Wskaż miejsce na obrazie, żeby dodać pinezkę. Przeciągnij pinezkę, żeby zmienić jej miejsce. Pinezki zapisują się od razu, niezależnie od dzieła.',
 		imagePins: (count: number): string => `Jego pinezki (${count}) usuną się po zapisaniu.`,
 		placeHere: 'Dodaj pinezkę w tym miejscu',
 		marker: (number: number, name?: string, view = false): string =>

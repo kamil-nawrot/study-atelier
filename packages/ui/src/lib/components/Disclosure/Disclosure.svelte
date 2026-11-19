@@ -118,6 +118,10 @@
 		border-top: var(--border-width-hairline) solid var(--color-line);
 	}
 
+	.room:not(:first-child) {
+		margin-top: var(--spacing-4);
+	}
+
 	.room > summary {
 		justify-content: space-between;
 		gap: var(--spacing-4);
