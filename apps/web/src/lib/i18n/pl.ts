@@ -2667,7 +2667,7 @@ export const pl = {
 	},
 	timeline: {
 		title: 'Kalendarium',
-		lead: 'Twoje dzieła i wydarzenia w prawdziwej skali czasu, epoka po epoce.',
+		lead: 'W Kalendarium zobaczysz, jak Twoja kolekcja wiąże się z biegiem dziejów. W każdej epoce możesz zestawić dzieła i wydarzenia historyczne, aby zyskać nowy kontekst do analizy sztuki.',
 		emptyTitle: 'Kalendarium jest jeszcze puste',
 		empty:
 			'Tutaj zobaczysz swoje dzieła na osi czasu, każde w roku swojego powstania. Dzieła pojawią się same, gdy wpiszesz im datę. Możesz też dodać wydarzenia i okresy historyczne, a ich opis i daty uzupełnić z Wikipedii, żeby widzieć, co działo się w tym samym czasie.',
@@ -2733,6 +2733,7 @@ export const pl = {
 			description: 'Zniknie z Kalendarium. Żadne dzieło się nie zmieni.'
 		},
 		deleted: (name: string): string => `Usunięto wydarzenie „${name}”.`,
+		showDetails: 'Pokaż szczegóły',
 		noEvents: 'Nie ma tu jeszcze wydarzeń.',
 		hiddenEvents: (count: number): string =>
 			`${count} ${plural(count, { one: 'wydarzenie', few: 'wydarzenia', many: 'wydarzeń' })} poza widokiem. Przybliż, żeby je zobaczyć.`,
@@ -2741,7 +2742,8 @@ export const pl = {
 		lane: (name: string, count: number): string => `${name} · ${count}`,
 		filters: {
 			lanes: 'Okresy i style',
-			lanesHint: (era: string): string => `Wybierz maksymalnie 5 z epoki ${era}.`,
+			intro:
+				'Wybierz okresy lub style, a każdy z nich dostanie na osi własny wiersz i kolor. Pozostałe filtry zawężają dzieła widoczne w epoce.',
 			lanesFull: 'Wybrano maksymalną liczbę okresów i stylów. Odznacz któryś, żeby wybrać inny.',
 			periods: 'Okresy',
 			styles: 'Style',

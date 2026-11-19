@@ -93,6 +93,7 @@
 	.segment.current {
 		background: var(--color-fg-muted);
 		color: var(--color-on-fg);
+		font-weight: var(--font-weight-bold);
 	}
 
 	@media (max-width: 767.98px) {

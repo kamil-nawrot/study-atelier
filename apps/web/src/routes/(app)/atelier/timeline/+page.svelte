@@ -2,7 +2,7 @@
 	import { onMount, untrack } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { Alert, PageHeader, Toast } from '@study-atelier/ui';
-	import { goto, invalidateAll, snapshot } from '$app/navigation';
+	import { goto, snapshot } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
@@ -22,7 +22,6 @@
 	} from '#lib/timeline/filter/filter.ts';
 	import { eraOfYear, rememberEra, rememberedEra, startEra } from '#lib/timeline/start/start.ts';
 	import { entriesSpan, eraOf, spanOfYears } from '#lib/timeline/time/time.ts';
-	import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
 	import type { TimelineFilter } from '#lib/timeline/types/timeline-filter.ts';
 	import type { TimelinePlace } from '#lib/timeline/types/timeline-place.ts';
 	import type { PageProps } from './$types';
@@ -40,7 +39,7 @@
 	let era = $state(initialEra);
 	let filter = $state(emptyTimelineFilter());
 	let showEvents = $state(true);
-	let showSpans = $state(true);
+	let showSpans = $state(false);
 	let panelOpen = $state(false);
 	let timelineView = $state<TimelineView>();
 
@@ -57,7 +56,7 @@
 		restore: (value) => {
 			filter = value.filter;
 			showEvents = value.showEvents;
-			showSpans = value.showSpans ?? true;
+			showSpans = value.showSpans ?? false;
 			if (value.place) timelineView?.restore(value.place);
 		}
 	});
@@ -77,11 +76,6 @@
 	);
 	let matching = $derived(applyTimelineFilter(eraArtworks, filter).length);
 	let filtering = $derived(!isEmptyTimelineFilter(filter));
-
-	async function removed(event: TimelineEvent): Promise<void> {
-		await invalidateAll();
-		toast.show(m.timeline.deleted(event.name));
-	}
 
 	onMount(() => {
 		if (!saved) return;
@@ -117,7 +111,6 @@
 			>
 				<TimelineFilterPanel
 					artworks={eraArtworks}
-					{era}
 					bind:filter
 					bind:showEvents
 					bind:showSpans
@@ -144,7 +137,6 @@
 			events={data.events}
 			{initialEra}
 			{initialFocus}
-			ondeleted={removed}
 			onerachange={(code) => (era = code)}
 			{showEvents}
 			{showSpans}
@@ -156,7 +148,6 @@
 {#if !wide.current && !data.error && !data.empty}
 	<TimelineFilterDialog
 		artworks={eraArtworks}
-		{era}
 		{filtering}
 		{matching}
 		bind:open={dialogOpen}
