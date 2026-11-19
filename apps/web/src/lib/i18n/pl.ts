@@ -3204,7 +3204,8 @@ export const pl = {
 		exhibitionMeta: (count: number, date: string): string => `${workCount(count)} · ${date}`,
 		exhibitionRestored: (title: string): string => `Przywrócono wystawę „${title}”.`,
 		exhibitionDeleteTitle: (title: string): string => `Usunąć wystawę „${title}” na zawsze?`,
-		exhibitionDeleteDescription: 'Zniknie razem ze swoimi tekstami. Dzieła zostaną w atelier.',
+		exhibitionDeleteDescription:
+			'Wystawa zniknie bezpowrotnie. Dzieła z kolekcji zostaną w Atelier.',
 		exhibitionDeleted: (title: string): string => `Usunięto wystawę „${title}” na zawsze.`
 	}
 };

@@ -6,6 +6,7 @@ import {
 	deleteExhibition,
 	restoreExhibition
 } from '#lib/exhibitions/exhibition-data/exhibition-data.ts';
+import { formatDeletedOn } from '#lib/artworks/trash/trash.ts';
 import ArchivedExhibitions from './ArchivedExhibitions.svelte';
 
 vi.mock('#lib/exhibitions/exhibition-data/exhibition-data.ts', () => ({
@@ -38,6 +39,14 @@ describe('ArchivedExhibitions', () => {
 		render(ArchivedExhibitions, { exhibitions: [], covers: [], onmessage: vi.fn() });
 
 		await expect.element(page.getByText(m.trash.exhibitionsEmpty)).toBeInTheDocument();
+	});
+
+	it('dates an exhibition the way an artwork is dated', async () => {
+		render(ArchivedExhibitions, { exhibitions: [light], covers: [], onmessage: vi.fn() });
+
+		await expect
+			.element(page.getByText(m.trash.exhibitionMeta(2, formatDeletedOn(light.deletedAt))))
+			.toBeInTheDocument();
 	});
 
 	it('restores an exhibition and takes it off the list', async () => {
