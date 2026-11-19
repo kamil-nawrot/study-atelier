@@ -1152,6 +1152,7 @@ export const pl = {
 	},
 	cardIndex: {
 		title: 'Kartoteka',
+		openInCardIndex: 'Otwórz w kartotece',
 		lead: 'Tu porządkujesz swoje epoki, okresy, style, autorów, miejsca i wydarzenia. Możesz też dodać własne pola, żeby dokładniej opisywać dzieła.',
 		loadErrorTitle: 'Nie udało się wczytać Kartoteki',
 		tabsLabel: 'Rodzaje wartości',
@@ -1455,6 +1456,11 @@ export const pl = {
 		lead: 'Na Zapleczu gromadzą się dzieła i kartki ze Słowniczka, które wymagają poprawki – zarówno te oflagowane przez Ciebie, jak i te z brakami w informacjach. Możesz tutaj zająć się ich porządkowaniem i uzupełnianiem.',
 		menuCount: (count: number): string => `${count} do poprawki`,
 		tabs: { flags: 'Twoje flagi', missing: 'Braki danych' },
+		count: (count: number): string =>
+			`${count} ${plural(count, { one: 'pozycja', few: 'pozycje', many: 'pozycji' })}`,
+		search: 'Szukaj po tytule',
+		noResults: (query: string): string =>
+			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment tytułu.`,
 		fixAll: 'Poprawiaj po kolei',
 		fix: 'Popraw',
 		markFixed: 'Oznacz jako poprawione',

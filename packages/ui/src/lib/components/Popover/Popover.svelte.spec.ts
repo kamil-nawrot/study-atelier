@@ -146,4 +146,15 @@ describe('Popover', () => {
 
 		await expect.element(button()).toHaveAttribute('aria-expanded', 'false');
 	});
+
+	it('gives an interactive card a name and keeps it open while the pointer moves onto it', async () => {
+		render(Popover, { children: trigger, content, interactive: true, cardLabel: 'Renaissance' });
+
+		await userEvent.hover(button());
+		const card = page.getByRole('dialog', { name: 'Renaissance' });
+		await expect.element(card).toHaveTextContent('The revival of antiquity.');
+		await userEvent.hover(card);
+
+		await expect.element(button()).toHaveAttribute('aria-expanded', 'true');
+	});
 });

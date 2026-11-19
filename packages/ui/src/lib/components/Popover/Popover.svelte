@@ -7,9 +7,11 @@
 		children: Snippet;
 		content: Snippet;
 		label?: string;
+		interactive?: boolean;
+		cardLabel?: string;
 	};
 
-	let { children, content, label }: Props = $props();
+	let { children, content, label, interactive = false, cardLabel }: Props = $props();
 
 	const id = $props.id();
 	const cardId = `${id}-card`;
@@ -35,7 +37,7 @@
 	>
 		{@render children()}
 	</button>
-	<PopoverCard id={cardId} {popover}>
+	<PopoverCard id={cardId} {interactive} label={cardLabel} {popover}>
 		{@render content()}
 	</PopoverCard>
 </span>
