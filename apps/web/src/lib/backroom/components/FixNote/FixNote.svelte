@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Check from '@lucide/svelte/icons/check';
 	import Flag from '@lucide/svelte/icons/flag';
-	import { Button, Icon, TextButton } from '@study-atelier/ui';
+	import { Icon, TextButton } from '@study-atelier/ui';
 	import { tick } from 'svelte';
 	import { page } from '$app/state';
 	import { fixSession } from '#lib/backroom/fix-session/fix-session.svelte.ts';
@@ -66,15 +66,12 @@
 						{m.backroom.undo}
 					</TextButton>
 				{:else}
-					<Button
-						aria-label={m.backroom.markFixed}
-						compact
+					<TextButton
 						disabled={flags?.busy === note.id}
-						icon={Check}
 						onclick={() => flags && act(note.id, (id) => flags.markFixed(id))}
 					>
 						{m.backroom.markFixed}
-					</Button>
+					</TextButton>
 				{/if}
 				{#if flags?.failed?.id === note.id}
 					<span class="error" role="alert">{flags.failed.text}</span>

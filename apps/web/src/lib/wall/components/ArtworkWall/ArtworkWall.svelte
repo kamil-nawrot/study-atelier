@@ -83,7 +83,10 @@
 				}
 			);
 			observer.observe(element);
-			return () => observer.disconnect();
+			return () => {
+				observer.disconnect();
+				element.classList.remove('faded');
+			};
 		};
 	}
 
@@ -102,11 +105,11 @@
 <div bind:this={element} class="wall" class:compact>
 	{#each columns as column, index (index)}
 		<ul class="column">
-			{#each column as artwork (artwork.id)}
+			{#each column as artwork, row (artwork.id)}
 				<li
 					class:highlight={artwork.number === highlight}
 					{@attach watchScreen(artwork)}
-					{@attach watchVisible(inset)}
+					{@attach row > 0 && watchVisible(inset)}
 					data-period={periodIndexes?.get(artwork.id)}
 				>
 					<ArtworkTile

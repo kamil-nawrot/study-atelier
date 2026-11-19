@@ -30,30 +30,30 @@
 		display: flex;
 	}
 
-	.stage {
+	.stage,
+	.mat {
 		top: var(--spacing-2);
 		left: var(--spacing-2);
 		color: var(--color-stage-fg);
 	}
 
 	.mat {
-		top: 0;
-		left: 0;
-		background: var(--color-mat-bg);
-		color: var(--color-mat-fg-muted);
+		isolation: isolate;
+	}
+
+	.mat::before {
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: color-mix(in srgb, var(--color-stage-bg) 60%, transparent);
+		clip-path: circle(50%);
+		content: '';
 	}
 
 	.icon {
 		display: flex;
 		padding: var(--spacing-2);
-	}
-
-	.stage .icon {
-		opacity: 0.6;
-	}
-
-	.mat .icon {
-		padding: var(--spacing-1);
+		opacity: 0.7;
 	}
 
 	.image-credit:hover .icon,

@@ -311,9 +311,7 @@
 	{alt}
 	{compactEmpty}
 	filling={selected === 0 && matchStatus === 'searching'}
-	hints={pinImageId === undefined
-		? []
-		: [{ icon: PinIcon, text: `${m.pins.editHint} ${m.pins.editorNote}` }]}
+	hints={pinImageId === undefined ? [] : [{ icon: PinIcon, text: m.pins.editHint }]}
 	onsearch={stopMatch}
 	overlay={pinLayer}
 	{query}
