@@ -649,7 +649,7 @@ Table profiles {
 Table review_cards {
   artwork_id uuid [not null]
   owner_id uuid [not null, default: `auth.uid()`]
-  facet text [not null, default: `'recognise'::text`, note: 'recognise, date, style']
+  facet text [not null, default: `'recognise'::text`, note: 'recognise, date']
   due "timestamp with time zone" [not null]
   stability "double precision" [not null]
   difficulty "double precision" [not null]
