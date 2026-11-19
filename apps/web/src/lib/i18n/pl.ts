@@ -3199,7 +3199,24 @@ export const pl = {
 		exhibitionRestored: (title: string): string => `Przywrócono wystawę „${title}”.`,
 		exhibitionDeleteTitle: (title: string): string => `Usunąć wystawę „${title}” na zawsze?`,
 		exhibitionDeleteDescription: 'Zniknie razem ze swoimi tekstami. Dzieła zostaną w atelier.',
-		exhibitionDeleted: (title: string): string => `Usunięto wystawę „${title}” na zawsze.`
+		exhibitionDeleted: (title: string): string => `Usunięto wystawę „${title}” na zawsze.`,
+		clear: 'Wyczyść Archiwum',
+		clearTitle: 'Wyczyścić Archiwum?',
+		clearDescription: (artworks: number, exhibitions: number): string => {
+			const parts = [
+				...(artworks > 0 ? [`${workCount(artworks)} razem z Twoimi obrazami`] : []),
+				...(exhibitions > 0 ? [archivedExhibitionCount(exhibitions)] : [])
+			];
+			const verb =
+				parts.length > 1
+					? 'znikną'
+					: plural(artworks || exhibitions, { one: 'zniknie', few: 'znikną', many: 'zniknie' });
+			return `${parts.join(' i ')} ${verb} bezpowrotnie.`;
+		},
+		clearUnderstood: 'Rozumiem, że tego nie da się cofnąć',
+		clearing: 'Czyszczenie…',
+		cleared: 'Wyczyszczono Archiwum.',
+		clearErrorTitle: 'Nie udało się wyczyścić Archiwum'
 	}
 };
 
@@ -3233,6 +3250,10 @@ function visitCount(count: number): string {
 
 function placeCount(count: number): string {
 	return `${count} ${plural(count, { one: 'miejsce', few: 'miejsca', many: 'miejsc' })}`;
+}
+
+function archivedExhibitionCount(count: number): string {
+	return `${count} ${plural(count, { one: 'wystawa', few: 'wystawy', many: 'wystaw' })}`;
 }
 
 function workCount(count: number): string {

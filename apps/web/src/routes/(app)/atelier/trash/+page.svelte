@@ -14,6 +14,7 @@
 	} from '@study-atelier/ui';
 	import { invalidate } from '$app/navigation';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
+	import ClearArchive from '#lib/artworks/components/ClearArchive/ClearArchive.svelte';
 	import ArchivedExhibitions from '#lib/exhibitions/components/ArchivedExhibitions/ArchivedExhibitions.svelte';
 	import DuplicateDialog from '#lib/artworks/components/DuplicateDialog/DuplicateDialog.svelte';
 	import { DuplicateCheck } from '#lib/artworks/duplicate-check/duplicate-check.svelte.ts';
@@ -29,10 +30,7 @@
 
 	let toast: Toast;
 	let tab = $state('artworks');
-	const tabs = [
-		{ value: 'artworks', label: m.trash.tabs.artworks },
-		{ value: 'exhibitions', label: m.trash.tabs.exhibitions }
-	];
+	const tabs = Object.entries(m.trash.tabs).map(([value, label]) => ({ value, label }));
 	const duplicateCheck = new DuplicateCheck();
 	let removed = $state<string[]>([]);
 	let busy = $state<string>();
@@ -88,6 +86,16 @@
 </script>
 
 <AtelierLayout email={data.session.user.email ?? ''} heading title={m.trash.title}>
+	{#snippet bar()}
+		<div class="bar-actions">
+			<ClearArchive
+				artworks={data.artworks}
+				exhibitions={data.archived}
+				ondone={() => toast.show(m.trash.cleared)}
+				bind:removed
+			/>
+		</div>
+	{/snippet}
 	<PageHeader lead={m.trash.lead}>
 		{#snippet aside()}
 			{#if tab === 'artworks' && shown.length > 0}
@@ -107,6 +115,7 @@
 					covers={data.archivedCovers}
 					exhibitions={data.archived}
 					onmessage={(message) => toast.show(message)}
+					bind:removed
 				/>
 			{/if}
 		{:else}
@@ -205,6 +214,11 @@
 <Toast bind:this={toast} />
 
 <style>
+	.bar-actions {
+		display: flex;
+		margin-inline-start: auto;
+	}
+
 	ul {
 		margin: 0;
 		list-style: none;
