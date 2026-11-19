@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
-import { countFlags, deleteFlag, loadFlags } from './backroom-data.ts';
+import { countFlags, deleteFlag, loadBrokenImages, loadFlags } from './backroom-data.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { rpc: vi.fn(), from: vi.fn(), auth: { signOut: vi.fn() } }
@@ -12,7 +12,7 @@ const from = vi.mocked(supabase.from);
 
 function query(result: unknown): Record<string, ReturnType<typeof vi.fn>> {
 	const chain: Record<string, ReturnType<typeof vi.fn>> = {};
-	for (const name of ['select', 'order', 'delete']) chain[name] = vi.fn(() => chain);
+	for (const name of ['select', 'order', 'delete', 'not']) chain[name] = vi.fn(() => chain);
 	chain.range = vi.fn().mockResolvedValue(result);
 	chain.eq = vi.fn().mockResolvedValue(result);
 	from.mockReturnValue(chain as never);
@@ -66,6 +66,23 @@ describe('backroom data', () => {
 		query({ data: null, error: { message: 'Failed to fetch' } });
 
 		await expect(loadFlags()).resolves.toEqual({ flags: [], error: m.common.network });
+	});
+
+	it('loads the images marked broken with their artwork and position', async () => {
+		const chain = query({
+			data: [{ artwork_id: 'artwork-1', position: 2 }],
+			error: null
+		});
+
+		await expect(loadBrokenImages()).resolves.toEqual([{ artworkId: 'artwork-1', position: 2 }]);
+		expect(from).toHaveBeenCalledWith('artwork_images');
+		expect(chain.not).toHaveBeenCalledWith('broken_at', 'is', null);
+	});
+
+	it('lists no broken image when they cannot be loaded', async () => {
+		query({ data: null, error: { message: 'Failed to fetch' } });
+
+		await expect(loadBrokenImages()).resolves.toEqual([]);
 	});
 
 	it('counts the flags in the database', async () => {
