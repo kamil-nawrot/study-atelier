@@ -66,6 +66,44 @@ describe('fetchCommonsThumbnails', () => {
 		fetchMock.mockReset();
 	});
 
+	it('names the files that Commons says are missing', async () => {
+		vi.stubGlobal('fetch', fetchMock);
+		fetchMock.mockResolvedValue(
+			jsonResponse({
+				query: {
+					normalized: [{ from: 'File:Gone_file.jpg', to: 'File:Gone file.jpg' }],
+					pages: [
+						{ title: 'File:Starry Night.jpg', imageinfo: [info()] },
+						{ title: 'File:Gone file.jpg', missing: true },
+						{ title: 'File:Unclear.jpg' }
+					]
+				}
+			})
+		);
+		const missing = new Set<string>();
+
+		await fetchCommonsThumbnails(
+			['Starry Night.jpg', 'Gone_file.jpg', 'Unclear.jpg'],
+			500,
+			missing
+		);
+
+		expect([...missing]).toEqual(['Gone_file.jpg']);
+	});
+
+	it('names no missing file when Commons does not answer', async () => {
+		vi.useFakeTimers();
+		vi.stubGlobal('fetch', fetchMock);
+		fetchMock.mockRejectedValue(new TypeError('offline'));
+		const missing = new Set<string>();
+
+		const result = fetchCommonsThumbnails(['Gone.jpg'], 500, missing);
+		await vi.runAllTimersAsync();
+		await result;
+
+		expect(missing.size).toBe(0);
+	});
+
 	it('reads the thumbnail of each file, following normalized titles', async () => {
 		vi.stubGlobal('fetch', fetchMock);
 		fetchMock.mockResolvedValue(

@@ -16,6 +16,7 @@
 	import { fixSession } from '#lib/backroom/fix-session/fix-session.svelte.ts';
 	import type { BackroomRow } from '#lib/backroom/types/backroom-row.ts';
 	import type { BackroomTerm } from '#lib/backroom/types/backroom-term.ts';
+	import type { BrokenImage } from '#lib/backroom/types/broken-image.ts';
 	import type { FlagRecord } from '#lib/backroom/types/flag-record.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -24,12 +25,13 @@
 		flags: readonly FlagRecord[];
 		artworks: readonly WallArtwork[];
 		terms: readonly BackroomTerm[];
+		brokenImages?: readonly BrokenImage[];
 		error?: string;
 		message?: string;
 		onimage?: (artwork: WallArtwork) => void;
 	};
 
-	let { flags, artworks, terms, error, message, onimage }: Props = $props();
+	let { flags, artworks, terms, brokenImages = [], error, message, onimage }: Props = $props();
 
 	let toast: Toast;
 	let tab = $state('flags');
@@ -48,7 +50,7 @@
 			terms
 		)
 	);
-	let missing = $derived(missingRows(artworks, terms));
+	let missing = $derived(missingRows(artworks, terms, brokenImages));
 	let shown = $derived(tab === 'flags' ? flagged : missing);
 	let query = $state('');
 	let term = $derived(normalizeForSearch(query));

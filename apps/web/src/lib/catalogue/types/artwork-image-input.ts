@@ -21,4 +21,8 @@ type ImageSource =
 	  }
 	| { kind: 'url'; url: string; width: number | null; height: number | null };
 
-export type ArtworkImageInput = ImageSource & { id?: string; palette?: PaletteColour[] };
+export type ArtworkImageInput = ImageSource & {
+	id?: string;
+	palette?: PaletteColour[];
+	broken?: true;
+};

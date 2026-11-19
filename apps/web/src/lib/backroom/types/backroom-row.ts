@@ -6,6 +6,7 @@ export type BackroomRow = {
 	kind: 'artwork' | 'term' | 'symbol' | 'event';
 	title: string;
 	artwork?: WallArtwork;
+	imageBroken?: true;
 	reason: string;
 	origin?: string;
 	comment?: string;

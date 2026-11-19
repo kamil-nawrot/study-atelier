@@ -132,6 +132,21 @@ describe('missing rows', () => {
 		expect(rows[0].entry).not.toHaveProperty('flagId');
 	});
 
+	it('puts broken images first and opens the image field', () => {
+		const rows = missingRows(
+			[jerome, testArtwork(7, 'No style', { id: 'artwork-7' })],
+			[],
+			[
+				{ artworkId: 'artwork-12', position: 2 },
+				{ artworkId: 'artwork-7', position: 0 }
+			]
+		);
+		expect(rows.map((row) => [row.title, row.reason, row.entry.field, row.imageBroken])).toEqual([
+			['No style', [m.backroom.brokenImage(), m.backroom.missing.style].join(' · '), 'image', true],
+			['Saint Jerome', m.backroom.brokenImage(3), 'image', undefined]
+		]);
+	});
+
 	it('opens the year of an artwork that has a style', () => {
 		const [row] = missingRows(
 			[testArtwork(4, 'Undated', { styles: ['Gothic'], yearTo: null })],

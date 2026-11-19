@@ -67,11 +67,13 @@ Table artwork_images {
   image_height integer
   id uuid [pk, default: `gen_random_uuid()`]
   palette jsonb
+  broken_at "timestamp with time zone"
 
   indexes {
     (artwork_id, position) [unique]
     (id, artwork_id) [unique]
     (id, owner_id) [unique]
+    owner_id [name: 'artwork_images_broken_idx', note: 'where (broken_at IS NOT NULL)']
   }
   Note: 'RLS on'
 }

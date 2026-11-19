@@ -1,6 +1,7 @@
 <script lang="ts">
 	import BookA from '@lucide/svelte/icons/book-a';
 	import Check from '@lucide/svelte/icons/check';
+	import ImageOff from '@lucide/svelte/icons/image-off';
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Shapes from '@lucide/svelte/icons/shapes';
 	import { Button, Icon, Tag } from '@study-atelier/ui';
@@ -39,7 +40,9 @@
 	{#each rows as row, index (row.entry.key)}
 		<li>
 			<div class="thumbnail">
-				{#if row.artwork?.image}
+				{#if row.imageBroken}
+					<span class="mark"><Icon icon={ImageOff} /></span>
+				{:else if row.artwork?.image}
 					<img
 						alt=""
 						loading="lazy"

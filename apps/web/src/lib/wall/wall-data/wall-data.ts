@@ -1,7 +1,10 @@
-import { SIGNED_URL_SECONDS, ownThumbnailPath } from '#lib/images/bucket/bucket.ts';
-import { ownImageUrls } from '#lib/images/own-image-data/own-image-data.ts';
+import { SIGNED_URL_SECONDS } from '#lib/images/bucket/bucket.ts';
+import {
+	mainImageState,
+	reportChecks,
+	wallImageUrls
+} from '#lib/wall/image-checks/image-checks.ts';
 import { fetchCommonsThumbnails } from '#lib/images/commons/commons.ts';
-import { backfillThumbnails } from '#lib/images/thumbnail-backfill/thumbnail-backfill.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { cacheKeys, cached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
@@ -70,7 +73,7 @@ export const ARTWORK_COLUMNS = [
 	'year_approximate',
 	'era_code',
 	'type_code',
-	'artwork_images(source_image_file, own_image_path, own_image_url, image_width, image_height)',
+	'artwork_images(id, source_image_file, own_image_path, own_image_url, image_width, image_height, broken_at)',
 	'favourite',
 	'want_to_see',
 	'deleted_at',
@@ -78,21 +81,6 @@ export const ARTWORK_COLUMNS = [
 	'artwork_field_entries(field_id, text_value)',
 	'visit_artworks(visit_id)'
 ].join(', ');
-
-async function wallImageUrls(paths: string[]): Promise<Map<string, string>> {
-	const thumbnails = await ownImageUrls(paths.map(ownThumbnailPath));
-	const urls = new Map<string, string>();
-	const withoutThumbnail: string[] = [];
-	for (const path of paths) {
-		const thumbnail = thumbnails.get(ownThumbnailPath(path));
-		if (thumbnail) urls.set(path, thumbnail);
-		else withoutThumbnail.push(path);
-	}
-	const originals = await ownImageUrls(withoutThumbnail);
-	for (const [path, url] of originals) urls.set(path, url);
-	backfillThumbnails(originals);
-	return urls;
-}
 
 export async function fetchAllRows(
 	page: Parameters<typeof fetchAll>[0]
@@ -124,6 +112,7 @@ export function wallArtwork(row: ArtworkRow): WallArtwork {
 		materials: valuesOf(row.artwork_values, 'material'),
 		location: valuesOf(row.artwork_values, 'location')[0] ?? null,
 		hasImage: main !== undefined,
+		...mainImageState(main),
 		favourite: row.favourite,
 		...(row.visit_artworks?.length ? { seen: true } : {}),
 		...(row.want_to_see ? { wantToSee: true } : {}),
@@ -164,12 +153,14 @@ export async function resolveImages(artworks: WallArtwork[]): Promise<WallArtwor
 	const missing = pending.filter((artwork) => !rememberedArtwork(artwork));
 	const files = missing.flatMap((artwork) => artwork.pendingImage?.sourceFile ?? []);
 	const paths = missing.flatMap((artwork) => artwork.pendingImage?.ownPath ?? []);
-	const [thumbnails, urls] = await Promise.all([
+	const missingFiles = new Set<string>();
+	const [thumbnails, { urls, missing: missingPaths }] = await Promise.all([
 		files.length > 0
-			? fetchCommonsThumbnails(files, TILE_WIDTH)
+			? fetchCommonsThumbnails(files, TILE_WIDTH, missingFiles)
 			: Promise.resolve(new Map<string, string>()),
 		wallImageUrls(paths)
 	]);
+	reportChecks(missing, { thumbnails, missingFiles, urls, missingPaths });
 
 	const signedAt = Date.now();
 	resolvedImages.rememberThumbnails(thumbnails);
@@ -191,7 +182,15 @@ export async function refreshExpiredImages(
 	);
 	if (expired.length === 0) return [];
 
-	const urls = await wallImageUrls(expired.flatMap((artwork) => artwork.ownImagePath ?? []));
+	const { urls, missing } = await wallImageUrls(
+		expired.flatMap((artwork) => artwork.ownImagePath ?? [])
+	);
+	reportChecks(expired, {
+		thumbnails: new Map(),
+		missingFiles: new Set(),
+		urls,
+		missingPaths: missing
+	});
 	resolvedImages.rememberSignedUrls(urls, now);
 	return expired.map((artwork): WallArtwork => {
 		const src = urls.get(artwork.ownImagePath as string);

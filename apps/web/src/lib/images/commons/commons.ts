@@ -25,7 +25,7 @@ type ImageInfo = {
 type ImageInfoResponse = {
 	query?: {
 		normalized?: { from: string; to: string }[];
-		pages?: { title: string; imageinfo?: ImageInfo[] }[];
+		pages?: { title: string; missing?: boolean; imageinfo?: ImageInfo[] }[];
 	};
 };
 
@@ -108,10 +108,34 @@ export function plainText(html: string): string {
 		.trim();
 }
 
+function infoOfFiles(
+	files: string[],
+	query: ImageInfoResponse['query'],
+	missing?: Set<string>
+): Map<string, ImageInfo> {
+	const infoByTitle = new Map<string, ImageInfo>();
+	const missingTitles = new Set<string>();
+	for (const page of query?.pages ?? []) {
+		const info = page.imageinfo?.[0];
+		if (info) infoByTitle.set(page.title, info);
+		else if (page.missing) missingTitles.add(page.title);
+	}
+	const normalized = new Map((query?.normalized ?? []).map(({ from, to }) => [from, to]));
+	const infoByFile = new Map<string, ImageInfo>();
+	for (const file of files) {
+		const title = normalized.get(fileTitle(file)) ?? fileTitle(file);
+		const info = infoByTitle.get(title);
+		if (info) infoByFile.set(file, info);
+		else if (missingTitles.has(title)) missing?.add(file);
+	}
+	return infoByFile;
+}
+
 async function fetchImageInfoBatch(
 	files: string[],
 	thumbnailWidth: number,
-	details: boolean
+	details: boolean,
+	missing?: Set<string>
 ): Promise<Map<string, ImageInfo>> {
 	const params = new URLSearchParams({
 		action: 'query',
@@ -127,24 +151,13 @@ async function fetchImageInfoBatch(
 	});
 	if (details) params.set('iiextmetadatafilter', 'LicenseShortName|LicenseUrl|Artist');
 	const { query } = await fetchJson<ImageInfoResponse>(`${COMMONS_API}?${params}`);
-	const infoByTitle = new Map<string, ImageInfo>();
-	for (const page of query?.pages ?? []) {
-		const info = page.imageinfo?.[0];
-		if (info) infoByTitle.set(page.title, info);
-	}
-	const normalized = new Map((query?.normalized ?? []).map(({ from, to }) => [from, to]));
-	const infoByFile = new Map<string, ImageInfo>();
-	for (const file of files) {
-		const title = fileTitle(file);
-		const info = infoByTitle.get(normalized.get(title) ?? title);
-		if (info) infoByFile.set(file, info);
-	}
-	return infoByFile;
+	return infoOfFiles(files, query, missing);
 }
 
 export async function fetchCommonsThumbnails(
 	files: string[],
-	thumbnailWidth: number
+	thumbnailWidth: number,
+	missing?: Set<string>
 ): Promise<Map<string, string>> {
 	const unique = [...new Set(files)];
 	const thumbnails = new Map<string, string>();
@@ -153,7 +166,8 @@ export async function fetchCommonsThumbnails(
 			const batch = await fetchImageInfoBatch(
 				unique.slice(start, start + TITLES_PER_REQUEST),
 				thumbnailWidth,
-				false
+				false,
+				missing
 			);
 			batch.forEach(({ thumburl }, file) => {
 				if (thumburl) thumbnails.set(file, thumburl);

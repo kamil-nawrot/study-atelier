@@ -20,6 +20,8 @@ export type WallArtwork = {
 	materials: string[];
 	location: string | null;
 	hasImage: boolean;
+	imageId?: string;
+	imageBroken?: true;
 	favourite: boolean;
 	seen?: boolean;
 	wantToSee?: boolean;

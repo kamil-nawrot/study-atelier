@@ -120,6 +120,7 @@ export type Database = {
       artwork_images: {
         Row: {
           artwork_id: string;
+          broken_at: string | null;
           id: string;
           image_height: number | null;
           image_width: number | null;
@@ -137,6 +138,7 @@ export type Database = {
         ComputedFields: never;
         Insert: {
           artwork_id: string;
+          broken_at?: string | null;
           id?: string;
           image_height?: number | null;
           image_width?: number | null;
@@ -153,6 +155,7 @@ export type Database = {
         };
         Update: {
           artwork_id?: string;
+          broken_at?: string | null;
           id?: string;
           image_height?: number | null;
           image_width?: number | null;
