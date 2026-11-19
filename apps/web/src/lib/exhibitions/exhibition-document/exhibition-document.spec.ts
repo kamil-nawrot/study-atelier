@@ -3,7 +3,8 @@ import {
 	artworkIdsOf,
 	blockCountOf,
 	documentBytes,
-	isBlankText
+	isBlankText,
+	pictureIdsOf
 } from '#lib/exhibitions/exhibition-document/exhibition-document.ts';
 import type { ExhibitionDocument } from '#lib/exhibitions/types/exhibition-document.ts';
 
@@ -15,6 +16,22 @@ const text = (value: string): ExhibitionDocument => ({
 const artwork = (artworkId: string): ExhibitionDocument => ({
 	type: 'artwork',
 	attrs: { artworkId }
+});
+
+describe('pictureIdsOf', () => {
+	it('lists artworks that need their pictures: close-ups and palettes', () => {
+		const document = {
+			type: 'doc',
+			content: [
+				artwork('plain'),
+				{ type: 'closeUp', attrs: { artworkId: 'c' } },
+				{ type: 'artwork', attrs: { artworkId: 'p', palette: true } },
+				{ type: 'artwork', attrs: { artworkId: 'o', paletteOnly: true } },
+				{ type: 'closeUp', attrs: { artworkId: 'c' } }
+			]
+		};
+		expect(pictureIdsOf(document)).toEqual(['c', 'p', 'o']);
+	});
 });
 
 describe('artworkIdsOf', () => {
