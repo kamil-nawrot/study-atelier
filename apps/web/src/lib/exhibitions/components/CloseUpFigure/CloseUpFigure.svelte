@@ -62,7 +62,7 @@
 <style>
 	.figure {
 		display: grid;
-		gap: var(--spacing-2);
+		gap: var(--spacing-3);
 		justify-items: var(--block-justify, start);
 		margin: 0;
 	}
