@@ -80,7 +80,8 @@ export default defineConfig({
 					setupFiles: [
 						'src/lib/testing/ui-messages/ui-messages.ts',
 						'src/lib/testing/env/env.ts',
-						'src/lib/testing/quiet-fly/quiet-fly.ts'
+						'src/lib/testing/quiet-fly/quiet-fly.ts',
+						'src/lib/testing/pointer-rest/pointer-rest.ts'
 					]
 				}
 			}

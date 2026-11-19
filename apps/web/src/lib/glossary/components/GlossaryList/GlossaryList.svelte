@@ -184,7 +184,6 @@
 	.newest {
 		display: grid;
 		gap: var(--spacing-2);
-		max-width: var(--size-content-default);
 	}
 
 	@media (max-width: 767.98px) {
@@ -227,10 +226,6 @@
 		.group {
 			grid-template-columns: 80px minmax(0, 1fr);
 			gap: 0;
-		}
-
-		.group ul {
-			max-width: calc(var(--size-content-default) - 80px);
 		}
 
 		.group + .group {

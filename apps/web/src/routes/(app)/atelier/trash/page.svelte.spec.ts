@@ -4,7 +4,12 @@ import { render } from 'vitest-browser-svelte';
 import { invalidate } from '$app/navigation';
 import { findDuplicates } from '#lib/artworks/duplicates-data/duplicates-data.ts';
 import { flagCount } from '#lib/backroom/flag-count/flag-count.svelte.ts';
-import { deletePermanently, restoreArtwork } from '#lib/artworks/trash-data/trash-data.ts';
+import {
+	clearTrash,
+	deletePermanently,
+	restoreArtwork
+} from '#lib/artworks/trash-data/trash-data.ts';
+import { deleteArchivedExhibitions } from '#lib/exhibitions/exhibition-data/exhibition-data.ts';
 import type { ArchivedExhibition } from '#lib/exhibitions/exhibition-page-data/exhibition-page-data.ts';
 import type { TrashArtwork } from '#lib/wall/types/trash-artwork.ts';
 import { m } from '#lib/i18n/i18n.ts';
@@ -19,7 +24,12 @@ vi.mock('#lib/backroom/flag-count/flag-count.svelte.ts', () => ({
 }));
 vi.mock('#lib/artworks/trash-data/trash-data.ts', () => ({
 	restoreArtwork: vi.fn(),
-	deletePermanently: vi.fn()
+	deletePermanently: vi.fn(),
+	clearTrash: vi.fn()
+}));
+vi.mock('#lib/exhibitions/exhibition-data/exhibition-data.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/exhibitions/exhibition-data/exhibition-data.ts')>()),
+	deleteArchivedExhibitions: vi.fn()
 }));
 vi.mock('#lib/artworks/duplicates-data/duplicates-data.ts', async (importOriginal) => ({
 	...(await importOriginal<typeof import('#lib/artworks/duplicates-data/duplicates-data.ts')>()),
@@ -81,7 +91,7 @@ describe('trash page', () => {
 		renderTrash();
 
 		await expect.element(page.getByRole('heading', { level: 1 })).toHaveTextContent(m.trash.title);
-		await expect.element(page.getByText(m.atelier.count(2))).toBeVisible();
+		await expect.element(page.getByText(m.atelier.count(2), { exact: true })).toBeVisible();
 		await expect.element(row('Girl with a Pearl Earring')).toBeVisible();
 		await expect
 			.element(
@@ -104,7 +114,7 @@ describe('trash page', () => {
 		expect(restoreArtwork).toHaveBeenCalledWith('artwork-7');
 		await expect.element(page.getByText(m.trash.restored('#0007'))).toBeVisible();
 		await expect.element(row('Night Watch')).not.toBeInTheDocument();
-		await expect.element(page.getByText(m.atelier.count(1))).toBeVisible();
+		await expect.element(page.getByText(m.atelier.count(1), { exact: true })).toBeVisible();
 		expect(invalidate).toHaveBeenCalledWith(REVIEW_COUNTS_DEPENDENCY);
 		expect(flagCount.refresh).toHaveBeenCalled();
 	});
@@ -193,6 +203,41 @@ describe('trash page', () => {
 
 		await expect.element(row('Light')).toBeVisible();
 		await expect.element(row('Night Watch')).not.toBeInTheDocument();
+	});
+
+	it('clears the whole archive from the top bar and empties both tabs', async () => {
+		vi.mocked(clearTrash).mockResolvedValue({});
+		vi.mocked(deleteArchivedExhibitions).mockResolvedValue({});
+		renderTrash(artworks, undefined, [
+			{
+				id: 'a',
+				title: 'Light',
+				updatedAt: '2026-11-01T10:00:00Z',
+				deletedAt: '2026-11-02T10:00:00Z',
+				artworkCount: 2,
+				coverId: null
+			}
+		]);
+
+		await page.getByRole('button', { name: m.trash.clear }).click();
+		await expect
+			.element(page.getByRole('alertdialog').getByText(m.trash.clearDescription(2, 1)))
+			.toBeVisible();
+		await page.getByText(m.trash.clearUnderstood).click();
+		await page.getByRole('alertdialog').getByRole('button', { name: m.trash.clear }).click();
+
+		await expect.element(page.getByText(m.trash.cleared)).toBeVisible();
+		await expect.element(page.getByText(m.trash.empty)).toBeVisible();
+		await expect.element(page.getByRole('button', { name: m.trash.clear })).not.toBeInTheDocument();
+		await page.getByRole('tab', { name: m.trash.tabs.exhibitions }).click();
+		await expect.element(page.getByText(m.trash.exhibitionsEmpty)).toBeVisible();
+	});
+
+	it('offers no clearing when the archive is empty', async () => {
+		renderTrash([]);
+
+		await expect.element(page.getByText(m.trash.empty)).toBeVisible();
+		await expect.element(page.getByRole('button', { name: m.trash.clear })).not.toBeInTheDocument();
 	});
 
 	describe('on a phone', () => {
