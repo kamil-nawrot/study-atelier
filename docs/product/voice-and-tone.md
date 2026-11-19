@@ -11,6 +11,7 @@ The app talks to the learner the way a museum curator talks to a visitor: it kno
 - Sentences read the way a person would write them, never clipped into slogans ("Od 20 dzieł…"). Texts that explain the app, such as the welcome, the empty states and "Jak to działa?", may run to a few full sentences. What they say about the app is true to how it works, for example what the learner types and what the app fills in.
 - Texts read as written in Polish from the start, never as a translation: no phrasings carried over from English ("na koniec dnia", "zrób różnicę"), and the plain Polish word over a borrowed one.
 - No purple prose: no exclamation marks, no flowery metaphors, no jokes at the learner's expense. A light touch from the world of museums is fine when it stays clear ("Wkrótce zawisną tu dzieła z Twojego atelier").
+- Only words that exist in Polish: no invented words or shortenings, in texts, proposals and conversation with the owner alike.
 - Use the terms from the [glossary](glossary.md), for example "atelier" for the learner's collection.
 - A text about an artwork calls it "dzieło", never "obraz", because the collection also holds buildings, sculptures and ceramics ("W jakim stylu powstało to dzieło?"). "Obraz" means only the image of an artwork ("Dodaj kolejny obraz"), and a hint names what any kind of work shows ("formę, materiał i kompozycję"), not only what a painting does.
 

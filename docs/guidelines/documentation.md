@@ -21,6 +21,9 @@
 | How the owner wants Claude to work                     | `docs/guidelines/working-agreement.md` ([ADR-0250](../decisions/0250-keep-the-rules-of-working-with-the-owner-in-the-working-agreement.md))                           |
 | A library component and what it is for                 | its row in `packages/ui/README.md`, in the pull request that adds or changes it                                                                                       |
 
+- Nobody is named in the repository: docs, ADRs and code call the project owner "the owner" and ADRs have no list of deciders.
+- Claude's project memory holds only what the repository cannot: the cloud environment and its limits, how threads are briefed and the state of the work in progress. A rule found in a session goes into the docs above, and a design thread keeps its working state in its Linear issue, not in memory.
+
 ## Architecture Decision Records
 
 - Format: [MADR](https://adr.github.io/madr/), using [`decisions/template.md`](../decisions/template.md).

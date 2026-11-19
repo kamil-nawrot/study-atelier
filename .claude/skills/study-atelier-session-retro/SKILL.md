@@ -56,7 +56,7 @@ Then classify it:
 | Facts about the owner's machine and tools, open threads, anything outside the repository | project memory                                                                                                                            |
 | An idea for later                                                                        | a Linear issue with the [`study-atelier-idea`](../study-atelier-idea/SKILL.md) skill                                                      |
 
-A rule goes into the repository when it applies to the code or docs; memory only holds what the repository cannot. Do not record the same rule in both: memory links to the doc instead.
+A rule goes into the repository when it applies to the code or docs; memory only holds what the repository cannot. Do not record the same rule in both: memory links to the doc instead. A design thread's questions and the owner's answers belong in its Linear issue and its ADR, never in a memory file of their own.
 
 ## 5. Propose to the owner
 
