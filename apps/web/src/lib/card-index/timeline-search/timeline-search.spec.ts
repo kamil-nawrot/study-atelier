@@ -82,6 +82,51 @@ describe('narrowTimeline', () => {
 	});
 });
 
+describe('narrowTimeline by date', () => {
+	const dated: CardIndexTimeline = {
+		eras: [
+			{
+				code: 'antiquity',
+				periods: [
+					{ id: 'p-late', name: 'Późny', count: 1, firstYear: 100, styles: [] },
+					{ id: 'p-early', name: 'Wczesny', count: 1, firstYear: -300, styles: [] }
+				]
+			},
+			{
+				code: 'middle_ages',
+				periods: [
+					{
+						id: 'p-gothic',
+						name: 'Gotyk',
+						count: 2,
+						firstYear: 1200,
+						styles: [
+							{ id: 's-new', name: 'Nowy', count: 1, firstYear: 1400 },
+							{ id: 's-old', name: 'Stary', count: 1, firstYear: 1200 }
+						]
+					}
+				]
+			}
+		],
+		periodsWithoutEra: [],
+		stylesWithoutPeriod: []
+	};
+
+	it('puts the oldest first inside every level and keeps the eras in order', () => {
+		const result = narrowTimeline(dated, '', 'oldest');
+
+		expect(result.eras.map((era) => era.code)).toEqual(['antiquity', 'middle_ages']);
+		expect(names(result)).toEqual(['Wczesny', 'Późny', 'Gotyk', 'Stary', 'Nowy']);
+	});
+
+	it('puts the newest first inside every level and reverses the eras', () => {
+		const result = narrowTimeline(dated, '', 'newest');
+
+		expect(result.eras.map((era) => era.code)).toEqual(['middle_ages', 'antiquity']);
+		expect(names(result)).toEqual(['Gotyk', 'Nowy', 'Stary', 'Późny', 'Wczesny']);
+	});
+});
+
 describe('periodsWithMatchingStyles', () => {
 	it('names the periods whose styles match the query, once each', () => {
 		const shared = { ...timeline, periodsWithoutEra: timeline.eras[0].periods };

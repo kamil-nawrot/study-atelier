@@ -1152,7 +1152,7 @@ export const pl = {
 	cardIndex: {
 		title: 'Kartoteka',
 		openInCardIndex: 'Otwórz w kartotece',
-		lead: 'Tu porządkujesz swoje epoki, okresy, style, autorów, miejsca i wydarzenia. Możesz też dodać własne pola, żeby dokładniej opisywać dzieła.',
+		lead: 'Kartoteka pozwala Ci porządkować epoki, okresy, style, autorów, miejsca i wydarzenia. Możesz też dodawać własne pola, żeby dokładniej opisywać swoją kolekcję.',
 		loadErrorTitle: 'Nie udało się wczytać Kartoteki',
 		tabsLabel: 'Rodzaje wartości',
 		tabs: {
@@ -1195,9 +1195,9 @@ export const pl = {
 		sorts: {
 			name: 'Według nazwy',
 			count: 'Według liczby dzieł',
-			life: 'Według lat życia',
-			country: 'Według kraju',
-			date: 'Według daty'
+			oldest: 'Od najstarszych',
+			newest: 'Od najnowszych',
+			country: 'Według kraju'
 		},
 		noResults: (query: string): string =>
 			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment nazwy.`,
