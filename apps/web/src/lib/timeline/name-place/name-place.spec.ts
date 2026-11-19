@@ -1,62 +1,82 @@
 import { describe, expect, it } from 'vitest';
-import { drawnRibbon, namePlace, PIN_NAME_GAP } from './name-place.ts';
+import { drawnRibbon, PIN_NAME_GAP, placeNames, type NamedEvent } from './name-place.ts';
 
 const bounds = { start: 0, end: 1000 };
 
-describe('namePlace', () => {
-	it('keeps a name after its pin or ribbon while it fits before the end', () => {
-		expect(namePlace({ from: 500, to: 500, pin: true, inside: false, name: 120 }, bounds)).toEqual({
-			before: false,
-			shift: 0
+function pin(id: string, at: number, name = 120, lane = 0): NamedEvent {
+	return { id, lane, pin: true, from: at, to: at, name };
+}
+
+function ribbon(id: string, from: number, to: number, name = 120, lane = 0): NamedEvent {
+	return { id, lane, pin: false, from, to, name };
+}
+
+function sides(events: NamedEvent[], within = bounds): Record<string, string> {
+	return Object.fromEntries([...placeNames(events, within)].map(([id, place]) => [id, place.side]));
+}
+
+describe('placeNames', () => {
+	it('puts a name inside a ribbon that holds it and after a pin or a short ribbon', () => {
+		expect(sides([ribbon('long', 100, 400), pin('pin', 500), ribbon('short', 700, 740)])).toEqual({
+			long: 'inside',
+			pin: 'after',
+			short: 'after'
 		});
-		expect(namePlace({ from: 400, to: 500, pin: false, inside: false, name: 120 }, bounds)).toEqual(
-			{ before: false, shift: 0 }
-		);
 	});
 
-	it('puts the name before a pin or ribbon that stands too close to the end', () => {
+	it('puts the name before an event that stands too close to the end', () => {
 		const at = 1000 - PIN_NAME_GAP - 60;
-		expect(namePlace({ from: at, to: at, pin: true, inside: false, name: 120 }, bounds)).toEqual({
-			before: true,
-			shift: 0
+		expect(
+			sides([pin('pin', at), ribbon('short', 880, 940)].map((e, i) => ({ ...e, lane: i })))
+		).toEqual({
+			pin: 'before',
+			short: 'before'
 		});
-		expect(namePlace({ from: 880, to: 940, pin: false, inside: false, name: 120 }, bounds)).toEqual(
-			{ before: true, shift: 0 }
-		);
 	});
 
-	it('leaves the name after when there is no room before it either', () => {
-		expect(namePlace({ from: 960, to: 960, pin: true, inside: false, name: 990 }, bounds)).toEqual({
-			before: false,
-			shift: 0
+	it('puts the name before an event when the next event of its lane leaves no room after it', () => {
+		expect(sides([pin('first', 100), pin('second', 400), pin('third', 470)])).toEqual({
+			first: 'after',
+			second: 'before',
+			third: 'after'
 		});
+	});
+
+	it('leaves out a name that has no room on either side', () => {
+		expect(sides([pin('a', 300), pin('b', 380), pin('c', 460)])).toEqual({
+			a: 'before',
+			b: 'none',
+			c: 'after'
+		});
+	});
+
+	it('never lets two names of a lane overlap, but ignores the other lanes', () => {
+		expect(sides([pin('a', 300), pin('b', 360), pin('c', 330, 120, 1)])).toEqual({
+			a: 'before',
+			b: 'after',
+			c: 'after'
+		});
+	});
+
+	it('keeps a name out of the part of the stage outside the era', () => {
+		expect(sides([pin('a', 300)], { start: 250, end: 500 })).toEqual({ a: 'after' });
+		expect(sides([pin('a', 300, 300)], { start: 250, end: 500 })).toEqual({ a: 'none' });
 	});
 
 	it('moves a name inside a ribbon that starts before the edge to the visible part', () => {
-		expect(namePlace({ from: -300, to: 400, pin: false, inside: true, name: 120 }, bounds)).toEqual(
-			{ before: false, shift: 300 }
-		);
-		expect(namePlace({ from: -300, to: 50, pin: false, inside: true, name: 120 }, bounds)).toEqual({
-			before: false,
-			shift: 230
+		expect(placeNames([ribbon('a', -300, 400)], bounds).get('a')).toEqual({
+			side: 'inside',
+			shift: 300
 		});
-		expect(
-			namePlace(
-				{ from: 100, to: 400, pin: false, inside: true, name: 120 },
-				{ start: 250, end: 1000 }
-			)
-		).toEqual({ before: false, shift: 150 });
+		expect(placeNames([ribbon('a', 100, 400)], { start: 250, end: 1000 }).get('a')).toEqual({
+			side: 'inside',
+			shift: 150
+		});
 	});
 
-	it('keeps a name inside the drawn part of a ribbon that sticks out past the edge', () => {
-		const drawn = drawnRibbon(-300, 200, 1000);
-		expect(drawn).toEqual({ start: -4, end: 200 });
-		const place = namePlace(
-			{ from: drawn.start, to: drawn.end, pin: false, inside: true, name: 120 },
-			bounds
-		);
-		expect(place).toEqual({ before: false, shift: 4 });
-		expect(drawn.start + place.shift + 120).toBeLessThanOrEqual(drawn.end);
+	it('puts the name outside a ribbon whose drawn part is too short for it', () => {
+		const drawn = drawnRibbon(-300, 60, 1000);
+		expect(sides([ribbon('a', drawn.start, drawn.end)])).toEqual({ a: 'after' });
 	});
 
 	it('draws a ribbon that runs past the end only a little beyond it', () => {
