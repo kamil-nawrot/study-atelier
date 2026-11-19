@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { AddButton, Alert, PageHeader, Toast } from '@study-atelier/ui';
-	import { goto } from '$app/navigation';
+	import { goto, snapshot } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
@@ -16,9 +16,19 @@
 	const images = new WallImages();
 
 	let toast: Toast;
+	let query = $state('');
 	let artworks = $derived(
 		new Map(images.apply(data.artworks).map((artwork) => [artwork.id, artwork]))
 	);
+
+	snapshot<{ query: string; scroll: number }>({
+		id: 'chronicle',
+		capture: () => ({ query, scroll: window.scrollY }),
+		restore: (value) => {
+			query = value.query;
+			void tick().then(() => window.scrollTo({ top: value.scroll, behavior: 'instant' }));
+		}
+	});
 
 	onMount(() => {
 		const message = page.state.chronicleMessage;
@@ -61,6 +71,7 @@
 			onimagefailed={(artwork) => images.failed(artwork)}
 			onnearscreen={(artwork) => images.request(artwork)}
 			visits={data.visits}
+			bind:query
 		/>
 	{/if}
 </AtelierLayout>

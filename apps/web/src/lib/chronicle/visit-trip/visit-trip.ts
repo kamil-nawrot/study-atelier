@@ -77,3 +77,25 @@ export function linkedTrip(
 	const match = sameCityTrip(covering, placeOf(form), source.tripPlaces);
 	return { trips: covering, tripId: match?.id ?? '', outside: false };
 }
+
+export type TripCountryClash = {
+	place: string;
+	placeCountry: string;
+	trip: string;
+	tripCountry: string;
+};
+
+export function tripCountryClash(
+	form: VisitFormState,
+	trips: readonly Visit[],
+	places: readonly TripPlace[]
+): TripCountryClash | undefined {
+	if (form.kind !== 'visit' || form.tripId === '') return undefined;
+	const trip = trips.find((candidate) => candidate.id === form.tripId);
+	if (!trip) return undefined;
+	const place = placeOf(form);
+	const placeCountry = tripPlaceOf(places, place)?.countryCode;
+	const tripCountry = trip.countryCode ?? tripPlaceOf(places, trip.place)?.countryCode;
+	if (!placeCountry || !tripCountry || placeCountry === tripCountry) return undefined;
+	return { place, placeCountry, trip: trip.place, tripCountry };
+}
