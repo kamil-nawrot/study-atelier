@@ -9,13 +9,14 @@
 		Tag,
 		overlayScrollbar
 	} from '@study-atelier/ui';
+	import type { ResolvedPathname } from '$app/types';
 	import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
 	import ValueSummaryCard from '#lib/card-index/components/ValueSummaryCard/ValueSummaryCard.svelte';
 	import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
 	import type { ValueKind } from '#lib/card-index/types/value-kind.ts';
 	import type { ValueSummaries } from '#lib/card-index/types/value-summaries.ts';
 	import type { ValueSummary } from '#lib/card-index/types/value-summary.ts';
-	import { valueKindName } from '#lib/card-index/value-pages/value-pages.ts';
+	import { valueKindName, valuePath } from '#lib/card-index/value-pages/value-pages.ts';
 	import { summaryKey } from '#lib/card-index/value-summaries/value-summaries.ts';
 	import { artworkTypeIcon } from '#lib/catalogue/artwork-types/artwork-types.ts';
 	import { eraIcon } from '#lib/catalogue/eras/eras.ts';
@@ -124,6 +125,11 @@
 		return summaries.values[summaryKey(kind, name)];
 	}
 
+	function hrefOf(kind: ValueKind, summary: ValueSummary): ResolvedPathname | undefined {
+		const id = kind === 'era' ? artwork.eraCode : summary.id;
+		return id ? valuePath(kind, id) : undefined;
+	}
+
 	function parentOf(kind: ValueKind): string | undefined {
 		if (kind === 'period' && artwork.eraCode) return m.eras[artwork.eraCode].name;
 		if (kind === 'style' && artwork.period) return artwork.period;
@@ -134,10 +140,16 @@
 {#snippet valueName(kind: ValueKind, name: string)}
 	{@const summary = summaryOf(kind, name)}
 	{#if summary}
-		<Popover>
+		<Popover cardLabel={name} interactive>
 			{name}
 			{#snippet content()}
-				<ValueSummaryCard {name} kind={valueKindName(kind)} parent={parentOf(kind)} {summary} />
+				<ValueSummaryCard
+					{name}
+					href={hrefOf(kind, summary)}
+					kind={valueKindName(kind)}
+					parent={parentOf(kind)}
+					{summary}
+				/>
 			{/snippet}
 		</Popover>
 	{:else}
@@ -152,10 +164,16 @@
 			? `${name}, ${summaries.countries[name]}`
 			: name}
 	{#if kind && summary}
-		<Popover>
+		<Popover cardLabel={name} interactive>
 			<Tag>{label}</Tag>
 			{#snippet content()}
-				<ValueSummaryCard {name} kind={valueKindName(kind)} parent={parentOf(kind)} {summary} />
+				<ValueSummaryCard
+					{name}
+					href={hrefOf(kind, summary)}
+					kind={valueKindName(kind)}
+					parent={parentOf(kind)}
+					{summary}
+				/>
 			{/snippet}
 		</Popover>
 	{:else}

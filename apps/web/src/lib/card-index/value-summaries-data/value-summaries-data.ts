@@ -25,6 +25,7 @@ type AuthorSummaryRow = SummaryRow & {
 
 type ValueRow = {
 	category_values: {
+		id: string;
 		category_code: CategoryCode;
 		name: string;
 		period_details?: SummaryRow[];
@@ -36,7 +37,7 @@ type ValueRow = {
 };
 
 const VALUE_COLUMNS =
-	'category_values(category_code, name, period_details(summary), style_details(summary), material_details(summary), author_details(summary, birth_year, death_year, years_approximate), location_details!location_details_value_id_owner_id_category_code_fkey(summary, country_code)), artworks!inner(record_number)';
+	'category_values(id, category_code, name, period_details(summary), style_details(summary), material_details(summary), author_details(summary, birth_year, death_year, years_approximate), location_details!location_details_value_id_owner_id_category_code_fkey(summary, country_code)), artworks!inner(record_number)';
 
 function valueSummary(row: ValueRow): [string, ValueSummary] | null {
 	const value = row.category_values;
@@ -49,7 +50,9 @@ function valueSummary(row: ValueRow): [string, ValueSummary] | null {
 		: undefined;
 	return [
 		summaryKey(value.category_code, value.name),
-		lifeYears ? { summary: details.summary, lifeYears } : { summary: details.summary }
+		lifeYears
+			? { id: value.id, summary: details.summary, lifeYears }
+			: { id: value.id, summary: details.summary }
 	];
 }
 
