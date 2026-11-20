@@ -135,6 +135,6 @@
 		padding: 0;
 		border: none;
 		background: transparent;
-		cursor: crosshair;
+		cursor: var(--cursor-pin);
 	}
 </style>

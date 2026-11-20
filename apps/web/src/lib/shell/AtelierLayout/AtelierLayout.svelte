@@ -213,6 +213,19 @@
 		align-items: flex-start;
 	}
 
+	.body:has(:global([data-bleed])) {
+		--content-bleed: max(
+			var(--page-inline),
+			calc((100cqw - var(--panel-width) - var(--size-content-wide)) / 2)
+		);
+
+		container: atelier-body / inline-size;
+	}
+
+	.body:has(:global([data-bleed])) .content {
+		padding-top: 0;
+	}
+
 	.content {
 		display: grid;
 		flex: 1;

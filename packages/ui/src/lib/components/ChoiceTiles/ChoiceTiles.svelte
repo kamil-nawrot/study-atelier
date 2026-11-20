@@ -54,7 +54,11 @@
 	<legend
 		>{label}{#if required}<span class="required-mark" aria-hidden="true">*</span>{/if}</legend
 	>
-	<div class="tiles" class:dense={(narrowColumns ?? 0) >= 4}>
+	<div
+		class="tiles"
+		class:crowded={(columns ?? options.length) > 4}
+		class:dense={(narrowColumns ?? 0) >= 4}
+	>
 		{#each options as option (option.value)}
 			<label class="tile" class:selected={value === option.value}>
 				<input
@@ -182,6 +186,12 @@
 
 		.tiles {
 			grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+		}
+	}
+
+	@container (min-width: 600px) and (max-width: 719.98px) {
+		.tiles.crowded {
+			grid-template-columns: repeat(var(--narrow-columns), minmax(0, 1fr));
 		}
 	}
 </style>

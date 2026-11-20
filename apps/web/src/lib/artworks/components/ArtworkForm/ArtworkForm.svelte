@@ -47,6 +47,7 @@
 	import ArtworkEraFields from '#lib/artworks/components/ArtworkEraFields/ArtworkEraFields.svelte';
 	import FixNote from '#lib/backroom/components/FixNote/FixNote.svelte';
 	import { FormFlags } from '#lib/backroom/form-flags/form-flags.svelte.ts';
+	import ArtworkFormColumns from '#lib/artworks/components/ArtworkFormColumns/ArtworkFormColumns.svelte';
 	import ArtworkImages from '#lib/artworks/components/ArtworkImages/ArtworkImages.svelte';
 	import ArtworkRelationsField from '#lib/artwork-relations/components/ArtworkRelationsField/ArtworkRelationsField.svelte';
 	import ArtworkOwnFields from '#lib/artworks/components/ArtworkOwnFields/ArtworkOwnFields.svelte';
@@ -217,9 +218,10 @@
 </script>
 
 <Form error={formState.error} errorTitle={m.artworkForm.errorTitle} onsubmit={submit}>
-	<FixNote field="top" {flags} />
-	<div class="columns" onfocusin={wantSuggestions}>
-		<div class="fields head">
+	<ArtworkFormColumns actionsHeight={barHeight} onfocusin={wantSuggestions}>
+		{#snippet head()}
+			<FixNote field="top" {flags} />
+			<FixNote field="image" {flags} />
 			<FixNote field="data" {flags} />
 			<TextField
 				id={titleId}
@@ -247,10 +249,9 @@
 					bind:checked={form.authorUnknown}
 				/>
 			</div>
-		</div>
+		{/snippet}
 
-		<div class="images">
-			<FixNote field="image" {flags} />
+		{#snippet images()}
 			<ArtworkImages
 				alt={imageAlt}
 				autoMatch={!artwork}
@@ -270,9 +271,9 @@
 				bind:images={form.images}
 				bind:pins={pinList}
 			/>
-		</div>
+		{/snippet}
 
-		<div class="fields">
+		{#snippet fields()}
 			<FixNote field="year" {flags} />
 			<YearGroup
 				columns={form.spanMode}
@@ -351,8 +352,8 @@
 				placeholder={m.artworkForm.notesPlaceholder}
 				bind:value={form.notes}
 			/>
-		</div>
-	</div>
+		{/snippet}
+	</ArtworkFormColumns>
 
 	<FormActions bind:height={barHeight}>
 		<Button href={cancelHref} onclick={oncancel}>
@@ -384,49 +385,8 @@
 <DuplicateDialog action="save" check={duplicateCheck} />
 
 <style>
-	.columns {
+	.group {
 		display: grid;
-		gap: var(--spacing-8);
-	}
-
-	.fields {
-		display: grid;
-		align-content: start;
-		gap: var(--spacing-6);
-		min-width: 0;
-	}
-
-	.group,
-	.images {
-		display: grid;
-		align-content: start;
 		gap: var(--spacing-3);
-	}
-
-	@media (min-width: 768px) {
-		.columns {
-			grid-template-areas:
-				'images head'
-				'images fields';
-			grid-template-rows: auto 1fr;
-			grid-template-columns: minmax(220px, 1fr) minmax(0, 1.25fr);
-			gap: var(--spacing-6) var(--spacing-12);
-		}
-
-		.columns > :global(:not(.fields)) {
-			grid-area: images;
-		}
-
-		.head {
-			grid-area: head;
-		}
-
-		.fields:not(.head) {
-			grid-area: fields;
-		}
-
-		.fields {
-			max-width: var(--size-content-default);
-		}
 	}
 </style>
