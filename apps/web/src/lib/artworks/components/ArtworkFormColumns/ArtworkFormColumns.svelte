@@ -88,12 +88,5 @@
 		:global(*) + .columns {
 			padding-top: var(--spacing-6);
 		}
-
-		.columns ~ :global([data-action-bar]) {
-			max-width: calc(
-				50cqw - var(--content-bleed) + var(--spacing-12) + var(--size-content-default)
-			);
-			padding-left: calc(50cqw - var(--content-bleed) + var(--spacing-12));
-		}
 	}
 </style>

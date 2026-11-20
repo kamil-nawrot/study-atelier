@@ -35,7 +35,7 @@ Flags opened from Zaplecze: the flag of an image at the top of the form with the
 
 Chosen options: desktop A, phone A, the pin cursor, and every flag at the top of the form, chosen by the owner on mockups of the real form. The owner then asked for the thumbnails at the top of the stage and the actions with the hints fixed at its bottom.
 
-- From 768 px the form's columns bleed to the menu and the right edge of the content and split the width in half. The left column is sticky under the top bar and as tall as the room between the top bar and the save bar; `ImageField` with `staged` draws the stage there: the blurred image behind it (`StageBackdrop`, as on the artwork page), the thumbnails at the top, the image fitted to the middle by its stored ratio, the actions and the hints at the bottom, the hints with room for three lines. The form on the right half keeps at most `--size-content-default`, and the save bar stands under it.
+- From 768 px the form's columns bleed to the menu and the right edge of the content and split the width in half. The left column is sticky under the top bar and as tall as the room between the top bar and the save bar; `ImageField` with `staged` draws the stage there: the blurred image behind it (`StageBackdrop`, as on the artwork page), the thumbnails at the top, the image fitted to the middle by its stored ratio, the actions and the hints at the bottom, the hints with room for three lines. The form on the right half keeps at most `--size-content-default`. The save bar runs under the whole width, under the stage and the form, and the stage ends at its top edge.
 - The bleed is measured from the width of the page body, which `AtelierLayout` makes a size container (`atelier-body`) only when the page holds `[data-bleed]`, publishing `--content-bleed`; `--wall-inline` cannot be used there because its percentage resolves against the element using it.
 - `ChoiceTiles` with more than four columns shows its narrow columns until its container is 720 px wide, so the eras in the half-width form wrap to three columns instead of squeezing six.
 - On a phone the stage comes first, above the title, full width, at half the height of the screen, and scrolls away with the page; with no image it stays as low as the empty field of other forms.
@@ -47,7 +47,6 @@ Chosen options: desktop A, phone A, the pin cursor, and every flag at the top of
 - Good: the image, its thumbnails and its actions stay in one place while the form scrolls, for a tall or a wide image alike.
 - Good: the stage looks like the stage of the artwork page, so the form shows the artwork as it will be seen.
 - Bad: at 1440 px the form is narrower than before (about 620 px instead of 720 px), so tile groups with many columns wrap.
-- Bad: on a wide screen the save bar no longer runs under the whole page content, only under the form.
 
 ## More information
 
