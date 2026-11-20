@@ -79,6 +79,7 @@ export type Database = {
       };
       artwork_fields: {
         Row: {
+          closed: boolean;
           created_at: string;
           description: string | null;
           id: string;
@@ -92,6 +93,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          closed?: boolean;
           created_at?: string;
           description?: string | null;
           id?: string;
@@ -104,6 +106,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          closed?: boolean;
           created_at?: string;
           description?: string | null;
           id?: string;

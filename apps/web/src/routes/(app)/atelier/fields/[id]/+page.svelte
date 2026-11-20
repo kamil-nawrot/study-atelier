@@ -8,6 +8,7 @@
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
 	import OwnFieldView from '#lib/card-index/components/OwnFieldView/OwnFieldView.svelte';
+	import { editOwnFieldPath } from '#lib/card-index/own-field-pages/own-field-pages.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -26,7 +27,12 @@
 	{#snippet bar()}
 		<BackLink fallbackHref={cardIndexPath} fallbackName={m.valuePage.back} />
 		{#if data.field}
-			<Button aria-label={m.common.edit} compact icon={Pencil} onclick={() => view?.edit()}>
+			<Button
+				aria-label={m.common.edit}
+				compact
+				href={editOwnFieldPath(data.field.id)}
+				icon={Pencil}
+			>
 				{m.common.edit}
 			</Button>
 			<MoreActions
@@ -48,7 +54,7 @@
 	{/snippet}
 
 	{#if data.field}
-		<OwnFieldView bind:this={view} field={data.field} fields={data.fields} />
+		<OwnFieldView bind:this={view} field={data.field} />
 	{:else}
 		<LoadFailure
 			backHref={cardIndexPath}
