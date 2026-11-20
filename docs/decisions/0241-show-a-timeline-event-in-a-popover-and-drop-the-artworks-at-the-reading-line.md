@@ -1,6 +1,6 @@
 # 0241. Show a timeline event in a popover and drop the artworks at the reading line
 
-- Status: accepted
+- Status: accepted; the popover on a larger screen, the card on a phone, the artworks of the event's time and the source line with links are superseded by [0333](0333-show-a-kalendarium-event-in-a-side-panel.md)
 - Date: 2026-11-10
 
 ## Context and problem statement
