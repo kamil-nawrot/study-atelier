@@ -5,7 +5,8 @@ begin;
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-00000000000a', 'owner-a@example.test'),
   ('00000000-0000-0000-0000-00000000000b', 'owner-b@example.test'),
-  ('00000000-0000-0000-0000-00000000000c', 'owner-c@example.test');
+  ('00000000-0000-0000-0000-00000000000c', 'owner-c@example.test'),
+  ('00000000-0000-0000-0000-00000000000d', 'owner-d@example.test');
 
 set local role authenticated;
 select set_config('request.jwt.claims',
@@ -309,6 +310,20 @@ begin
   end;
   assert rejected, 'a row that breaks a check was accepted';
   assert (select count(*) from public.artworks) = 0, 'a failed import left rows behind';
+end;
+$$;
+
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-00000000000d", "role": "authenticated"}', true);
+
+do $$
+begin
+  perform public.import_atelier(jsonb_build_object('glossary_entries', jsonb_build_array(
+    jsonb_build_object('id', gen_random_uuid(), 'name', 'Vasari', 'category', 'person'),
+    jsonb_build_object('id', gen_random_uuid(), 'name', 'Apse', 'category', 'architecture'))));
+  assert (select array_agg(entry.category order by entry.name) from public.glossary_entries as entry)
+      = '{architecture,scholar}',
+    'a person of an export made before the figures is not imported as a scholar';
 end;
 $$;
 
