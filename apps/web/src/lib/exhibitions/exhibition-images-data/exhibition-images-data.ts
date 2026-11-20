@@ -17,13 +17,14 @@ type ImageRecordRow = ImageRow & {
 	artwork_id: string;
 	position: number;
 	palette: Json | null;
+	broken_at: string | null;
 };
 
 export async function loadArtworkImages(ids: readonly string[]): Promise<ImagesResult> {
 	if (ids.length === 0) return { images: new Map() };
 	const { data, error } = await supabase
 		.from('artwork_images')
-		.select(`id, artwork_id, position, palette, ${IMAGE_COLUMNS.join(', ')}`)
+		.select(`id, artwork_id, position, palette, broken_at, ${IMAGE_COLUMNS.join(', ')}`)
 		.in('artwork_id', [...ids])
 		.order('position');
 	if (error) return { images: new Map(), error: collectionErrorMessage(error) };

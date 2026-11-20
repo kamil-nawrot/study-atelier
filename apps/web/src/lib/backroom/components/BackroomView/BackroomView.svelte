@@ -125,7 +125,7 @@
 			<ListTools searchLabel={m.backroom.search} sortLabel="" bind:query>
 				{#snippet actions()}
 					<Button
-						href={shown[0].entry.path as ResolvedPathname}
+						href={(visible[0] ?? shown[0]).entry.path as ResolvedPathname}
 						icon={ListChecks}
 						onclick={() => fix(0, true)}
 					>

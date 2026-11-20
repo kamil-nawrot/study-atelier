@@ -19,6 +19,31 @@ describe('loadArtworkImages', () => {
 		from.mockReturnValue({ select: vi.fn().mockReturnValue({ in: inFilter }) } as never);
 	}
 
+	it('keeps the stored state of an image that stopped loading', async () => {
+		imageRows([
+			{
+				id: 'i1',
+				artwork_id: 'a',
+				position: 0,
+				source_wikidata_id: null,
+				source_image_file: null,
+				source_image_licence: null,
+				source_image_licence_url: null,
+				source_image_attribution: null,
+				own_image_path: null,
+				own_image_url: 'https://example.test/1.jpg',
+				image_width: 100,
+				image_height: 200,
+				palette: null,
+				broken_at: '2026-11-20T10:00:00Z'
+			}
+		]);
+
+		const { images } = await loadArtworkImages(['a']);
+
+		expect(images.get('a')?.[0]).toMatchObject({ id: 'i1', broken: true });
+	});
+
 	it('groups the images of each artwork in their order', async () => {
 		const base = {
 			source_wikidata_id: null,

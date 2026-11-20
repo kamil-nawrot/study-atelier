@@ -104,9 +104,9 @@
 
 	<section class="group">
 		<h3>{m.timeline.filters.lanes}</h3>
-		{#if full}
-			<p class="caption" aria-live="polite">{m.timeline.filters.lanesFull}</p>
-		{/if}
+		<p class="caption" class:visually-hidden={!full} aria-live="polite">
+			{full ? m.timeline.filters.lanesFull : ''}
+		</p>
 		<FilterValues
 			name={(value) => value}
 			chosen={chosenLaneValues(filter, 'periods')}

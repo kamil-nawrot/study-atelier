@@ -60,6 +60,33 @@ describe('TextArea', () => {
 		expect(textarea.offsetHeight).toBeGreaterThan(twoLines);
 	});
 
+	it('puts the counter in a strip under the text, inside the field', async () => {
+		render(TextArea, { label: 'Summary', counter: true, maxlength: 10, value: 'Doric' });
+
+		const textarea = page.getByRole('textbox', { name: 'Summary' }).element() as HTMLElement;
+		const counter = page.getByText('5/10').element() as HTMLElement;
+		const field = textarea.parentElement as HTMLElement;
+		expect(counter.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+			textarea.getBoundingClientRect().bottom - 0.5
+		);
+		expect(counter.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+			field.getBoundingClientRect().bottom
+		);
+	});
+
+	it('shows all the given lines of a field with a counter', async () => {
+		render(TextArea, { label: 'Summary', counter: true, maxlength: 400, rows: 2, maxRows: 3 });
+
+		const textarea = page.getByRole('textbox', { name: 'Summary' }).element() as HTMLTextAreaElement;
+		textarea.style.height = '2000px';
+		const style = getComputedStyle(textarea);
+		const text =
+			textarea.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+
+		await expect.poll(() => textarea.offsetHeight).toBeLessThan(2000);
+		expect(text).toBeCloseTo(3 * parseFloat(style.lineHeight), 0);
+	});
+
 	it('keeps the field still and read-only, with text-sized lines, while it is being filled', async () => {
 		render(TextArea, { label: 'Notes', filling: true, value: 'Old text' });
 

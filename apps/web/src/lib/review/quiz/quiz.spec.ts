@@ -161,6 +161,16 @@ describe('session items', () => {
 		expect(quizArtworks([item])).toEqual([]);
 	});
 
+	it('keeps the stored state of a pin image that stopped loading', () => {
+		const broken = pinQuiz.pin && {
+			...pinQuiz.pin,
+			image: { ...pinQuiz.pin.image, broken_at: '2026-11-20T10:00:00Z' }
+		};
+		const [item] = sessionItems([{ ...pinQuiz, pin: broken }], byId, new Map());
+
+		expect(item.pin?.image).toMatchObject({ id: 'image-2', broken: true });
+	});
+
 	it('makes a flashcard of a pin question without a pin', () => {
 		const items = sessionItems(
 			[

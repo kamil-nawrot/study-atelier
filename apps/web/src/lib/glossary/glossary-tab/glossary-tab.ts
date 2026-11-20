@@ -1,4 +1,6 @@
 import { readStored, writeStored } from '#lib/shared/utils/storage/storage.ts';
+import { isFigure } from '#lib/glossary/categories/categories.ts';
+import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
 
 const TAB_KEY = 'study-atelier:glossary-tab';
 
@@ -18,4 +20,8 @@ export function rememberedGlossaryTab(requested?: string | null): GlossaryTab {
 	if (isGlossaryTab(requested)) return requested;
 	const stored = readStored('session', TAB_KEY);
 	return isGlossaryTab(stored) ? stored : 'terms';
+}
+
+export function glossaryTabOf(category: GlossaryCategory): GlossaryTab {
+	return isFigure(category) ? 'figures' : 'terms';
 }

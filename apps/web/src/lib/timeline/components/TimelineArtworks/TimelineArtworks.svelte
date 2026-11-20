@@ -159,6 +159,7 @@
 
 	function hide(key: string): void {
 		stopReveal();
+		if (hovered !== key) return;
 		keep();
 		hideTimer = setTimeout(() => {
 			if (hovered === key) hovered = null;
@@ -281,19 +282,18 @@
 			<circle cx="5" cy="5" r="5" />
 		</svg>
 	</button>
+	{#if shown?.key === dot.key}
+		<TimelineArtworkPreview
+			style={previewStyle(shown)}
+			artwork={artworkOf(shown.mark)}
+			date={dateOf(shown.mark)}
+			{imageHeight}
+			onkeep={keep}
+			onleave={leavePreview}
+			bind:height={previewHeight}
+		/>
+	{/if}
 {/each}
-
-{#if shown}
-	<TimelineArtworkPreview
-		style={previewStyle(shown)}
-		artwork={artworkOf(shown.mark)}
-		date={dateOf(shown.mark)}
-		{imageHeight}
-		onkeep={keep}
-		onleave={leavePreview}
-		bind:height={previewHeight}
-	/>
-{/if}
 
 <style>
 	.mark {

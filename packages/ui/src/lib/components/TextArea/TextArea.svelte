@@ -49,11 +49,10 @@
 	<label for={inputId}
 		>{label}{#if required}<span class="required-mark" aria-hidden="true">*</span>{/if}</label
 	>
-	<div class="control" class:filling>
+	<div class="control" class:counted class:filling>
 		<textarea
 			id={inputId}
 			style:--max-rows={maxRows}
-			class:counted
 			class:invalid={!!error}
 			class:limited={maxRows !== undefined}
 			{@attach overlayScrollbarBeside()}
@@ -120,16 +119,39 @@
 		resize: vertical;
 	}
 
-	textarea.counted {
-		padding-bottom: var(--spacing-6);
-	}
-
 	textarea.limited {
 		max-height: calc(var(--max-rows) * 1lh + 2 * var(--spacing-3) + 2 * var(--border-width-base));
 	}
 
 	textarea.invalid {
 		border-color: var(--color-danger);
+	}
+
+	.control.counted {
+		border: var(--border-width-base) solid var(--color-line);
+		background: var(--color-surface);
+	}
+
+	.control.counted textarea {
+		border: 0;
+		background: transparent;
+	}
+
+	.control.counted textarea.limited {
+		max-height: calc(var(--max-rows) * 1lh + 2 * var(--spacing-3));
+	}
+
+	.control.counted:has(textarea.invalid) {
+		border-color: var(--color-danger);
+	}
+
+	.control.counted:has(textarea:focus-visible) {
+		outline: var(--border-width-base) dashed var(--color-fg);
+		outline-offset: calc(var(--border-width-base) + var(--border-width-hairline));
+	}
+
+	.control.counted textarea:focus-visible {
+		outline: none;
 	}
 
 	textarea::placeholder {
@@ -160,11 +182,15 @@
 		cursor: not-allowed;
 	}
 
+	.control.counted:has(textarea:disabled) {
+		border-color: var(--color-tag);
+		background: var(--color-tag);
+	}
+
 	.counter {
-		position: absolute;
-		right: var(--spacing-6);
-		bottom: var(--spacing-1);
+		display: flex;
+		justify-content: flex-end;
+		padding: 0 var(--spacing-3) var(--spacing-1);
 		font-variant-numeric: tabular-nums;
-		pointer-events: none;
 	}
 </style>
