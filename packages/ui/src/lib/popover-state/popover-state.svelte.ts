@@ -6,7 +6,7 @@ const contextKey = Symbol('popover-hold');
 const FOCUSABLE =
 	'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
-function hoverRevealDelay(): number {
+export function hoverRevealDelay(): number {
 	const probe = document.createElement('span');
 	probe.style.transitionDelay = 'var(--hover-reveal-delay)';
 	document.body.appendChild(probe);

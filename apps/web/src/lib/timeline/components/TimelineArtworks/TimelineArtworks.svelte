@@ -3,7 +3,7 @@
 	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
 	import { resolve } from '$app/paths';
 	import ArrowRight from '@lucide/svelte/icons/arrow-right';
-	import { ArtworkTile, Icon } from '@study-atelier/ui';
+	import { ArtworkTile, hoverRevealDelay, Icon } from '@study-atelier/ui';
 	import { resolveImages } from '#lib/wall/wall-data/wall-data.ts';
 	import { eraIcon, eraName } from '#lib/catalogue/eras/eras.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -65,6 +65,7 @@
 	let pinnedKey = $state<string | null>(null);
 	let previewHeight = $state(0);
 	let hideTimer: ReturnType<typeof setTimeout> | undefined;
+	let revealTimer: ReturnType<typeof setTimeout> | undefined;
 	const resolved = new SvelteMap<string, WallArtwork>();
 	const loading = new SvelteSet<string>();
 
@@ -142,13 +143,24 @@
 		clearTimeout(hideTimer);
 	}
 
+	function stopReveal(): void {
+		clearTimeout(revealTimer);
+	}
+
 	function show(key: string, artwork: WallArtwork): void {
+		stopReveal();
 		keep();
 		hovered = key;
 		void loadImage(artwork);
 	}
 
+	function reveal(key: string, artwork: WallArtwork): void {
+		stopReveal();
+		revealTimer = setTimeout(() => show(key, artwork), hoverRevealDelay());
+	}
+
 	function hide(key: string): void {
+		stopReveal();
 		keep();
 		hideTimer = setTimeout(() => {
 			if (hovered === key) hovered = null;
@@ -159,7 +171,10 @@
 		if (hovered !== null) hide(hovered);
 	}
 
-	onDestroy(keep);
+	onDestroy(() => {
+		keep();
+		stopReveal();
+	});
 
 	function choose(key: string, artwork: WallArtwork, event: MouseEvent): void {
 		if (event instanceof PointerEvent && event.pointerType === 'mouse') return;
@@ -258,7 +273,7 @@
 		onclick={(event) => choose(dot.key, dot.mark.item, event)}
 		onfocus={(event) =>
 			event.currentTarget.matches(':focus-visible') && show(dot.key, dot.mark.item)}
-		onpointerenter={(event) => event.pointerType === 'mouse' && show(dot.key, dot.mark.item)}
+		onpointerenter={(event) => event.pointerType === 'mouse' && reveal(dot.key, dot.mark.item)}
 		onpointerleave={(event) => event.pointerType === 'mouse' && hide(dot.key)}
 		type="button"
 	>
@@ -428,5 +443,17 @@
 
 	.open:hover {
 		text-decoration: underline;
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		.preview {
+			animation: preview-enter var(--duration-short) ease-out;
+		}
+	}
+
+	@keyframes preview-enter {
+		from {
+			opacity: 0;
+		}
 	}
 </style>
