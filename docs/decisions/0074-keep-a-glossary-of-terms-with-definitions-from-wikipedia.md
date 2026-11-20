@@ -1,6 +1,6 @@
 # 0074. Keep a glossary of terms with definitions from Wikipedia, highlighted in notes
 
-- Status: accepted; the search from 20 entries is superseded by [0269](0269-always-show-the-search-of-the-glossary-and-the-exhibitions.md)
+- Status: accepted; the search from 20 entries is superseded by [0269](0269-always-show-the-search-of-the-glossary-and-the-exhibitions.md); the category Osoba is superseded by [0338](0338-keep-figures-on-a-tab-of-their-own-in-the-glossary.md)
 - Date: 2026-10-17
 
 ## Context and problem statement
