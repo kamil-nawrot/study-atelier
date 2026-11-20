@@ -86,6 +86,7 @@
 				narrowColumns={2}
 				onchange={chooseKind}
 				options={kinds}
+				required
 				value={draft.kind}
 			/>
 			{#if errors.kind}
@@ -97,6 +98,7 @@
 			hint={m.feedback.titleHint}
 			label={m.feedback.titleLabel}
 			maxlength={FEEDBACK_TITLE_MAX}
+			required
 			bind:value={draft.title}
 		/>
 		<TextArea

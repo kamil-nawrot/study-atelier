@@ -66,6 +66,7 @@
 			error={nameError}
 			label={m.common.name}
 			maxlength={VALUE_NAME_MAX_LENGTH}
+			required
 			bind:value={name}
 		/>
 	</Form>

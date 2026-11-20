@@ -78,6 +78,7 @@
 			autocomplete="email"
 			error={emailError}
 			label={m.common.email}
+			required
 			type="email"
 			bind:value={email}
 		/>
@@ -86,6 +87,7 @@
 			error={passwordError}
 			hint={m.validation.passwordHint(MIN_PASSWORD_LENGTH)}
 			label={m.common.password}
+			required
 			type="password"
 			bind:value={password}
 		/>

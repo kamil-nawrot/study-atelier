@@ -138,6 +138,7 @@
 					label={m.common.name}
 					maxlength={NAME_MAX_LENGTH}
 					placeholder={m.glossary.form.namePlaceholder}
+					required
 					bind:value={form.name}
 				/>
 				{#if author}
@@ -167,6 +168,7 @@
 					narrowColumns={2}
 					onchange={chooseCategory}
 					options={tiles}
+					required
 					value={form.category}
 				/>
 				{#if errors.current.category}

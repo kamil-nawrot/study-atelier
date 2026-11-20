@@ -66,7 +66,7 @@
 	</div>
 {:else}
 	<div class="bounds">
-		<YearGroup columns title={m.eraBounds.title}>
+		<YearGroup columns required title={m.eraBounds.title}>
 			{#snippet aside()}
 				{#if !atDefaults}
 					<TextButton inline onclick={() => (bounds = { ...defaults })}>
@@ -80,6 +80,7 @@
 					error={errors.start}
 					label={m.eraBounds.start}
 					placeholder={m.eraBounds.start}
+					required
 					bind:value={bounds.startYear}
 					bind:beforeCommonEra={bounds.startBeforeCommonEra}
 				/>
@@ -90,6 +91,7 @@
 					error={errors.end}
 					label={m.eraBounds.end}
 					placeholder={m.eraBounds.end}
+					required
 					bind:value={bounds.endYear}
 					bind:beforeCommonEra={bounds.endBeforeCommonEra}
 				/>

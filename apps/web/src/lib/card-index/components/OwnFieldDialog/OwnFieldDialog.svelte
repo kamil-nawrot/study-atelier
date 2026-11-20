@@ -160,6 +160,7 @@
 			error={nameError}
 			label={m.common.name}
 			maxlength={FIELD_NAME_MAX_LENGTH}
+			required
 			bind:value={draft.name}
 		/>
 		<TextField
@@ -193,6 +194,7 @@
 					narrowColumns={2}
 					onchange={chooseTypes}
 					options={types}
+					required
 					values={draft.typeCodes}
 				/>
 				<FieldMessage

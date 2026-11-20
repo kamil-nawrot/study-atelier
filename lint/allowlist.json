@@ -89,7 +89,6 @@
 		"apps/web/src/lib/profile/components/PreferencesTab/PreferencesTab.svelte",
 		"apps/web/src/lib/shared/forms/DiscardDialog/DiscardDialog.svelte",
 		"apps/web/src/lib/shared/forms/YearGroup/YearGroup.svelte",
-		"apps/web/src/lib/shared/forms/YearInput/YearInput.svelte",
 		"apps/web/src/lib/shell/AtelierDrawer/AtelierDrawer.svelte",
 		"apps/web/src/lib/shell/AtelierMenu/AtelierMenu.svelte",
 		"apps/web/src/lib/shell/AtelierRail/AtelierRail.svelte",

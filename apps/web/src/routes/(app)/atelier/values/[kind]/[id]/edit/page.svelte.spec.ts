@@ -614,8 +614,8 @@ describe('edit value page', () => {
 
 			await expect.element(page.getByLabelText(m.valueForm.birthYear)).toHaveValue('480');
 			await expect
-				.element(page.getByRole('checkbox', { name: m.valueForm.birthBeforeCommonEra }))
-				.toBeChecked();
+				.element(page.getByRole('button', { name: m.valueForm.birthBeforeCommonEra }))
+				.toHaveAttribute('aria-pressed', 'true');
 			await expect
 				.element(page.getByLabelText(m.valueForm.sortName, { exact: true }))
 				.toHaveValue('Fidiasz');

@@ -76,6 +76,11 @@ h4 {
 	white-space: nowrap;
 }
 
+.required-mark {
+	margin-left: var(--spacing-1);
+	color: var(--color-fg-muted);
+}
+
 .caption {
 	color: var(--color-fg-muted);
 	font-size: var(--font-size-sm);
