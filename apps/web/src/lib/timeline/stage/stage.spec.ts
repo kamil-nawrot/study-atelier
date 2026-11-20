@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { boxStyle, orientationFor, stageGeometry, stageSize, verticalLength } from './stage.ts';
+import {
+	boxStyle,
+	orientationFor,
+	panelOverStage,
+	roomBesidePanel,
+	stageGeometry,
+	stageSize,
+	verticalLength
+} from './stage.ts';
 
 const view = { center: 1640, span: 300 };
 
@@ -62,5 +70,18 @@ describe('stage geometry', () => {
 				acrossSize: 5
 			})
 		).toBe('top: 10px; left: 20px; width: 5px');
+	});
+
+	it('narrows the stage for the event panel only while it stays horizontal', () => {
+		expect(panelOverStage(1280)).toBe(false);
+		expect(panelOverStage(1120)).toBe(false);
+		expect(panelOverStage(1119)).toBe(true);
+		expect(panelOverStage(880)).toBe(true);
+	});
+
+	it('gives a shorter phone stage half the room when the event panel stands under it', () => {
+		expect(roomBesidePanel(640)).toBe(320);
+		expect(roomBesidePanel(500)).toBe(280);
+		expect(roomBesidePanel(0)).toBe(0);
 	});
 });
