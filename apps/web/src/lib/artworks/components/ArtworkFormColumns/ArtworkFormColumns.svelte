@@ -81,6 +81,14 @@
 			padding-inline: var(--spacing-12) min(var(--content-bleed), var(--spacing-12));
 		}
 
+		:global(form):has(> .columns) {
+			row-gap: 0;
+		}
+
+		:global(*) + .columns {
+			padding-top: var(--spacing-6);
+		}
+
 		.columns ~ :global([data-action-bar]) {
 			max-width: calc(
 				50cqw - var(--content-bleed) + var(--spacing-12) + var(--size-content-default)
