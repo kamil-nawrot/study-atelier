@@ -1,6 +1,6 @@
 # 0317. Mark flags fixed from the list and show them on every form
 
-- Status: accepted
+- Status: accepted; the place of the flags of the whole artwork and of its image in the artwork form (at the top of the form) is superseded by [0337](0337-show-the-artwork-image-on-a-stage-in-the-artwork-form.md)
 - Date: 2026-11-16
 
 ## Context and problem statement
