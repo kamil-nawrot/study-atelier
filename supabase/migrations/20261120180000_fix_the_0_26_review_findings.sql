@@ -147,7 +147,8 @@ begin
                 'own_image_path', image.own_image_path,
                 'own_image_url', image.own_image_url,
                 'image_width', image.image_width,
-                'image_height', image.image_height
+                'image_height', image.image_height,
+                'broken_at', image.broken_at
               )
             ),
             pin.image_id,

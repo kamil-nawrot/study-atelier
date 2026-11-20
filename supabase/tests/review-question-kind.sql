@@ -160,6 +160,29 @@ begin
 end;
 $$;
 
+reset role;
+with extra as (
+  insert into public.artwork_images (artwork_id, owner_id, position, source_wikidata_id, source_image_file, broken_at)
+    select artwork.id, artwork.owner_id, 1, 'Q3', 'Work_3_detail.jpg', now()
+      from public.artworks as artwork
+      where artwork.title = 'Work 3'
+    returning id, artwork_id
+)
+update public.artwork_pins as pin set image_id = extra.id
+  from extra, public.artwork_images as main
+  where main.artwork_id = extra.artwork_id and main.position = 0 and pin.image_id = main.id;
+set local role authenticated;
+
+do $$
+begin
+  assert (
+    select item -> 'pin' -> 'image' ->> 'broken_at'
+      from jsonb_array_elements(public.review_session(date_trunc('day', now()), 'mixed', 'all', null, 0)) as item
+      where item ->> 'artwork_id' = (select id::text from public.artworks where title = 'Work 3')
+  ) is not null, 'the image of a pin question does not carry its stored broken state';
+end;
+$$;
+
 do $$
 declare
   ruled uuid;
