@@ -14,7 +14,7 @@ const symbols: SymbolOption[] = ['Lily', 'Skull', 'Keys', 'Dove', 'Globe'].map((
 }));
 
 const persons = ['Peter', 'Paul', 'Mary', 'John'].map(
-	(name) => ({ id: name, name, category: 'person' }) as unknown as GlossaryTerm
+	(name) => ({ id: name, name, category: 'sacred' }) as unknown as GlossaryTerm
 );
 
 function pin(id: string, extra: Partial<SymbolQuestionPin> = {}): SymbolQuestionPin {

@@ -7,13 +7,14 @@
 		glossaryCategoryName
 	} from '#lib/glossary/categories/categories.ts';
 	import { matchingTerms } from '#lib/exhibitions/editor/term-search/term-search.ts';
+	import type { GlossaryKind } from '#lib/glossary/types/glossary-kind.ts';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 
 	type Props = {
 		terms: readonly GlossaryTerm[];
 		onpick: (term: GlossaryTerm) => void;
 		ondrag?: (event: PointerEvent, term: GlossaryTerm) => void;
-		oncreate?: (name: string) => void;
+		oncreate?: (name: string, kind: GlossaryKind) => void;
 	};
 
 	let { terms, onpick, ondrag, oncreate }: Props = $props();
@@ -37,9 +38,12 @@
 {/if}
 <p class="caption">{status}</p>
 {#if oncreate && query.trim() !== '' && shown.length === 0}
-	<span>
-		<TextButton inline onclick={() => oncreate(query.trim())}>
+	<span class="create">
+		<TextButton inline onclick={() => oncreate(query.trim(), 'term')}>
 			{m.exhibitions.panel.createTerm(query.trim())}
+		</TextButton>
+		<TextButton inline onclick={() => oncreate(query.trim(), 'figure')}>
+			{m.exhibitions.panel.createFigure(query.trim())}
 		</TextButton>
 	</span>
 {/if}
@@ -67,6 +71,12 @@
 </a>
 
 <style>
+	.create {
+		display: grid;
+		justify-items: start;
+		gap: var(--spacing-2);
+	}
+
 	.caption {
 		margin: 0;
 		color: var(--color-fg-muted);

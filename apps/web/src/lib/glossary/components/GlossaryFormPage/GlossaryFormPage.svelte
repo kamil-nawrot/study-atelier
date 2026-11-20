@@ -59,6 +59,7 @@
 			entries={data.entries}
 			entry={data.entry}
 			index={data.index}
+			kind={data.kind}
 			labels={fix.labels}
 			oncancel={fix.progress ? undefined : goBack}
 			onsaved={showSaved}

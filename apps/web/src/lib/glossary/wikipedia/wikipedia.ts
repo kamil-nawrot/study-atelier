@@ -23,8 +23,12 @@ export const WIKIPEDIA_LICENCE_URL = 'https://creativecommons.org/licenses/by-sa
 const CATEGORY_HINTS: Partial<Record<GlossaryCategory, string>> = {
 	architecture: 'architektura',
 	painting: 'malarstwo',
-	sculpture: 'rzeźba'
+	sculpture: 'rzeźba',
+	iconography: 'ikonografia',
+	myth: 'mitologia'
 };
+
+const HUMAN_CATEGORIES: readonly GlossaryCategory[] = ['ruler', 'patron', 'artist', 'scholar'];
 
 type SearchResponse = {
 	query?: { search?: { pageid: number; title: string }[] };
@@ -159,13 +163,13 @@ export function searchArticles(
 }
 
 async function findArticles(name: string, category: GlossaryCategory): Promise<WikipediaArticle[]> {
-	const attempts =
-		category === 'person'
-			? [searchQuery(name, category, false)]
-			: [searchQuery(name, category, true), searchQuery(name, category, false)];
+	const humans = HUMAN_CATEGORIES.includes(category);
+	const attempts = humans
+		? [searchQuery(name, category, false)]
+		: [searchQuery(name, category, true), searchQuery(name, category, false)];
 	for (const query of [...new Set(attempts)]) {
 		const pages = await findPages(query);
-		const matching = category === 'person' ? await humansAmong(pages) : pages;
+		const matching = humans ? await humansAmong(pages) : pages;
 		const articles = matching.flatMap((page) => articleOf(page)).slice(0, ARTICLE_LIMIT);
 		if (articles.length > 0) return articles;
 	}

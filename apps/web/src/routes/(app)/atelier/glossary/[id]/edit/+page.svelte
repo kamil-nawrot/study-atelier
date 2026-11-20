@@ -9,7 +9,9 @@
 
 	let { data }: PageProps = $props();
 
-	const title = m.glossary.form.editTitle;
+	let title = $derived(
+		data.kind === 'figure' ? m.glossary.form.editFigureTitle : m.glossary.form.editTitle
+	);
 
 	let backPath = $derived(
 		data.entry

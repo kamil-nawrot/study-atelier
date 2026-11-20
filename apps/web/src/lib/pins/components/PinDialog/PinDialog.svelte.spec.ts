@@ -332,10 +332,31 @@ describe('PinDialog', () => {
 		await page.getByRole('option', { name: m.pins.createTerm('Contrapposto') }).click();
 		await page.getByRole('button', { name: 'Zapisz' }).click();
 
-		expect(onnewterm).toHaveBeenCalledWith('Contrapposto');
+		expect(onnewterm).toHaveBeenCalledWith('Contrapposto', 'term');
 		expect(createPin).toHaveBeenCalledWith(
 			'image-1',
 			expect.objectContaining({ glossaryEntryId: 'entry-new' })
 		);
+	});
+
+	it('offers a new term and a new figure under the field of the glossary', async () => {
+		const onnewterm = vi
+			.fn()
+			.mockResolvedValue(testEntry('entry-zeus', 'Dionizos', { category: 'myth' }));
+		open({ onnewterm });
+
+		const field = page.getByRole('combobox', { name: m.pins.term });
+		await userEvent.fill(field, 'Dionizos');
+
+		expect(
+			page
+				.getByRole('option')
+				.elements()
+				.map((option) => option.textContent?.trim())
+		).toEqual([m.pins.createTerm('Dionizos'), m.pins.createFigure('Dionizos')]);
+		await page.getByRole('option', { name: m.pins.createFigure('Dionizos') }).click();
+
+		expect(onnewterm).toHaveBeenCalledWith('Dionizos', 'figure');
+		await expect.element(field).toHaveValue('Dionizos');
 	});
 });

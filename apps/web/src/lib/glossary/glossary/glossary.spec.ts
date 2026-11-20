@@ -93,12 +93,18 @@ describe('firstLetter', () => {
 describe('countByCategory', () => {
 	it('counts the entries of every category, also those without entries', () => {
 		expect(countByCategory(testGlossary())).toEqual({
-			person: 1,
 			architecture: 3,
 			painting: 1,
 			sculpture: 0,
 			technique: 1,
-			general: 0
+			iconography: 0,
+			general: 0,
+			ruler: 0,
+			patron: 1,
+			artist: 0,
+			scholar: 0,
+			sacred: 0,
+			myth: 0
 		});
 	});
 });
@@ -111,7 +117,7 @@ describe('filterEntries', () => {
 	});
 
 	it('keeps the entries of the chosen categories', () => {
-		const names = filterEntries(entries, new Set(['painting', 'person'] as const), '').map(
+		const names = filterEntries(entries, new Set(['painting', 'patron'] as const), '').map(
 			(entry) => entry.name
 		);
 
@@ -126,7 +132,7 @@ describe('filterEntries', () => {
 	});
 
 	it('combines the categories with the query', () => {
-		expect(filterEntries(entries, new Set(['person'] as const), 'tymp')).toEqual([]);
+		expect(filterEntries(entries, new Set(['patron'] as const), 'tymp')).toEqual([]);
 	});
 });
 

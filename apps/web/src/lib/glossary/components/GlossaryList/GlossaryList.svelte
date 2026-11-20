@@ -5,9 +5,9 @@
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
 	import {
+		categoriesOf,
 		glossaryCategoryIcon,
-		glossaryCategoryName,
-		GLOSSARY_CATEGORIES
+		glossaryCategoryName
 	} from '#lib/glossary/categories/categories.ts';
 	import {
 		countByCategory,
@@ -27,14 +27,24 @@
 	import ListTools from '#lib/shared/lists/ListTools/ListTools.svelte';
 	import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
 	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+	import type { GlossaryKind } from '#lib/glossary/types/glossary-kind.ts';
 
 	type Props = {
+		kind: GlossaryKind;
 		entries: GlossaryEntry[];
 		query?: string;
 		chosen?: GlossaryCategory[];
 	};
 
-	let { entries, query = $bindable(''), chosen = $bindable([]) }: Props = $props();
+	let { kind, entries, query = $bindable(''), chosen = $bindable([]) }: Props = $props();
+
+	let categories = $derived(categoriesOf(kind));
+	let texts = $derived(kind === 'figure' ? m.glossary.figures : m.glossary);
+	let newHref = $derived(
+		kind === 'figure'
+			? `${resolve('/(app)/atelier/glossary/new')}?kind=figure`
+			: resolve('/(app)/atelier/glossary/new')
+	);
 
 	let sort = $state<GlossarySort>(rememberedGlossarySort());
 
@@ -60,36 +70,30 @@
 </script>
 
 {#if entries.length === 0}
-	<EmptyState icon={BookA} text={m.glossary.empty} title={m.glossary.emptyTitle}>
-		<Button href={resolve('/(app)/atelier/glossary/new')}>
+	<EmptyState icon={BookA} text={texts.empty} title={texts.emptyTitle}>
+		<Button href={newHref}>
 			<Icon icon={Plus} />
-			{m.glossary.addFirst}
+			{texts.addFirst}
 		</Button>
 	</EmptyState>
 {:else}
 	<div class="filter">
 		<ListTools
 			options={sorts}
-			searchLabel={m.glossary.search}
+			searchLabel={texts.search}
 			sortLabel={m.glossary.sortLabel}
 			bind:query
 			bind:sort={() => sort, choose}
 		>
 			{#snippet actions()}
-				<Button
-					aria-label={m.glossary.add}
-					compact
-					href={resolve('/(app)/atelier/glossary/new')}
-					icon={Plus}
-					variant="primary"
-				>
-					{m.glossary.add}
+				<Button aria-label={texts.add} compact href={newHref} icon={Plus} variant="primary">
+					{texts.add}
 				</Button>
 			{/snippet}
 		</ListTools>
 
 		<ul class="categories" aria-label={m.glossary.categories}>
-			{#each GLOSSARY_CATEGORIES as category (category)}
+			{#each categories as category (category)}
 				<li>
 					<ToggleTag
 						count={counts[category]}
@@ -180,10 +184,17 @@
 		line-height: var(--line-height-2xl);
 	}
 
-	.group ul,
 	.newest {
 		display: grid;
 		gap: var(--spacing-2);
+	}
+
+	.group li + li::before {
+		content: '';
+		display: block;
+		max-width: var(--size-content-default);
+		margin: var(--spacing-1) var(--spacing-3);
+		border-top: var(--border-width-hairline) solid var(--color-tag);
 	}
 
 	@media (max-width: 767.98px) {

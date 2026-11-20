@@ -1524,9 +1524,10 @@ export const pl = {
 		removeView: 'Usuń widok',
 		newTitle: 'Nowa pinezka',
 		title: 'Pinezka',
-		term: 'Pojęcie ze Słowniczka',
-		termPlaceholder: 'Szukaj pojęcia',
+		term: 'Pojęcie lub postać ze Słowniczka',
+		termPlaceholder: 'Szukaj pojęcia lub postaci',
 		createTerm: (name: string): string => `Dodaj pojęcie „${name}”`,
+		createFigure: (name: string): string => `Dodaj postać „${name}”`,
 		symbol: 'Symbol z atlasu',
 		symbolMeaning: 'Znaczenie na tym dziele',
 		text: 'Opis',
@@ -1549,6 +1550,7 @@ export const pl = {
 		tabsLabel: 'Słowniczek',
 		tabs: {
 			terms: 'Pojęcia',
+			figures: 'Postaci',
 			symbols: 'Symbole'
 		},
 		back: 'Słowniczek',
@@ -1568,12 +1570,28 @@ export const pl = {
 		},
 		loadErrorTitle: 'Nie udało się wczytać słowniczka',
 		categoryNames: {
-			person: 'Osoba',
 			architecture: 'Architektura',
 			painting: 'Malarstwo',
 			sculpture: 'Rzeźba',
 			technique: 'Technika i materiał',
-			general: 'Pojęcie ogólne'
+			iconography: 'Ikonografia',
+			general: 'Pojęcie ogólne',
+			ruler: 'Władca',
+			patron: 'Fundator i mecenas',
+			artist: 'Artysta',
+			scholar: 'Uczony i badacz',
+			sacred: 'Postać biblijna i święty',
+			myth: 'Bóstwo i postać mitu'
+		},
+		figures: {
+			count: (count: number): string =>
+				`${count} ${plural(count, { one: 'postać', few: 'postaci', many: 'postaci' })}`,
+			add: 'Dodaj postać',
+			search: 'Szukaj postaci',
+			emptyTitle: 'Nie masz jeszcze żadnej postaci',
+			empty:
+				'Zapisuj tu ludzi, bogów i świętych, których spotykasz w historii sztuki. Gdy pojawią się w notatce, zobaczysz, kim byli.',
+			addFirst: 'Dodaj pierwszą postać'
 		},
 		card: {
 			source: 'Na podstawie Wikipedii, CC BY-SA 4.0',
@@ -1604,8 +1622,10 @@ export const pl = {
 		form: {
 			newTitle: 'Nowe pojęcie',
 			editTitle: 'Edycja pojęcia',
-			namePlaceholder: 'Np. tympanon, sfumato, Lorenzo Medici',
-			nameTaken: (name: string): string => `Masz już w Słowniczku pojęcie „${name}”.`,
+			newFigureTitle: 'Nowa postać',
+			editFigureTitle: 'Edycja postaci',
+			nameTaken: (name: string, figure = false): string =>
+				`Masz już w Słowniczku ${figure ? 'postać' : 'pojęcie'} „${name}”.`,
 			category: 'Kategoria',
 			categoryRequired: 'Wybierz kategorię.',
 			definition: 'Definicja',
@@ -1647,11 +1667,14 @@ export const pl = {
 				'Formy nie pokazują się pod nazwą. Dzięki nim pojęcie znajdzie się w notatkach także odmienione.',
 			authorWarningSuffix:
 				' jest już w Kartotece jako autor. Możesz dodać tę osobę także tutaj albo opisać na stronie autora.',
-			errorTitle: 'Nie udało się zapisać pojęcia'
+			errorTitle: 'Nie udało się zapisać pojęcia',
+			figureErrorTitle: 'Nie udało się zapisać postaci'
 		},
 		quick: {
 			add: 'Dodaj pojęcie',
-			errorTitle: 'Nie udało się dodać pojęcia'
+			addFigure: 'Dodaj postać',
+			errorTitle: 'Nie udało się dodać pojęcia',
+			figureErrorTitle: 'Nie udało się dodać postaci'
 		},
 		articles: {
 			title: 'Który to artykuł?',
@@ -3124,6 +3147,7 @@ export const pl = {
 			termsByName: 'Hasła od A do Z',
 			noTerm: 'Nic nie pasuje. Sprawdź pisownię albo dodaj nowe pojęcie.',
 			createTerm: (name: string): string => `Dodaj pojęcie „${name}”`,
+			createFigure: (name: string): string => `Dodaj postać „${name}”`,
 			noTerms: 'W Słowniczku nie ma jeszcze haseł.',
 			browseGlossary: 'Otwórz Słowniczek…',
 			glossaryAs: 'Dodaj jako',

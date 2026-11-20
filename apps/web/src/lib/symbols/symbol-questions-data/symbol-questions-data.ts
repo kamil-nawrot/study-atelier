@@ -3,6 +3,7 @@ import { IMAGE_COLUMNS, imageOf } from '#lib/images/image-record/image-record.ts
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 import type { ImageRow } from '#lib/images/types/image-row.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
+import { isFigure } from '#lib/glossary/categories/categories.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { symbolErrorMessage } from '#lib/symbols/errors/errors.ts';
 import type { SymbolQuestionPin } from '#lib/symbols/types/symbol-question-pin.ts';
@@ -37,7 +38,9 @@ function personsOf(
 ): string[] {
 	return [...contexts]
 		.sort((first, second) => first.position - second.position)
-		.flatMap(({ glossary_entries: entry }) => (entry?.category === 'person' ? [entry.name] : []));
+		.flatMap(({ glossary_entries: entry }) =>
+			entry && isFigure(entry.category) ? [entry.name] : []
+		);
 }
 
 export async function loadSymbolQuestionPins(pinIds: readonly string[]): Promise<{

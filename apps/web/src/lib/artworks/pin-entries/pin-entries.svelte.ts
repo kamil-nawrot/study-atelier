@@ -1,3 +1,4 @@
+import type { GlossaryKind } from '#lib/glossary/types/glossary-kind.ts';
 import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 import { addSymbolMeaning } from '#lib/symbols/symbols-data/symbols-data.ts';
 import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
@@ -10,6 +11,7 @@ function merged<T extends { id: string }>(base: readonly T[], local: readonly T[
 
 export class PinEntries {
 	termName = $state('');
+	termKind = $state<GlossaryKind>('term');
 	symbolName = $state('');
 
 	#termOpen = $state(false);
@@ -60,9 +62,10 @@ export class PinEntries {
 	terms = $derived.by(() => merged(this.#baseTerms(), this.#terms));
 	symbols = $derived.by(() => merged(this.#baseSymbols(), this.#symbols));
 
-	newTerm = (name: string): Promise<GlossaryTerm | undefined> => {
+	newTerm = (name: string, kind: GlossaryKind = 'term'): Promise<GlossaryTerm | undefined> => {
 		this.#pendingTerm?.(undefined);
 		this.termName = name;
+		this.termKind = kind;
 		this.termOpen = true;
 		return new Promise((resolve) => (this.#pendingTerm = resolve));
 	};

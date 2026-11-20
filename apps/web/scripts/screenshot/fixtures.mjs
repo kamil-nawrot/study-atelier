@@ -1157,7 +1157,7 @@ export const GLOSSARY_ENTRIES = [
 	glossaryEntry(
 		6,
 		'Giorgio Vasari',
-		'person',
+		'artist',
 		'Włoski malarz, architekt i pisarz, autor „Żywotów najsławniejszych malarzy, rzeźbiarzy i architektów”.',
 		[],
 		'Giorgio Vasari',
@@ -1209,6 +1209,89 @@ export const GLOSSARY_ENTRIES = [
 			`${name}: krótka definicja do zrzutów ekranu.`,
 			name === 'Nawa' ? ['nawy', 'nawie', 'nawę', 'nawą'] : []
 		)
+	),
+	glossaryEntry(
+		40,
+		'Hodegetria',
+		'iconography',
+		'Typ ikonograficzny Matki Boskiej, która wskazuje dłonią Dzieciątko na swoim ręku jako drogę zbawienia.',
+		[],
+		'Hodegetria'
+	),
+	glossaryEntry(
+		41,
+		'Ramzes II',
+		'ruler',
+		'Faraon z XIX dynastii, budowniczy świątyń w Abu Simbel i Ramesseum.',
+		[],
+		'Ramzes II Wielki'
+	),
+	glossaryEntry(
+		42,
+		'Jean-François Champollion',
+		'scholar',
+		'Francuski egiptolog, który odczytał hieroglify egipskie na podstawie kamienia z Rosetty.',
+		[],
+		'Jean-François Champollion',
+		{ sortName: 'Champollion, Jean-François' }
+	),
+	glossaryEntry(
+		43,
+		'Lorenzo Medici',
+		'patron',
+		'Florencki władca i mecenas sztuki, opiekun Botticellego i młodego Michała Anioła.',
+		[],
+		'Lorenzo Medici',
+		{ sortName: 'Medici, Lorenzo' }
+	),
+	glossaryEntry(
+		44,
+		'Herkules',
+		'myth',
+		'Heros mitologii greckiej i rzymskiej, syn Zeusa, znany z dwunastu prac.',
+		[],
+		'Herakles'
+	),
+	glossaryEntry(
+		45,
+		'Święty Sebastian',
+		'sacred',
+		'Rzymski żołnierz i męczennik, przedstawiany jako młodzieniec przeszyty strzałami.',
+		[],
+		'Święty Sebastian'
+	),
+	glossaryEntry(
+		46,
+		'Zeus',
+		'myth',
+		'Najwyższy bóg w mitologii greckiej, władca nieba i piorunów.',
+		[],
+		'Zeus'
+	),
+	glossaryEntry(
+		47,
+		'Bernard z Clairvaux',
+		'sacred',
+		'Francuski mnich cysterski, opat w Clairvaux i doktor Kościoła.',
+		[],
+		'Bernard z Clairvaux'
+	),
+	glossaryEntry(
+		48,
+		'Kazimierz Michałowski',
+		'scholar',
+		'Polski archeolog i egiptolog, twórca polskiej szkoły archeologii śródziemnomorskiej.',
+		[],
+		'Kazimierz Michałowski',
+		{ sortName: 'Michałowski, Kazimierz' }
+	),
+	glossaryEntry(
+		49,
+		'Karol Wielki',
+		'ruler',
+		'Król Franków i cesarz, patron odrodzenia karolińskiego.',
+		[],
+		'Karol Wielki'
 	)
 ];
 
