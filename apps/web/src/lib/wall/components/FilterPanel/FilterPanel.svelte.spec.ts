@@ -284,6 +284,7 @@ describe('FilterPanel', () => {
 				description: null,
 				kind: 'list',
 				multiple: false,
+				closed: false,
 				typeCodes: []
 			},
 			{
@@ -292,6 +293,7 @@ describe('FilterPanel', () => {
 				description: null,
 				kind: 'text',
 				multiple: false,
+				closed: false,
 				typeCodes: []
 			},
 			{
@@ -300,6 +302,7 @@ describe('FilterPanel', () => {
 				description: null,
 				kind: 'flag',
 				multiple: false,
+				closed: false,
 				typeCodes: []
 			},
 			{
@@ -308,6 +311,7 @@ describe('FilterPanel', () => {
 				description: null,
 				kind: 'text',
 				multiple: false,
+				closed: false,
 				typeCodes: []
 			}
 		];

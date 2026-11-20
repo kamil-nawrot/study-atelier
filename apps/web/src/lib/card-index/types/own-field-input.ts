@@ -6,6 +6,7 @@ export type OwnFieldInput = {
 	description: string;
 	kind: OwnFieldKind;
 	multiple: boolean;
+	closed: boolean;
 	limited: boolean;
 	typeCodes: ArtworkTypeCode[];
 };

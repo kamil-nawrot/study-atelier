@@ -256,7 +256,7 @@ describe('card index page', () => {
 		await expect
 			.element(page.getByRole('link', { name: m.cardIndex.openValue('Motifs', '3 dzieła') }))
 			.toHaveAttribute('href', '/atelier/fields/motifs');
-		await expect.element(page.getByRole('button', { name: m.ownFields.add })).toBeVisible();
+		await expect.element(page.getByRole('link', { name: m.ownFields.add })).toBeVisible();
 	});
 
 	it('keeps the other tabs and says so in its tab when the own fields could not be loaded', async () => {
@@ -275,9 +275,7 @@ describe('card index page', () => {
 		await page.getByRole('tab', { name: m.cardIndex.tabs.own }).click();
 
 		await expect.element(page.getByText(m.ownFields.loadErrorTitle)).toBeVisible();
-		await expect
-			.element(page.getByRole('button', { name: m.ownFields.add }))
-			.not.toBeInTheDocument();
+		await expect.element(page.getByRole('link', { name: m.ownFields.add })).not.toBeInTheDocument();
 		await page.getByRole('tab', { name: m.cardIndex.tabs.material }).click();
 		await expect.element(page.getByText(m.ownFields.loadErrorTitle)).not.toBeInTheDocument();
 	});
