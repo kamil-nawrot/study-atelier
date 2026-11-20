@@ -52,13 +52,14 @@
 		notFound={data.notFound === true}
 	/>
 {:else}
-	{#key backPath}
+	{#key `${backPath}:${data.kind}`}
 		<GlossaryForm
 			bind:this={form}
 			cancelHref={fix.progress ? BACKROOM_PATH : backPath}
 			entries={data.entries}
 			entry={data.entry}
 			index={data.index}
+			kind={data.kind}
 			labels={fix.labels}
 			oncancel={fix.progress ? undefined : goBack}
 			onsaved={showSaved}

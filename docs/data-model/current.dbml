@@ -447,7 +447,7 @@ Table glossary_entries {
   id uuid [pk, default: `gen_random_uuid()`]
   owner_id uuid [not null, default: `auth.uid()`]
   name text [not null]
-  category text [not null, note: 'person, architecture, painting, sculpture, technique, general']
+  category text [not null, note: 'architecture, painting, sculpture, technique, iconography, general, ruler, patron, artist, scholar, sacred, myth']
   definition text
   forms "text[]" [not null, default: `'{}'::text[]`]
   source_title text

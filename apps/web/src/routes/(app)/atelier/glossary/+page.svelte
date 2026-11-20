@@ -5,6 +5,7 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
+	import { isFigure } from '#lib/glossary/categories/categories.ts';
 	import GlossaryList from '#lib/glossary/components/GlossaryList/GlossaryList.svelte';
 	import {
 		GLOSSARY_TABS,
@@ -26,27 +27,43 @@
 	let toast: Toast;
 	let tab = $state<string>(rememberedGlossaryTab(page.url.searchParams.get('tab')));
 	let query = $state('');
+	let figureQuery = $state('');
 	let symbolQuery = $state('');
 	let chosen = $state<GlossaryCategory[]>([]);
+	let figureChosen = $state<GlossaryCategory[]>([]);
 	let symbols = $derived(tab === 'symbols');
+	let terms = $derived(data.entries.filter((entry) => !isFigure(entry.category)));
+	let figures = $derived(data.entries.filter((entry) => isFigure(entry.category)));
 	let atlas = $state<AtlasResult>();
 
 	type Saved = {
 		tab?: string;
 		query: string;
+		figureQuery?: string;
 		symbolQuery?: string;
 		chosen: GlossaryCategory[];
+		figureChosen?: GlossaryCategory[];
 		scroll?: number;
 	};
 
 	snapshot<Saved>({
 		id: 'glossary',
-		capture: () => ({ tab, query, symbolQuery, chosen: [...chosen], scroll: window.scrollY }),
+		capture: () => ({
+			tab,
+			query,
+			figureQuery,
+			symbolQuery,
+			chosen: [...chosen],
+			figureChosen: [...figureChosen],
+			scroll: window.scrollY
+		}),
 		restore: (value) => {
 			if (isGlossaryTab(value.tab)) tab = value.tab;
 			query = value.query;
+			figureQuery = value.figureQuery ?? '';
 			symbolQuery = value.symbolQuery ?? '';
 			chosen = value.chosen ?? [];
+			figureChosen = value.figureChosen ?? [];
 			const { scroll } = value;
 			if (scroll === undefined) return;
 			void tick().then(() => window.scrollTo({ top: scroll, behavior: 'instant' }));
@@ -75,8 +92,10 @@
 		{#snippet aside()}
 			{#if symbols && atlas && atlas.symbols.length > 0}
 				<span class="caption">{m.symbols.count(atlas.symbols.length)}</span>
-			{:else if !symbols && !data.error && data.entries.length > 0}
-				<span class="caption">{m.glossary.count(data.entries.length)}</span>
+			{:else if tab === 'figures' && !data.error && figures.length > 0}
+				<span class="caption">{m.glossary.figures.count(figures.length)}</span>
+			{:else if tab === 'terms' && !data.error && terms.length > 0}
+				<span class="caption">{m.glossary.count(terms.length)}</span>
 			{/if}
 		{/snippet}
 	</PageHeader>
@@ -91,8 +110,15 @@
 				{#if atlas}
 					<SymbolAtlas error={atlas.error} symbols={atlas.symbols} bind:query={symbolQuery} />
 				{/if}
+			{:else if tab === 'figures'}
+				<GlossaryList
+					entries={figures}
+					kind="figure"
+					bind:chosen={figureChosen}
+					bind:query={figureQuery}
+				/>
 			{:else}
-				<GlossaryList entries={data.entries} bind:chosen bind:query />
+				<GlossaryList entries={terms} kind="term" bind:chosen bind:query />
 			{/if}
 		</Tabs>
 	{/if}

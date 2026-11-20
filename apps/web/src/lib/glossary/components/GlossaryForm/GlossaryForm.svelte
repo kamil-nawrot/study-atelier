@@ -24,7 +24,9 @@
 	import {
 		glossaryCategoryName,
 		glossaryCategoryTiles,
-		isGlossaryCategory
+		isFigure,
+		isGlossaryCategory,
+		kindOf
 	} from '#lib/glossary/categories/categories.ts';
 	import { DefinitionSearch } from '#lib/glossary/definition-search/definition-search.svelte.ts';
 	import { saveGlossaryEntry } from '#lib/glossary/glossary-data/glossary-data.ts';
@@ -39,6 +41,7 @@
 	} from '#lib/glossary/glossary/glossary.ts';
 	import type { GlossaryDraft } from '#lib/glossary/types/glossary-draft.ts';
 	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
+	import type { GlossaryKind } from '#lib/glossary/types/glossary-kind.ts';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import ArticleDialog from '#lib/glossary/components/ArticleDialog/ArticleDialog.svelte';
 	import GlossaryDefinition from '#lib/glossary/components/GlossaryDefinition/GlossaryDefinition.svelte';
@@ -46,6 +49,7 @@
 
 	type Props = {
 		entry?: GlossaryEntry;
+		kind: GlossaryKind;
 		entries: GlossaryTerm[];
 		index: CardIndexData;
 		cancelHref: string;
@@ -54,11 +58,12 @@
 		labels?: { save: string; cancel: string };
 	};
 
-	let { entry, entries, index, cancelHref, oncancel, onsaved, labels }: Props = $props();
+	let { entry, kind, entries, index, cancelHref, oncancel, onsaved, labels }: Props = $props();
 	const flags = new FormFlags('term', () => (entry ? { termId: entry.id } : undefined));
 
-	const tiles = glossaryCategoryTiles();
 	const existing = untrack(() => entry);
+	const figure = untrack(() => kind) === 'figure';
+	const tiles = glossaryCategoryTiles(figure ? 'figure' : 'term');
 	const initial = (): GlossaryDraft => (existing ? draftOf(existing) : emptyDraft());
 
 	let form = $state<GlossaryDraft>(initial());
@@ -74,7 +79,7 @@
 		draftChanged
 	);
 
-	let author = $derived(form.category === 'person' ? authorNamed(index, form.name) : undefined);
+	let author = $derived(isFigure(form.category) ? authorNamed(index, form.name) : undefined);
 
 	function chooseCategory(value: string | null): void {
 		form.category = isGlossaryCategory(value) ? value : null;
@@ -86,11 +91,12 @@
 
 	const errors = new LiveErrors<{ name?: string; category?: string }>(() => {
 		const name = form.name.trim();
+		const conflict = name ? findNameConflict(entries, name, existing?.id) : undefined;
 		return {
 			name: !name
 				? m.valueForm.nameRequired
-				: findNameConflict(entries, name, existing?.id)
-					? m.glossary.form.nameTaken(name)
+				: conflict
+					? m.glossary.form.nameTaken(name, kindOf(conflict.category) === 'figure')
 					: undefined,
 			category: form.category ? undefined : m.glossary.form.categoryRequired
 		};
@@ -111,7 +117,7 @@
 				existing?.id
 			);
 			if (result.nameTaken) {
-				errors.add({ name: m.glossary.form.nameTaken(name) }, () => form.name.trim());
+				errors.add({ name: m.glossary.form.nameTaken(name, figure) }, () => form.name.trim());
 				return;
 			}
 			if (result.error || !result.id) {
@@ -128,7 +134,11 @@
 </script>
 
 <div class="page">
-	<Form error={formState.error} errorTitle={m.glossary.form.errorTitle} onsubmit={submit}>
+	<Form
+		error={formState.error}
+		errorTitle={figure ? m.glossary.form.figureErrorTitle : m.glossary.form.errorTitle}
+		onsubmit={submit}
+	>
 		<FixNote field="top" {flags} />
 		<div class="fields">
 			<div class="name">
@@ -137,7 +147,6 @@
 					error={errors.current.name}
 					label={m.common.name}
 					maxlength={NAME_MAX_LENGTH}
-					placeholder={m.glossary.form.namePlaceholder}
 					required
 					bind:value={form.name}
 				/>

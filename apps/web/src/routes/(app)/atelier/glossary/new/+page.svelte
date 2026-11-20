@@ -8,7 +8,9 @@
 
 	let { data }: PageProps = $props();
 
-	const title = m.glossary.form.newTitle;
+	let title = $derived(
+		data.kind === 'figure' ? m.glossary.form.newFigureTitle : m.glossary.form.newTitle
+	);
 
 	const backPath = resolve('/(app)/atelier/glossary');
 

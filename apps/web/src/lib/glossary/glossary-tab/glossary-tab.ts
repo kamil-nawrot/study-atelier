@@ -2,7 +2,7 @@ import { readStored, writeStored } from '#lib/shared/utils/storage/storage.ts';
 
 const TAB_KEY = 'study-atelier:glossary-tab';
 
-export const GLOSSARY_TABS = ['terms', 'symbols'] as const;
+export const GLOSSARY_TABS = ['terms', 'figures', 'symbols'] as const;
 
 export type GlossaryTab = (typeof GLOSSARY_TABS)[number];
 

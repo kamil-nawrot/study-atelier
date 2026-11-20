@@ -2,6 +2,7 @@
 	import { Alert, Button, Dialog, SearchSelect, TextArea, TextButton } from '@study-atelier/ui';
 	import { loupeLevel } from '#lib/images/loupe/loupe.ts';
 	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
+	import type { GlossaryKind } from '#lib/glossary/types/glossary-kind.ts';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { Fraction } from '#lib/pins/types/fraction.ts';
@@ -22,7 +23,7 @@
 		image?: ArtworkImageInput | null;
 		view?: number;
 		shownWidth?: number;
-		onnewterm?: (name: string) => Promise<GlossaryTerm | undefined>;
+		onnewterm?: (name: string, kind: GlossaryKind) => Promise<GlossaryTerm | undefined>;
 		onnewsymbol?: (name: string) => Promise<SymbolOption | undefined>;
 		onaddmeaning?: (
 			symbolId: string,
@@ -118,8 +119,17 @@
 		meaningId = NEW_MEANING;
 	}
 
-	async function newTerm(name: string): Promise<void> {
-		const term = await onnewterm?.(name);
+	let termActions = $derived(
+		onnewterm
+			? [
+					{ label: m.pins.createTerm, onselect: (name: string) => newTerm(name, 'term') },
+					{ label: m.pins.createFigure, onselect: (name: string) => newTerm(name, 'figure') }
+				]
+			: []
+	);
+
+	async function newTerm(name: string, kind: GlossaryKind): Promise<void> {
+		const term = await onnewterm?.(name, kind);
 		if (!term) return;
 		addedTerms = [...addedTerms, term];
 		entryId = term.id;
@@ -216,7 +226,7 @@
 			</figure>
 		{/if}
 		<SearchSelect
-			create={onnewterm ? { label: m.pins.createTerm, onselect: newTerm } : undefined}
+			create={termActions}
 			label={m.pins.term}
 			{options}
 			placeholder={m.pins.termPlaceholder}
@@ -224,7 +234,7 @@
 		/>
 		{#if allSymbols.length > 0 || onnewsymbol}
 			<SearchSelect
-				create={onnewsymbol ? { label: m.symbols.pin.create, onselect: newSymbol } : undefined}
+				create={onnewsymbol ? [{ label: m.symbols.pin.create, onselect: newSymbol }] : []}
 				label={m.pins.symbol}
 				options={symbolOptions}
 				placeholder={m.symbols.search}
@@ -233,8 +243,8 @@
 			{#if symbolId && (meanings.length > 0 || canAddMeaning)}
 				<SearchSelect
 					create={canAddMeaning
-						? { label: m.symbols.pin.createMeaning, onselect: addMeaning }
-						: undefined}
+						? [{ label: m.symbols.pin.createMeaning, onselect: addMeaning }]
+						: []}
 					hint={meaningId === NEW_MEANING ? m.symbols.pin.newMeaningNote : undefined}
 					label={m.pins.symbolMeaning}
 					options={meaningOptions}

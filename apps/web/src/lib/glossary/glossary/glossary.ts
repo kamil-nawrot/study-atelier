@@ -74,12 +74,18 @@ export function countByCategory(
 	entries: readonly GlossaryEntry[]
 ): Record<GlossaryCategory, number> {
 	const counts: Record<GlossaryCategory, number> = {
-		person: 0,
 		architecture: 0,
 		painting: 0,
 		sculpture: 0,
 		technique: 0,
-		general: 0
+		iconography: 0,
+		general: 0,
+		ruler: 0,
+		patron: 0,
+		artist: 0,
+		scholar: 0,
+		sacred: 0,
+		myth: 0
 	};
 	for (const entry of entries) counts[entry.category] += 1;
 	return counts;

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
+	import type { GlossaryKind } from '#lib/glossary/types/glossary-kind.ts';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -19,7 +20,7 @@
 		entries: readonly GlossaryTerm[];
 		symbols?: readonly SymbolOption[];
 		image?: ArtworkImageInput | null;
-		onnewterm?: (name: string) => Promise<GlossaryTerm | undefined>;
+		onnewterm?: (name: string, kind: GlossaryKind) => Promise<GlossaryTerm | undefined>;
 		onnewsymbol?: (name: string) => Promise<SymbolOption | undefined>;
 		onaddmeaning?: (
 			symbolId: string,

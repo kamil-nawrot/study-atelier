@@ -61,7 +61,7 @@ describe('TermSearch', () => {
 			.toBeInTheDocument();
 	});
 
-	it('offers a new term when nothing matches', async () => {
+	it('offers a new term or a new figure when nothing matches', async () => {
 		const oncreate = vi.fn();
 		render(TermSearch, { terms: [], onpick: vi.fn(), oncreate });
 
@@ -73,6 +73,12 @@ describe('TermSearch', () => {
 			page.getByRole('button', { name: m.exhibitions.panel.createTerm('Impasto') })
 		);
 
-		expect(oncreate).toHaveBeenCalledWith('Impasto');
+		expect(oncreate).toHaveBeenCalledWith('Impasto', 'term');
+
+		await userEvent.click(
+			page.getByRole('button', { name: m.exhibitions.panel.createFigure('Impasto') })
+		);
+
+		expect(oncreate).toHaveBeenCalledWith('Impasto', 'figure');
 	});
 });

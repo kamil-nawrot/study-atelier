@@ -3,7 +3,7 @@ import { m } from '#lib/i18n/i18n.ts';
 import { contextCandidates } from './context-candidates.ts';
 
 describe('contextCandidates', () => {
-	it('offers the eras, the card index values and the persons of the glossary', () => {
+	it('offers the eras, the card index values and the figures of the glossary', () => {
 		const candidates = contextCandidates(
 			{
 				values: [{ id: 'v1', category: 'style', name: 'Tenebrism', count: 2 }],
@@ -15,7 +15,15 @@ describe('contextCandidates', () => {
 				{
 					id: 't1',
 					name: 'Saint Peter',
-					category: 'person',
+					category: 'sacred',
+					synonyms: [],
+					forms: [],
+					hasDefinition: false
+				},
+				{
+					id: 't3',
+					name: 'Zeus',
+					category: 'myth',
 					synonyms: [],
 					forms: [],
 					hasDefinition: false
@@ -39,6 +47,7 @@ describe('contextCandidates', () => {
 			name: 'Tenebrism'
 		});
 		expect(candidates).toContainEqual({ kind: 'person', entryId: 't1', name: 'Saint Peter' });
+		expect(candidates).toContainEqual({ kind: 'person', entryId: 't3', name: 'Zeus' });
 		expect(candidates.some((candidate) => candidate.name === 'Apse')).toBe(false);
 	});
 });

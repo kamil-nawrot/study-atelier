@@ -133,14 +133,14 @@ describe('glossary page', () => {
 			.not.toBeInTheDocument();
 	});
 
-	it('counts every entry next to the title, whatever the filter shows', async () => {
+	it('counts every term next to the title, whatever the filter shows', async () => {
 		renderGlossary();
 
-		await expect.element(page.getByText(m.glossary.count(6))).toBeVisible();
+		await expect.element(page.getByText(m.glossary.count(5))).toBeVisible();
 
 		await page.getByRole('button', { name: `${m.glossary.categoryNames.painting} 1` }).click();
 
-		await expect.element(page.getByText(m.glossary.count(6))).toBeVisible();
+		await expect.element(page.getByText(m.glossary.count(5))).toBeVisible();
 	});
 
 	it('puts the search field before the categories', async () => {
@@ -159,7 +159,7 @@ describe('glossary page', () => {
 
 		const letters = page.getByRole('heading', { level: 2 }).elements();
 
-		expect(letters.map((letter) => letter.textContent)).toEqual(['A', 'C', 'F', 'L', 'Ł', 'T']);
+		expect(letters.map((letter) => letter.textContent)).toEqual(['A', 'C', 'F', 'Ł', 'T']);
 		await expect.element(entryLink('Abacus')).toHaveAttribute('href', '/atelier/glossary/a-abacus');
 		await expect.element(entryLink('Łuk')).toHaveAttribute('href', '/atelier/glossary/a-lukowy');
 	});
@@ -174,7 +174,7 @@ describe('glossary page', () => {
 		await expect.element(link).not.toHaveTextContent('second sentence');
 	});
 
-	it('shows the six categories with the number of entries and filters by the pressed ones', async () => {
+	it('shows the six term categories with the number of entries and filters by the pressed ones', async () => {
 		renderGlossary();
 
 		const architecture = page.getByRole('button', {
@@ -182,8 +182,11 @@ describe('glossary page', () => {
 		});
 		await expect.element(architecture).toHaveAttribute('aria-pressed', 'false');
 		await expect
-			.element(page.getByRole('button', { name: `${m.glossary.categoryNames.person} 1` }))
+			.element(page.getByRole('button', { name: `${m.glossary.categoryNames.iconography} 0` }))
 			.toBeVisible();
+		expect(
+			page.getByRole('button', { name: new RegExp(m.glossary.categoryNames.patron) }).elements()
+		).toHaveLength(0);
 
 		await architecture.click();
 
@@ -282,7 +285,7 @@ describe('glossary page', () => {
 			.toHaveAttribute('href', '/atelier/glossary/new');
 		await expect.element(page.getByText(m.glossary.count(0))).not.toBeInTheDocument();
 		expect(
-			page.getByRole('button', { name: m.glossary.categoryNames.person }).elements()
+			page.getByRole('button', { name: m.glossary.categoryNames.architecture }).elements()
 		).toHaveLength(0);
 	});
 
@@ -331,7 +334,15 @@ describe('glossary page', () => {
 			.element(page.getByRole('searchbox', { name: m.glossary.search }))
 			.toHaveValue('Tymp');
 		await expect.element(entryLink('Term 1')).not.toBeInTheDocument();
-		expect(saved).toEqual({ tab: 'terms', query: 'Tymp', symbolQuery: '', chosen: [], scroll: 0 });
+		expect(saved).toEqual({
+			tab: 'terms',
+			query: 'Tymp',
+			figureQuery: '',
+			symbolQuery: '',
+			chosen: [],
+			figureChosen: [],
+			scroll: 0
+		});
 	});
 
 	it('scrolls back to the saved place after the restored filter moved the page', async () => {
@@ -364,9 +375,113 @@ describe('glossary page', () => {
 		expect(saved).toEqual({
 			tab: 'terms',
 			query: '',
+			figureQuery: '',
 			symbolQuery: '',
 			chosen: ['painting'],
+			figureChosen: [],
 			scroll: place
+		});
+	});
+
+	describe('figures tab', () => {
+		const figures = (): GlossaryEntry[] => [
+			...testGlossary(),
+			testEntry('f-zeus', 'Zeus', { category: 'myth' }),
+			testEntry('f-ramses', 'Ramzes II', { category: 'ruler' })
+		];
+
+		async function openFigures(entries: GlossaryEntry[] = figures()): Promise<void> {
+			renderGlossary(entries);
+			await page.getByRole('tab', { name: m.glossary.tabs.figures }).click();
+		}
+
+		it('puts the tab between terms and symbols', async () => {
+			renderGlossary();
+
+			expect(
+				page
+					.getByRole('tab')
+					.elements()
+					.map((tab) => tab.textContent?.trim())
+			).toEqual([m.glossary.tabs.terms, m.glossary.tabs.figures, m.glossary.tabs.symbols]);
+		});
+
+		it('lists only the figures under their letters, with the figure categories and their count', async () => {
+			await openFigures();
+
+			expect(
+				page
+					.getByRole('heading', { level: 2 })
+					.elements()
+					.map((letter) => letter.textContent)
+			).toEqual(['L', 'R', 'Z']);
+			await expect.element(entryLink('Zeus')).toHaveAttribute('href', '/atelier/glossary/f-zeus');
+			await expect.element(entryLink('Tympanum')).not.toBeInTheDocument();
+			await expect.element(page.getByText(m.glossary.figures.count(3))).toBeVisible();
+			await expect
+				.element(page.getByRole('button', { name: `${m.glossary.categoryNames.myth} 1` }))
+				.toBeVisible();
+			await expect
+				.element(page.getByRole('button', { name: `${m.glossary.categoryNames.artist} 0` }))
+				.toBeDisabled();
+			expect(
+				page
+					.getByRole('button', { name: new RegExp(m.glossary.categoryNames.architecture) })
+					.elements()
+			).toHaveLength(0);
+		});
+
+		it('filters and searches the figures apart from the terms', async () => {
+			await openFigures();
+
+			await page.getByRole('button', { name: `${m.glossary.categoryNames.ruler} 1` }).click();
+			await expect.element(entryLink('Ramzes II')).toBeVisible();
+			await expect.element(entryLink('Zeus')).not.toBeInTheDocument();
+
+			await userEvent.fill(page.getByRole('searchbox', { name: m.glossary.figures.search }), 'qqq');
+			await expect.element(page.getByText(m.glossary.noResults('qqq'))).toBeVisible();
+
+			await page.getByRole('tab', { name: m.glossary.tabs.terms }).click();
+			await expect
+				.element(page.getByRole('searchbox', { name: m.glossary.search }))
+				.toHaveValue('');
+			await expect.element(entryLink('Tympanum')).toBeVisible();
+		});
+
+		it('adds a figure through the form of a figure', async () => {
+			await openFigures();
+
+			await expect
+				.element(page.getByRole('tabpanel').getByRole('link', { name: m.glossary.figures.add }))
+				.toHaveAttribute('href', '/atelier/glossary/new?kind=figure');
+		});
+
+		it('says there is no figure yet and offers to add the first one', async () => {
+			await openFigures(testGlossary().filter((entry) => entry.category !== 'patron'));
+
+			await expect.element(page.getByText(m.glossary.figures.emptyTitle)).toBeVisible();
+			await expect.element(page.getByText(m.glossary.figures.empty)).toBeVisible();
+			await expect
+				.element(page.getByRole('link', { name: m.glossary.figures.addFirst }))
+				.toHaveAttribute('href', '/atelier/glossary/new?kind=figure');
+		});
+
+		it('counts one figure in the singular', () => {
+			expect(m.glossary.figures.count(1)).toBe('1 postać');
+			expect(m.glossary.figures.count(2)).toBe('2 postaci');
+			expect(m.glossary.figures.count(5)).toBe('5 postaci');
+		});
+
+		it('draws a divider between the entries of one letter only', async () => {
+			await openFigures([
+				testEntry('f-zeus', 'Zeus', { category: 'myth' }),
+				testEntry('f-zefir', 'Zefir', { category: 'myth' }),
+				testEntry('f-ramses', 'Ramzes II', { category: 'ruler' })
+			]);
+
+			const rows = [...document.querySelectorAll<HTMLElement>('.group li')];
+			const dividers = rows.map((row) => getComputedStyle(row, '::before').content !== 'none');
+			expect(dividers).toEqual([false, false, true]);
 		});
 	});
 

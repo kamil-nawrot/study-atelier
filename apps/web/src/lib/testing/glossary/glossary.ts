@@ -44,7 +44,7 @@ export function testGlossary(): GlossaryEntry[] {
 		testEntry('a-abacus', 'Abacus'),
 		testEntry('a-fresco', 'Fresco', { category: 'technique' }),
 		testEntry('a-chiaroscuro', 'Chiaroscuro', { category: 'painting' }),
-		testEntry('a-lorenzo', 'Lorenzo Medici', { category: 'person' }),
+		testEntry('a-lorenzo', 'Lorenzo Medici', { category: 'patron' }),
 		testEntry('a-lukowy', 'Łuk', { category: 'architecture' })
 	];
 }
