@@ -52,7 +52,7 @@
 		notFound={data.notFound === true}
 	/>
 {:else}
-	{#key backPath}
+	{#key `${backPath}:${data.kind}`}
 		<GlossaryForm
 			bind:this={form}
 			cancelHref={fix.progress ? BACKROOM_PATH : backPath}
