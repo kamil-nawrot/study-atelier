@@ -81,6 +81,7 @@
 		{/if}
 		<div class="kind">
 			<ChoiceTiles
+				required
 				columns={2}
 				label={m.feedback.kind}
 				narrowColumns={2}
@@ -93,6 +94,7 @@
 			{/if}
 		</div>
 		<TextField
+			required
 			error={errors.title}
 			hint={m.feedback.titleHint}
 			label={m.feedback.titleLabel}

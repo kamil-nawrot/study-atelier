@@ -226,19 +226,76 @@ describe('ValueField', () => {
 		await expect.element(page.getByRole('combobox', { name: 'Synonyms' })).toBeVisible();
 	});
 
-	it('takes one value in single mode and hides the text input until it is removed', async () => {
+	it('shows the one value of single mode as text in the field with a clear button', async () => {
 		render(ValueField, {
 			label: 'Location',
 			options: [{ kind: 'existing', name: 'Louvre' }],
 			single: true
 		});
 
-		await userEvent.click(page.getByRole('combobox', { name: 'Location' }));
+		const field = page.getByRole('combobox', { name: 'Location' });
+		await userEvent.click(field);
 		await userEvent.click(page.getByRole('option', { name: 'Louvre' }));
 
-		await expect.element(page.getByRole('combobox')).not.toBeInTheDocument();
+		await expect.element(field).toHaveValue('Louvre');
+		expect(document.querySelector('.value')).toBeNull();
 		await userEvent.click(page.getByRole('button', { name: texts.remove('Louvre') }));
-		await expect.element(page.getByRole('combobox', { name: 'Location' })).toBeVisible();
+		await expect.element(field).toHaveValue('');
+		await expect
+			.element(page.getByRole('button', { name: texts.remove('Louvre') }))
+			.not.toBeInTheDocument();
+	});
+
+	it('restores the one value when the learner types and leaves without a choice', async () => {
+		render(ValueField, {
+			label: 'Location',
+			values: ['Louvre'],
+			options: [{ kind: 'existing', name: 'Prado' }],
+			single: true
+		});
+
+		const field = page.getByRole('combobox', { name: 'Location' });
+		await userEvent.click(field);
+		await userEvent.keyboard('Pra');
+		await expect.element(field).toHaveValue('Pra');
+		await userEvent.click(document.body);
+
+		await expect.element(field).toHaveValue('Louvre');
+	});
+
+	it('keeps the one value on Backspace and replaces it with a new pick', async () => {
+		render(ValueField, {
+			label: 'Location',
+			values: ['Louvre'],
+			options: [{ kind: 'existing', name: 'Prado' }],
+			single: true
+		});
+
+		const field = page.getByRole('combobox', { name: 'Location' });
+		await userEvent.click(field);
+		await userEvent.keyboard('{Backspace}');
+		await userEvent.click(page.getByRole('option', { name: 'Prado' }));
+
+		await expect.element(field).toHaveValue('Prado');
+	});
+
+	it('marks a required field with an asterisk', async () => {
+		render(ValueField, { label: 'Authors', options, required: true });
+
+		const input = page.getByRole('combobox', { name: 'Authors' });
+		await expect.element(input).toHaveAttribute('aria-required', 'true');
+		expect(document.querySelector('label .required-mark')?.getAttribute('aria-hidden')).toBe(
+			'true'
+		);
+	});
+
+	it('drops the asterisk of a required field while it is disabled', async () => {
+		render(ValueField, { label: 'Authors', options, required: true, disabled: true });
+
+		await expect
+			.element(page.getByRole('combobox', { name: 'Authors' }))
+			.not.toHaveAttribute('aria-required');
+		expect(document.querySelector('.required-mark')).toBeNull();
 	});
 
 	it('leaves the remove button unfocused after a pointer pick in single mode', async () => {

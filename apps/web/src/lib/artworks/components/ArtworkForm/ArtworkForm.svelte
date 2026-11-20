@@ -222,6 +222,7 @@
 		<div class="fields head">
 			<FixNote field="data" {flags} />
 			<TextField
+				required
 				id={titleId}
 				autocomplete="off"
 				error={fieldErrors.current.title}
@@ -231,6 +232,7 @@
 
 			<div class="group">
 				<ValueField
+					required
 					disabled={form.authorUnknown}
 					error={fieldErrors.current.authors}
 					label={m.artworkForm.authors}

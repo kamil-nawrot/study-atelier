@@ -90,6 +90,7 @@
 			</Alert>
 		{/if}
 		<TextField
+			required
 			error={nameError}
 			hint={mergeTarget
 				? m.ownFields.value.mergeHint(mergeTarget.name, m.atelier.count(mergeTarget.count))

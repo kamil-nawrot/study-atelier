@@ -102,6 +102,7 @@
 				</Alert>
 			{/if}
 			<TextField
+				required
 				autocomplete="email"
 				error={emailFieldError}
 				label={m.settings.account.newEmail}
@@ -127,6 +128,7 @@
 				</Alert>
 			{/if}
 			<TextField
+				required
 				autocomplete="current-password"
 				error={currentError}
 				label={m.settings.account.currentPassword}
@@ -134,6 +136,7 @@
 				bind:value={currentPassword}
 			/>
 			<TextField
+				required
 				autocomplete="new-password"
 				error={newError}
 				hint={m.validation.passwordHint(MIN_PASSWORD_LENGTH)}

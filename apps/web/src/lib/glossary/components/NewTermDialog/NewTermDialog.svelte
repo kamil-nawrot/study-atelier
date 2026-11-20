@@ -95,6 +95,7 @@
 			<Alert title={m.glossary.quick.errorTitle} tone="danger">{failure}</Alert>
 		{/if}
 		<TextField
+			required
 			autocomplete="off"
 			error={nameError}
 			label={m.common.name}
@@ -103,6 +104,7 @@
 		/>
 		<div class="category">
 			<ChoiceTiles
+				required
 				columns={3}
 				label={m.glossary.form.category}
 				narrowColumns={2}

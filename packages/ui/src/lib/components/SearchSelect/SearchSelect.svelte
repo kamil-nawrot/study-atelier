@@ -30,6 +30,7 @@
 		error?: string;
 		disabled?: boolean;
 		id?: string;
+		required?: boolean;
 		create?: { label: (query: string) => string; onselect: (query: string) => void };
 	};
 
@@ -42,6 +43,7 @@
 		error,
 		disabled = false,
 		id,
+		required = false,
 		create
 	}: Props = $props();
 
@@ -170,11 +172,14 @@
 </script>
 
 <div class="field">
-	<label for={inputId}>{label}</label>
+	<label for={inputId}
+		>{label}{#if required}<span class="required-mark" aria-hidden="true">*</span>{/if}</label
+	>
 	<div class="control" class:disabled class:invalid={!!error}>
 		<input
 			bind:this={input}
 			id={inputId}
+			aria-required={required || undefined}
 			aria-activedescendant={expanded && shown.length > 0 ? optionId(activeIndex) : undefined}
 			aria-autocomplete="list"
 			aria-controls={listId}

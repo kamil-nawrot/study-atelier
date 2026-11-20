@@ -10,9 +10,16 @@
 		contexts: SymbolContext[];
 		candidates: readonly SymbolContext[];
 		error?: string;
+		required?: boolean;
 	};
 
-	let { text = $bindable(), contexts = $bindable(), candidates, error }: Props = $props();
+	let {
+		text = $bindable(),
+		contexts = $bindable(),
+		candidates,
+		error,
+		required = false
+	}: Props = $props();
 
 	let opened = $state(false);
 	let contextsOpen = $derived(opened || contexts.length > 0);
@@ -22,6 +29,7 @@
 	<TextField
 		autocomplete="off"
 		{error}
+		{required}
 		label={m.symbols.form.meaning}
 		maxlength={MEANING_TEXT_MAX_LENGTH}
 		bind:value={text}

@@ -194,6 +194,7 @@
 			</div>
 		{/if}
 		<TextArea
+			required={chosen?.reason === 'other'}
 			counter
 			error={commentError}
 			hint={m.backroom.commentHint}

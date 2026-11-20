@@ -56,6 +56,7 @@
 		{/if}
 		{#if open}
 			<MeaningInputs
+				required
 				{candidates}
 				error={missing ? m.symbols.form.meaningRequired : undefined}
 				bind:contexts

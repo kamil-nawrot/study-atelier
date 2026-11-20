@@ -55,6 +55,7 @@
 			<Alert title={m.symbols.quick.errorTitle} tone="danger">{failure}</Alert>
 		{/if}
 		<TextField
+			required
 			autocomplete="off"
 			error={nameError}
 			label={m.common.name}

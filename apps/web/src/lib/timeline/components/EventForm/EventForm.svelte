@@ -226,6 +226,7 @@
 		<div class="fields">
 			<FixNote field="top" {flags} />
 			<TextField
+				required
 				autocomplete="off"
 				error={errors.current.name}
 				label={m.common.name}
@@ -234,6 +235,7 @@
 			/>
 
 			<YearGroup
+				required
 				columns={form.spanMode}
 				labelFor={form.spanMode ? undefined : yearToId}
 				title={form.spanMode ? m.timeline.form.spanTitle : m.timeline.form.year}
@@ -252,6 +254,7 @@
 				{/snippet}
 				{#if form.spanMode}
 					<YearInput
+						required
 						beforeCommonEraLabel={m.artworkForm.beforeCommonEraFrom}
 						error={errors.current.yearFrom}
 						filling={filling?.dates}
@@ -262,6 +265,7 @@
 					/>
 				{/if}
 				<YearInput
+					required
 					id={yearToId}
 					beforeCommonEraLabel={form.spanMode ? m.artworkForm.beforeCommonEraTo : undefined}
 					error={errors.current.yearTo}

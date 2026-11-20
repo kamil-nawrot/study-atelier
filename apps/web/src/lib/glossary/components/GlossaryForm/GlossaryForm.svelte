@@ -133,6 +133,7 @@
 		<div class="fields">
 			<div class="name">
 				<TextField
+					required
 					autocomplete="off"
 					error={errors.current.name}
 					label={m.common.name}
@@ -162,6 +163,7 @@
 
 			<div class="category">
 				<ChoiceTiles
+					required
 					columns={3}
 					label={m.glossary.form.category}
 					narrowColumns={2}

@@ -39,6 +39,7 @@
 				</Alert>
 			{/if}
 			<TextField
+				required
 				autocomplete="new-password"
 				error={passwordError}
 				hint={m.validation.passwordHint(MIN_PASSWORD_LENGTH)}

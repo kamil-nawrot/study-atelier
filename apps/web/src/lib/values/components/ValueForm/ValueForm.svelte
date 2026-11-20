@@ -228,6 +228,7 @@
 				{#if record && kind}
 					<div class="name">
 						<TextField
+							required
 							autocomplete="off"
 							error={errors.current.name}
 							hint={mergeTarget
@@ -346,6 +347,7 @@
 >
 	{#if eraMove.remaining.length > 1}
 		<Select
+			required
 			error={moveError}
 			label={m.cardIndex.moveConfirm.pick}
 			options={eraMove.remaining.map((code) => ({ value: code, label: eraName(code) }))}

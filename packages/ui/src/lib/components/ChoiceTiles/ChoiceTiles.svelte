@@ -10,6 +10,7 @@
 		columns?: number;
 		narrowColumns?: number;
 		disabled?: boolean;
+		required?: boolean;
 		onchange?: (value: string | null) => void;
 	};
 
@@ -21,6 +22,7 @@
 		columns,
 		narrowColumns,
 		disabled = false,
+		required = false,
 		onchange
 	}: Props = $props();
 
@@ -49,12 +51,15 @@
 	style:--narrow-columns={narrowColumns ?? (options.length === 4 ? 2 : 3)}
 	{disabled}
 >
-	<legend>{label}</legend>
+	<legend
+		>{label}{#if required}<span class="required-mark" aria-hidden="true">*</span>{/if}</legend
+	>
 	<div class="tiles" class:dense={(narrowColumns ?? 0) >= 4}>
 		{#each options as option (option.value)}
 			<label class="tile" class:selected={value === option.value}>
 				<input
 					name={groupName}
+					{required}
 					checked={value === option.value}
 					onchange={() => choose(option.value)}
 					onclick={(event) => clearChosen(event, option)}

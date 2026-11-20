@@ -41,6 +41,7 @@
 				</Alert>
 			{/if}
 			<TextField
+				required
 				autocomplete="email"
 				error={emailError}
 				label={m.common.email}

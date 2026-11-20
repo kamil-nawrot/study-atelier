@@ -29,6 +29,7 @@
 		invalid?: boolean;
 		placeholder?: string;
 		id?: string;
+		required?: boolean;
 		onpick?: (option: ValueOption) => void;
 	};
 
@@ -49,6 +50,7 @@
 		invalid = false,
 		placeholder,
 		id,
+		required = false,
 		onpick
 	}: Props = $props();
 
@@ -68,13 +70,17 @@
 	const starter = $derived(ordered.filter((option) => option.kind === 'starter'));
 	const similar = $derived(ordered.find((option) => option.kind === 'similar'));
 	const added = $derived(ordered.find((option) => option.kind === 'new'));
-	const full = $derived(values.length >= (single ? 1 : (max ?? Infinity)));
+	const full = $derived(!single && values.length >= (max ?? Infinity));
+	const chosen = $derived(single ? values[0] : undefined);
 
 	let control: HTMLDivElement | undefined = $state();
 	let input: HTMLInputElement | undefined = $state();
 	let open = $state(false);
 	let active = $state(0);
 	let quiet = false;
+	let typed = $state(false);
+
+	const shownText = $derived(chosen !== undefined && !typed ? chosen : query);
 
 	const inactive = $derived(disabled || locked);
 	const expanded = $derived(open && !inactive && !filling && !full && ordered.length > 0);
@@ -93,11 +99,12 @@
 		values = single ? [option.name] : [...values, option.name];
 		onpick?.(option);
 		query = '';
+		typed = false;
 		if (single) {
 			open = false;
 			if (!keyboard) return;
 			await tick();
-			control?.querySelector<HTMLButtonElement>('.remove')?.focus();
+			control?.querySelector<HTMLButtonElement>('.clear')?.focus();
 		} else {
 			show();
 			input?.focus();
@@ -118,9 +125,32 @@
 		}
 	}
 
+	async function clear(): Promise<void> {
+		values = [];
+		query = '';
+		typed = false;
+		await tick();
+		quiet = true;
+		input?.focus();
+	}
+
 	function onfocus(): void {
+		if (single) input?.select();
 		if (quiet) quiet = false;
 		else show();
+	}
+
+	function onblur(): void {
+		open = false;
+		if (!single || !typed) return;
+		typed = false;
+		query = '';
+	}
+
+	function oninput(event: Event & { currentTarget: HTMLInputElement }): void {
+		query = event.currentTarget.value;
+		typed = true;
+		show();
 	}
 
 	function onkeydown(event: KeyboardEvent): void {
@@ -141,7 +171,13 @@
 			event.preventDefault();
 			event.stopPropagation();
 			open = false;
-		} else if (event.key === 'Backspace' && !filling && query === '' && values.length > 0) {
+		} else if (
+			event.key === 'Backspace' &&
+			!single &&
+			!filling &&
+			query === '' &&
+			values.length > 0
+		) {
 			values = values.slice(0, -1);
 		}
 	}
@@ -189,7 +225,10 @@
 {/snippet}
 
 <div class="field">
-	<label class:visually-hidden={labelHidden} for={inputId}>{label}</label>
+	<label class:visually-hidden={labelHidden} for={inputId}
+		>{label}{#if required && !inactive}<span class="required-mark" aria-hidden="true">*</span
+			>{/if}</label
+	>
 	<div
 		bind:this={control}
 		class="control"
@@ -200,7 +239,7 @@
 		onpointerdown={onfieldpointerdown}
 		role="presentation"
 	>
-		{#each values as value, index (value)}
+		{#each single ? [] : values as value, index (value)}
 			<span class="value">
 				{value}
 				{#if !disabled && !filling}
@@ -219,6 +258,7 @@
 		<input
 			bind:this={input}
 			id={inputId}
+			aria-required={(required && !inactive) || undefined}
 			aria-activedescendant={expanded ? optionId(ordered[activeIndex]) : undefined}
 			aria-autocomplete="list"
 			aria-controls={listId}
@@ -229,16 +269,27 @@
 			disabled={inactive}
 			hidden={full}
 			{maxlength}
-			onblur={() => (open = false)}
+			{onblur}
 			{onfocus}
-			oninput={show}
+			{oninput}
 			{onkeydown}
 			placeholder={values.length === 0 ? placeholder : undefined}
 			readonly={filling || undefined}
 			role="combobox"
 			type="text"
-			bind:value={query}
+			value={shownText}
 		/>
+		{#if chosen !== undefined && !disabled && !filling}
+			<button
+				class="clear"
+				aria-label={texts.remove(chosen)}
+				onclick={clear}
+				title={texts.remove(chosen)}
+				type="button"
+			>
+				<Icon icon={X} size="sm" />
+			</button>
+		{/if}
 		<ul
 			id={listId}
 			class="list"
@@ -341,8 +392,20 @@
 		cursor: pointer;
 	}
 
-	.remove:hover {
+	.remove:hover,
+	.clear:hover {
 		color: var(--color-fg);
+	}
+
+	.clear {
+		display: grid;
+		place-content: center;
+		margin-left: auto;
+		padding: var(--spacing-1);
+		border: none;
+		background: transparent;
+		color: var(--color-fg-muted);
+		cursor: pointer;
 	}
 
 	.remove:focus-visible {

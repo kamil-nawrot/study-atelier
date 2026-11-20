@@ -95,6 +95,7 @@
 		<FixNote field="top" {flags} />
 		<div class="fields">
 			<TextField
+				required
 				autocomplete="off"
 				error={errors.current.name}
 				label={m.common.name}

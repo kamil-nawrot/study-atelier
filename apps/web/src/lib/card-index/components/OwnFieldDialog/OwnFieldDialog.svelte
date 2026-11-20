@@ -157,6 +157,7 @@
 			</Alert>
 		{/if}
 		<TextField
+			required
 			error={nameError}
 			label={m.common.name}
 			maxlength={FIELD_NAME_MAX_LENGTH}
@@ -188,6 +189,7 @@
 		{#if draft.limited}
 			<div bind:this={typesGroup} class="types">
 				<ToggleTiles
+					required
 					columns={4}
 					label={m.ownFields.form.types}
 					narrowColumns={2}

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Checkbox, TextField } from '@study-atelier/ui';
+	import { TextField } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 
 	type Props = {
@@ -11,6 +11,7 @@
 		value: string;
 		beforeCommonEra: boolean;
 		filling?: boolean;
+		required?: boolean;
 	};
 
 	let {
@@ -21,36 +22,65 @@
 		error,
 		value = $bindable(),
 		beforeCommonEra = $bindable(),
-		filling = false
+		filling = false,
+		required = false
 	}: Props = $props();
 </script>
 
-<div class="year">
-	<TextField
-		{id}
-		autocomplete="off"
-		{error}
-		{filling}
-		hideLabel
-		inputmode="numeric"
-		{label}
-		{placeholder}
-		bind:value
-	/>
-	<Checkbox
-		aria-label={beforeCommonEraLabel}
-		disabled={filling}
-		label={m.artworkForm.beforeCommonEra}
-		bind:checked={beforeCommonEra}
-	/>
-</div>
+<TextField
+	{id}
+	autocomplete="off"
+	{error}
+	{filling}
+	hideLabel
+	inputmode="numeric"
+	{label}
+	{placeholder}
+	{required}
+	bind:value
+>
+	{#snippet inside()}
+		<button
+			class="era"
+			class:on={beforeCommonEra}
+			aria-label={beforeCommonEraLabel}
+			aria-pressed={beforeCommonEra}
+			disabled={filling}
+			onclick={() => (beforeCommonEra = !beforeCommonEra)}
+			type="button"
+		>
+			{m.artworkForm.beforeCommonEra}
+		</button>
+	{/snippet}
+</TextField>
 
 <style>
-	.year {
+	.era {
 		display: grid;
-		grid-template-columns: minmax(0, 1fr);
-		align-content: start;
-		gap: var(--spacing-3);
-		min-width: 0;
+		place-content: center;
+		padding: 0 var(--spacing-3);
+		border: none;
+		border-left: var(--border-width-hairline) solid var(--color-fg-muted);
+		background: transparent;
+		color: var(--color-fg-muted);
+		font-family: inherit;
+		font-size: var(--font-size-sm);
+		line-height: var(--line-height-sm);
+		white-space: nowrap;
+		cursor: pointer;
+	}
+
+	.era:hover {
+		color: var(--color-fg);
+	}
+
+	.era.on {
+		border-left-color: var(--color-fg);
+		background: var(--color-fg);
+		color: var(--color-on-fg);
+	}
+
+	.era:disabled {
+		cursor: not-allowed;
 	}
 </style>

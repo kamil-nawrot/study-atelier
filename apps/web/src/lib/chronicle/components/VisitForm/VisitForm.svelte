@@ -227,6 +227,7 @@
 				{/if}
 
 				<ValueField
+					required
 					error={errors.current.place}
 					hint={existing ? undefined : texts.placeHint}
 					label={texts.place}

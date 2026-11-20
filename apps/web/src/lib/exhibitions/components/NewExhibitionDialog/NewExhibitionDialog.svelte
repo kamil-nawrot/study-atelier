@@ -39,6 +39,7 @@
 			</Alert>
 		{/if}
 		<TextField
+			required
 			error={titleError}
 			label={m.exhibitions.nameLabel}
 			maxlength={200}

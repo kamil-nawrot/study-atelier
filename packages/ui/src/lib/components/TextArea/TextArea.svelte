@@ -29,6 +29,7 @@
 		id,
 		rows = 5,
 		maxlength,
+		required = false,
 		...rest
 	}: Props = $props();
 
@@ -45,10 +46,13 @@
 </script>
 
 <div class="field">
-	<label for={inputId}>{label}</label>
+	<label for={inputId}
+		>{label}{#if required}<span class="required-mark" aria-hidden="true">*</span>{/if}</label
+	>
 	<div class="control" class:filling>
 		<textarea
 			id={inputId}
+			aria-required={required || undefined}
 			style:--max-rows={maxRows}
 			class:counted
 			class:invalid={!!error}
