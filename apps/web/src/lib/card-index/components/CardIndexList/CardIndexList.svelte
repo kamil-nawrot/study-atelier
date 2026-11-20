@@ -1,25 +1,16 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import type { LucideIcon } from '@lucide/svelte';
 	import ListTree from '@lucide/svelte/icons/list-tree';
 	import { EmptyState, Icon } from '@study-atelier/ui';
 	import CardIndexTools from '#lib/card-index/components/CardIndexTools/CardIndexTools.svelte';
 	import { m } from '#lib/i18n/i18n.ts';
 	import {
 		sortRecords,
-		type CardIndexSort,
-		type SortableRecord
+		type CardIndexSort
 	} from '#lib/card-index/card-index-sort/card-index-sort.ts';
 	import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
+	import type { ListedRecord } from '#lib/card-index/types/listed-record.ts';
 	import type { ResolvedPathname } from '$app/types';
-
-	type ListedRecord = SortableRecord & {
-		id: string;
-		note?: string;
-		detail?: string;
-		icon?: LucideIcon;
-		iconLabel?: string;
-	};
 
 	type Props = {
 		records: ListedRecord[];

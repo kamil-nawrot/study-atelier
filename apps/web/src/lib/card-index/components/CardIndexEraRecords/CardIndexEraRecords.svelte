@@ -66,7 +66,7 @@
 	let isEmpty = $derived(
 		eras.every((era) => era.records.length === 0) && (outside?.records.length ?? 0) === 0
 	);
-	let hasEras = $derived(shownEras.some((era) => era.records.length > 0) || !term);
+	let hasEras = $derived(shownEras.some((era) => era.records.length > 0));
 	let noResults = $derived(
 		term !== '' && shownEras.every((era) => era.records.length === 0) && shownOutside.length === 0
 	);
@@ -113,7 +113,7 @@
 		{#if noResults}
 			<p class="lead">{m.cardIndex.noResults(query.trim())}</p>
 		{/if}
-		{#if hasEras && shownEras.length > 0}
+		{#if hasEras}
 			<ol class="eras">
 				{#each shownEras as era (era.code)}
 					<CardIndexEra code={era.code} empty={eraEmpty} filled={era.records.length > 0} {folding}>
@@ -123,7 +123,7 @@
 			</ol>
 		{/if}
 		{#if outside && shownOutside.length > 0}
-			<section class={['outside', { divided: shownEras.length > 0 }]}>
+			<section class={['outside', { divided: hasEras }]}>
 				<h2 class="group-title">{outside.title}</h2>
 				{@render rows(shownOutside)}
 			</section>

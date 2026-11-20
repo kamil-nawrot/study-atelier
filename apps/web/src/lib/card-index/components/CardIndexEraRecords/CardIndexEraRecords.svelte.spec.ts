@@ -69,6 +69,18 @@ describe('CardIndexEraRecords', () => {
 			.not.toBeInTheDocument();
 	});
 
+	it('draws no eras while only records outside them exist', async () => {
+		render(CardIndexEraRecords, {
+			...props(),
+			eras: ERA_CODES.map((code) => ({ code, records: [] }))
+		});
+
+		await expect.element(page.getByText('Unknown')).toBeVisible();
+		await expect
+			.element(page.getByRole('heading', { name: m.eras.antiquity.name }))
+			.not.toBeInTheDocument();
+	});
+
 	it('shows the empty state when nothing is listed', async () => {
 		render(CardIndexEraRecords, {
 			...props([]),
