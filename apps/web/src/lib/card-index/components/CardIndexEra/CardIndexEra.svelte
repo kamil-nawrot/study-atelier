@@ -3,40 +3,43 @@
 	import { Icon } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { eraIcon, eraYearsText } from '#lib/catalogue/eras/eras.ts';
+	import type { Snippet } from 'svelte';
 	import { valuePath } from '#lib/card-index/value-pages/value-pages.ts';
-	import CardIndexPeriods from '#lib/card-index/components/CardIndexPeriods/CardIndexPeriods.svelte';
 	import type { TimelineFolding } from '#lib/card-index/timeline-folding/timeline-folding.svelte.ts';
-	import type { CardIndexTimeline } from '#lib/card-index/types/card-index-timeline.ts';
+	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 
 	type Props = {
-		era: CardIndexTimeline['eras'][number];
+		code: EraCode;
 		folding: TimelineFolding;
+		filled: boolean;
+		empty: string;
+		children: Snippet;
 	};
 
-	let { era, folding }: Props = $props();
+	let { code, folding, filled, empty, children }: Props = $props();
 
 	const uid = $props.id();
-	let open = $derived(folding.isEraOpen(era.code));
+	let open = $derived(folding.isEraOpen(code));
 </script>
 
 <li class="era">
 	<span class="marker" aria-hidden="true">
-		<Icon icon={eraIcon(era.code)} />
+		<Icon icon={eraIcon(code)} />
 	</span>
 	<div class="body">
 		<div class="head">
 			<div class="title">
 				<h2 class="name">
-					<a id="{uid}-name" href={valuePath('era', era.code)}>{m.eras[era.code].name}</a>
+					<a id="{uid}-name" href={valuePath('era', code)}>{m.eras[code].name}</a>
 				</h2>
-				<span class="years">{eraYearsText(era.code)}</span>
+				<span class="years">{eraYearsText(code)}</span>
 			</div>
 			<button
 				class="chevron"
 				aria-controls="{uid}-periods"
 				aria-expanded={open}
 				aria-labelledby="{uid}-name"
-				onclick={() => folding.toggleEra(era.code)}
+				onclick={() => folding.toggleEra(code)}
 				type="button"
 			>
 				<Icon icon={ChevronRight} size="sm" />
@@ -44,10 +47,10 @@
 		</div>
 		{#if open}
 			<div id="{uid}-periods">
-				{#if era.periods.length > 0}
-					<CardIndexPeriods {folding} periods={era.periods} />
+				{#if filled}
+					{@render children()}
 				{:else}
-					<p class="empty">{m.cardIndex.emptyEra}</p>
+					<p class="empty">{empty}</p>
 				{/if}
 			</div>
 		{/if}

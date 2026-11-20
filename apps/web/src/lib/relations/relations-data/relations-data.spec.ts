@@ -64,7 +64,7 @@ describe('loadRelations', () => {
 		const relations = await loadRelations({
 			kind: 'event',
 			artworks,
-			index: { values: [], periodEras: [], stylePeriods: [] },
+			index: { values: [], periodEras: [], authorEras: [], stylePeriods: [] },
 			bounds: { from: 1450, to: 1520 },
 			eventId: 'self'
 		});
@@ -83,7 +83,7 @@ describe('loadRelations', () => {
 		const relations = await loadRelations({
 			kind: 'material',
 			artworks: [],
-			index: { values: [], periodEras: [], stylePeriods: [] }
+			index: { values: [], periodEras: [], authorEras: [], stylePeriods: [] }
 		});
 
 		expect(relations.events).toBeUndefined();

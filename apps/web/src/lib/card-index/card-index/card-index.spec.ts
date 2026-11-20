@@ -88,6 +88,7 @@ describe('buildTimeline', () => {
 				{ id: 'p3', category: 'period' as const, name: 'Ząb', count: 0 }
 			],
 			periodEras: [],
+			authorEras: [],
 			stylePeriods: []
 		};
 

@@ -65,7 +65,6 @@
 		"apps/web/src/lib/artworks/components/FlipLinks/FlipLinks.svelte",
 		"apps/web/src/lib/artworks/components/StageActions/StageActions.svelte",
 		"apps/web/src/lib/artworks/components/StageGallery/StageGallery.svelte",
-		"apps/web/src/lib/card-index/components/CardIndexList/CardIndexList.svelte",
 		"apps/web/src/lib/card-index/components/OwnValueDialog/OwnValueDialog.svelte",
 		"apps/web/src/lib/card-index/components/ValueSummaryCard/ValueSummaryCard.svelte",
 		"apps/web/src/lib/glossary/components/ArticleDialog/ArticleDialog.svelte",

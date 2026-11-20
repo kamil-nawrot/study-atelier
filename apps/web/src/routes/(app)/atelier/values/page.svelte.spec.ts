@@ -116,7 +116,7 @@ describe('card index page', () => {
 	});
 
 	it('hides the groups without values', async () => {
-		renderValues({ values: [], periodEras: [], stylePeriods: [] });
+		renderValues({ values: [], periodEras: [], authorEras: [], stylePeriods: [] });
 
 		await expect.element(page.getByText(m.cardIndex.emptyTimeline)).toBeVisible();
 		expect(page.getByText(m.cardIndex.periodsWithoutEra).elements()).toHaveLength(0);
@@ -130,6 +130,7 @@ describe('card index page', () => {
 		renderValues({
 			values: [{ id: 'style-loose', category: 'style', name: 'Loose', count: 0 }],
 			periodEras: [],
+			authorEras: [],
 			stylePeriods: []
 		});
 
@@ -240,7 +241,7 @@ describe('card index page', () => {
 	});
 
 	it('says a list is empty', async () => {
-		renderValues({ values: [], periodEras: [], stylePeriods: [] });
+		renderValues({ values: [], periodEras: [], authorEras: [], stylePeriods: [] });
 
 		await page.getByRole('tab', { name: m.cardIndex.tabs.author }).click();
 

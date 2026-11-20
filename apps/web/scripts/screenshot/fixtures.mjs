@@ -470,6 +470,35 @@ export const PERIOD_ERA_USAGE = usage(
 	})
 );
 
+export const AUTHOR_ERA_USAGE = [
+	...ARTWORKS.filter((row) => !row.deleted_at)
+		.flatMap((row) =>
+			row.artwork_values
+				.filter(({ category_values: value }) => value.category_code === 'author')
+				.map(({ category_values: value }) => ({
+					author_id: valueId('author', value.name),
+					era_code: row.era_code,
+					year: row.year_from ?? row.year_to
+				}))
+		)
+		.filter((row) => row.era_code)
+		.reduce((groups, row) => {
+			const key = `${row.author_id} ${row.era_code}`;
+			const group = groups.get(key) ?? {
+				author_id: row.author_id,
+				era_code: row.era_code,
+				artwork_count: 0,
+				oldest_year: null
+			};
+			group.artwork_count += 1;
+			if (row.year !== null && (group.oldest_year === null || row.year < group.oldest_year)) {
+				group.oldest_year = row.year;
+			}
+			return groups.set(key, group);
+		}, new Map())
+		.values()
+];
+
 export const STYLE_PERIOD_USAGE = usage(
 	ARTWORKS.flatMap((row) => {
 		const period = firstValue(row, 'period');

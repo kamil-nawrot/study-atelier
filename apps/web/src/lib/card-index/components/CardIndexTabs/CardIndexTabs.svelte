@@ -11,6 +11,8 @@
 		sortsOf,
 		type CardIndexSort
 	} from '#lib/card-index/card-index-sort/card-index-sort.ts';
+	import CardIndexEraRecords from '#lib/card-index/components/CardIndexEraRecords/CardIndexEraRecords.svelte';
+	import { groupAuthors } from '#lib/card-index/era-groups/era-groups.ts';
 	import CardIndexEvents from '#lib/card-index/components/CardIndexEvents/CardIndexEvents.svelte';
 	import CardIndexList from '#lib/card-index/components/CardIndexList/CardIndexList.svelte';
 	import CardIndexPlaces from '#lib/card-index/components/CardIndexPlaces/CardIndexPlaces.svelte';
@@ -66,6 +68,8 @@
 			name: event.name,
 			note: formatDate(event.yearFrom, event.yearTo, event.yearApproximate) ?? '',
 			year: event.yearFrom ?? event.yearTo ?? undefined,
+			yearFrom: event.yearFrom,
+			yearTo: event.yearTo,
 			span: isSpan(event)
 		}))
 	);
@@ -150,7 +154,27 @@
 				bind:sort={() => sorts.location, (sort) => setSort('location', sort)}
 			/>
 		</div>
-	{:else if tab === 'material' || tab === 'author'}
+	{:else if tab === 'author'}
+		{@const authors = groupAuthors(index, listed('author'))}
+		{#snippet authorAdds()}
+			{@render adds(['author'])}
+		{/snippet}
+		<div class="tab">
+			<CardIndexEraRecords
+				actions={authorAdds}
+				empty={m.cardIndex.emptyList.author}
+				eraEmpty={m.cardIndex.emptyEraAuthors}
+				eras={authors.eras}
+				foldingKey="study-atelier:card-index-folded-author-eras"
+				href={(id) => valuePath('author', id)}
+				outside={{ title: m.cardIndex.authorsWithoutEra, records: authors.outside }}
+				searchLabel={m.cardIndex.search.author}
+				sorts={sortsOf('author')}
+				bind:query
+				bind:sort={() => sorts.author, (sort) => setSort('author', sort)}
+			/>
+		</div>
+	{:else if tab === 'material'}
 		{@const kind = tab}
 		{#snippet kindAdds()}
 			{@render adds([kind])}

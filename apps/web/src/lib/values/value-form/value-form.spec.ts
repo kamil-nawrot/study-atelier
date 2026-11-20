@@ -10,7 +10,7 @@ import {
 	valueFormChanged
 } from './value-form.ts';
 
-const index = { values: [], periodEras: [], stylePeriods: [] };
+const index = { values: [], periodEras: [], authorEras: [], stylePeriods: [] };
 const details = { summary: 'Summary', notes: '' };
 
 function record(overrides: Partial<CardIndexRecord> = {}): CardIndexRecord {
