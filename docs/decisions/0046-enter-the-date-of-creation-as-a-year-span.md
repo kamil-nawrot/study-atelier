@@ -1,6 +1,6 @@
 # 0046. Enter the date of creation as a year span, as an alternative to a single year
 
-- Status: accepted
+- Status: accepted; the "p.n.e." checkbox under each year is superseded by [0332](0332-mark-required-fields-put-bce-in-the-year-input-and-show-one-value-as-text.md)
 - Date: 2026-10-14
 
 ## Context and problem statement
