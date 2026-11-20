@@ -35,7 +35,7 @@ begin
 
   select id into work from public.artworks where title = 'Work 1';
   perform public.record_review(work,
-    jsonb_build_object('due', '2026-11-20T00:00:00Z', 'stability', 8, 'difficulty', 5, 'state', 2, 'reps', 1,
+    jsonb_build_object('due', now() + interval '8 days', 'stability', 8, 'difficulty', 5, 'state', 2, 'reps', 1,
       'lapses', 0, 'scheduled_days', 8, 'learning_steps', 0, 'last_review', now()),
     jsonb_build_object('mode', 'flashcard', 'rating', 3),
     date_trunc('day', now()), 'UTC');
@@ -49,7 +49,7 @@ begin
   assert public.learner_points() = 63, 'points of a settled artwork and a plan day are not counted';
 
   perform public.record_review(work,
-    jsonb_build_object('due', '2026-11-30T00:00:00Z', 'stability', 12, 'difficulty', 5, 'state', 2, 'reps', 2,
+    jsonb_build_object('due', now() + interval '12 days', 'stability', 12, 'difficulty', 5, 'state', 2, 'reps', 2,
       'lapses', 0, 'scheduled_days', 12, 'learning_steps', 0, 'last_review', now()),
     jsonb_build_object('mode', 'flashcard', 'rating', 3),
     date_trunc('day', now()), 'UTC');
@@ -59,7 +59,7 @@ begin
     'a second answer of the day adds a second plan day';
 
   perform public.record_review(work,
-    jsonb_build_object('due', '2026-12-30T00:00:00Z', 'stability', 20, 'difficulty', 5, 'state', 2, 'reps', 3,
+    jsonb_build_object('due', now() + interval '20 days', 'stability', 20, 'difficulty', 5, 'state', 2, 'reps', 3,
       'lapses', 0, 'scheduled_days', 20, 'learning_steps', 0, 'last_review', now()),
     jsonb_build_object('mode', 'flashcard', 'rating', 3));
   assert (select count(*) from public.point_events where kind = 'plan_day') = 1,
@@ -140,7 +140,7 @@ $$;
 do $$
 begin
   perform public.record_review('20000000-0000-0000-0000-000000000001',
-    jsonb_build_object('due', '2026-11-20T00:00:00Z', 'stability', 1, 'difficulty', 5, 'state', 1, 'reps', 1,
+    jsonb_build_object('due', now() + interval '1 day', 'stability', 1, 'difficulty', 5, 'state', 1, 'reps', 1,
       'lapses', 0, 'scheduled_days', 1, 'learning_steps', 0, 'last_review', now()),
     jsonb_build_object('mode', 'flashcard', 'rating', 3),
     date_trunc('day', now()) + interval '1 day', 'UTC');
@@ -149,7 +149,7 @@ begin
 
   update public.point_events set streak_days = 42 where kind = 'plan_day';
   perform public.record_review('20000000-0000-0000-0000-000000000001',
-    jsonb_build_object('due', '2026-11-20T00:00:00Z', 'stability', 1, 'difficulty', 5, 'state', 1, 'reps', 2,
+    jsonb_build_object('due', now() + interval '1 day', 'stability', 1, 'difficulty', 5, 'state', 1, 'reps', 2,
       'lapses', 0, 'scheduled_days', 1, 'learning_steps', 0, 'last_review', now()),
     jsonb_build_object('mode', 'flashcard', 'rating', 3),
     date_trunc('day', now()) + interval '1 day', 'UTC');

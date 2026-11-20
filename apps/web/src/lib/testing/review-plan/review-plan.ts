@@ -28,7 +28,6 @@ export function testReviewPlan(
 				scope: { kind: 'all' },
 				known,
 				fresh,
-				styles: 0,
 				years: 0,
 				orders: 0,
 				artworks: pool.length

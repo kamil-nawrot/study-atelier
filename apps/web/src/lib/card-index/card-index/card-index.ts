@@ -22,7 +22,7 @@ type EraMove = {
 };
 
 export function emptyCardIndex(): CardIndexData {
-	return { values: [], periodEras: [], stylePeriods: [] };
+	return { values: [], periodEras: [], authorEras: [], stylePeriods: [] };
 }
 
 function byName<T extends { name: string; sortName?: string }>(a: T, b: T): number {

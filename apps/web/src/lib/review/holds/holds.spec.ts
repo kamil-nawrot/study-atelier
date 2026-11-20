@@ -66,10 +66,10 @@ describe('holds', () => {
 		);
 		expect(
 			heldStep(
-				{ artwork: david, card: null, mode: 'quiz_style', quiz, facet: 'style' },
+				{ artwork: david, card: null, mode: 'quiz_style', quiz },
 				holdsOf([flag({ artworkId: 'artwork-2', reason: 'answers', mode: 'quiz_style' })])
 			)
-		).toBeUndefined();
+		).toEqual({ artwork: david, card: null, mode: 'flashcard' });
 	});
 
 	it('leaves out held terms, symbols and the questions about held artworks', () => {

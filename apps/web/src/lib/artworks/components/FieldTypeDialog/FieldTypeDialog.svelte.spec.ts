@@ -14,6 +14,7 @@ const fields: OwnFieldDefinition[] = [
 		description: null,
 		kind: 'text',
 		multiple: false,
+		closed: false,
 		typeCodes: ['architecture']
 	},
 	{
@@ -22,9 +23,18 @@ const fields: OwnFieldDefinition[] = [
 		description: null,
 		kind: 'list',
 		multiple: false,
+		closed: false,
 		typeCodes: ['architecture']
 	},
-	{ id: 'source', name: 'Source', description: null, kind: 'text', multiple: false, typeCodes: [] }
+	{
+		id: 'source',
+		name: 'Source',
+		description: null,
+		kind: 'text',
+		multiple: false,
+		closed: false,
+		typeCodes: []
+	}
 ];
 
 function input(own: ArtworkInput['own'], typeCode: ArtworkInput['typeCode']): ArtworkInput {

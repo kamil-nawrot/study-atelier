@@ -13,6 +13,7 @@ const index: CardIndexData = {
 		{ id: 'a-leo', category: 'author', name: 'Leonardo', count: 3 }
 	],
 	periodEras: [],
+	authorEras: [],
 	stylePeriods: []
 };
 

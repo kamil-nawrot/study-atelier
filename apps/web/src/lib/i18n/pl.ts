@@ -954,7 +954,6 @@ export const pl = {
 		roundLines: {
 			years: 'Trafiony rok powstania:',
 			orders: 'Poprawnie chronologicznie ułożone dzieła:',
-			styles: 'Poprawnie dopasowane style:',
 			definitions: 'Poprawnie odgadnięte pojęcia:',
 			symbols: 'Poprawnie rozpoznane symbole:',
 			events: 'Trafione daty z Kalendarium:',
@@ -1165,6 +1164,9 @@ export const pl = {
 			own: 'Własne pola'
 		},
 		emptyEra: 'W tej epoce nie ma jeszcze okresów.',
+		emptyEraAuthors: 'Żaden autor nie ma jeszcze dzieła z tej epoki.',
+		emptyEraEvents: 'Nie ma jeszcze Twoich wydarzeń z tej epoki.',
+		authorsWithoutEra: 'Autorzy bez dzieł z epoką',
 		periodsWithoutEra: 'Okresy bez epoki',
 		stylesWithoutPeriod: 'Style bez okresu',
 		placesWithoutCountry: 'Miejsca bez kraju',
@@ -1328,8 +1330,12 @@ export const pl = {
 		},
 		oneValue: 'jedna wartość',
 		manyValues: 'kilka wartości',
+		closedList: 'zamknięta',
+		notOnList: (name: string): string =>
+			`Nie ma „${name}” na liście. Nowe wartości dodasz w Kartotece.`,
 		summary: (parts: string[]): string => parts.join(' · '),
 		noValues: 'Nie ma tu jeszcze wartości. Dodaj pierwszą tutaj albo wpisz ją przy dziele.',
+		noValuesClosed: 'Nie ma tu jeszcze wartości. Dodaj pierwszą tutaj.',
 		addValue: 'Dodaj wartość',
 		newValueTitle: (field: string): string => `Nowa wartość pola „${field}”`,
 		added: (name: string): string => `Dodano wartość „${name}”.`,
@@ -1339,12 +1345,16 @@ export const pl = {
 		ticked: 'Tak',
 		form: {
 			newTitle: 'Nowe pole',
+			editTitle: (name: string): string => `Edytuj pole „${name}”`,
 			description: 'Opis (opcjonalnie)',
 			descriptionHint:
 				'Wyjaśnienie, które może w przyszłości pomóc zdecydować, co wpisywać w tym polu.',
 			kind: 'Rodzaj',
 			kindFixed: 'Wybranego rodzaju nie będzie można zmienić po utworzeniu pola.',
 			multiple: 'Dzieło może mieć kilka wartości',
+			closed: 'Tylko wartości z Kartoteki',
+			closedHint:
+				'W formularzu dzieła wybierzesz tylko spośród wartości, które już są na liście. Nowe dodasz na stronie pola w Kartotece.',
 			limited: 'Tylko dla wybranych typów dzieł',
 			types: 'Typy dzieł',
 			typesHint: 'Pole pojawi się tylko przy dziełach tych typów.',
@@ -1369,7 +1379,12 @@ export const pl = {
 			mergeHint: (name: string, count: string): string =>
 				`Masz już „${name}” (${count}). Zapisz, a połączę je w jeden.`,
 			kind: 'wartości',
-			errorTitle: 'Nie udało się zapisać wartości'
+			errorTitle: 'Nie udało się zapisać wartości',
+			deleteTitle: (name: string): string => `Usunąć wartość „${name}”?`,
+			deleteDescription: (field: string): string =>
+				`Żadne dzieło jej nie używa, więc zniknie z listy pola „${field}”.`,
+			deleteBlocked: (count: string): string =>
+				`Ta wartość ma jeszcze ${count}, więc nie da się jej usunąć. Możesz ją połączyć z inną: w edycji zmień jej nazwę na nazwę tamtej.`
 		},
 		errorTitle: 'Nie udało się zmienić pola',
 		loadErrorTitle: 'Nie udało się wczytać własnych pól',

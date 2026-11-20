@@ -6,6 +6,7 @@
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
 	import OwnValueView from '#lib/card-index/components/OwnValueView/OwnValueView.svelte';
+	import OwnValueDeleteAction from '#lib/card-index/components/OwnValueDeleteAction/OwnValueDeleteAction.svelte';
 	import { ownFieldPath } from '#lib/card-index/own-field-pages/own-field-pages.ts';
 	import type { PageProps } from './$types';
 
@@ -27,10 +28,11 @@
 			fallbackHref={data.field ? ownFieldPath(data.field.id) : cardIndexPath}
 			fallbackName={data.field?.name ?? m.valuePage.back}
 		/>
-		{#if data.value}
+		{#if data.field && data.value}
 			<Button aria-label={m.common.edit} compact icon={Pencil} onclick={() => view?.edit()}>
 				{m.common.edit}
 			</Button>
+			<OwnValueDeleteAction field={data.field} value={data.value} />
 		{/if}
 	{/snippet}
 

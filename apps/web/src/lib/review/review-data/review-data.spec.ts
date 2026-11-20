@@ -57,15 +57,15 @@ const card: ReviewCard = {
 function cardsQuery(
 	rows: unknown[],
 	error: unknown = null
-): { range: ReturnType<typeof vi.fn>; in: ReturnType<typeof vi.fn> } {
+): { range: ReturnType<typeof vi.fn>; eq: ReturnType<typeof vi.fn> } {
 	const query = {
 		select: vi.fn(),
-		in: vi.fn(),
+		eq: vi.fn(),
 		order: vi.fn(),
 		range: vi.fn().mockResolvedValue({ data: rows, error })
 	};
 	query.select.mockReturnValue(query);
-	query.in.mockReturnValue(query);
+	query.eq.mockReturnValue(query);
 	query.order.mockReturnValue(query);
 	vi.mocked(supabase.from).mockReturnValue(query as never);
 	return query;
@@ -84,14 +84,13 @@ describe('review data', () => {
 		vi.useRealTimers();
 	});
 
-	it('loads the recognition and style cards by artwork, without the cards of the year questions', async () => {
-		const query = cardsQuery([row, { ...row, facet: 'style', stability: 2, last_rating: 2 }]);
-		const { cards, styleCards, error } = await loadReviewCards();
+	it('loads the recognition cards by artwork, without the cards of the year questions', async () => {
+		const query = cardsQuery([row]);
+		const { cards, error } = await loadReviewCards();
 		expect(error).toBeUndefined();
 		expect(supabase.from).toHaveBeenCalledWith('review_cards');
-		expect(query.in).toHaveBeenCalledWith('facet', ['recognise', 'style']);
+		expect(query.eq).toHaveBeenCalledWith('facet', 'recognise');
 		expect(cards.get('artwork-1')).toEqual(card);
-		expect(styleCards.get('artwork-1')).toEqual({ ...card, stability: 2, lastRating: 2 });
 	});
 
 	it('loads every page of review cards', async () => {
@@ -211,17 +210,6 @@ describe('review data', () => {
 					answer_ms: null,
 					guessed_year: -120
 				}
-			})
-		);
-	});
-
-	it('saves a style answer on the style facet', async () => {
-		rpc.mockResolvedValue({ error: null } as never);
-		await recordReview(card, { mode: 'quiz_style', facet: 'style', rating: 2, correct: true });
-		expect(rpc).toHaveBeenCalledWith(
-			'record_review',
-			expect.objectContaining({
-				answer: { facet: 'style', mode: 'quiz_style', rating: 2, correct: true, answer_ms: null }
 			})
 		);
 	});

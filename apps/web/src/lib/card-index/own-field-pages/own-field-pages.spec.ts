@@ -14,7 +14,7 @@ import {
 
 vi.mock('#lib/card-index/card-index-data/card-index-data.ts', () => ({ loadCardIndex: vi.fn() }));
 
-const emptyIndex = { values: [], periodEras: [], stylePeriods: [] };
+const emptyIndex = { values: [], periodEras: [], authorEras: [], stylePeriods: [] };
 vi.mock('#lib/relations/relations-data/relations-data.ts', () => ({
 	loadRelations: vi.fn(async ({ kind }: { kind: string }) => ({
 		kind,

@@ -4,7 +4,7 @@
 	import { Alert, Button, EmptyState, Icon } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { moveOwnField } from '#lib/card-index/own-fields-data/own-fields-data.ts';
-	import OwnFieldDialog from '#lib/card-index/components/OwnFieldDialog/OwnFieldDialog.svelte';
+	import { newOwnFieldPath } from '#lib/card-index/own-field-pages/own-field-pages.ts';
 	import OwnFieldList from '#lib/card-index/components/OwnFieldList/OwnFieldList.svelte';
 	import type { OwnField } from '#lib/card-index/types/own-field.ts';
 
@@ -16,15 +16,9 @@
 
 	let { fields, error, onchanged }: Props = $props();
 
-	let fieldOpen = $state(false);
 	let reordering = $state(false);
 	let moving = $state(false);
 	let failure = $state<string>();
-
-	function add(): void {
-		failure = undefined;
-		fieldOpen = true;
-	}
 
 	function toggleReorder(): void {
 		failure = undefined;
@@ -55,7 +49,7 @@
 					</Button>
 				{/if}
 				{#if !reordering}
-					<Button onclick={add} variant="primary">
+					<Button href={newOwnFieldPath()} variant="primary">
 						<Icon icon={Plus} />
 						{m.ownFields.add}
 					</Button>
@@ -76,8 +70,6 @@
 		{/if}
 	{/if}
 </div>
-
-<OwnFieldDialog {fields} onsaved={onchanged} bind:open={fieldOpen} />
 
 <style>
 	.own-fields {

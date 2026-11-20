@@ -116,7 +116,7 @@ describe('card index page', () => {
 	});
 
 	it('hides the groups without values', async () => {
-		renderValues({ values: [], periodEras: [], stylePeriods: [] });
+		renderValues({ values: [], periodEras: [], authorEras: [], stylePeriods: [] });
 
 		await expect.element(page.getByText(m.cardIndex.emptyTimeline)).toBeVisible();
 		expect(page.getByText(m.cardIndex.periodsWithoutEra).elements()).toHaveLength(0);
@@ -130,6 +130,7 @@ describe('card index page', () => {
 		renderValues({
 			values: [{ id: 'style-loose', category: 'style', name: 'Loose', count: 0 }],
 			periodEras: [],
+			authorEras: [],
 			stylePeriods: []
 		});
 
@@ -240,7 +241,7 @@ describe('card index page', () => {
 	});
 
 	it('says a list is empty', async () => {
-		renderValues({ values: [], periodEras: [], stylePeriods: [] });
+		renderValues({ values: [], periodEras: [], authorEras: [], stylePeriods: [] });
 
 		await page.getByRole('tab', { name: m.cardIndex.tabs.author }).click();
 
@@ -256,7 +257,7 @@ describe('card index page', () => {
 		await expect
 			.element(page.getByRole('link', { name: m.cardIndex.openValue('Motifs', '3 dzieła') }))
 			.toHaveAttribute('href', '/atelier/fields/motifs');
-		await expect.element(page.getByRole('button', { name: m.ownFields.add })).toBeVisible();
+		await expect.element(page.getByRole('link', { name: m.ownFields.add })).toBeVisible();
 	});
 
 	it('keeps the other tabs and says so in its tab when the own fields could not be loaded', async () => {
@@ -275,9 +276,7 @@ describe('card index page', () => {
 		await page.getByRole('tab', { name: m.cardIndex.tabs.own }).click();
 
 		await expect.element(page.getByText(m.ownFields.loadErrorTitle)).toBeVisible();
-		await expect
-			.element(page.getByRole('button', { name: m.ownFields.add }))
-			.not.toBeInTheDocument();
+		await expect.element(page.getByRole('link', { name: m.ownFields.add })).not.toBeInTheDocument();
 		await page.getByRole('tab', { name: m.cardIndex.tabs.material }).click();
 		await expect.element(page.getByText(m.ownFields.loadErrorTitle)).not.toBeInTheDocument();
 	});

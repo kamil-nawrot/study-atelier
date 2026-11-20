@@ -9,6 +9,7 @@ import {
 	changeOwnValue,
 	createOwnField,
 	deleteOwnField,
+	deleteOwnValue,
 	loadOwnFieldDefinitions,
 	loadOwnFields,
 	moveOwnField,
@@ -27,8 +28,15 @@ const query = {
 	insert: vi.fn(),
 	update: vi.fn(),
 	delete: vi.fn(),
-	eq: vi.fn()
+	eq: vi.fn(),
+	single: vi.fn()
 };
+
+function insertReturnsId(id: string): void {
+	query.insert.mockReturnValue(query);
+	query.select.mockReturnValue(query);
+	query.single.mockResolvedValue({ data: { id }, error: null });
+}
 
 function rows(data: unknown[], error: unknown = null): never {
 	const result = Promise.resolve({ data, error });
@@ -54,6 +62,7 @@ describe('loadOwnFields', () => {
 					description: 'Book and page',
 					kind: 'text',
 					multiple: false,
+					closed: false,
 					limited: false,
 					typeCodes: []
 				}
@@ -121,6 +130,7 @@ describe('loadOwnFieldDefinitions', () => {
 					description: null,
 					kind: 'flag',
 					multiple: false,
+					closed: false,
 					type_codes: ['painting']
 				}
 			],
@@ -135,6 +145,7 @@ describe('loadOwnFieldDefinitions', () => {
 					description: null,
 					kind: 'flag',
 					multiple: false,
+					closed: false,
 					typeCodes: ['painting']
 				}
 			]
@@ -145,7 +156,7 @@ describe('loadOwnFieldDefinitions', () => {
 
 	it('keeps the fields until a change to the own fields forgets them', async () => {
 		query.order.mockResolvedValue({ data: [], error: null });
-		query.insert.mockResolvedValue({ error: null });
+		insertReturnsId('source');
 
 		await loadOwnFieldDefinitions();
 		await loadOwnFieldDefinitions();
@@ -156,6 +167,7 @@ describe('loadOwnFieldDefinitions', () => {
 			description: '',
 			kind: 'text',
 			multiple: false,
+			closed: false,
 			limited: false,
 			typeCodes: []
 		});
@@ -178,11 +190,14 @@ describe('own field actions', () => {
 	});
 
 	it('creates a field with a trimmed name and no empty description', async () => {
-		await createOwnField({
+		insertReturnsId('source');
+
+		const result = await createOwnField({
 			name: ' Source ',
 			description: '  ',
 			kind: 'text',
 			multiple: true,
+			closed: false,
 			limited: false,
 			typeCodes: []
 		});
@@ -193,14 +208,37 @@ describe('own field actions', () => {
 			description: null,
 			kind: 'text',
 			multiple: false,
+			closed: false,
 			type_codes: []
 		});
+		expect(query.select).toHaveBeenCalledWith('id');
+		expect(result).toEqual({ id: 'source' });
+	});
+
+	it('creates a closed list and never closes another kind', async () => {
+		insertReturnsId('lecture');
+		const list = {
+			name: 'Lecture',
+			description: '',
+			kind: 'list' as const,
+			multiple: false,
+			closed: true,
+			limited: false,
+			typeCodes: []
+		};
+
+		await createOwnField(list);
+		await createOwnField({ ...list, kind: 'text' });
+
+		expect(query.insert).toHaveBeenNthCalledWith(1, expect.objectContaining({ closed: true }));
+		expect(query.insert).toHaveBeenNthCalledWith(2, expect.objectContaining({ closed: false }));
 	});
 
 	it('changes the name and the description of a field', async () => {
 		await updateOwnField(lecture, {
 			name: 'Course',
 			description: 'Which course',
+			closed: true,
 			limited: true,
 			typeCodes: ['architecture']
 		});
@@ -208,6 +246,7 @@ describe('own field actions', () => {
 		expect(query.update).toHaveBeenCalledWith({
 			name: 'Course',
 			description: 'Which course',
+			closed: true,
 			type_codes: ['architecture']
 		});
 		expect(query.eq).toHaveBeenCalledWith('id', 'lecture');
@@ -236,6 +275,14 @@ describe('own field actions', () => {
 		});
 	});
 
+	it('deletes a value only through the function that keeps used values', async () => {
+		const [angel] = motifs.values;
+
+		await deleteOwnValue(angel);
+
+		expect(rpc).toHaveBeenCalledWith('delete_unused_value', { target_value: 'angel' });
+	});
+
 	it('adds a value to the list of a field', async () => {
 		await expect(addOwnValue(motifs, ' Putto ')).resolves.toEqual({});
 
@@ -244,7 +291,12 @@ describe('own field actions', () => {
 	});
 
 	it('says something changed when another session took the name first', async () => {
-		query.insert.mockResolvedValue({ error: { code: '23505', message: 'duplicate key' } });
+		query.insert.mockReturnValue(query);
+		query.select.mockReturnValue(query);
+		query.single.mockResolvedValue({
+			data: null,
+			error: { code: '23505', message: 'duplicate key' }
+		});
 
 		await expect(
 			createOwnField({
@@ -252,6 +304,7 @@ describe('own field actions', () => {
 				description: '',
 				kind: 'text',
 				multiple: false,
+				closed: false,
 				limited: false,
 				typeCodes: []
 			})

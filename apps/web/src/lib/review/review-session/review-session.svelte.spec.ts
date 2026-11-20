@@ -192,12 +192,12 @@ describe('ReviewSession', () => {
 		expect(review.chosen).toBeUndefined();
 	});
 
-	it('rates a style answer on the style card alone and asks a wrong one again on the same card', async () => {
+	it('rates a wrong style answer as not known on the recognition card', async () => {
 		const clock = { now: start };
 		const recognition = new Map([['artwork-1', testReviewCard('artwork-1', start)]]);
-		const style: ReviewItem = { ...quizItems(1)[0], mode: 'quiz_style', facet: 'style' };
+		const style: ReviewItem = { ...quizItems(1)[0], mode: 'quiz_style' };
 		const review = new ReviewSession(
-			[style, ...quizItems(5).slice(1)],
+			[style],
 			recognition,
 			() => clock.now,
 			() => 0
@@ -206,53 +206,12 @@ describe('ReviewSession', () => {
 		await review.answer(0);
 
 		expect(recordReview).toHaveBeenCalledWith(
-			expect.objectContaining({ artworkId: 'artwork-1', reps: 1 }),
-			expect.objectContaining({
-				mode: 'quiz_style',
-				facet: 'style',
-				rating: 1,
-				correct: false,
-				wrongAnswer: 'Other A'
-			})
+			expect.objectContaining({ artworkId: 'artwork-1' }),
+			expect.objectContaining({ mode: 'quiz_style', rating: 1, correct: false })
 		);
-		expect(review.cards.get('artwork-1')).toEqual(recognition.get('artwork-1'));
-		expect(review.styleCards.get('artwork-1')?.reps).toBe(1);
-		expect(review.answers).toHaveLength(0);
-		expect(review.queue).toHaveLength(6);
-		expect(review.styles).toEqual({ asked: 1, right: 0 });
-		expect(review.anyAnswer).toBe(true);
-
-		review.proceed();
-		review.position = review.queue.findIndex(
-			(step, index) => index > 0 && 'facet' in step && step.facet === 'style'
-		);
-		const current = review.current;
-		const answer = current && 'quiz' in current ? (current.quiz?.answer ?? 0) : 0;
-		await review.answer(answer);
-
-		expect(recordReview).toHaveBeenLastCalledWith(
-			expect.objectContaining({ artworkId: 'artwork-1', reps: 1 }),
-			expect.objectContaining({ facet: 'style', correct: true })
-		);
-		expect(review.styles).toEqual({ asked: 1, right: 0 });
-	});
-
-	it('counts a style answer of a free round without saving it', async () => {
-		const clock = { now: start };
-		const style: ReviewItem = { ...quizItems(1)[0], mode: 'quiz_style', facet: 'style' };
-		const review = new ReviewSession(
-			[style],
-			new Map(),
-			() => clock.now,
-			() => 0,
-			true
-		);
-
-		await review.answer(1);
-
-		expect(recordReview).not.toHaveBeenCalled();
-		expect(review.styleCards.size).toBe(0);
-		expect(review.styles).toEqual({ asked: 1, right: 1 });
+		expect(vi.mocked(recordReview).mock.calls[0][1]).not.toHaveProperty('facet');
+		expect(review.cards.get('artwork-1')).not.toEqual(recognition.get('artwork-1'));
+		expect(review.answers).toHaveLength(1);
 	});
 
 	it('counts a wrong quiz answer as not known and asks it again later', async () => {
