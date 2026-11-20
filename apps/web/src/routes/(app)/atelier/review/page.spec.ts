@@ -12,7 +12,7 @@ vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({
 }));
 vi.mock('#lib/pins/pin-data/pin-data.ts', () => ({ countTermPins: vi.fn(async () => new Map()) }));
 vi.mock('#lib/review/review-data/review-data.ts', () => ({
-	loadReviewCards: vi.fn(async () => ({ cards: new Map(), styleCards: new Map() })),
+	loadReviewCards: vi.fn(async () => ({ cards: new Map() })),
 	loadReviewCounts: vi.fn(),
 	loadReviewStreak: vi.fn(async () => ({ days: 2 }))
 }));

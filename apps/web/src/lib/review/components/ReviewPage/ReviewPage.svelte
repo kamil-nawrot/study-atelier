@@ -171,7 +171,6 @@
 		{rankForm}
 		relations={flow.summary.relations}
 		starting={flow.starting}
-		styles={flow.summary.styles}
 		symbols={flow.summary.symbols}
 		tomorrow={flow.summary.tomorrow}
 		years={flow.summary.years}
@@ -184,7 +183,7 @@
 		free={flow.freeOpen}
 		fresh={flow.counts.fresh}
 		knowledge={flow.knowledge}
-		known={flow.counts.known + flow.counts.styles + flow.counts.years + flow.counts.orders}
+		known={flow.counts.known + flow.counts.years + flow.counts.orders}
 		missing={flow.missing}
 		nextWhen={flow.nextDate ? formatWhen(flow.nextDate, flow.now) : undefined}
 		onform={(chosen) => flow.chooseForm(chosen)}

@@ -7,7 +7,6 @@ import type { ReviewItem } from '#lib/review/types/review-item.ts';
 import type { ReviewPin } from '#lib/review/types/review-pin.ts';
 import type { ReviewMode } from '#lib/review/types/review-mode.ts';
 import type { SessionRow } from '#lib/review/types/session-row.ts';
-import { sessionCard } from '#lib/review/session-card/session-card.ts';
 
 type ArtworkRow = Extract<SessionRow, { mode: ReviewMode }>;
 
@@ -57,12 +56,6 @@ export function sessionItems(
 		if (row.mode === 'year' || row.mode === 'order') return [];
 		const artwork = artworks.get(row.artwork_id);
 		if (!artwork) return [];
-		if (row.facet === 'style') {
-			const quiz = quizOf(row, artworks);
-			if (!quiz) return [];
-			const card = row.card ? sessionCard(row.artwork_id, row.card) : null;
-			return [{ artwork, card, mode: 'quiz_style', quiz, facet: 'style' }];
-		}
 		const card = cards.get(row.artwork_id) ?? null;
 		if (row.mode === 'quiz_typed') return [{ artwork, card, mode: 'quiz_typed' }];
 		const quiz = row.mode === 'flashcard' ? undefined : quizOf(row, artworks);

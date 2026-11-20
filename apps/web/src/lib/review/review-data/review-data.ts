@@ -29,7 +29,6 @@ type ReviewSessionResult = {
 
 type ReviewAnswer = {
 	mode: ReviewMode | 'year';
-	facet?: 'style';
 	rating: ReviewRating;
 	correct?: boolean;
 	answerMs?: number;
@@ -39,7 +38,6 @@ type ReviewAnswer = {
 
 type ReviewCardsResult = {
 	cards: Map<string, ReviewCard>;
-	styleCards: Map<string, ReviewCard>;
 	error?: string;
 };
 
@@ -64,7 +62,6 @@ type ReviewDetailsResult = {
 
 type CardRow = {
 	artwork_id: string;
-	facet?: string;
 	due: string;
 	stability: number;
 	difficulty: number;
@@ -119,20 +116,13 @@ export async function loadReviewCards(): Promise<ReviewCardsResult> {
 	const { rows, error } = await fetchAll<CardRow>((from, to) =>
 		supabase
 			.from('review_cards')
-			.select(`facet, ${CARD_COLUMNS}`)
-			.in('facet', ['recognise', 'style'])
+			.select(CARD_COLUMNS)
+			.eq('facet', 'recognise')
 			.order('artwork_id')
-			.order('facet')
 			.range(from, to)
 	);
-	if (error) {
-		return { cards: new Map(), styleCards: new Map(), error: collectionErrorMessage(error) };
-	}
-	const cardsOf = (facet: string): Map<string, ReviewCard> =>
-		new Map(
-			rows.filter((row) => row.facet === facet).map((row) => [row.artwork_id, reviewCard(row)])
-		);
-	return { cards: cardsOf('recognise'), styleCards: cardsOf('style') };
+	if (error) return { cards: new Map(), error: collectionErrorMessage(error) };
+	return { cards: new Map(rows.map((row) => [row.artwork_id, reviewCard(row)])) };
 }
 
 export async function loadReviewCounts(dayStart: Date): Promise<ReviewCountsResult> {
@@ -216,7 +206,6 @@ export async function recordReview(
 		},
 		answer: {
 			...(answer.mode === 'year' ? { facet: 'date' } : {}),
-			...(answer.facet ? { facet: answer.facet } : {}),
 			mode: answer.mode,
 			rating: answer.rating,
 			correct: answer.mode === 'flashcard' ? null : (answer.correct ?? false),

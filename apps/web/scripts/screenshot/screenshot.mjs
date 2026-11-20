@@ -236,13 +236,12 @@ function reviewCounts(dayStartText) {
 
 function reviewPlan(dayStartText) {
 	const counts = reviewCounts(dayStartText);
-	const extras =
-		counts.known > 7 ? { styles: 4, years: 2, orders: 1 } : { styles: 0, years: 0, orders: 0 };
+	const extras = counts.known > 7 ? { years: 2, orders: 1 } : { years: 0, orders: 0 };
 	return {
 		scopes: [
 			{
 				kind: 'all',
-				known: counts.known - extras.styles - extras.years - extras.orders,
+				known: counts.known - extras.years - extras.orders,
 				fresh: counts.fresh,
 				...extras,
 				artworks: counts.with_image
@@ -356,19 +355,7 @@ function reviewSession({
 	const pool = ARTWORKS.filter((row) => hasImage(row) && inScope(row, kind, value));
 	if (pool.length < 20) return [];
 	const cardOf = (row) => REVIEW_CARDS.find((card) => card.artwork_id === row.id);
-	const styled =
-		form === 'flashcards' || kind === 'style'
-			? []
-			: pool
-					.filter((row) => cardOf(row) && valuesOf(row, 'style').length > 0)
-					.slice(0, 4)
-					.flatMap((row) => {
-						const options = quizFor(row, 'quiz_style', pool);
-						return options
-							? [{ artwork_id: row.id, mode: 'quiz_style', facet: 'style', options, card: null }]
-							: [];
-					});
-	const size = 20 - styled.length;
+	const size = 20;
 	const due = pool
 		.filter((row) => cardOf(row) && new Date(cardOf(row).due).getTime() < dayEnd)
 		.sort((a, b) => new Date(cardOf(a).due).getTime() - new Date(cardOf(b).due).getTime())
@@ -389,12 +376,23 @@ function reviewSession({
 		if (form !== 'flashcards' && card?.state === 2 && card.stability >= 7) {
 			settled += 1;
 			if (settled % 3 === 0) return { artwork_id: row.id, mode: 'quiz_typed', options: [] };
+			const options =
+				form === 'mixed' && kind !== 'style' ? quizFor(row, 'quiz_style', pool) : undefined;
+			if (settled % 3 === 1 && options) return { artwork_id: row.id, mode: 'quiz_style', options };
 		}
 		const modes =
 			form === 'flashcards'
 				? []
 				: form === 'quizzes'
-					? rotated(['quiz_title', 'quiz_image', 'quiz_author'], slot)
+					? rotated(
+							[
+								'quiz_title',
+								'quiz_image',
+								'quiz_author',
+								...(kind === 'style' ? [] : ['quiz_style'])
+							],
+							slot
+						)
 					: !card || card.state !== 2
 						? rotated(['quiz_title', 'quiz_image', 'quiz_author'], slot)
 						: [];
@@ -403,11 +401,6 @@ function reviewSession({
 			if (options) return { artwork_id: row.id, mode, options };
 		}
 		return { artwork_id: row.id, mode: 'flashcard' };
-	});
-	styled.forEach((item, index) => {
-		const spot = Math.min(items.length, (index + 1) * 4 + index);
-		const neighbours = [items[spot - 1], items[spot]].map((step) => step?.artwork_id);
-		items.splice(neighbours.includes(item.artwork_id) ? spot + 1 : spot, 0, item);
 	});
 	if (!timeQuestions || items.length === 0) return items;
 	const asked = new Set(items.map((item) => item.artwork_id));
