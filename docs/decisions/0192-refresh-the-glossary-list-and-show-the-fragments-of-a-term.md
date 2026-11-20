@@ -1,6 +1,6 @@
 # 0192. Refresh the glossary list and show the fragments of a term
 
-- Status: accepted; the place of the letter index is partly superseded by [0245](0245-stand-the-glossary-letter-index-in-the-middle-of-the-screen.md); the tools and the spacing of the list on a phone are superseded by [0252](0252-overhaul-the-app-on-a-phone.md)
+- Status: accepted; the place of the letter index is partly superseded by [0245](0245-stand-the-glossary-letter-index-in-the-middle-of-the-screen.md); the tools and the spacing of the list on a phone are superseded by [0252](0252-overhaul-the-app-on-a-phone.md); the dividers only between letters are superseded by [0338](0338-keep-figures-on-a-tab-of-their-own-in-the-glossary.md)
 - Date: 2026-11-05
 
 ## Context and problem statement
