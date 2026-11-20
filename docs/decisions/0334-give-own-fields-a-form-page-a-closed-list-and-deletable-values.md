@@ -55,5 +55,5 @@ Chosen by the owner on 2026-11-19 and 2026-11-20:
 
 ## More information
 
-- Linear: ATL-828 (design), ATL-838 (build). Requirement R-324. Changes R-124, R-126 and the dialog of [ADR-0189](0189-scope-own-fields-to-artwork-types-and-give-them-pages.md).
+- Linear: ATL-828 (design), ATL-838 (build). Requirement R-324. Changes R-126 and supersedes the dialog "Nowe pole" and the undeletable list values of [ADR-0104](0104-let-the-learner-define-own-artwork-fields.md).
 - Mockups: `/mnt/project-files/atl-828/` (layout, lock, closed, texts).
