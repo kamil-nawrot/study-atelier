@@ -77,7 +77,9 @@ describe('TextArea', () => {
 	it('shows all the given lines of a field with a counter', async () => {
 		render(TextArea, { label: 'Summary', counter: true, maxlength: 400, rows: 2, maxRows: 3 });
 
-		const textarea = page.getByRole('textbox', { name: 'Summary' }).element() as HTMLTextAreaElement;
+		const textarea = page
+			.getByRole('textbox', { name: 'Summary' })
+			.element() as HTMLTextAreaElement;
 		textarea.style.height = '2000px';
 		const style = getComputedStyle(textarea);
 		const text =
