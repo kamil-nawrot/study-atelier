@@ -2,6 +2,7 @@
 	import { Checkbox, FieldMessage, TextField, ValueField } from '@study-atelier/ui';
 	import { VALUE_NAME_MAX_LENGTH } from '#lib/card-index/category-values/category-values.ts';
 	import { OWN_TEXT_MAX_LENGTH } from '#lib/card-index/own-fields/own-fields.ts';
+	import { m } from '#lib/i18n/i18n.ts';
 	import { suggestValues } from '#lib/card-index/value-suggestions/value-suggestions.ts';
 	import type { ArtworkFormState } from '#lib/artworks/types/artwork-form-state.ts';
 	import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
@@ -17,11 +18,16 @@
 	let { form = $bindable(), fields, values, idPrefix }: Props = $props();
 
 	function ownOptions(field: OwnFieldDefinition): ValueSuggestion[] {
-		return suggestValues({
-			query: form.ownQueries[field.id] ?? '',
+		const options = suggestValues({
+			query: ownQuery(field),
 			existing: values[field.id] ?? [],
 			selected: ownList(field)
 		});
+		return field.closed ? options.filter((option) => option.kind !== 'new') : options;
+	}
+
+	function ownQuery(field: OwnFieldDefinition): string {
+		return form.ownQueries[field.id] ?? '';
 	}
 
 	function ownText(field: OwnFieldDefinition): string {
@@ -54,13 +60,14 @@
 		/>
 	{:else if field.kind === 'list'}
 		<ValueField
+			emptyText={field.closed ? m.ownFields.notOnList(ownQuery(field).trim()) : undefined}
 			hint={field.description ?? undefined}
 			label={field.name}
 			maxlength={VALUE_NAME_MAX_LENGTH}
 			options={ownOptions(field)}
 			single={!field.multiple}
 			bind:query={
-				() => form.ownQueries[field.id] ?? '', (query) => (form.ownQueries[field.id] = query)
+				() => ownQuery(field), (query) => (form.ownQueries[field.id] = query)
 			}
 			bind:values={() => ownList(field), (values) => setOwn(field, values)}
 		/>

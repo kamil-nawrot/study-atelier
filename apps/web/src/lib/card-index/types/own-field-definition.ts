@@ -7,5 +7,6 @@ export type OwnFieldDefinition = {
 	description: string | null;
 	kind: OwnFieldKind;
 	multiple: boolean;
+	closed: boolean;
 	typeCodes: ArtworkTypeCode[];
 };

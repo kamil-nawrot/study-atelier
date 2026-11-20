@@ -538,6 +538,7 @@ describe('own fields', () => {
 			description: null,
 			kind: 'list',
 			multiple: false,
+			closed: false,
 			typeCodes: []
 		},
 		{
@@ -546,6 +547,7 @@ describe('own fields', () => {
 			description: null,
 			kind: 'text',
 			multiple: false,
+			closed: false,
 			typeCodes: []
 		},
 		{
@@ -554,6 +556,7 @@ describe('own fields', () => {
 			description: null,
 			kind: 'flag',
 			multiple: false,
+			closed: false,
 			typeCodes: []
 		},
 		{
@@ -562,6 +565,7 @@ describe('own fields', () => {
 			description: null,
 			kind: 'flag',
 			multiple: false,
+			closed: false,
 			typeCodes: []
 		}
 	];
@@ -694,6 +698,7 @@ describe('own fields limited to artwork types', () => {
 			description: null,
 			kind: 'list',
 			multiple: false,
+			closed: false,
 			typeCodes: ['architecture']
 		},
 		{
@@ -702,6 +707,7 @@ describe('own fields limited to artwork types', () => {
 			description: null,
 			kind: 'text',
 			multiple: false,
+			closed: false,
 			typeCodes: []
 		},
 		{
@@ -710,6 +716,7 @@ describe('own fields limited to artwork types', () => {
 			description: null,
 			kind: 'text',
 			multiple: false,
+			closed: false,
 			typeCodes: ['painting']
 		}
 	];

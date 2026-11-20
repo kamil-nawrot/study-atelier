@@ -163,6 +163,7 @@ describe('own fields in the form', () => {
 			description: null,
 			kind: 'list',
 			multiple: false,
+			closed: false,
 			typeCodes: []
 		},
 		{
@@ -171,9 +172,10 @@ describe('own fields in the form', () => {
 			description: null,
 			kind: 'text',
 			multiple: false,
+			closed: false,
 			typeCodes: []
 		},
-		{ id: 'seen', name: 'Seen', description: null, kind: 'flag', multiple: false, typeCodes: [] }
+		{ id: 'seen', name: 'Seen', description: null, kind: 'flag', multiple: false, closed: false, typeCodes: [] }
 	];
 
 	it('starts every own field empty when the fields are known', () => {
@@ -340,6 +342,7 @@ describe('own fields limited to artwork types', () => {
 			description: null,
 			kind: 'list',
 			multiple: false,
+			closed: false,
 			typeCodes: ['architecture']
 		},
 		{
@@ -348,9 +351,10 @@ describe('own fields limited to artwork types', () => {
 			description: null,
 			kind: 'text',
 			multiple: false,
+			closed: false,
 			typeCodes: ['painting']
 		},
-		{ id: 'seen', name: 'Seen', description: null, kind: 'flag', multiple: false, typeCodes: [] }
+		{ id: 'seen', name: 'Seen', description: null, kind: 'flag', multiple: false, closed: false, typeCodes: [] }
 	];
 
 	it('lists only the filled fields that do not apply to the chosen type', () => {

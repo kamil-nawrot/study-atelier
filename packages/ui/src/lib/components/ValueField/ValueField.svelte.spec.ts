@@ -192,6 +192,33 @@ describe('ValueField', () => {
 			.toBeVisible();
 	});
 
+	it('says when nothing matches the typed text and Enter picks nothing', async () => {
+		render(ValueField, {
+			label: 'Style',
+			options: [],
+			query: 'tenebrism',
+			emptyText: 'Not on the list.'
+		});
+
+		const field = page.getByRole('combobox', { name: 'Style' });
+		await userEvent.click(field);
+
+		await expect.element(field).toHaveAttribute('aria-expanded', 'true');
+		await expect.element(page.getByText('Not on the list.')).toBeVisible();
+		await expect.element(field).not.toHaveAttribute('aria-activedescendant');
+		await userEvent.keyboard('{Enter}');
+		await expect.element(page.getByRole('button', { name: texts.remove('tenebrism') })).not.toBeInTheDocument();
+	});
+
+	it('keeps the list closed without typed text even with an empty text', async () => {
+		render(ValueField, { label: 'Style', options: [], emptyText: 'Not on the list.' });
+
+		const field = page.getByRole('combobox', { name: 'Style' });
+		await userEvent.click(field);
+
+		await expect.element(field).toHaveAttribute('aria-expanded', 'false');
+	});
+
 	it('puts a similar existing value first and still lets the learner add the new one', async () => {
 		render(ValueField, {
 			label: 'Style',

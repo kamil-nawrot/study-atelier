@@ -489,6 +489,7 @@ describe('add artwork page', () => {
 				description: null,
 				kind: 'list',
 				multiple: false,
+				closed: false,
 				typeCodes: []
 			},
 			{
@@ -497,6 +498,7 @@ describe('add artwork page', () => {
 				description: 'Book and page',
 				kind: 'text',
 				multiple: false,
+				closed: false,
 				typeCodes: []
 			},
 			{
@@ -505,6 +507,7 @@ describe('add artwork page', () => {
 				description: null,
 				kind: 'flag',
 				multiple: false,
+				closed: false,
 				typeCodes: []
 			}
 		];

@@ -8,24 +8,28 @@ import { testOwnFields } from '#lib/testing/own-fields/own-fields.ts';
 import OwnFieldView from './OwnFieldView.svelte';
 import type { OwnField } from '#lib/card-index/types/own-field.ts';
 
+const state = vi.hoisted(() => ({ page: { state: {} as { valueMessage?: string } } }));
+
 vi.mock('$app/navigation', () => ({ goto: vi.fn(), invalidateAll: vi.fn() }));
+vi.mock('$app/state', () => state);
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { from: vi.fn(), rpc: vi.fn() }
 }));
 
-type View = { edit: () => void; askDelete: () => void };
+type View = { askDelete: () => void };
 
 const query = { insert: vi.fn(), update: vi.fn(), delete: vi.fn(), eq: vi.fn() };
 
 async function renderView(field?: OwnField): Promise<View> {
 	const fields = testOwnFields();
-	const screen = await render(OwnFieldView, { field: field ?? fields[1], fields });
+	const screen = await render(OwnFieldView, { field: field ?? fields[1] });
 	return screen.component as unknown as View;
 }
 
 describe('OwnFieldView', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		state.page.state = {};
 		vi.mocked(supabase.from).mockReturnValue(query as never);
 		query.insert.mockResolvedValue({ error: null });
 		query.update.mockReturnValue(query);
@@ -63,14 +67,24 @@ describe('OwnFieldView', () => {
 		await expect.element(page.getByText(m.ownFields.added('Lion'))).toBeVisible();
 	});
 
-	it('edits the field in its form', async () => {
-		const view = await renderView();
-		view.edit();
-		await page.getByRole('textbox', { name: m.common.name }).fill('Subjects');
-		await page.getByRole('button', { name: m.common.save, exact: true }).click();
+	it('shows the message of the form page it came from and forgets it', async () => {
+		state.page.state = { valueMessage: m.ownFields.saved('Motifs') };
+		await renderView();
 
-		expect(query.update).toHaveBeenCalledWith(expect.objectContaining({ name: 'Subjects' }));
-		await vi.waitFor(() => expect(invalidateAll).toHaveBeenCalled());
+		await expect.element(page.getByText(m.ownFields.saved('Motifs'))).toBeVisible();
+		expect(goto).toHaveBeenCalledWith('/atelier/fields/motifs', {
+			state: {},
+			shallow: true,
+			replace: true
+		});
+	});
+
+	it('marks a closed list and does not send new values to the artwork form', async () => {
+		const field = { ...testOwnFields()[1], closed: true, values: [] };
+		await renderView(field);
+
+		await expect.element(page.getByText(/kilka wartości, zamknięta/)).toBeVisible();
+		await expect.element(page.getByText(m.ownFields.noValuesClosed)).toBeVisible();
 	});
 
 	it('deletes the field after a confirmation and returns to the card index', async () => {

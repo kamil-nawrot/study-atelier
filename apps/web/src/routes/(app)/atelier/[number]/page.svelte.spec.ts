@@ -210,6 +210,7 @@ describe('artwork page', () => {
 					description: null,
 					kind: 'list',
 					multiple: true,
+					closed: false,
 					typeCodes: []
 				},
 				{
@@ -218,6 +219,7 @@ describe('artwork page', () => {
 					description: null,
 					kind: 'text',
 					multiple: false,
+					closed: false,
 					typeCodes: []
 				},
 				{
@@ -226,6 +228,7 @@ describe('artwork page', () => {
 					description: null,
 					kind: 'text',
 					multiple: false,
+					closed: false,
 					typeCodes: []
 				},
 				{
@@ -234,6 +237,7 @@ describe('artwork page', () => {
 					description: null,
 					kind: 'flag',
 					multiple: false,
+					closed: false,
 					typeCodes: []
 				},
 				{
@@ -242,6 +246,7 @@ describe('artwork page', () => {
 					description: null,
 					kind: 'flag',
 					multiple: false,
+					closed: false,
 					typeCodes: []
 				}
 			]
