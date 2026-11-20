@@ -66,9 +66,7 @@
 			maxlength={VALUE_NAME_MAX_LENGTH}
 			options={ownOptions(field)}
 			single={!field.multiple}
-			bind:query={
-				() => ownQuery(field), (query) => (form.ownQueries[field.id] = query)
-			}
+			bind:query={() => ownQuery(field), (query) => (form.ownQueries[field.id] = query)}
 			bind:values={() => ownList(field), (values) => setOwn(field, values)}
 		/>
 	{:else}

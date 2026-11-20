@@ -56,9 +56,7 @@ describe('OwnFieldsTab', () => {
 		await page.getByRole('button', { name: m.ownFields.reorder }).click();
 
 		await expect.element(page.getByText(m.ownFields.reorderHint)).toBeVisible();
-		await expect
-			.element(page.getByRole('link', { name: m.ownFields.add }))
-			.not.toBeInTheDocument();
+		await expect.element(page.getByRole('link', { name: m.ownFields.add })).not.toBeInTheDocument();
 		await page.getByRole('button', { name: m.ownFields.moveFieldDown('Lecture') }).click();
 
 		expect(supabase.rpc).toHaveBeenCalledWith('move_artwork_field', {

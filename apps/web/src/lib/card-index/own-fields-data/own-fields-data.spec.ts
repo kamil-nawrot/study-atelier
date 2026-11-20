@@ -293,7 +293,10 @@ describe('own field actions', () => {
 	it('says something changed when another session took the name first', async () => {
 		query.insert.mockReturnValue(query);
 		query.select.mockReturnValue(query);
-		query.single.mockResolvedValue({ data: null, error: { code: '23505', message: 'duplicate key' } });
+		query.single.mockResolvedValue({
+			data: null,
+			error: { code: '23505', message: 'duplicate key' }
+		});
 
 		await expect(
 			createOwnField({

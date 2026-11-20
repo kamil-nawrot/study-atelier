@@ -109,7 +109,9 @@ async function run(call: PromiseLike<{ error: { code?: string } | null }>): Prom
 	return error ? { error: await failureMessage(error, cardIndexErrorMessage) } : {};
 }
 
-export async function createOwnField(input: OwnFieldInput): Promise<ActionResult & { id?: string }> {
+export async function createOwnField(
+	input: OwnFieldInput
+): Promise<ActionResult & { id?: string }> {
 	const { data, error } = await supabase
 		.from('artwork_fields')
 		.insert({

@@ -207,7 +207,9 @@ describe('ValueField', () => {
 		await expect.element(page.getByText('Not on the list.')).toBeVisible();
 		await expect.element(field).not.toHaveAttribute('aria-activedescendant');
 		await userEvent.keyboard('{Enter}');
-		await expect.element(page.getByRole('button', { name: texts.remove('tenebrism') })).not.toBeInTheDocument();
+		await expect
+			.element(page.getByRole('button', { name: texts.remove('tenebrism') }))
+			.not.toBeInTheDocument();
 	});
 
 	it('keeps the list closed without typed text even with an empty text', async () => {
