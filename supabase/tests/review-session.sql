@@ -63,9 +63,9 @@ begin
 
   assert not exists (
     select 1 from jsonb_array_elements(public.review_session(day_start, 'quizzes')) as item
-      where item ->> 'mode' = 'quiz_style' and not item ? 'facet'
+      where item ? 'facet'
   ),
-    'a session of quizzes asks for the style among the questions about recognising an artwork';
+    'a session of quizzes asks the style on a card of its own';
   assert not exists (
     select 1
       from jsonb_array_elements(public.review_session(day_start, 'quizzes', 'style', 'Tenebrism')) as item

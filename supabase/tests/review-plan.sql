@@ -33,7 +33,7 @@ declare
   plan jsonb;
 begin
   plan := public.review_plan(day_start);
-  assert plan -> 'scopes' = '[{"kind": "all", "known": 0, "fresh": 0, "styles": 0, "years": 0, "orders": 0, "artworks": 0}]'::jsonb,
+  assert plan -> 'scopes' = '[{"kind": "all", "known": 0, "fresh": 0, "years": 0, "orders": 0, "artworks": 0}]'::jsonb,
     'an empty atelier offers more than the whole atelier: ' || plan::text;
   assert plan -> 'free' = '[]'::jsonb and (plan ->> 'tomorrow')::integer = 0,
     'an empty atelier offers a free round or waits tomorrow';
@@ -88,10 +88,9 @@ begin
     'the scopes are not in the order of the whole atelier, eras, periods and styles: ' || plan::text;
 
   plan := public.review_plan(day_start, 'mixed');
-  assert pg_temp.scope(plan, 'all') @> '{"known": 16, "fresh": 0}',
-    'a mixed round of 20 does not keep 4 places for the style';
-  assert pg_temp.scope(plan, 'all') @> '{"styles": 4, "years": 0, "orders": 0}',
-    'the plan does not count the style places of the round';
+  assert pg_temp.scope(plan, 'all') @> '{"known": 20, "fresh": 0, "years": 0, "orders": 0}',
+    'a mixed round of 20 does not give every place to recognition: ' || pg_temp.scope(plan, 'all')::text;
+  assert not pg_temp.scope(plan, 'all') ? 'styles', 'the plan still counts style places';
   assert (select waiting from public.review_counts(day_start)) = 20,
     'the menu counter does not count the whole round of the preferred form';
   assert pg_temp.scope(plan, 'style', 'Baroque') @> '{"known": 20}',
@@ -122,16 +121,16 @@ begin
   insert into public.profiles (review_year_questions, review_order_questions) values (true, true)
     on conflict (owner_id) do update set review_year_questions = true, review_order_questions = true;
 
-  assert pg_temp.scope(public.review_plan(day_start, 'mixed'), 'all') @> '{"known": 13}',
-    'a mixed round of 20 does not keep 4 places for the style, 2 for the year and 1 for the order';
-  assert pg_temp.scope(public.review_plan(day_start, 'mixed'), 'all') @> '{"styles": 4, "years": 2, "orders": 1}',
-    'the plan does not count the style, year and order places';
+  assert pg_temp.scope(public.review_plan(day_start, 'mixed'), 'all') @> '{"known": 17}',
+    'a mixed round of 20 does not keep 2 places for the year and 1 for the order';
+  assert pg_temp.scope(public.review_plan(day_start, 'mixed'), 'all') @> '{"years": 2, "orders": 1}',
+    'the plan does not count the year and order places';
   assert (select waiting from public.review_counts(day_start)) = 20,
-    'the menu counter does not count the style, year and order places';
+    'the menu counter does not count the year and order places';
 
   session := public.review_session(day_start, 'mixed');
   assert jsonb_array_length(session) = 20,
-    'a round of 20 does not hold 13 artworks, 4 styles, 2 years and 1 order: '
+    'a round of 20 does not hold 17 artworks, 2 years and 1 order: '
       || jsonb_array_length(session);
   assert (select count(*) from jsonb_array_elements(session) as item where item ->> 'mode' = 'year') = 2,
     'a round of 20 does not ask 2 years';
@@ -141,31 +140,12 @@ begin
   update public.profiles set review_order_questions = false;
   assert (select waiting from public.review_counts(day_start)) = 20,
     'the round is not full while the order is switched off';
-  assert pg_temp.scope(public.review_plan(day_start, 'mixed'), 'all') @> '{"known": 14, "orders": 0}',
+  assert pg_temp.scope(public.review_plan(day_start, 'mixed'), 'all') @> '{"known": 18, "orders": 0}',
     'the order keeps its place while it is switched off';
   assert not exists (
     select 1 from jsonb_array_elements(public.review_session(day_start, 'mixed')) as item
       where item ->> 'mode' = 'order'
   ), 'the order is asked while it is switched off';
-end;
-$$;
-
-reset role;
-delete from public.artwork_values as link
-  using public.category_values as value
-  where value.id = link.value_id and value.category_code = 'style' and value.name in ('Romanticism', 'Rococo', 'Cubism');
-set local role authenticated;
-
-do $$
-declare
-  day_start constant timestamptz := date_trunc('day', now());
-begin
-  assert pg_temp.scope(public.review_plan(day_start, 'mixed'), 'all') @> '{"styles": 0}',
-    'a style place is planned while too few other styles make a quiz';
-  assert (select waiting from public.review_counts(day_start)) = 20,
-    'the round is not full while no style quiz can be made';
-  assert jsonb_array_length(public.review_session(day_start, 'mixed')) = 20,
-    'the session does not hold the whole round while no style quiz can be made';
 end;
 $$;
 
@@ -179,7 +159,7 @@ declare
   plan jsonb;
 begin
   plan := public.review_plan(day_start, 'mixed');
-  assert pg_temp.scope(plan, 'all') @> '{"known": 0, "fresh": 0, "styles": 0, "years": 0, "orders": 0}',
+  assert pg_temp.scope(plan, 'all') @> '{"known": 0, "fresh": 0, "years": 0, "orders": 0}',
     'the year and order questions are planned while nothing else waits: ' || pg_temp.scope(plan, 'all')::text;
   assert (select waiting from public.review_counts(day_start)) = 0,
     'the menu counter counts the year and order questions while nothing else waits';
@@ -191,53 +171,28 @@ $$;
 
 
 reset role;
-with added as (
-  insert into public.category_values (owner_id, category_code, name)
-    values
-      ('00000000-0000-0000-0000-00000000000a', 'style', 'Gothic'),
-      ('00000000-0000-0000-0000-00000000000a', 'style', 'Mannerism'),
-      ('00000000-0000-0000-0000-00000000000a', 'style', 'Impressionism')
-    returning id, name
-)
-insert into public.artwork_values (artwork_id, value_id, owner_id)
-  select artwork.id, added.id, artwork.owner_id
-    from added
-    join public.artworks as artwork on artwork.record_number = case added.name
-      when 'Gothic' then 26 when 'Mannerism' then 27 else 29 end;
-set local role authenticated;
-
 do $$
-declare
-  day_start constant timestamptz := date_trunc('day', now());
-  plan jsonb;
 begin
-  plan := public.review_plan(day_start, 'mixed');
-  assert pg_temp.scope(plan, 'all') @> '{"known": 0, "fresh": 0, "styles": 0, "years": 0, "orders": 0}',
-    'new style questions are planned while no artwork waits to be recognised: ' || pg_temp.scope(plan, 'all')::text;
-  assert (select waiting from public.review_counts(day_start)) = 0,
-    'the menu counter counts new style questions while no artwork waits to be recognised';
-  assert jsonb_array_length(public.review_session(day_start, 'mixed')) = 0,
-    'a session of new style questions is asked while no artwork waits to be recognised';
+  insert into public.review_cards (artwork_id, owner_id, facet, due, stability, difficulty, state)
+    select artwork.id, artwork.owner_id, 'style', now(), 10, 5, 2
+      from public.artworks as artwork
+      where artwork.record_number = 1;
+  assert false, 'a style card is stored';
+exception
+  when check_violation then null;
 end;
 $$;
-
-reset role;
-insert into public.review_cards (artwork_id, owner_id, facet, due, stability, difficulty, state)
-  select artwork.id, artwork.owner_id, 'style', now() - interval '1 day', 10, 5, 2
-    from public.artworks as artwork
-    where artwork.record_number = 1;
 set local role authenticated;
 
 do $$
-declare
-  day_start constant timestamptz := date_trunc('day', now());
-  plan jsonb;
 begin
-  plan := public.review_plan(day_start, 'mixed');
-  assert pg_temp.scope(plan, 'all') @> '{"known": 0, "fresh": 0, "styles": 1, "years": 0, "orders": 0}',
-    'a due style card is not planned alone while no artwork waits to be recognised: ' || pg_temp.scope(plan, 'all')::text;
-  assert (select waiting from public.review_counts(day_start)) = 1,
-    'the menu counter does not count only the due style card';
+  perform public.record_review(artwork.id, pg_temp.card(now() + interval '10 days'),
+      '{"mode": "quiz_style", "facet": "style", "rating": 2, "correct": true}')
+    from public.artworks as artwork
+    where artwork.record_number = 1;
+  assert false, 'record_review schedules a style card';
+exception
+  when invalid_parameter_value then null;
 end;
 $$;
 

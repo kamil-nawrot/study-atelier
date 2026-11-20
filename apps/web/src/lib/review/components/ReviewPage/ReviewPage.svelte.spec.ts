@@ -45,7 +45,7 @@ function startFlow(): Record<string, unknown> {
 		activeScope: { kind: 'all' },
 		forms: ['mixed'],
 		scopes: [{ scope: { kind: 'all' }, count: 5 }],
-		counts: { known: 2, fresh: 1, styles: 0, years: 0, orders: 0 },
+		counts: { known: 2, fresh: 1, years: 0, orders: 0 },
 		knowledge: { settled: 1, learning: 1, fresh: 1 },
 		hard: [],
 		missing: 0,
@@ -121,7 +121,7 @@ describe('ReviewPage', () => {
 
 	it('tells when the next artworks come once the round is done', async () => {
 		renderPage({
-			counts: { known: 0, fresh: 0, styles: 0, years: 0, orders: 0 },
+			counts: { known: 0, fresh: 0, years: 0, orders: 0 },
 			nextDate: new Date(2026, 10, 17)
 		});
 

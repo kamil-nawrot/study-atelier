@@ -18,9 +18,7 @@ type PlanRow = {
 type ReviewPlanResult = { plan?: ReviewPlan; error?: string };
 
 export const EMPTY_PLAN: ReviewPlan = {
-	scopes: [
-		{ scope: { kind: 'all' }, known: 0, fresh: 0, styles: 0, years: 0, orders: 0, artworks: 0 }
-	],
+	scopes: [{ scope: { kind: 'all' }, known: 0, fresh: 0, years: 0, orders: 0, artworks: 0 }],
 	free: [],
 	tomorrow: 0
 };
@@ -35,15 +33,15 @@ function scopeOf({ kind, value }: ScopeRow): ReviewScope | undefined {
 	return kind === 'period' || kind === 'style' ? { kind, name: value } : undefined;
 }
 
-export function roundQuestions({ known, fresh, styles, years, orders }: PlannedScope): number {
-	return known + fresh + styles + years + orders;
+export function roundQuestions({ known, fresh, years, orders }: PlannedScope): number {
+	return known + fresh + years + orders;
 }
 
 export function reviewPlanOf(row: PlanRow): ReviewPlan {
 	return {
-		scopes: row.scopes.flatMap(({ known, fresh, styles, years, orders, artworks, ...where }) => {
+		scopes: row.scopes.flatMap(({ known, fresh, years, orders, artworks, ...where }) => {
 			const scope = scopeOf(where);
-			return scope ? [{ scope, known, fresh, styles, years, orders, artworks }] : [];
+			return scope ? [{ scope, known, fresh, years, orders, artworks }] : [];
 		}),
 		free: row.free.flatMap(({ count, ...where }) => {
 			const scope = scopeOf(where);

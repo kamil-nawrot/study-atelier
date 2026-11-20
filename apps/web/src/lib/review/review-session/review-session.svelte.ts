@@ -35,9 +35,7 @@ export class ReviewSession {
 	yearAnswers = $state<YearAnswerLog[]>([]);
 	ordered = $state<WallArtwork[]>();
 	orderAnswers = $state<boolean[]>([]);
-	styleAnswers = $state<boolean[]>([]);
 	readonly cards: Map<string, ReviewCard>;
-	readonly styleCards = new SvelteMap<string, ReviewCard>();
 	readonly startedAt: number;
 	readonly free: boolean;
 	#shownAt: number;
@@ -88,13 +86,9 @@ export class ReviewSession {
 	}
 
 	get anyAnswer(): boolean {
-		return [this.answers, this.yearAnswers, this.orderAnswers, this.styleAnswers].some(
+		return [this.answers, this.yearAnswers, this.orderAnswers].some(
 			(answers) => answers.length > 0
 		);
-	}
-
-	get styles(): { asked: number; right: number } {
-		return scoreOf(this.styleAnswers);
 	}
 
 	get orders(): { asked: number; right: number } {
@@ -149,45 +143,9 @@ export class ReviewSession {
 			return;
 		}
 		const wrongAnswer = pickedWrong(item.quiz, choice);
-		const saved =
-			item.facet === 'style'
-				? await this.#saveStyle(item, correct, wrongAnswer)
-				: await this.#save(item, quizRating(correct), undefined, correct, wrongAnswer);
-		if (saved) this.chosen = choice;
-	}
-
-	async #saveStyle(item: ReviewItem, correct: boolean, wrongAnswer?: string): Promise<boolean> {
-		const now = this.#now();
-		const rating = quizRating(correct);
-		const key = `style:${item.artwork.id}`;
-		const repeats = this.#repeats.get(key);
-		const card =
-			(repeats === undefined ? null : item.card) ??
-			outcomes(item.artwork.id, item.card, now)[rating];
-		if (!this.free) {
-			this.saving = true;
-			this.error = undefined;
-			const { error } = await recordReview(card, {
-				mode: 'quiz_style',
-				facet: 'style',
-				rating,
-				correct,
-				answerMs: now.getTime() - this.#shownAt,
-				...(wrongAnswer === undefined ? {} : { wrongAnswer })
-			});
-			this.saving = false;
-			if (error) {
-				this.error = error;
-				return false;
-			}
-			this.styleCards.set(item.artwork.id, card);
+		if (await this.#save(item, quizRating(correct), undefined, correct, wrongAnswer)) {
+			this.chosen = choice;
 		}
-		if (repeats === undefined) this.styleAnswers.push(correct);
-		if (!correct && (repeats ?? 0) < MAX_REPEATS) {
-			this.#repeats.set(key, (repeats ?? 0) + 1);
-			this.#retry({ ...item, card });
-		}
-		return true;
 	}
 
 	async guess(year: number): Promise<void> {

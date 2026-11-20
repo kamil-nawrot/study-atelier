@@ -93,4 +93,48 @@ begin
 end;
 $$;
 
+reset role;
+with added as (
+  insert into public.category_values (owner_id, category_code, name)
+    values
+      ('00000000-0000-0000-0000-00000000000a', 'style', 'Baroque'),
+      ('00000000-0000-0000-0000-00000000000a', 'style', 'Realism'),
+      ('00000000-0000-0000-0000-00000000000a', 'style', 'Cubism'),
+      ('00000000-0000-0000-0000-00000000000a', 'style', 'Rococo')
+    returning id, name
+)
+insert into public.artwork_values (artwork_id, value_id, owner_id)
+  select artwork.id, added.id, artwork.owner_id
+    from added
+    join public.artworks as artwork on artwork.title = case added.name
+      when 'Baroque' then 'Work 3' when 'Realism' then 'Work 4' when 'Cubism' then 'Work 5' else 'Work 6' end;
+set local role authenticated;
+
+do $$
+declare
+  styled uuid;
+begin
+  select id into styled from public.artworks where title = 'Work 3';
+  update public.profiles set review_quiz_kinds = array['quiz_title', 'quiz_image', 'quiz_author', 'quiz_style'];
+
+  perform pg_temp.answer(styled, 'flashcard', 3);
+  assert pg_temp.asked(styled) = 'flashcard', 'the style is asked after the first answer of an artwork';
+
+  perform pg_temp.answer(styled, 'flashcard', 3);
+  assert pg_temp.asked(styled) = 'quiz_style', 'the style is not due after two other answers';
+
+  perform pg_temp.answer(styled, 'quiz_style', 2);
+  assert pg_temp.asked(styled) = 'flashcard', 'the style comes back right after it was asked';
+
+  perform pg_temp.answer(styled, 'quiz_title', 2);
+  perform pg_temp.answer(styled, 'quiz_image', 2);
+  perform pg_temp.answer(styled, 'quiz_author', 2);
+  assert pg_temp.asked(styled, 'quizzes') = 'quiz_style',
+    'the quizzes form does not ask the style when it was asked least recently';
+
+  update public.profiles set review_quiz_kinds = array['quiz_title', 'quiz_image', 'quiz_author'];
+  assert pg_temp.asked(styled) = 'flashcard', 'the style is asked while the profile switched it off';
+end;
+$$;
+
 rollback;

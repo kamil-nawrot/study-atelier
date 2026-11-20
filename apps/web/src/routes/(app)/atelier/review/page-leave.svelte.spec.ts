@@ -86,7 +86,6 @@ function renderReview(dueInDays: number): void {
 			session: testSession(),
 			artworks,
 			cards,
-			styleCards: new Map(),
 			newToday: 0,
 			plan: testReviewPlan(artworks, cards),
 			streak: 0,
