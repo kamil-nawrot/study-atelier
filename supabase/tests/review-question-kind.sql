@@ -137,4 +137,76 @@ begin
 end;
 $$;
 
+do $$
+declare
+  styled uuid;
+begin
+  select id into styled from public.artworks where title = 'Work 3';
+  update public.profiles
+    set review_quiz_kinds = array['quiz_title', 'quiz_image', 'quiz_author', 'quiz_style', 'quiz_pin'];
+  insert into public.artwork_pins (image_id, x, y, glossary_entry_id)
+    select image.id, 0.5, 0.5, term.id
+      from public.artwork_images as image, public.glossary_entries as term
+      where image.artwork_id = styled and term.name = 'Apse';
+
+  perform pg_temp.answer(styled, 'quiz_pin', 2);
+  perform pg_temp.answer(styled, 'flashcard', 3);
+  perform pg_temp.answer(styled, 'flashcard', 3);
+  assert pg_temp.asked(styled) = 'quiz_style', 'the style does not win when it waits longer than the detail';
+
+  insert into public.learner_flags (artwork_id, reason, question, holds)
+    values (styled, 'answers', '{"mode": "quiz_style"}', true);
+  assert pg_temp.asked(styled) = 'quiz_pin', 'a held style question keeps the detail from being asked';
+end;
+$$;
+
+reset role;
+with extra as (
+  insert into public.artwork_images (artwork_id, owner_id, position, source_wikidata_id, source_image_file, broken_at)
+    select artwork.id, artwork.owner_id, 1, 'Q3', 'Work_3_detail.jpg', now()
+      from public.artworks as artwork
+      where artwork.title = 'Work 3'
+    returning id, artwork_id
+)
+update public.artwork_pins as pin set image_id = extra.id
+  from extra, public.artwork_images as main
+  where main.artwork_id = extra.artwork_id and main.position = 0 and pin.image_id = main.id;
+set local role authenticated;
+
+do $$
+begin
+  assert (
+    select item -> 'pin' -> 'image' ->> 'broken_at'
+      from jsonb_array_elements(public.review_session(date_trunc('day', now()), 'mixed', 'all', null, 0)) as item
+      where item ->> 'artwork_id' = (select id::text from public.artworks where title = 'Work 3')
+  ) is not null, 'the image of a pin question does not carry its stored broken state';
+end;
+$$;
+
+do $$
+declare
+  ruled uuid;
+  labels text[];
+begin
+  select id into ruled from public.artworks where title = 'Work 7';
+  update public.profiles set review_quiz_kinds = array['quiz_title', 'quiz_image', 'quiz_author', 'quiz_pin'];
+  insert into public.glossary_entries (name, category) values
+    ('Charlemagne', 'ruler'), ('Otto', 'ruler'), ('Giotto', 'artist'), ('Duccio', 'artist');
+  insert into public.artwork_pins (image_id, x, y, glossary_entry_id)
+    select image.id, 0.5, 0.5, term.id
+      from public.artwork_images as image, public.glossary_entries as term
+      where image.artwork_id = ruled and term.name = 'Charlemagne';
+
+  perform pg_temp.answer(ruled, 'flashcard', 3);
+  perform pg_temp.answer(ruled, 'flashcard', 3);
+  select array_agg(option ->> 'label' order by option ->> 'label')
+    into labels
+    from jsonb_array_elements(public.review_session(date_trunc('day', now()), 'mixed', 'all', null, 0)) as item,
+      jsonb_array_elements(item -> 'options') as option
+    where (item ->> 'artwork_id')::uuid = ruled and item ->> 'mode' = 'quiz_pin';
+  assert labels = '{Charlemagne,Duccio,Giotto,Otto}',
+    'the wrong answers of a figure are not drawn from its category first, then from the figures';
+end;
+$$;
+
 rollback;
