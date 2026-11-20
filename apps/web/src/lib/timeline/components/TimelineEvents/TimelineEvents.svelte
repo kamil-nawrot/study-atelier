@@ -329,8 +329,9 @@
 		color: var(--color-on-fg);
 	}
 
-	.ribbon.selected.outside .name {
-		color: var(--color-fg);
+	.ribbon.selected.outside .name,
+	.pin.selected .name {
+		color: var(--color-highlight);
 	}
 
 	.pin {

@@ -94,7 +94,6 @@
 		"apps/web/src/lib/shell/AtelierMenu/AtelierMenu.svelte",
 		"apps/web/src/lib/shell/AtelierRail/AtelierRail.svelte",
 		"apps/web/src/lib/timeline/components/EraStrip/EraStrip.svelte",
-		"apps/web/src/lib/timeline/components/EventCard/EventCard.svelte",
 		"apps/web/src/lib/timeline/components/EventDeleteDialog/EventDeleteDialog.svelte",
 		"apps/web/src/lib/timeline/components/EventForm/EventForm.svelte",
 		"apps/web/src/lib/timeline/components/EventFormPage/EventFormPage.svelte",
