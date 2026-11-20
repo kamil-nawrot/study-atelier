@@ -90,13 +90,13 @@
 			</Alert>
 		{/if}
 		<TextField
-			required
 			error={nameError}
 			hint={mergeTarget
 				? m.ownFields.value.mergeHint(mergeTarget.name, m.atelier.count(mergeTarget.count))
 				: undefined}
 			label={m.common.name}
 			maxlength={VALUE_NAME_MAX_LENGTH}
+			required
 			bind:value={name}
 		/>
 	</Form>

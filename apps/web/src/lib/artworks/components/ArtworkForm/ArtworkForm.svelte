@@ -222,22 +222,22 @@
 		<div class="fields head">
 			<FixNote field="data" {flags} />
 			<TextField
-				required
 				id={titleId}
 				autocomplete="off"
 				error={fieldErrors.current.title}
 				label={m.artworkForm.title}
+				required
 				bind:value={form.title}
 			/>
 
 			<div class="group">
 				<ValueField
-					required
 					disabled={form.authorUnknown}
 					error={fieldErrors.current.authors}
 					label={m.artworkForm.authors}
 					maxlength={VALUE_NAME_MAX_LENGTH}
 					options={options('author')}
+					required
 					bind:query={form.queries.author}
 					bind:values={form.values.author}
 				/>

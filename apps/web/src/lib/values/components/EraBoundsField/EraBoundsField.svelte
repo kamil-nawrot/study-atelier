@@ -76,22 +76,22 @@
 			{/snippet}
 			{#if eraHasStart(code)}
 				<YearInput
-					required
 					beforeCommonEraLabel={m.eraBounds.startBeforeCommonEra}
 					error={errors.start}
 					label={m.eraBounds.start}
 					placeholder={m.eraBounds.start}
+					required
 					bind:value={bounds.startYear}
 					bind:beforeCommonEra={bounds.startBeforeCommonEra}
 				/>
 			{/if}
 			{#if eraHasEnd(code)}
 				<YearInput
-					required
 					beforeCommonEraLabel={m.eraBounds.endBeforeCommonEra}
 					error={errors.end}
 					label={m.eraBounds.end}
 					placeholder={m.eraBounds.end}
+					required
 					bind:value={bounds.endYear}
 					bind:beforeCommonEra={bounds.endBeforeCommonEra}
 				/>

@@ -39,11 +39,11 @@
 				</Alert>
 			{/if}
 			<TextField
-				required
 				autocomplete="new-password"
 				error={passwordError}
 				hint={m.validation.passwordHint(MIN_PASSWORD_LENGTH)}
 				label={m.updatePassword.newPassword}
+				required
 				type="password"
 				bind:value={password}
 			/>

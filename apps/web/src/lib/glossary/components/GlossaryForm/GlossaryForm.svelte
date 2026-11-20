@@ -133,12 +133,12 @@
 		<div class="fields">
 			<div class="name">
 				<TextField
-					required
 					autocomplete="off"
 					error={errors.current.name}
 					label={m.common.name}
 					maxlength={NAME_MAX_LENGTH}
 					placeholder={m.glossary.form.namePlaceholder}
+					required
 					bind:value={form.name}
 				/>
 				{#if author}
@@ -163,12 +163,12 @@
 
 			<div class="category">
 				<ChoiceTiles
-					required
 					columns={3}
 					label={m.glossary.form.category}
 					narrowColumns={2}
 					onchange={chooseCategory}
 					options={tiles}
+					required
 					value={form.category}
 				/>
 				{#if errors.current.category}

@@ -95,21 +95,21 @@
 			<Alert title={m.glossary.quick.errorTitle} tone="danger">{failure}</Alert>
 		{/if}
 		<TextField
-			required
 			autocomplete="off"
 			error={nameError}
 			label={m.common.name}
 			maxlength={NAME_MAX_LENGTH}
+			required
 			bind:value={form.name}
 		/>
 		<div class="category">
 			<ChoiceTiles
-				required
 				columns={3}
 				label={m.glossary.form.category}
 				narrowColumns={2}
 				onchange={chooseCategory}
 				options={tiles}
+				required
 				value={form.category}
 			/>
 			{#if categoryError}

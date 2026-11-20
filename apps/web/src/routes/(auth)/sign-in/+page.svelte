@@ -50,18 +50,18 @@
 			<Alert title={m.signIn.errorTitle} tone="danger">{formError}</Alert>
 		{/if}
 		<TextField
-			required
 			autocomplete="email"
 			error={emailError}
 			label={m.common.email}
+			required
 			type="email"
 			bind:value={email}
 		/>
 		<TextField
-			required
 			autocomplete="current-password"
 			error={passwordError}
 			label={m.common.password}
+			required
 			type="password"
 			bind:value={password}
 		>

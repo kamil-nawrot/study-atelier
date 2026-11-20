@@ -29,9 +29,9 @@
 	<TextField
 		autocomplete="off"
 		{error}
-		{required}
 		label={m.symbols.form.meaning}
 		maxlength={MEANING_TEXT_MAX_LENGTH}
+		{required}
 		bind:value={text}
 	/>
 	{#if contextsOpen}

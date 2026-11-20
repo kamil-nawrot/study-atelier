@@ -75,19 +75,19 @@
 			<Alert title={m.signUp.errorTitle} tone="danger">{formError}</Alert>
 		{/if}
 		<TextField
-			required
 			autocomplete="email"
 			error={emailError}
 			label={m.common.email}
+			required
 			type="email"
 			bind:value={email}
 		/>
 		<TextField
-			required
 			autocomplete="new-password"
 			error={passwordError}
 			hint={m.validation.passwordHint(MIN_PASSWORD_LENGTH)}
 			label={m.common.password}
+			required
 			type="password"
 			bind:value={password}
 		/>

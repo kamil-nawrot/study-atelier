@@ -227,13 +227,13 @@
 				{/if}
 
 				<ValueField
-					required
 					error={errors.current.place}
 					hint={existing ? undefined : texts.placeHint}
 					label={texts.place}
 					maxlength={VALUE_NAME_MAX_LENGTH}
 					onpick={trip ? pickTripCity : undefined}
 					options={placeOptions}
+					required
 					single
 					bind:query={form.placeQuery}
 					bind:values={form.place}

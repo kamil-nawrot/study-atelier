@@ -1,8 +1,3 @@
-<script lang="ts" module>
-	import { overlayScrollbar } from '../../overlay-scrollbar/overlay-scrollbar.ts';
-	import { dropPlacement } from '../../drop-placement/drop-placement.ts';
-</script>
-
 <script lang="ts">
 	import type { ValueOption } from '../../types/value-option';
 	import X from '@lucide/svelte/icons/x';
@@ -11,6 +6,7 @@
 	import FieldMessage from '../FieldMessage/FieldMessage.svelte';
 	import Icon from '../Icon/Icon.svelte';
 	import FillingLines from '../FillingLines/FillingLines.svelte';
+	import ValueSuggestions from '../ValueSuggestions/ValueSuggestions.svelte';
 
 	type Props = {
 		label: string;
@@ -66,10 +62,6 @@
 	const ordered = $derived(
 		kinds.flatMap((kind) => options.filter((option) => option.kind === kind))
 	);
-	const existing = $derived(ordered.filter((option) => option.kind === 'existing'));
-	const starter = $derived(ordered.filter((option) => option.kind === 'starter'));
-	const similar = $derived(ordered.find((option) => option.kind === 'similar'));
-	const added = $derived(ordered.find((option) => option.kind === 'new'));
 	const full = $derived(!single && values.length >= (max ?? Infinity));
 	const chosen = $derived(single ? values[0] : undefined);
 
@@ -188,41 +180,7 @@
 			input?.focus();
 		}
 	}
-
-	function onoptionpointerdown(event: PointerEvent): void {
-		event.preventDefault();
-	}
 </script>
-
-{#snippet item(option: ValueOption, text: string, note?: string)}
-	<li
-		id={optionId(option)}
-		class={option.kind}
-		class:active={ordered.indexOf(option) === activeIndex}
-		aria-selected={ordered.indexOf(option) === activeIndex}
-		onpointerdown={onoptionpointerdown}
-		onpointerup={() => pick(option)}
-		role="option"
-	>
-		<span>{text}</span>
-		{#if note}
-			<small>{note}</small>
-		{/if}
-	</li>
-{/snippet}
-
-{#snippet group(members: ValueOption[], name: string, title: string)}
-	{#if members.length > 0}
-		<li role="presentation">
-			<ul aria-labelledby={`${listId}-${name}`} role="group">
-				<li id={`${listId}-${name}`} class="group" role="presentation">{title}</li>
-				{#each members as option (option.id ?? option.name)}
-					{@render item(option, option.name, option.note)}
-				{/each}
-			</ul>
-		</li>
-	{/if}
-{/snippet}
 
 <div class="field">
 	<label class:visually-hidden={labelHidden} for={inputId}
@@ -258,13 +216,13 @@
 		<input
 			bind:this={input}
 			id={inputId}
-			aria-required={(required && !inactive) || undefined}
 			aria-activedescendant={expanded ? optionId(ordered[activeIndex]) : undefined}
 			aria-autocomplete="list"
 			aria-controls={listId}
 			aria-describedby={message ? messageId : undefined}
 			aria-expanded={expanded}
 			aria-invalid={error || invalid ? true : undefined}
+			aria-required={(required && !inactive) || undefined}
 			autocomplete="off"
 			disabled={inactive}
 			hidden={full}
@@ -290,27 +248,15 @@
 				<Icon icon={X} size="sm" />
 			</button>
 		{/if}
-		<ul
-			id={listId}
-			class="list"
-			{@attach overlayScrollbar()}
-			{@attach dropPlacement()}
-			aria-label={label}
-			hidden={!expanded}
-			role="listbox"
-		>
-			{#each ordered.filter((option) => option.kind === 'found') as option (option.id ?? option.name)}
-				{@render item(option, option.name, option.note)}
-			{/each}
-			{#if similar}
-				{@render item(similar, texts.similar(similar.name), texts.useSimilar)}
-			{/if}
-			{@render group(existing, 'existing', texts.existing)}
-			{@render group(starter, 'starter', texts.starter)}
-			{#if added}
-				{@render item(added, similar ? texts.addAnyway(added.name) : texts.add(added.name))}
-			{/if}
-		</ul>
+		<ValueSuggestions
+			{activeIndex}
+			{expanded}
+			{label}
+			{listId}
+			onpick={(option) => pick(option)}
+			{optionId}
+			options={ordered}
+		/>
 		{#if filling}
 			<FillingLines />
 		{/if}
@@ -382,7 +328,8 @@
 		color: var(--color-fg-muted);
 	}
 
-	.remove {
+	.remove,
+	.clear {
 		display: grid;
 		place-content: center;
 		padding: var(--spacing-1);
@@ -398,14 +345,7 @@
 	}
 
 	.clear {
-		display: grid;
-		place-content: center;
 		margin-left: auto;
-		padding: var(--spacing-1);
-		border: none;
-		background: transparent;
-		color: var(--color-fg-muted);
-		cursor: pointer;
 	}
 
 	.remove:focus-visible {
@@ -436,73 +376,5 @@
 	input:disabled {
 		color: var(--color-fg-muted);
 		cursor: not-allowed;
-	}
-
-	.list {
-		position: absolute;
-		top: calc(100% + var(--border-width-base));
-		right: calc(-1 * var(--border-width-base));
-		left: calc(-1 * var(--border-width-base));
-		z-index: 2;
-		max-height: 280px;
-		margin: 0;
-		padding: var(--spacing-1) 0;
-		overflow-y: auto;
-		border: var(--border-width-base) solid var(--color-line);
-		background: var(--color-bg);
-		list-style: none;
-	}
-
-	.list[hidden] {
-		display: none;
-	}
-
-	.list ul {
-		margin: 0;
-		list-style: none;
-	}
-
-	[role='option'] {
-		display: flex;
-		justify-content: space-between;
-		gap: var(--spacing-3);
-		padding: var(--spacing-2) var(--spacing-3);
-		font-size: var(--font-size-md);
-		line-height: var(--line-height-md);
-		cursor: pointer;
-	}
-
-	[role='option'].active {
-		background: var(--color-tag);
-	}
-
-	[role='option'] small {
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
-	}
-
-	.group {
-		padding: var(--spacing-2) var(--spacing-3) 0;
-		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		letter-spacing: var(--letter-spacing-wide);
-		line-height: var(--line-height-xs);
-		text-transform: uppercase;
-	}
-
-	.similar {
-		flex-direction: column;
-		gap: 0;
-		border-left: var(--border-width-button) solid var(--color-line);
-	}
-
-	.new {
-		font-weight: var(--font-weight-medium);
-	}
-
-	.similar ~ .new {
-		color: var(--color-fg-muted);
-		font-weight: var(--font-weight-regular);
 	}
 </style>

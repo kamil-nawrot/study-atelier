@@ -52,7 +52,6 @@
 	<div class="control" class:filling>
 		<textarea
 			id={inputId}
-			aria-required={required || undefined}
 			style:--max-rows={maxRows}
 			class:counted
 			class:invalid={!!error}
@@ -61,6 +60,7 @@
 			aria-busy={filling || undefined}
 			aria-describedby={describedBy}
 			aria-invalid={error ? true : undefined}
+			aria-required={required || undefined}
 			{disabled}
 			{maxlength}
 			readonly={filling || undefined}

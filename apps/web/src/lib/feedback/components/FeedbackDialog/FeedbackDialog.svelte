@@ -81,12 +81,12 @@
 		{/if}
 		<div class="kind">
 			<ChoiceTiles
-				required
 				columns={2}
 				label={m.feedback.kind}
 				narrowColumns={2}
 				onchange={chooseKind}
 				options={kinds}
+				required
 				value={draft.kind}
 			/>
 			{#if errors.kind}
@@ -94,11 +94,11 @@
 			{/if}
 		</div>
 		<TextField
-			required
 			error={errors.title}
 			hint={m.feedback.titleHint}
 			label={m.feedback.titleLabel}
 			maxlength={FEEDBACK_TITLE_MAX}
+			required
 			bind:value={draft.title}
 		/>
 		<TextArea

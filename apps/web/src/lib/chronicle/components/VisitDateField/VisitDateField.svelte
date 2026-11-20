@@ -54,8 +54,8 @@
 			inputmode="numeric"
 			label={m.chronicle.form.year}
 			maxlength={4}
-			required
 			placeholder={m.chronicle.form.year}
+			required
 			bind:value={year}
 		/>
 	</div>

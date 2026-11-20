@@ -55,9 +55,9 @@
 		{/if}
 		<select
 			id={selectId}
-			aria-required={required || undefined}
 			aria-describedby={message ? messageId : undefined}
 			aria-invalid={error ? true : undefined}
+			aria-required={required || undefined}
 			{...rest}
 			bind:value
 		>

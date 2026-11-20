@@ -59,11 +59,11 @@
 			<label class="tile" class:selected={value === option.value}>
 				<input
 					name={groupName}
-					{required}
 					checked={value === option.value}
 					onchange={() => choose(option.value)}
 					onclick={(event) => clearChosen(event, option)}
 					onkeydown={(event) => onkeydown(event, option)}
+					{required}
 					type="radio"
 					value={option.value}
 				/>

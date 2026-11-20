@@ -179,13 +179,13 @@
 		<input
 			bind:this={input}
 			id={inputId}
-			aria-required={required || undefined}
 			aria-activedescendant={expanded && shown.length > 0 ? optionId(activeIndex) : undefined}
 			aria-autocomplete="list"
 			aria-controls={listId}
 			aria-describedby={message ? messageId : undefined}
 			aria-expanded={expanded}
 			aria-invalid={error ? true : undefined}
+			aria-required={required || undefined}
 			autocomplete="off"
 			{disabled}
 			onblur={close}

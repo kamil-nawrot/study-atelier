@@ -295,7 +295,7 @@ describe('ValueField', () => {
 		await expect
 			.element(page.getByRole('combobox', { name: 'Authors' }))
 			.not.toHaveAttribute('aria-required');
-		expect(document.querySelector('.required-mark')).toBeNull();
+		expect(page.getByText('*', { exact: true }).query()).toBeNull();
 	});
 
 	it('leaves the remove button unfocused after a pointer pick in single mode', async () => {
