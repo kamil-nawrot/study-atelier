@@ -1,4 +1,4 @@
-# 0336. Show the artwork image on a stage in the artwork form
+# 0337. Show the artwork image on a stage in the artwork form
 
 - Status: accepted
 - Date: 2026-11-20
