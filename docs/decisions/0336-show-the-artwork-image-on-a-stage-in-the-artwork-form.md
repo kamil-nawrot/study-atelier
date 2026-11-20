@@ -39,7 +39,7 @@ Chosen options: desktop A, phone A, the pin cursor, and every flag at the top of
 - The bleed is measured from the width of the page body, which `AtelierLayout` makes a size container (`atelier-body`) only when the page holds `[data-bleed]`, publishing `--content-bleed`; `--wall-inline` cannot be used there because its percentage resolves against the element using it.
 - `ChoiceTiles` with more than four columns shows its narrow columns until its container is 720 px wide, so the eras in the half-width form wrap to three columns instead of squeezing six.
 - On a phone the stage comes first, above the title, full width, at half the height of the screen, and scrolls away with the page; with no image it stays as low as the empty field of other forms.
-- The flags `top` and `image` stand at the top of the form with the flags of the data, above the title.
+- The flags `top` and `image` stand at the top of the form with the flags of the data, above the title. This narrows point 2 of [ADR-0317](0317-mark-flags-fixed-from-the-list-and-show-them-on-every-form.md) (each flag above the field it is about) for the artwork form.
 - Over an image that takes pins the cursor is `var(--cursor-pin)`: Lucide's `pin` in black with a white outline (`cursor-pin.svg` in the library's styles), the hotspot at the tip of the needle, `crosshair` as the fallback.
 
 ### Consequences
