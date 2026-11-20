@@ -1405,6 +1405,7 @@ export const OWN_FIELDS = [
 		description: null,
 		kind: 'list',
 		multiple: false,
+		closed: false,
 		type_codes: []
 	},
 	{
@@ -1413,6 +1414,7 @@ export const OWN_FIELDS = [
 		description: 'Co przedstawia dzieło',
 		kind: 'list',
 		multiple: true,
+		closed: false,
 		type_codes: ['painting', 'sculpture']
 	},
 	{
@@ -1421,6 +1423,7 @@ export const OWN_FIELDS = [
 		description: 'Podręcznik i strona',
 		kind: 'text',
 		multiple: false,
+		closed: false,
 		type_codes: []
 	},
 	{
@@ -1429,6 +1432,7 @@ export const OWN_FIELDS = [
 		description: null,
 		kind: 'flag',
 		multiple: false,
+		closed: false,
 		type_codes: []
 	}
 ];

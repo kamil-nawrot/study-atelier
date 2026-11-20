@@ -21,7 +21,7 @@ describe('own field page', () => {
 		vi.clearAllMocks();
 	});
 
-	it('opens the field form and the delete question from the bar', async () => {
+	it('links to the field form and opens the delete question from the bar', async () => {
 		await page.viewport(1280, 800);
 		const fields = testOwnFields();
 		render(FieldPage, {
@@ -29,9 +29,9 @@ describe('own field page', () => {
 			params: { id: 'motifs' }
 		});
 
-		await page.getByRole('button', { name: m.common.edit }).click();
-		await expect.element(page.getByRole('textbox', { name: m.common.name })).toHaveValue('Motifs');
-		await page.getByRole('button', { name: m.common.cancel }).click();
+		await expect
+			.element(page.getByRole('link', { name: m.common.edit }))
+			.toHaveAttribute('href', '/atelier/fields/motifs/edit');
 
 		await page.getByRole('button', { name: m.common.delete }).click();
 		await expect

@@ -13,11 +13,12 @@
 		options: readonly ValueOption[];
 		activeIndex: number;
 		expanded: boolean;
+		empty?: string;
 		optionId: (option: ValueOption) => string;
 		onpick: (option: ValueOption) => void;
 	};
 
-	let { listId, label, options, activeIndex, expanded, optionId, onpick }: Props = $props();
+	let { listId, label, options, activeIndex, expanded, empty, optionId, onpick }: Props = $props();
 
 	const texts = uiMessages().valueField;
 
@@ -81,6 +82,9 @@
 	{#if added}
 		{@render item(added, similar ? texts.addAnyway(added.name) : texts.add(added.name))}
 	{/if}
+	{#if empty !== undefined}
+		<li class="empty" role="presentation">{empty}</li>
+	{/if}
 </ul>
 
 <style>
@@ -126,6 +130,13 @@
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-xs);
 		line-height: var(--line-height-xs);
+	}
+
+	.empty {
+		padding: var(--spacing-2) var(--spacing-3);
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-sm);
+		line-height: var(--line-height-sm);
 	}
 
 	.group {

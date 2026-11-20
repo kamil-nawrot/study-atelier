@@ -29,7 +29,11 @@ export function fieldKindLine(field: OwnField): string {
 	const { ownFields } = m;
 	const kind =
 		field.kind === 'list'
-			? `${ownFields.kinds.list}, ${field.multiple ? ownFields.manyValues : ownFields.oneValue}`
+			? [
+					ownFields.kinds.list,
+					field.multiple ? ownFields.manyValues : ownFields.oneValue,
+					...(field.closed ? [ownFields.closedList] : [])
+				].join(', ')
 			: ownFields.kinds[field.kind];
 	return ownFields.summary([ownFields.page.kind, kind, m.atelier.count(field.count)]);
 }

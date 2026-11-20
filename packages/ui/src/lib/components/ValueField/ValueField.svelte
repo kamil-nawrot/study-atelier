@@ -26,6 +26,7 @@
 		placeholder?: string;
 		id?: string;
 		required?: boolean;
+		emptyText?: string;
 		onpick?: (option: ValueOption) => void;
 	};
 
@@ -47,6 +48,7 @@
 		placeholder,
 		id,
 		required = false,
+		emptyText,
 		onpick
 	}: Props = $props();
 
@@ -75,7 +77,12 @@
 	const shownText = $derived(chosen !== undefined && !typed ? chosen : query);
 
 	const inactive = $derived(disabled || locked);
-	const expanded = $derived(open && !inactive && !filling && !full && ordered.length > 0);
+	const empty = $derived(
+		emptyText !== undefined && ordered.length === 0 && query.trim() !== '' ? emptyText : undefined
+	);
+	const expanded = $derived(
+		open && !inactive && !filling && !full && (ordered.length > 0 || empty !== undefined)
+	);
 	const activeIndex = $derived(Math.min(active, ordered.length - 1));
 
 	function optionId(option: ValueOption): string {
@@ -157,7 +164,8 @@
 		} else if (event.key === 'Enter') {
 			if (!expanded) return;
 			event.preventDefault();
-			pick(ordered[activeIndex], true);
+			const option = ordered[activeIndex];
+			if (option) pick(option, true);
 		} else if (event.key === 'Escape') {
 			if (!expanded) return;
 			event.preventDefault();
@@ -216,7 +224,9 @@
 		<input
 			bind:this={input}
 			id={inputId}
-			aria-activedescendant={expanded ? optionId(ordered[activeIndex]) : undefined}
+			aria-activedescendant={expanded && ordered.length > 0
+				? optionId(ordered[activeIndex])
+				: undefined}
 			aria-autocomplete="list"
 			aria-controls={listId}
 			aria-describedby={message ? messageId : undefined}
@@ -250,6 +260,7 @@
 		{/if}
 		<ValueSuggestions
 			{activeIndex}
+			{empty}
 			{expanded}
 			{label}
 			{listId}

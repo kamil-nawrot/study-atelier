@@ -8,6 +8,7 @@ export function testOwnFields(): OwnField[] {
 			description: null,
 			kind: 'list',
 			multiple: false,
+			closed: false,
 			typeCodes: [],
 			count: 3,
 			values: [
@@ -21,6 +22,7 @@ export function testOwnFields(): OwnField[] {
 			description: 'What the artwork shows',
 			kind: 'list',
 			multiple: true,
+			closed: false,
 			typeCodes: [],
 			count: 3,
 			values: [
@@ -34,6 +36,7 @@ export function testOwnFields(): OwnField[] {
 			description: null,
 			kind: 'flag',
 			multiple: false,
+			closed: false,
 			typeCodes: [],
 			count: 0,
 			values: []

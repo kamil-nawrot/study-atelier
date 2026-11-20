@@ -1,15 +1,16 @@
 <script lang="ts">
 	import Plus from '@lucide/svelte/icons/plus';
+	import { onMount } from 'svelte';
 	import { Alert, Button, Dialog, Toast } from '@study-atelier/ui';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
 	import { m } from '#lib/i18n/i18n.ts';
 	import CardIndexList from '#lib/card-index/components/CardIndexList/CardIndexList.svelte';
 	import NewOwnValueDialog from '#lib/card-index/components/NewOwnValueDialog/NewOwnValueDialog.svelte';
-	import OwnFieldDialog from '#lib/card-index/components/OwnFieldDialog/OwnFieldDialog.svelte';
 	import OwnFieldHeader from '#lib/card-index/components/OwnFieldHeader/OwnFieldHeader.svelte';
 	import { deleteOwnField } from '#lib/card-index/own-fields-data/own-fields-data.ts';
-	import { ownValuePath } from '#lib/card-index/own-field-pages/own-field-pages.ts';
+	import { ownFieldPath, ownValuePath } from '#lib/card-index/own-field-pages/own-field-pages.ts';
 	import {
 		rememberSort,
 		rememberedSort,
@@ -19,15 +20,13 @@
 
 	type Props = {
 		field: OwnField;
-		fields: OwnField[];
 	};
 
-	let { field, fields }: Props = $props();
+	let { field }: Props = $props();
 
 	const cardIndexPath = resolve('/(app)/atelier/values');
 
 	let toast: Toast;
-	let editOpen = $state(false);
 	let valueOpen = $state(false);
 	let deleteOpen = $state(false);
 	let deleting = $state(false);
@@ -35,9 +34,12 @@
 	let query = $state('');
 	let sort = $state(rememberedSort('own'));
 
-	export function edit(): void {
-		editOpen = true;
-	}
+	onMount(() => {
+		const message = page.state.valueMessage;
+		if (message === undefined) return;
+		toast.show(message);
+		void goto(ownFieldPath(field.id), { state: {}, shallow: true, replace: true });
+	});
 
 	export function askDelete(): void {
 		failure = undefined;
@@ -91,7 +93,7 @@
 			{/snippet}
 			<CardIndexList
 				actions={addValue}
-				empty={m.ownFields.noValues}
+				empty={field.closed ? m.ownFields.noValuesClosed : m.ownFields.noValues}
 				href={(id) => ownValuePath(field.id, id)}
 				records={field.values}
 				searchLabel={m.ownFields.search(field.name)}
@@ -107,7 +109,6 @@
 
 <Toast bind:this={toast} />
 
-<OwnFieldDialog edited={field} {fields} onsaved={changed} bind:open={editOpen} />
 <NewOwnValueDialog {field} onsaved={changed} bind:open={valueOpen} />
 {#snippet failureAlert()}
 	<Alert title={m.ownFields.errorTitle} tone="danger">

@@ -13,6 +13,7 @@ const technique: OwnFieldDefinition = {
 	description: null,
 	kind: 'list',
 	multiple: true,
+	closed: false,
 	typeCodes: []
 };
 

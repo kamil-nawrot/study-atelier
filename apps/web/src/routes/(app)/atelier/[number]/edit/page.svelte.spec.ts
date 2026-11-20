@@ -366,6 +366,7 @@ describe('edit artwork page', () => {
 				description: null,
 				kind: 'list',
 				multiple: true,
+				closed: false,
 				typeCodes: []
 			},
 			{
@@ -374,6 +375,7 @@ describe('edit artwork page', () => {
 				description: null,
 				kind: 'text',
 				multiple: false,
+				closed: false,
 				typeCodes: []
 			},
 			{
@@ -382,6 +384,7 @@ describe('edit artwork page', () => {
 				description: null,
 				kind: 'flag',
 				multiple: false,
+				closed: false,
 				typeCodes: []
 			}
 		];
@@ -405,6 +408,29 @@ describe('edit artwork page', () => {
 		);
 	});
 
+	it('offers only the existing values of a closed list and says when nothing matches', async () => {
+		const motifs: OwnFieldDefinition = {
+			id: 'motifs',
+			name: 'Motifs',
+			description: null,
+			kind: 'list',
+			multiple: true,
+			closed: true,
+			typeCodes: []
+		};
+		renderPage({ artwork: artwork(), ownFields: [motifs] }, '7', { motifs: ['Angel', 'Putto'] });
+		const field = page.getByRole('combobox', { name: 'Motifs' });
+
+		await field.fill('Put');
+		await expect.element(page.getByRole('option', { name: 'Putto' })).toBeVisible();
+
+		await field.fill('Lion');
+		await expect.element(page.getByText(m.ownFields.notOnList('Lion'))).toBeVisible();
+		await expect
+			.element(page.getByRole('option', { name: m.ui.valueField.add('Lion') }))
+			.not.toBeInTheDocument();
+	});
+
 	it('asks before dropping the values of own fields the new type does not take', async () => {
 		const ownFields: OwnFieldDefinition[] = [
 			{
@@ -413,6 +439,7 @@ describe('edit artwork page', () => {
 				description: null,
 				kind: 'text',
 				multiple: false,
+				closed: false,
 				typeCodes: ['architecture']
 			},
 			{
@@ -421,6 +448,7 @@ describe('edit artwork page', () => {
 				description: null,
 				kind: 'text',
 				multiple: false,
+				closed: false,
 				typeCodes: []
 			}
 		];
