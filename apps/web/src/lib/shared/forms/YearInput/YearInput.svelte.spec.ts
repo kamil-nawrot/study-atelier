@@ -13,9 +13,9 @@ describe('YearInput', () => {
 		await expect.element(era).toHaveAttribute('aria-pressed', 'false');
 		await userEvent.click(era);
 		await expect.element(era).toHaveAttribute('aria-pressed', 'true');
-		await userEvent.keyboard(' ');
+		await userEvent.type(era, ' ');
 		await expect.element(era).toHaveAttribute('aria-pressed', 'false');
-		await userEvent.keyboard('{Enter}');
+		await userEvent.type(era, '{Enter}');
 		await expect.element(era).toHaveAttribute('aria-pressed', 'true');
 		expect(page.getByRole('checkbox').query()).toBeNull();
 	});
