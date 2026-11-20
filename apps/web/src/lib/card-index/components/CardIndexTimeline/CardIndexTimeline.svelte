@@ -74,7 +74,14 @@
 		{#if hasEras}
 			<ol class="eras">
 				{#each timeline.eras as era (era.code)}
-					<CardIndexEra {era} {folding} />
+					<CardIndexEra
+						code={era.code}
+						empty={m.cardIndex.emptyEra}
+						filled={era.periods.length > 0}
+						{folding}
+					>
+						<CardIndexPeriods {folding} periods={era.periods} />
+					</CardIndexEra>
 				{/each}
 			</ol>
 		{/if}

@@ -1165,6 +1165,9 @@ export const pl = {
 			own: 'Własne pola'
 		},
 		emptyEra: 'W tej epoce nie ma jeszcze okresów.',
+		emptyEraAuthors: 'Żaden autor nie ma jeszcze dzieła z tej epoki.',
+		emptyEraEvents: 'Nie ma jeszcze Twoich wydarzeń z tej epoki.',
+		authorsWithoutEra: 'Autorzy bez dzieł z epoką',
 		periodsWithoutEra: 'Okresy bez epoki',
 		stylesWithoutPeriod: 'Style bez okresu',
 		placesWithoutCountry: 'Miejsca bez kraju',

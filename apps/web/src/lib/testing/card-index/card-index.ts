@@ -12,6 +12,7 @@ export function testCardIndex(): CardIndexData {
 			{ id: 'material-marble', category: 'material', name: 'Marble', count: 3 },
 			{ id: 'material-bronze', category: 'material', name: 'Bronze', count: 0 },
 			{ id: 'author-phidias', category: 'author', name: 'Phidias', count: 1 },
+			{ id: 'author-unplaced', category: 'author', name: 'Unplaced', count: 0 },
 			{ id: 'location-athens', category: 'location', name: 'Athens', count: 2 }
 		],
 		periodEras: [
@@ -19,6 +20,7 @@ export function testCardIndex(): CardIndexData {
 			{ periodId: 'period-classical', eraCode: 'early_modern', count: 1 },
 			{ periodId: 'period-gothic', eraCode: 'middle_ages', count: 2 }
 		],
+		authorEras: [{ authorId: 'author-phidias', eraCode: 'antiquity', count: 1, oldestYear: -447 }],
 		stylePeriods: [
 			{ styleId: 'style-doric', periodId: 'period-classical', count: 2 },
 			{ styleId: 'style-ionic', periodId: 'period-classical', count: 1 },

@@ -22,6 +22,7 @@ import {
 	ARTWORK_SEARCH,
 	PEOPLE,
 	PERIOD_ERA_USAGE,
+	AUTHOR_ERA_USAGE,
 	REVIEW_CARDS,
 	TIMELINE_EVENTS,
 	VISITS,
@@ -864,6 +865,7 @@ async function mockSupabase(context) {
 			return json(route, {
 				values,
 				period_eras: PERIOD_ERA_USAGE,
+				author_eras: AUTHOR_ERA_USAGE,
 				style_periods: STYLE_PERIOD_USAGE
 			});
 		}

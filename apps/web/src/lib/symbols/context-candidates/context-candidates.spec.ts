@@ -8,6 +8,7 @@ describe('contextCandidates', () => {
 			{
 				values: [{ id: 'v1', category: 'style', name: 'Tenebrism', count: 2 }],
 				periodEras: [],
+				authorEras: [],
 				stylePeriods: []
 			},
 			[

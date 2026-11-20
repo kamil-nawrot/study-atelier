@@ -154,11 +154,12 @@ reads:
   - id: R08
     name: Card index
     route: /atelier/values
-    shows: every value per category with usage counts, era/period/style tree, places as a country/city tree (ADR-0282)
+    shows: every value per category with usage counts, era/period/style tree, places as a country/city tree (ADR-0282), authors and events by era (ADR-0335)
     needs:
       - 'values: all, with usage counts'
       - 'places: type, country and city_id, for the tree of the tab "Miejsca"'
       - 'period_eras: all'
+      - 'author eras: all, per author and era of their artworks with the count and the oldest year (ADR-0335)'
       - 'style_periods: all'
       - 'own field values: all'
       - 'timeline events: all'

@@ -37,6 +37,7 @@ function index(): CardIndexData {
 			{ id: 'marble', category: 'material', name: 'Marmur', count: 3 }
 		],
 		periodEras: [],
+		authorEras: [],
 		stylePeriods: []
 	};
 }

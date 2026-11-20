@@ -17,36 +17,47 @@ function withValues(...values: CardIndexData['values']): CardIndexData {
 	return { ...index, values: [...index.values, ...values] };
 }
 
-function listed(): string[] {
-	return page
-		.getByRole('tabpanel')
-		.getByRole('link')
-		.elements()
-		.map((link) => link.querySelector('.name')?.textContent ?? '');
-}
-
 describe('CardIndexTabs', () => {
 	beforeEach(() => {
 		localStorage.clear();
 	});
 
-	it('sorts authors by the year of birth, with the unknown ones last', async () => {
-		renderTabs(
-			'author',
-			withValues(
-				{ id: 'a-giotto', category: 'author', name: 'Giotto', count: 1, birthYear: 1267 },
-				{ id: 'a-anon', category: 'author', name: 'Anonim', count: 1 },
-				{ id: 'a-rembrandt', category: 'author', name: 'Rembrandt', count: 1, birthYear: 1606 }
-			)
+	it('groups authors under the eras of their artworks, oldest artwork first', async () => {
+		const index = withValues(
+			{ id: 'a-giotto', category: 'author', name: 'Giotto', count: 2, birthYear: 1600 },
+			{ id: 'a-anon', category: 'author', name: 'Anonim', count: 1 },
+			{ id: 'a-duccio', category: 'author', name: 'Duccio', count: 1, birthYear: 1255 }
 		);
+		renderTabs('author', {
+			...index,
+			authorEras: [
+				...index.authorEras,
+				{ authorId: 'a-giotto', eraCode: 'middle_ages', count: 1, oldestYear: 1305 },
+				{ authorId: 'a-giotto', eraCode: 'early_modern', count: 1, oldestYear: 1500 },
+				{ authorId: 'a-anon', eraCode: 'middle_ages', count: 1 },
+				{ authorId: 'a-duccio', eraCode: 'middle_ages', count: 1, oldestYear: 1308 }
+			]
+		});
 
 		await page
 			.getByRole('combobox', { name: m.cardIndex.sortLabel })
 			.selectOptions(m.cardIndex.sorts.oldest);
 
-		const names = listed();
-		expect(names.indexOf('Giotto')).toBeLessThan(names.indexOf('Rembrandt'));
-		expect(names.indexOf('Anonim')).toBeGreaterThan(names.indexOf('Rembrandt'));
+		const middleAges = page
+			.getByRole('listitem')
+			.filter({ has: page.getByRole('heading', { name: m.eras.middle_ages.name }) });
+		const names = middleAges
+			.getByRole('link')
+			.elements()
+			.map((link) => link.querySelector('.name')?.textContent ?? '')
+			.filter(Boolean);
+		expect(names).toEqual(['Giotto', 'Duccio', 'Anonim']);
+		await expect
+			.element(
+				page.getByRole('link', { name: m.cardIndex.openValue('Giotto', m.atelier.count(1)) }).nth(1)
+			)
+			.toBeInTheDocument();
+		await expect.element(page.getByText(m.cardIndex.authorsWithoutEra)).toBeVisible();
 	});
 
 	it('groups places under their country and city, with the rest under "Miejsca bez kraju"', async () => {

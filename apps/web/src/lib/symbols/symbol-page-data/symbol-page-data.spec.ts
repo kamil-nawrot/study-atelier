@@ -69,7 +69,7 @@ describe('symbol page data', () => {
 
 	it('loads the labels to suggest in the form', async () => {
 		vi.mocked(loadCardIndex).mockResolvedValue({
-			index: { values: [], periodEras: [], stylePeriods: [] }
+			index: { values: [], periodEras: [], authorEras: [], stylePeriods: [] }
 		} as never);
 		vi.mocked(loadTermIndex).mockResolvedValue({ terms: [] } as never);
 

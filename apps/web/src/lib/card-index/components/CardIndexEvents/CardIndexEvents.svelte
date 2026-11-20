@@ -6,23 +6,34 @@
 	import { resolve } from '$app/paths';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { eventPath } from '#lib/timeline/event-page/event-page.ts';
-	import CardIndexList from '#lib/card-index/components/CardIndexList/CardIndexList.svelte';
+	import CardIndexEraRecords from '#lib/card-index/components/CardIndexEraRecords/CardIndexEraRecords.svelte';
+	import { groupEvents } from '#lib/card-index/era-groups/era-groups.ts';
 	import { sortsOf, type CardIndexSort } from '#lib/card-index/card-index-sort/card-index-sort.ts';
 
 	type Props = {
-		entries: { id: string; name: string; note: string; year?: number; span?: boolean }[];
+		entries: {
+			id: string;
+			name: string;
+			note: string;
+			year?: number;
+			yearFrom: number | null;
+			yearTo: number;
+			span?: boolean;
+		}[];
 		query?: string;
 		sort?: CardIndexSort;
 	};
 
 	let { entries, query = $bindable(''), sort = $bindable('name') }: Props = $props();
 
-	let records = $derived(
-		entries.map((entry) => ({
-			...entry,
-			icon: entry.span ? MoveHorizontal : CircleDot,
-			iconLabel: entry.span ? m.cardIndex.eventKinds.span : m.cardIndex.eventKinds.single
-		}))
+	let eras = $derived(
+		groupEvents(
+			entries.map((entry) => ({
+				...entry,
+				icon: entry.span ? MoveHorizontal : CircleDot,
+				iconLabel: entry.span ? m.cardIndex.eventKinds.span : m.cardIndex.eventKinds.single
+			}))
+		)
 	);
 </script>
 
@@ -38,11 +49,13 @@
 	</Button>
 {/snippet}
 
-<CardIndexList
+<CardIndexEraRecords
 	actions={adds}
 	empty={m.cardIndex.emptyEvents}
+	eraEmpty={m.cardIndex.emptyEraEvents}
+	{eras}
+	foldingKey="study-atelier:card-index-folded-event-eras"
 	href={eventPath}
-	{records}
 	searchLabel={m.cardIndex.search.events}
 	sorts={sortsOf('events')}
 	bind:query
