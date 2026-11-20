@@ -99,6 +99,7 @@
 			error={nameError}
 			label={m.common.name}
 			maxlength={NAME_MAX_LENGTH}
+			required
 			bind:value={form.name}
 		/>
 		<div class="category">
@@ -108,6 +109,7 @@
 				narrowColumns={2}
 				onchange={chooseCategory}
 				options={tiles}
+				required
 				value={form.category}
 			/>
 			{#if categoryError}

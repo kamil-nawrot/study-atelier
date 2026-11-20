@@ -2747,7 +2747,10 @@ export const pl = {
 				`${years} ${plural(years, { one: 'rok', few: 'lata', many: 'lat' })}`,
 			artworksOfTime: 'Dzieła z tego czasu',
 			noArtworks: 'W tym czasie nie powstało żadne dzieło z Twojej kolekcji.',
-			showWhole: 'Pokaż cały okres na osi'
+			showWhole: 'Pokaż cały okres na osi',
+			source: 'Na podstawie Wikipedii, CC BY-SA 4.0',
+			details: 'Pokaż szczegóły',
+			close: 'Zamknij panel wydarzenia'
 		},
 		deleteConfirm: {
 			title: (name: string): string => `Usunąć wydarzenie „${name}”?`,

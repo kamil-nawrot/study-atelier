@@ -1,4 +1,4 @@
-# 0332. Return the style question to the recognition of an artwork
+# 0336. Return the style question to the recognition of an artwork
 
 - Status: accepted
 - Date: 2026-11-19

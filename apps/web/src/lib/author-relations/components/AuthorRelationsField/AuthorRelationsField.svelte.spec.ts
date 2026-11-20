@@ -34,7 +34,10 @@ describe('AuthorRelationsField', () => {
 			page.getByRole('combobox', { name: m.authorRelations.type }),
 			m.authorRelations.types.pupilFrom
 		);
-		await userEvent.fill(page.getByRole('combobox', { name: m.authorRelations.search }), 'verr');
+		await userEvent.fill(
+			page.getByRole('combobox', { name: m.authorRelations.search }).last(),
+			'verr'
+		);
 		await userEvent.click(page.getByRole('option', { name: verrocchio.name }));
 
 		await expect
@@ -50,7 +53,10 @@ describe('AuthorRelationsField', () => {
 		field([{ key: 'raphael', type: 'influenceTo', author: raphael }]);
 
 		await userEvent.click(page.getByRole('button', { name: m.authorRelations.add }));
-		await userEvent.fill(page.getByRole('combobox', { name: m.authorRelations.search }), 'a');
+		await userEvent.fill(
+			page.getByRole('combobox', { name: m.authorRelations.search }).last(),
+			'a'
+		);
 
 		await expect.element(page.getByRole('option', { name: verrocchio.name })).toBeVisible();
 		expect(page.getByRole('option', { name: 'Leonardo da Vinci' }).query()).toBeNull();
@@ -61,7 +67,10 @@ describe('AuthorRelationsField', () => {
 		field([]);
 
 		await userEvent.click(page.getByRole('button', { name: m.authorRelations.add }));
-		await userEvent.fill(page.getByRole('combobox', { name: m.authorRelations.search }), 'zz');
+		await userEvent.fill(
+			page.getByRole('combobox', { name: m.authorRelations.search }).last(),
+			'zz'
+		);
 
 		await expect.element(page.getByText(m.authorRelations.noMatch)).toBeVisible();
 	});
@@ -80,7 +89,7 @@ describe('AuthorRelationsField', () => {
 		await expect.element(first).toHaveAttribute('aria-invalid', 'true');
 		await expect.element(second).not.toHaveAttribute('aria-invalid');
 		await expect
-			.element(page.getByRole('combobox', { name: m.authorRelations.search }))
+			.element(page.getByRole('combobox', { name: m.authorRelations.search }).last())
 			.toHaveAttribute('aria-invalid', 'true');
 		await userEvent.click(
 			page.getByRole('button', { name: m.authorRelations.removeEmpty, exact: true })

@@ -33,4 +33,4 @@ Chosen by the owner on 2026-11-16: without any artwork to recognise, the round h
 
 ## More information
 
-- The style rule is replaced by [ADR-0332](0332-return-the-style-question-to-the-recognition-of-an-artwork.md): the style quiz is again a recognition question, so a round has no style questions of its own. The rule of the year and order questions stays.
+- The style rule is replaced by [ADR-0336](0336-return-the-style-question-to-the-recognition-of-an-artwork.md): the style quiz is again a recognition question, so a round has no style questions of its own. The rule of the year and order questions stays.

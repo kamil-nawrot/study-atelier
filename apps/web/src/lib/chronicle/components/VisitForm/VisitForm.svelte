@@ -233,6 +233,7 @@
 					maxlength={VALUE_NAME_MAX_LENGTH}
 					onpick={trip ? pickTripCity : undefined}
 					options={placeOptions}
+					required
 					single
 					bind:query={form.placeQuery}
 					bind:values={form.place}

@@ -27,7 +27,7 @@
 </script>
 
 <fieldset class="date" aria-describedby={hintId}>
-	<legend>{legend}</legend>
+	<legend>{legend}<span class="required-mark" aria-hidden="true">*</span></legend>
 	<div class="parts">
 		<TextField
 			autocomplete="off"
@@ -55,6 +55,7 @@
 			label={m.chronicle.form.year}
 			maxlength={4}
 			placeholder={m.chronicle.form.year}
+			required
 			bind:value={year}
 		/>
 	</div>

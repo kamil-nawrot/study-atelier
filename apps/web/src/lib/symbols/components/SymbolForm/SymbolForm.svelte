@@ -99,6 +99,7 @@
 				error={errors.current.name}
 				label={m.common.name}
 				maxlength={SYMBOL_NAME_MAX_LENGTH}
+				required
 				bind:value={form.name}
 			/>
 

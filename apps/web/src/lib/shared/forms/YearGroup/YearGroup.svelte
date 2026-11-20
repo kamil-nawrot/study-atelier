@@ -5,11 +5,12 @@
 		title: string;
 		labelFor?: string;
 		columns?: boolean;
+		required?: boolean;
 		aside: Snippet;
 		children: Snippet;
 	};
 
-	let { title, labelFor, columns = false, aside, children }: Props = $props();
+	let { title, labelFor, columns = false, required = false, aside, children }: Props = $props();
 
 	const titleId = $props.id();
 </script>
@@ -17,7 +18,7 @@
 <div class="group" aria-labelledby={titleId} role="group">
 	<div class="head">
 		<svelte:element this={labelFor ? 'label' : 'span'} id={titleId} class="title" for={labelFor}>
-			{title}
+			{title}{#if required}<span class="required-mark" aria-hidden="true">*</span>{/if}
 		</svelte:element>
 		<div class="aside">
 			{@render aside()}

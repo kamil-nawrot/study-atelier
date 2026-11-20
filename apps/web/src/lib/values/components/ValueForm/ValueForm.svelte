@@ -239,6 +239,7 @@
 								: undefined}
 							label={m.common.name}
 							maxlength={VALUE_NAME_MAX_LENGTH}
+							required
 							bind:value={form.name}
 						/>
 						{#if form.author}
@@ -350,6 +351,7 @@
 			label={m.cardIndex.moveConfirm.pick}
 			options={eraMove.remaining.map((code) => ({ value: code, label: eraName(code) }))}
 			placeholder={m.valueForm.chooseEra}
+			required
 			bind:value={moveTo}
 		/>
 	{/if}

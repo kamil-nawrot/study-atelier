@@ -20,6 +20,8 @@
 		labelAside?: Snippet;
 		action?: Snippet;
 		filling?: boolean;
+		required?: boolean;
+		inside?: Snippet;
 	};
 
 	let {
@@ -34,6 +36,8 @@
 		labelAside,
 		action,
 		filling = false,
+		required = false,
+		inside,
 		id,
 		disabled,
 		...rest
@@ -51,7 +55,9 @@
 <div class="field">
 	{#if !hideLabel}
 		<div class="label-row">
-			<label for={inputId}>{label}</label>
+			<label for={inputId}
+				>{label}{#if required}<span class="required-mark" aria-hidden="true">*</span>{/if}</label
+			>
 			{@render labelAside?.()}
 		</div>
 	{/if}
@@ -63,6 +69,7 @@
 				aria-describedby={message ? messageId : undefined}
 				aria-invalid={error ? true : undefined}
 				aria-label={hideLabel ? label : undefined}
+				aria-required={required || undefined}
 				{disabled}
 				readonly={filling || undefined}
 				type={inputType}
@@ -72,6 +79,7 @@
 			{#if filling}
 				<FillingLines />
 			{/if}
+			{@render inside?.()}
 			{#if type === 'password'}
 				<button
 					class="reveal"

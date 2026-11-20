@@ -23,7 +23,7 @@ vi.mock('$app/navigation', () => ({ goto: vi.fn() }));
 const onchanged = vi.fn();
 
 function field(label: string): ReturnType<typeof page.getByLabelText> {
-	return page.getByLabelText(label, { exact: true });
+	return page.getByLabelText(new RegExp(`^${label}\\*?$`));
 }
 
 async function fillPasswords(current: string, next: string): Promise<void> {

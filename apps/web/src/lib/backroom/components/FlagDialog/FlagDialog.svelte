@@ -199,6 +199,7 @@
 			hint={m.backroom.commentHint}
 			label={m.backroom.commentLabel}
 			maxlength={FLAG_COMMENT_MAX}
+			required={chosen?.reason === 'other'}
 			bind:value={comment}
 		/>
 	</Form>

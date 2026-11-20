@@ -230,12 +230,14 @@
 				error={errors.current.name}
 				label={m.common.name}
 				maxlength={EVENT_NAME_MAX_LENGTH}
+				required
 				bind:value={form.name}
 			/>
 
 			<YearGroup
 				columns={form.spanMode}
 				labelFor={form.spanMode ? undefined : yearToId}
+				required
 				title={form.spanMode ? m.timeline.form.spanTitle : m.timeline.form.year}
 			>
 				{#snippet aside()}
@@ -257,6 +259,7 @@
 						filling={filling?.dates}
 						label={m.artworkForm.spanFrom}
 						placeholder={m.artworkForm.spanFrom}
+						required
 						bind:value={form.yearFrom}
 						bind:beforeCommonEra={form.fromBeforeCommonEra}
 					/>
@@ -268,6 +271,7 @@
 					filling={filling?.dates}
 					label={form.spanMode ? m.artworkForm.spanTo : m.timeline.form.year}
 					placeholder={form.spanMode ? m.artworkForm.spanTo : undefined}
+					required
 					bind:value={form.yearTo}
 					bind:beforeCommonEra={form.toBeforeCommonEra}
 				/>

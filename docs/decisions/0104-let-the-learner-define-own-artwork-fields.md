@@ -1,6 +1,6 @@
 # 0104. Let the learner define their own artwork fields
 
-- Status: accepted
+- Status: accepted; the dialog "Nowe pole" and the rule that a list value cannot be deleted are superseded by [0334](0334-give-own-fields-a-form-page-a-closed-list-and-deletable-values.md)
 - Date: 2026-10-21
 
 ## Context and problem statement

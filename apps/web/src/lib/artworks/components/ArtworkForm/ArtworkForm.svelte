@@ -226,6 +226,7 @@
 				autocomplete="off"
 				error={fieldErrors.current.title}
 				label={m.artworkForm.title}
+				required
 				bind:value={form.title}
 			/>
 
@@ -236,6 +237,7 @@
 					label={m.artworkForm.authors}
 					maxlength={VALUE_NAME_MAX_LENGTH}
 					options={options('author')}
+					required
 					bind:query={form.queries.author}
 					bind:values={form.values.author}
 				/>

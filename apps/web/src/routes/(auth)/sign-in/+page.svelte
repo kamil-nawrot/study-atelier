@@ -53,6 +53,7 @@
 			autocomplete="email"
 			error={emailError}
 			label={m.common.email}
+			required
 			type="email"
 			bind:value={email}
 		/>
@@ -60,6 +61,7 @@
 			autocomplete="current-password"
 			error={passwordError}
 			label={m.common.password}
+			required
 			type="password"
 			bind:value={password}
 		>

@@ -105,6 +105,7 @@
 				autocomplete="email"
 				error={emailFieldError}
 				label={m.settings.account.newEmail}
+				required
 				type="email"
 				bind:value={newEmail}
 			>
@@ -130,6 +131,7 @@
 				autocomplete="current-password"
 				error={currentError}
 				label={m.settings.account.currentPassword}
+				required
 				type="password"
 				bind:value={currentPassword}
 			/>
@@ -138,6 +140,7 @@
 				error={newError}
 				hint={m.validation.passwordHint(MIN_PASSWORD_LENGTH)}
 				label={m.settings.account.newPassword}
+				required
 				type="password"
 				bind:value={newPassword}
 			/>
