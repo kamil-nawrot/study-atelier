@@ -93,6 +93,9 @@ describe('BackroomView', () => {
 
 		await expect.element(page.getByText(m.backroom.count(1))).toBeInTheDocument();
 		expect(page.getByText('Undated').elements()).toHaveLength(0);
+		await expect
+			.element(page.getByRole('link', { name: m.backroom.fixAll }))
+			.toHaveAttribute('href', '/atelier/4/edit');
 		preventNavigation();
 		await userEvent.click(page.getByRole('link', { name: m.backroom.fixAll }));
 		expect(fixSession.progressFor('/atelier/4/edit')).toEqual({ position: 2, total: 2 });

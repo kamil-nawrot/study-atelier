@@ -431,6 +431,24 @@ describe('edit artwork page', () => {
 			.not.toBeInTheDocument();
 	});
 
+	it('does not say that a value the artwork already has is not on a closed list', async () => {
+		const motifs: OwnFieldDefinition = {
+			id: 'motifs',
+			name: 'Motifs',
+			description: null,
+			kind: 'list',
+			multiple: true,
+			closed: true,
+			typeCodes: []
+		};
+		renderPage({ artwork: artwork({ own: { motifs: ['Putto'] } }), ownFields: [motifs] }, '7', {
+			motifs: ['Angel', 'Putto']
+		});
+
+		await page.getByRole('combobox', { name: 'Motifs' }).fill('Putto');
+		await expect.element(page.getByText(m.ownFields.notOnList('Putto'))).not.toBeInTheDocument();
+	});
+
 	it('asks before dropping the values of own fields the new type does not take', async () => {
 		const ownFields: OwnFieldDefinition[] = [
 			{

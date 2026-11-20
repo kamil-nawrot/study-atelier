@@ -26,6 +26,15 @@
 		return field.closed ? options.filter((option) => option.kind !== 'new') : options;
 	}
 
+	function ownEmptyText(field: OwnFieldDefinition): string | undefined {
+		if (!field.closed) return undefined;
+		const query = ownQuery(field).trim();
+		const listed = suggestValues({ query, existing: values[field.id] ?? [], selected: [] }).some(
+			(option) => option.kind !== 'new'
+		);
+		return listed ? undefined : m.ownFields.notOnList(query);
+	}
+
 	function ownQuery(field: OwnFieldDefinition): string {
 		return form.ownQueries[field.id] ?? '';
 	}
@@ -60,7 +69,7 @@
 		/>
 	{:else if field.kind === 'list'}
 		<ValueField
-			emptyText={field.closed ? m.ownFields.notOnList(ownQuery(field).trim()) : undefined}
+			emptyText={ownEmptyText(field)}
 			hint={field.description ?? undefined}
 			label={field.name}
 			maxlength={VALUE_NAME_MAX_LENGTH}

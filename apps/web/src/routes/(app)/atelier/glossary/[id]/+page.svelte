@@ -16,14 +16,13 @@
 	import TermFragments from '#lib/glossary/components/TermFragments/TermFragments.svelte';
 	import GlossaryView from '#lib/glossary/components/GlossaryView/GlossaryView.svelte';
 	import { deleteGlossaryEntry } from '#lib/glossary/glossary-data/glossary-data.ts';
+	import { glossaryListPath } from '#lib/glossary/glossary-tab/glossary-tab.ts';
 	import SymbolUses from '#lib/symbols/components/SymbolUses/SymbolUses.svelte';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
-
-	const glossaryPath = resolve('/(app)/atelier/glossary');
 
 	let toast: Toast;
 	let deleteOpen = $state(false);
@@ -34,6 +33,7 @@
 	const images = new WallImages();
 
 	let entry = $derived(data.entry);
+	let listPath = $derived(glossaryListPath(entry));
 	let pinned = $derived(data.pinned ?? []);
 	let pinIds = $derived(new Map(pinned.map((item) => [item.artwork.id, item.pinId])));
 	let artworks = $derived(images.apply(pinned.map((item) => item.artwork)));
@@ -84,7 +84,7 @@
 			return;
 		}
 		deleteOpen = false;
-		await goto(glossaryPath, {
+		await goto(listPath, {
 			refreshAll: true,
 			state: { glossaryMessage: m.glossary.view.deleted(entry.name) }
 		});
@@ -93,7 +93,7 @@
 
 <AtelierLayout email={data.session.user.email ?? ''} {title}>
 	{#snippet bar()}
-		<BackLink fallbackHref={glossaryPath} fallbackName={m.glossary.back} />
+		<BackLink fallbackHref={listPath} fallbackName={m.glossary.back} />
 		{#if entry}
 			<Button
 				aria-label={m.common.edit}
@@ -151,7 +151,7 @@
 		{/if}
 	{:else}
 		<LoadFailure
-			backHref={glossaryPath}
+			backHref={listPath}
 			backLabel={m.glossary.back}
 			heading={title}
 			message={data.notFound ? m.glossary.view.notFound : (data.error ?? '')}
