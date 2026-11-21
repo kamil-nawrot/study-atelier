@@ -48,9 +48,9 @@ begin
   insert into public.glossary_entries (name, category, definition) values ('Sfumato', 'technique', 'Soft shading')
     returning id into held;
   insert into public.glossary_entries (name, category) values ('Impasto', 'technique') returning id into undefined_term;
-  insert into public.glossary_entries (name, category) values ('Saint Peter', 'person') returning id into peter;
+  insert into public.glossary_entries (name, category) values ('Saint Peter', 'sacred') returning id into peter;
   insert into public.glossary_entries (name, category) values
-    ('Saint Paul', 'person'), ('Saint Jerome', 'person'), ('Mary Magdalene', 'person');
+    ('Saint Paul', 'sacred'), ('Saint Jerome', 'scholar'), ('Mary Magdalene', 'sacred');
 
   perform public.record_extra_review(overdue, null, due_card, answer || '{"mode": "quiz_definition"}', '2026-11-13T00:00:00Z');
   perform public.record_extra_review(waiting, null, later_card, answer || '{"mode": "quiz_definition"}', '2026-11-13T00:00:00Z');

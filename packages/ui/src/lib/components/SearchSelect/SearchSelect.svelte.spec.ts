@@ -89,7 +89,7 @@ describe('searchKey', () => {
 		render(SearchSelect, {
 			label: 'Kraj',
 			options,
-			create: { label: (name: string) => `Dodaj ${name}`, onselect }
+			create: [{ label: (name: string) => `Dodaj ${name}`, onselect }]
 		});
 
 		await userEvent.fill(field(), 'Hiszpania');
@@ -99,11 +99,35 @@ describe('searchKey', () => {
 		await expect.element(field()).toHaveValue('');
 	});
 
+	it('offers every create action in its order and runs the chosen one', async () => {
+		const first = vi.fn();
+		const second = vi.fn();
+		render(SearchSelect, {
+			label: 'Kraj',
+			options,
+			create: [
+				{ label: (name: string) => `Dodaj pojęcie ${name}`, onselect: first },
+				{ label: (name: string) => `Dodaj postać ${name}`, onselect: second }
+			]
+		});
+
+		await userEvent.fill(field(), 'Dionizos');
+
+		const names = await page.getByRole('option').elements();
+		expect(names.map((option) => option.textContent?.trim())).toEqual([
+			'Dodaj pojęcie Dionizos',
+			'Dodaj postać Dionizos'
+		]);
+		await page.getByRole('option', { name: 'Dodaj postać Dionizos' }).click();
+		expect(second).toHaveBeenCalledWith('Dionizos');
+		expect(first).not.toHaveBeenCalled();
+	});
+
 	it('does not offer to create a name that is already on the list', async () => {
 		render(SearchSelect, {
 			label: 'Kraj',
 			options,
-			create: { label: (name: string) => `Dodaj ${name}`, onselect: vi.fn() }
+			create: [{ label: (name: string) => `Dodaj ${name}`, onselect: vi.fn() }]
 		});
 
 		await userEvent.fill(field(), 'polska');

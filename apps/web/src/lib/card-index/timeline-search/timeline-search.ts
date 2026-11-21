@@ -33,8 +33,10 @@ export function narrowTimeline(
 			sort
 		);
 
+	const eras = sort === 'newest' ? [...timeline.eras].reverse() : timeline.eras;
+
 	return {
-		eras: timeline.eras
+		eras: eras
 			.map((era) => {
 				const named = term !== '' && normalizeForSearch(m.eras[era.code].name).includes(term);
 				return {

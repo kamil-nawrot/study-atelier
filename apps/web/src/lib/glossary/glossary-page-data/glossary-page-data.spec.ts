@@ -3,7 +3,7 @@ import { loadCardIndex } from '#lib/card-index/card-index-data/card-index-data.t
 import { emptyCardIndex } from '#lib/card-index/card-index/card-index.ts';
 import { loadGlossaryEntry, loadTermIndex } from '#lib/glossary/glossary-data/glossary-data.ts';
 import { testEntry } from '#lib/testing/glossary/glossary.ts';
-import { loadGlossaryForm } from './glossary-page-data.ts';
+import { loadGlossaryForm, requestedKind } from './glossary-page-data.ts';
 
 vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({
 	loadGlossaryEntry: vi.fn(),
@@ -25,9 +25,25 @@ describe('loadGlossaryForm', () => {
 		await expect(loadGlossaryForm()).resolves.toEqual({
 			entry: undefined,
 			entries: [entry],
-			index: emptyCardIndex()
+			index: emptyCardIndex(),
+			kind: 'term'
 		});
 		expect(loadGlossaryEntry).not.toHaveBeenCalled();
+	});
+
+	it('gives a new entry the kind of the tab it came from', async () => {
+		await expect(loadGlossaryForm(undefined, 'figure')).resolves.toMatchObject({ kind: 'figure' });
+		expect(requestedKind('figure')).toBe('figure');
+		expect(requestedKind('person')).toBe('term');
+		expect(requestedKind(null)).toBe('term');
+	});
+
+	it('gives an edited entry the kind of its category', async () => {
+		vi.mocked(loadGlossaryEntry).mockResolvedValue({
+			entry: { ...entry, category: 'artist' }
+		});
+
+		await expect(loadGlossaryForm('a-apse', 'term')).resolves.toMatchObject({ kind: 'figure' });
 	});
 
 	it('reads the edited entry by its id', async () => {
@@ -49,6 +65,7 @@ describe('loadGlossaryForm', () => {
 		await expect(loadGlossaryForm('a-apse')).resolves.toEqual({
 			entries: [],
 			index: emptyCardIndex(),
+			kind: 'term',
 			error: 'Brak sieci.'
 		});
 	});

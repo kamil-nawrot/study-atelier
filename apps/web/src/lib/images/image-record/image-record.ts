@@ -1,8 +1,9 @@
 import {
+	checkedOwnImageUrls,
 	ownImageUrl,
-	ownImageUrls,
 	uploadOwnImage
 } from '#lib/images/own-image-data/own-image-data.ts';
+import { reportImageCheck } from '#lib/images/broken-images/broken-images.ts';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 import type { StoredImage } from '#lib/images/types/stored-image.ts';
 import { storedPalette } from '#lib/images/palette/palette.ts';
@@ -52,10 +53,10 @@ export function imageRecord(image: StoredImage): ImageRow & { id?: string } {
 }
 
 export function imageOf(
-	row: ImageRow & { id?: string; palette?: Json | null }
+	row: ImageRow & { id?: string; palette?: Json | null; broken_at?: string | null }
 ): ArtworkImageInput | null {
 	const size = { width: row.image_width, height: row.image_height };
-	const id = row.id ? { id: row.id } : {};
+	const id = row.id ? { id: row.id, ...(row.broken_at ? { broken: true as const } : {}) } : {};
 	const colours = storedPalette(row.palette);
 	const palette = colours ? { palette: colours } : {};
 	if (row.own_image_path)
@@ -110,7 +111,16 @@ export async function withPreviews(
 ): Promise<(ArtworkImageInput | null)[]> {
 	const paths = images.map(uploadPath).filter((path): path is string => path !== null);
 	if (paths.length === 0) return images;
-	const urls = await ownImageUrls(paths);
+	const { urls, missing } = await checkedOwnImageUrls(paths);
+	for (const image of images) {
+		if (image?.kind !== 'upload' || !image.id) continue;
+		const broken = missing.includes(image.path);
+		if (!broken && !urls.has(image.path)) continue;
+		reportImageCheck(
+			{ id: image.id, column: 'own_image_path', value: image.path, broken },
+			image.broken === true
+		);
+	}
 	return images.map((image) =>
 		image?.kind === 'upload' ? { ...image, previewUrl: urls.get(image.path) } : image
 	);

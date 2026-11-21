@@ -22,7 +22,7 @@ type EraMove = {
 };
 
 export function emptyCardIndex(): CardIndexData {
-	return { values: [], periodEras: [], stylePeriods: [] };
+	return { values: [], periodEras: [], authorEras: [], stylePeriods: [] };
 }
 
 function byName<T extends { name: string; sortName?: string }>(a: T, b: T): number {
@@ -30,7 +30,12 @@ function byName<T extends { name: string; sortName?: string }>(a: T, b: T): numb
 }
 
 function entry(record: CardIndexRecord): CardIndexEntry {
-	return { id: record.id, name: record.name, count: record.count };
+	return {
+		id: record.id,
+		name: record.name,
+		count: record.count,
+		...(record.firstYear === undefined ? {} : { firstYear: record.firstYear })
+	};
 }
 
 export function valuesOf(data: CardIndexData, category: CategoryCode): CardIndexRecord[] {

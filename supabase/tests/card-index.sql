@@ -18,14 +18,22 @@ declare
   renaissance uuid;
   mannerism uuid;
   trashed uuid;
+  eyck uuid;
 begin
-  perform public.save_artwork('{"title": "Mona Lisa", "era_code": "early_modern"}',
+  perform public.save_artwork('{"title": "Mona Lisa", "era_code": "early_modern", "year_to": 1503}',
     '{"author": ["Leonardo da Vinci"], "location": ["Louvre"], "period": ["Renaissance"], "style": ["Sfumato"]}');
-  select id into trashed from public.save_artwork('{"title": "Saint Anne", "era_code": "early_modern"}',
+  select id into trashed from public.save_artwork('{"title": "Saint Anne", "era_code": "early_modern", "year_from": 1480, "year_to": 1500}',
     '{"author": ["Leonardo da Vinci"], "period": ["Renaissance"]}');
   update public.artworks set deleted_at = now() where id = trashed;
   perform public.save_visit('{"visited_on": "2026-10-12", "date_precision": "day"}', 'Louvre', '{}');
   insert into public.category_values (category_code, name) values ('period', 'Mannerism') returning id into mannerism;
+  perform public.save_artwork('{"title": "Arnolfini Portrait", "era_code": "middle_ages", "year_to": 1434}',
+    '{"author": ["Jan van Eyck"]}');
+  perform public.save_artwork('{"title": "Ghent Altarpiece", "era_code": "middle_ages", "year_from": 1420, "year_to": 1432}',
+    '{"author": ["Jan van Eyck"]}');
+  perform public.save_artwork('{"title": "Undated panel", "era_code": "early_modern"}', '{"author": ["Jan van Eyck"]}');
+  perform public.save_artwork('{"title": "Panel without an era"}', '{"author": ["Jan van Eyck"]}');
+  select id into eyck from public.category_values where category_code = 'author' and name = 'Jan van Eyck';
 
   select id into leonardo from public.category_values where category_code = 'author' and name = 'Leonardo da Vinci';
   select id into louvre from public.category_values where category_code = 'location' and name = 'Louvre';
@@ -55,6 +63,15 @@ begin
   assert (select item from jsonb_array_elements(index -> 'values') as item where (item ->> 'id')::uuid = louvre)
     @> '{"visit_count": 1, "country_code": "FR", "place_type": "museum"}',
     'card_index drops the visits, the country or the type of a place';
+  assert (select item from jsonb_array_elements(index -> 'values') as item where (item ->> 'id')::uuid = renaissance)
+    @> '{"first_year": 1480}',
+    'card_index gives a period another first year than the oldest artwork of it';
+  assert (select item from jsonb_array_elements(index -> 'values') as item where (item ->> 'id')::uuid = louvre)
+    @> '{"first_year": 1503}',
+    'card_index gives a place another first year than the oldest artwork of it';
+  assert (select not (item ? 'first_year') from jsonb_array_elements(index -> 'values') as item
+      where (item ->> 'id')::uuid = mannerism),
+    'card_index gives a value without artworks a first year';
   assert (select not (item ? 'country_code') from jsonb_array_elements(index -> 'values') as item
       where (item ->> 'id')::uuid = renaissance),
     'card_index gives a period the details of another value';
@@ -64,6 +81,19 @@ begin
   assert index -> 'style_periods' = (select jsonb_agg(to_jsonb(usage)) from public.style_period_usage() as usage),
     'card_index answers the periods of the styles unlike style_period_usage';
   assert jsonb_array_length(index -> 'style_periods') = 2, 'card_index misses a period of a style';
+  assert (select jsonb_agg(item order by item ->> 'era_code') from jsonb_array_elements(index -> 'author_eras') as item
+      where (item ->> 'author_id')::uuid = eyck)
+    = jsonb_build_array(
+      jsonb_build_object('author_id', eyck, 'era_code', 'early_modern', 'artwork_count', 1),
+      jsonb_build_object('author_id', eyck, 'era_code', 'middle_ages', 'artwork_count', 2, 'oldest_year', 1420)),
+    'card_index answers other eras of an author than the eras of their artworks';
+  assert (select item from jsonb_array_elements(index -> 'author_eras') as item
+      where (item ->> 'author_id')::uuid = leonardo)
+    = jsonb_build_object('author_id', leonardo, 'era_code', 'early_modern', 'artwork_count', 2, 'oldest_year', 1480),
+    'card_index counts the eras of an author unlike their artwork count';
+  assert not exists (select 1 from jsonb_array_elements(index -> 'author_eras') as item
+      where (item ->> 'author_id')::uuid not in (select id from public.category_values where category_code = 'author')),
+    'card_index gives an era to a value that is not an author';
 end;
 $$;
 
@@ -72,7 +102,7 @@ select set_config('request.jwt.claims',
 
 do $$
 begin
-  assert public.card_index() = '{"values": [], "period_eras": [], "style_periods": []}'::jsonb,
+  assert public.card_index() = '{"values": [], "period_eras": [], "author_eras": [], "style_periods": []}'::jsonb,
     'B sees the card index of A';
 end;
 $$;

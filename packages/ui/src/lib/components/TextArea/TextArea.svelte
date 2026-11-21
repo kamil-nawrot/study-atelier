@@ -29,6 +29,7 @@
 		id,
 		rows = 5,
 		maxlength,
+		required = false,
 		...rest
 	}: Props = $props();
 
@@ -45,8 +46,10 @@
 </script>
 
 <div class="field">
-	<label for={inputId}>{label}</label>
-	<div class="control" class:filling>
+	<label for={inputId}
+		>{label}{#if required}<span class="required-mark" aria-hidden="true">*</span>{/if}</label
+	>
+	<div class="control" class:counted class:filling>
 		<textarea
 			id={inputId}
 			style:--max-rows={maxRows}
@@ -56,12 +59,22 @@
 			aria-busy={filling || undefined}
 			aria-describedby={describedBy}
 			aria-invalid={error ? true : undefined}
+			aria-required={required || undefined}
 			{disabled}
 			{maxlength}
 			readonly={filling || undefined}
 			{rows}
 			bind:value
 			{...rest}></textarea>
+		{#if counted}
+			<span class="counter">
+				<FieldMessage
+					id={counterId}
+					error={full ? `${value.length}/${maxlength}` : undefined}
+					hint={`${value.length}/${maxlength}`}
+				/>
+			</span>
+		{/if}
 		{#if filling}
 			<FillingLines lines={Math.max(1, Math.min(4, Number(rows) - 2))} />
 			{#if fillingNote}
@@ -69,21 +82,8 @@
 			{/if}
 		{/if}
 	</div>
-	{#if message || counted}
-		<div class="messages">
-			{#if message}
-				<FieldMessage id={messageId} {error} {hint} />
-			{/if}
-			{#if counted}
-				<span class="counter">
-					<FieldMessage
-						id={counterId}
-						error={full ? `${value.length}/${maxlength}` : undefined}
-						hint={`${value.length}/${maxlength}`}
-					/>
-				</span>
-			{/if}
-		</div>
+	{#if message}
+		<FieldMessage id={messageId} {error} {hint} />
 	{/if}
 </div>
 
@@ -127,6 +127,33 @@
 		border-color: var(--color-danger);
 	}
 
+	.control.counted {
+		border: var(--border-width-base) solid var(--color-line);
+		background: var(--color-surface);
+	}
+
+	.control.counted textarea {
+		border: 0;
+		background: transparent;
+	}
+
+	.control.counted textarea.limited {
+		max-height: calc(var(--max-rows) * 1lh + 2 * var(--spacing-3));
+	}
+
+	.control.counted:has(textarea.invalid) {
+		border-color: var(--color-danger);
+	}
+
+	.control.counted:has(textarea:focus-visible) {
+		outline: var(--border-width-base) dashed var(--color-fg);
+		outline-offset: calc(var(--border-width-base) + var(--border-width-hairline));
+	}
+
+	.control.counted textarea:focus-visible {
+		outline: none;
+	}
+
 	textarea::placeholder {
 		color: var(--color-fg-muted);
 	}
@@ -155,13 +182,15 @@
 		cursor: not-allowed;
 	}
 
-	.messages {
-		display: flex;
-		gap: var(--spacing-3);
+	.control.counted:has(textarea:disabled) {
+		border-color: var(--color-tag);
+		background: var(--color-tag);
 	}
 
 	.counter {
-		margin-left: auto;
+		display: flex;
+		justify-content: flex-end;
+		padding: 0 var(--spacing-3) var(--spacing-1);
 		font-variant-numeric: tabular-nums;
 	}
 </style>

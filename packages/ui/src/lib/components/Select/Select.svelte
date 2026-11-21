@@ -33,6 +33,7 @@
 		iconOnPhone = false,
 		placeholderUntilChosen = false,
 		id,
+		required = false,
 		...rest
 	}: Props = $props();
 
@@ -43,7 +44,9 @@
 </script>
 
 <div class="field" class:compact class:icon-on-phone={iconOnPhone && !!icon}>
-	<label class:visually-hidden={hideLabel} for={selectId}>{label}</label>
+	<label class:visually-hidden={hideLabel} for={selectId}
+		>{label}{#if required}<span class="required-mark" aria-hidden="true">*</span>{/if}</label
+	>
 	<div class="control" class:invalid={!!error || !!rest['aria-invalid']} class:with-icon={!!icon}>
 		{#if icon}
 			<span class="glyph">
@@ -54,6 +57,7 @@
 			id={selectId}
 			aria-describedby={message ? messageId : undefined}
 			aria-invalid={error ? true : undefined}
+			aria-required={required || undefined}
 			{...rest}
 			bind:value
 		>

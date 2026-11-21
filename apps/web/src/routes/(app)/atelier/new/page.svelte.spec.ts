@@ -342,7 +342,7 @@ describe('add artwork page', () => {
 		await addValue(periodField(), 'Pointillism');
 		await addValue(styleField(), 'Neo-impressionism');
 
-		await expect.element(page.getByText('Pointillism', { exact: true })).toBeVisible();
+		await expect.element(periodField()).toHaveValue('Pointillism');
 		await expect.element(page.getByText('Neo-impressionism', { exact: true })).toBeVisible();
 	});
 
@@ -489,6 +489,7 @@ describe('add artwork page', () => {
 				description: null,
 				kind: 'list',
 				multiple: false,
+				closed: false,
 				typeCodes: []
 			},
 			{
@@ -497,6 +498,7 @@ describe('add artwork page', () => {
 				description: 'Book and page',
 				kind: 'text',
 				multiple: false,
+				closed: false,
 				typeCodes: []
 			},
 			{
@@ -505,6 +507,7 @@ describe('add artwork page', () => {
 				description: null,
 				kind: 'flag',
 				multiple: false,
+				closed: false,
 				typeCodes: []
 			}
 		];

@@ -1,3 +1,4 @@
+import { createRawSnippet, type ComponentProps } from 'svelte';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
@@ -6,10 +7,17 @@ import { eraYearsText } from '#lib/catalogue/eras/eras.ts';
 import { TimelineFolding } from '#lib/card-index/timeline-folding/timeline-folding.svelte.ts';
 import CardIndexEra from './CardIndexEra.svelte';
 
-const era = {
-	code: 'antiquity' as const,
-	periods: [{ id: 'p-classical', name: 'Klasycyzm', count: 1, styles: [] }]
-};
+const content = createRawSnippet(() => ({ render: () => '<a href="/p-classical">Klasycyzm</a>' }));
+
+function props(filled = true): ComponentProps<typeof CardIndexEra> {
+	return {
+		code: 'antiquity' as const,
+		empty: m.cardIndex.emptyEra,
+		filled,
+		folding: folding(),
+		children: content
+	};
+}
 
 function folding(): TimelineFolding {
 	return new TimelineFolding(() => ({ query: '', matched: [], periods: [] }));
@@ -21,7 +29,7 @@ describe('CardIndexEra', () => {
 	});
 
 	it('names the era with a link to its page and its years', async () => {
-		render(CardIndexEra, { props: { era, folding: folding() } });
+		render(CardIndexEra, { props: props() });
 
 		await expect.element(page.getByRole('heading', { name: m.eras.antiquity.name })).toBeVisible();
 		await expect
@@ -31,7 +39,7 @@ describe('CardIndexEra', () => {
 	});
 
 	it('folds its periods with the chevron named by the era', async () => {
-		render(CardIndexEra, { props: { era, folding: folding() } });
+		render(CardIndexEra, { props: props() });
 		const chevron = page.getByRole('button', { name: m.eras.antiquity.name });
 
 		await expect.element(chevron).toHaveAttribute('aria-expanded', 'true');
@@ -42,8 +50,8 @@ describe('CardIndexEra', () => {
 		await expect.element(page.getByRole('link', { name: /Klasycyzm/ })).not.toBeInTheDocument();
 	});
 
-	it('says an unfolded era has no periods yet', async () => {
-		render(CardIndexEra, { props: { era: { ...era, periods: [] }, folding: folding() } });
+	it('says what an unfolded era without records lacks', async () => {
+		render(CardIndexEra, { props: props(false) });
 
 		await expect.element(page.getByText(m.cardIndex.emptyEra)).toBeVisible();
 	});

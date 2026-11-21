@@ -14,11 +14,3 @@ export function changedOn(iso: string, now = new Date()): string {
 		? m.exhibitions.changedToday
 		: shortDate(iso, now);
 }
-
-export function archivedSince(iso: string): string {
-	return m.trash.deletedOn(
-		new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric' }).format(
-			new Date(iso)
-		)
-	);
-}

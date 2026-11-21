@@ -4,7 +4,6 @@ export type PlannedScope = {
 	scope: ReviewScope;
 	known: number;
 	fresh: number;
-	styles: number;
 	years: number;
 	orders: number;
 	artworks: number;

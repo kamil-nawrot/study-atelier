@@ -103,8 +103,9 @@
 	}
 
 	.handle {
+		justify-content: center;
 		gap: var(--spacing-2);
-		min-width: 0;
+		min-width: var(--size-control);
 		padding: 0 var(--spacing-3);
 		overflow: hidden;
 		color: var(--color-fg);

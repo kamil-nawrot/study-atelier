@@ -5,6 +5,7 @@
 	import ArtworkSearch from '#lib/exhibitions/components/ArtworkSearch/ArtworkSearch.svelte';
 	import TermSearch from '#lib/exhibitions/components/TermSearch/TermSearch.svelte';
 	import SymbolSearch from '#lib/exhibitions/components/SymbolSearch/SymbolSearch.svelte';
+	import type { GlossaryKind } from '#lib/glossary/types/glossary-kind.ts';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import type { SymbolOption } from '#lib/symbols/types/symbol-option.ts';
 	import NewTermDialog from '#lib/glossary/components/NewTermDialog/NewTermDialog.svelte';
@@ -70,11 +71,13 @@
 	let artworkKind = $state<ArtworkKind>('artwork');
 	let glossaryKind = $state<'term' | 'symbol'>('term');
 	let newName = $state('');
+	let newKind = $state<GlossaryKind>('term');
 	let termOpen = $state(false);
 	let symbolOpen = $state(false);
 
-	function newTerm(name: string): void {
+	function newTerm(name: string, kind: GlossaryKind): void {
 		newName = name;
+		newKind = kind;
 		termOpen = true;
 	}
 
@@ -167,7 +170,13 @@
 		{/if}
 	</section>
 </FilterSidePanel>
-<NewTermDialog name={newName} entries={terms} onadded={termAdded} bind:open={termOpen} />
+<NewTermDialog
+	name={newName}
+	entries={terms}
+	kind={newKind}
+	onadded={termAdded}
+	bind:open={termOpen}
+/>
 <NewSymbolDialog name={newName} onadded={symbolAdded} bind:open={symbolOpen} />
 
 <style>

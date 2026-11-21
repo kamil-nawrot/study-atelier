@@ -13,6 +13,7 @@
 <NewTermDialog
 	name={entries.termName}
 	entries={entries.terms}
+	kind={entries.termKind}
 	onadded={entries.termAdded}
 	bind:open={entries.termOpen}
 />

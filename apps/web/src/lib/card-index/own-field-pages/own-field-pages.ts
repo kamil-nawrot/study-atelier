@@ -28,6 +28,14 @@ export function ownFieldPath(id: string): ResolvedPathname {
 	return resolve('/(app)/atelier/fields/[id]', { id });
 }
 
+export function newOwnFieldPath(): ResolvedPathname {
+	return resolve('/(app)/atelier/fields/new');
+}
+
+export function editOwnFieldPath(id: string): ResolvedPathname {
+	return resolve('/(app)/atelier/fields/[id]/edit', { id });
+}
+
 export function ownValuePath(fieldId: string, valueId: string): ResolvedPathname {
 	return resolve('/(app)/atelier/fields/[id]/values/[valueId]', { id: fieldId, valueId });
 }
@@ -39,6 +47,11 @@ export async function loadOwnFieldPage(id: string): Promise<OwnFieldPageData> {
 	const fields = withOwnValues(definitions.fields, cardIndex.ownValues);
 	const field = fields.find((candidate) => candidate.id === id);
 	return field ? { field, fields } : { fields, error: m.ownFields.page.notFound, notFound: true };
+}
+
+export async function loadNewOwnFieldPage(): Promise<OwnFieldPageData> {
+	const { fields, error } = await loadOwnFields();
+	return error ? { fields: [], error } : { fields };
 }
 
 export async function loadOwnValuePage(

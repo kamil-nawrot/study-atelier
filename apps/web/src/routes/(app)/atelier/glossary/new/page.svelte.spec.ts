@@ -3,9 +3,11 @@ import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { beforeNavigate, goto } from '$app/navigation';
 import { m } from '#lib/i18n/i18n.ts';
+import { FIGURE_CATEGORIES, TERM_CATEGORIES } from '#lib/glossary/categories/categories.ts';
 import { saveGlossaryEntry } from '#lib/glossary/glossary-data/glossary-data.ts';
 import { searchArticles } from '#lib/glossary/wikipedia/wikipedia.ts';
 import { fetchForms } from '#lib/glossary/wiktionary/wiktionary.ts';
+import type { GlossaryKind } from '#lib/glossary/types/glossary-kind.ts';
 import type { WikipediaArticle } from '#lib/glossary/types/wikipedia-article.ts';
 import { autoFetch } from '#lib/profile/auto-fetch/auto-fetch.svelte.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
@@ -34,12 +36,16 @@ vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 const NAWA = testArticle('Nawa', 'Nawa to podłużna część wnętrza kościoła.');
 const TRANSEPT = testArticle('Transept', 'Transept to nawa poprzeczna.');
 
-function renderNew(error?: string): void {
+function renderNew(error?: string, kind: GlossaryKind = 'term'): void {
 	render(NewGlossaryPage, {
 		data: {
 			session: testSession(),
-			entries: [testEntry('a-tympanum', 'Tympanum')],
+			entries: [
+				testEntry('a-tympanum', 'Tympanum'),
+				testEntry('a-zeus', 'Zeus', { category: 'myth' })
+			],
 			index: testCardIndex(),
+			kind,
 			error
 		},
 		params: {}
@@ -72,6 +78,10 @@ async function fillAndSearch(
 	await vi.advanceTimersByTimeAsync(700);
 }
 
+async function showForms(): Promise<void> {
+	await page.getByRole('button', { name: m.glossary.form.showForms, exact: true }).click();
+}
+
 describe('new glossary entry page', () => {
 	beforeEach(async () => {
 		vi.clearAllMocks();
@@ -94,11 +104,12 @@ describe('new glossary entry page', () => {
 		await expect
 			.element(page.getByRole('heading', { level: 1 }))
 			.toHaveTextContent(m.glossary.form.newTitle);
-		await expect
-			.element(nameField())
-			.toHaveAttribute('placeholder', m.glossary.form.namePlaceholder);
-		for (const name of Object.values(m.glossary.categoryNames)) {
-			await expect.element(category(name)).toBeInTheDocument();
+		await expect.element(nameField()).not.toHaveAttribute('placeholder');
+		for (const code of TERM_CATEGORIES) {
+			await expect.element(category(m.glossary.categoryNames[code])).toBeInTheDocument();
+		}
+		for (const code of FIGURE_CATEGORIES) {
+			await expect.element(category(m.glossary.categoryNames[code])).not.toBeInTheDocument();
 		}
 		await expect
 			.element(definitionField())
@@ -108,6 +119,41 @@ describe('new glossary entry page', () => {
 		await expect
 			.element(page.getByRole('link', { name: m.common.cancel }))
 			.toHaveAttribute('href', '/atelier/glossary');
+	});
+
+	it('titles the form of a figure and offers only the figure categories', async () => {
+		renderNew(undefined, 'figure');
+
+		await expect
+			.element(page.getByRole('heading', { level: 1 }))
+			.toHaveTextContent(m.glossary.form.newFigureTitle);
+		await expect.element(nameField()).not.toHaveAttribute('placeholder');
+		for (const code of FIGURE_CATEGORIES) {
+			await expect.element(category(m.glossary.categoryNames[code])).toBeInTheDocument();
+		}
+		for (const code of TERM_CATEGORIES) {
+			await expect.element(category(m.glossary.categoryNames[code])).not.toBeInTheDocument();
+		}
+
+		await nameField().fill('Herkules');
+		await category(m.glossary.categoryNames.myth).click();
+		await saveButton().click();
+
+		expect(saveGlossaryEntry).toHaveBeenCalledWith(
+			expect.objectContaining({ name: 'Herkules', category: 'myth' }),
+			undefined
+		);
+	});
+
+	it('says the name is taken by a figure when a term takes the name of a figure', async () => {
+		renderNew();
+
+		await nameField().fill('zeus');
+		await category(m.glossary.categoryNames.general).click();
+		await saveButton().click();
+
+		await expect.element(page.getByText(m.glossary.form.nameTaken('zeus', true))).toBeVisible();
+		expect(saveGlossaryEntry).not.toHaveBeenCalled();
 	});
 
 	it('requires a name and a category', async () => {
@@ -405,6 +451,7 @@ describe('new glossary entry page', () => {
 	it('saves the entry with its source and other forms, then opens its page with a toast', async () => {
 		renderNew();
 		await fillAndSearch([NAWA]);
+		await showForms();
 		await page.getByRole('combobox', { name: m.glossary.form.forms }).fill('nawy');
 		await userEvent.keyboard('{Enter}');
 		await page.getByRole('combobox', { name: m.glossary.form.forms }).fill('nawie');
@@ -458,8 +505,10 @@ describe('new glossary entry page', () => {
 		);
 	});
 
-	it('keeps the forms of a new entry open while the learner adds them', async () => {
+	it('keeps the forms of a new entry closed until the learner opens them, then open while adding', async () => {
 		renderNew();
+		expect(page.getByRole('combobox', { name: m.glossary.form.forms }).elements()).toHaveLength(0);
+		await showForms();
 		const forms = page.getByRole('combobox', { name: m.glossary.form.forms });
 
 		await forms.fill('nawy');
@@ -476,6 +525,7 @@ describe('new glossary entry page', () => {
 		vi.mocked(fetchForms).mockReturnValue(new Promise(() => {}));
 		renderNew();
 		await fillAndSearch([NAWA]);
+		await showForms();
 
 		const forms = page.getByRole('combobox', { name: m.glossary.form.forms });
 		await expect.element(forms).toHaveAttribute('readonly');
@@ -521,22 +571,27 @@ describe('new glossary entry page', () => {
 		await expect.element(page.getByText('nawy', { exact: true })).not.toBeInTheDocument();
 	});
 
-	it('says Wiktionary has no entry and leaves the forms open for typing', async () => {
+	it('says Wiktionary has no entry and lets the learner open the forms for typing', async () => {
 		renderNew();
 		await fillAndSearch([NAWA]);
 
 		await expect.element(page.getByText(m.glossary.form.formsNone)).toBeVisible();
+		await showForms();
 		await expect.element(page.getByRole('combobox', { name: m.glossary.form.forms })).toBeVisible();
 	});
 
-	it('does not ask Wiktionary for a person or a name of more than two words', async () => {
-		renderNew();
+	it('does not ask Wiktionary for a figure', async () => {
+		renderNew(undefined, 'figure');
 		await nameField().fill('Giorgio Vasari');
-		await category(m.glossary.categoryNames.person).click();
+		await category(m.glossary.categoryNames.artist).click();
 		await vi.advanceTimersByTimeAsync(700);
 
 		await expect.element(page.getByText(m.glossary.form.formsSkipped)).toBeVisible();
+		expect(fetchForms).not.toHaveBeenCalled();
+	});
 
+	it('does not ask Wiktionary for a name of more than two words', async () => {
+		renderNew();
 		await nameField().fill('ołtarz z predellą boczną');
 		await category(m.glossary.categoryNames.architecture).click();
 		await vi.advanceTimersByTimeAsync(700);
@@ -561,6 +616,7 @@ describe('new glossary entry page', () => {
 	it('offers a form that differs from the name only by its diacritics, but not the name itself', async () => {
 		renderNew();
 		await nameField().fill('Nawa');
+		await showForms();
 		const forms = page.getByRole('combobox', { name: m.glossary.form.forms });
 
 		await forms.fill('nawa');
@@ -582,11 +638,11 @@ describe('new glossary entry page', () => {
 		);
 	});
 
-	it('warns that a person is already an author of the card index and links to the author', async () => {
-		renderNew();
+	it('warns that a figure is already an author of the card index and links to the author', async () => {
+		renderNew(undefined, 'figure');
 
 		await nameField().fill('Phidias');
-		await category(m.glossary.categoryNames.person).click();
+		await category(m.glossary.categoryNames.artist).click();
 
 		await expect
 			.element(page.getByRole('link', { name: 'Phidias' }))
@@ -598,7 +654,7 @@ describe('new glossary entry page', () => {
 		expect(saveGlossaryEntry).toHaveBeenCalled();
 	});
 
-	it('does not warn about an author for another category or another name', async () => {
+	it('does not warn about an author for a term', async () => {
 		renderNew();
 
 		await nameField().fill('Phidias');
@@ -606,8 +662,12 @@ describe('new glossary entry page', () => {
 		await expect
 			.element(page.getByText(m.glossary.form.authorWarningSuffix.trim()))
 			.not.toBeInTheDocument();
+	});
 
-		await category(m.glossary.categoryNames.person).click();
+	it('does not warn about an author for another name', async () => {
+		renderNew(undefined, 'figure');
+
+		await category(m.glossary.categoryNames.scholar).click();
 		await nameField().fill('Praxiteles');
 
 		await expect

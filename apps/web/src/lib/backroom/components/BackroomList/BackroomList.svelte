@@ -1,6 +1,7 @@
 <script lang="ts">
 	import BookA from '@lucide/svelte/icons/book-a';
 	import Check from '@lucide/svelte/icons/check';
+	import ImageOff from '@lucide/svelte/icons/image-off';
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Shapes from '@lucide/svelte/icons/shapes';
 	import { Button, Icon, Tag } from '@study-atelier/ui';
@@ -39,7 +40,9 @@
 	{#each rows as row, index (row.entry.key)}
 		<li>
 			<div class="thumbnail">
-				{#if row.artwork?.image}
+				{#if row.imageBroken}
+					<span class="mark"><Icon icon={ImageOff} /></span>
+				{:else if row.artwork?.image}
 					<img
 						alt=""
 						loading="lazy"
@@ -59,7 +62,7 @@
 				{#if row.kind === 'artwork'}
 					<cite class="artwork-title">{row.title}</cite>
 				{:else}
-					<span class="name">{row.title}</span>
+					<span class="artwork-title">{row.title}</span>
 				{/if}
 				<span class="reason">{row.reason}</span>
 				{#if row.origin || row.held}
@@ -147,11 +150,6 @@
 		min-width: 0;
 	}
 
-	.artwork-title,
-	.name {
-		font-size: var(--font-size-lg);
-	}
-
 	.reason {
 		font-size: var(--font-size-sm);
 	}
@@ -169,8 +167,6 @@
 
 	.actions {
 		display: flex;
-		flex-direction: column;
-		align-items: stretch;
 		gap: var(--spacing-2);
 	}
 </style>

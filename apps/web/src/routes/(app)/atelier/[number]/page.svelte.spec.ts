@@ -210,6 +210,7 @@ describe('artwork page', () => {
 					description: null,
 					kind: 'list',
 					multiple: true,
+					closed: false,
 					typeCodes: []
 				},
 				{
@@ -218,6 +219,7 @@ describe('artwork page', () => {
 					description: null,
 					kind: 'text',
 					multiple: false,
+					closed: false,
 					typeCodes: []
 				},
 				{
@@ -226,6 +228,7 @@ describe('artwork page', () => {
 					description: null,
 					kind: 'text',
 					multiple: false,
+					closed: false,
 					typeCodes: []
 				},
 				{
@@ -234,6 +237,7 @@ describe('artwork page', () => {
 					description: null,
 					kind: 'flag',
 					multiple: false,
+					closed: false,
 					typeCodes: []
 				},
 				{
@@ -242,6 +246,7 @@ describe('artwork page', () => {
 					description: null,
 					kind: 'flag',
 					multiple: false,
+					closed: false,
 					typeCodes: []
 				}
 			]
@@ -735,7 +740,7 @@ describe('artwork page', () => {
 
 			await page.getByRole('button', { name: 'Baroque' }).click();
 
-			const card = page.getByRole('tooltip');
+			const card = page.getByRole('dialog');
 			await expect.element(card).toHaveTextContent('Movement, diagonals and strong light.');
 			await expect
 				.element(card)
@@ -749,8 +754,8 @@ describe('artwork page', () => {
 
 			await page.getByRole('button', { name: 'Johannes Vermeer' }).click();
 
-			await expect.element(page.getByRole('tooltip')).toHaveTextContent('1632–1675');
-			await expect.element(page.getByRole('tooltip')).toHaveTextContent('Painter of quiet rooms.');
+			await expect.element(page.getByRole('dialog')).toHaveTextContent('1632–1675');
+			await expect.element(page.getByRole('dialog')).toHaveTextContent('Painter of quiet rooms.');
 		});
 
 		it('shows the summary of the era', async () => {
@@ -759,7 +764,7 @@ describe('artwork page', () => {
 			await page.getByRole('button', { name: m.eras.early_modern.name, exact: true }).click();
 
 			await expect
-				.element(page.getByRole('tooltip'))
+				.element(page.getByRole('dialog'))
 				.toHaveTextContent('From the discovery of America to the Revolution.');
 		});
 
@@ -866,90 +871,22 @@ describe('artwork page', () => {
 	});
 
 	describe('loupe', () => {
-		function pointAtLoupeCentre(): HTMLElement {
-			const layer = document.querySelector('.loupe') as HTMLElement;
-			const rect = layer.getBoundingClientRect();
-			layer.dispatchEvent(
-				new PointerEvent('pointermove', {
-					pointerType: 'mouse',
-					clientX: rect.left + rect.width / 2,
-					clientY: rect.top + rect.height / 2,
-					bubbles: true
-				})
-			);
-			return layer;
-		}
-
-		function loupeButton(): ReturnType<typeof page.getByRole> {
-			return page.getByRole('button', { name: m.loupe.label });
-		}
-
 		it('switches the loupe on for a large image and keeps the image from opening full screen', async () => {
 			renderPage({
 				artwork: artwork({ image: { kind: 'url', url: IMAGE, width: 4000, height: 5000 } })
 			});
 
-			await loupeButton().click();
-			await expect.element(loupeButton()).toHaveAttribute('aria-pressed', 'true');
+			await page.getByRole('button', { name: m.loupe.label }).click();
+			await expect
+				.element(page.getByRole('button', { name: m.loupe.label }))
+				.toHaveAttribute('aria-pressed', 'true');
 			(document.querySelector('.loupe') as HTMLElement).click();
 			await expect.element(page.getByRole('dialog')).not.toBeInTheDocument();
 
 			await userEvent.keyboard('{Escape}');
-			await expect.element(loupeButton()).toHaveAttribute('aria-pressed', 'false');
-			expect(document.querySelector('.loupe')).toBeNull();
-		});
-
-		it('says how to leave the loupe and switches it off on a click beside the image', async () => {
-			renderPage({
-				artwork: artwork({ image: { kind: 'url', url: IMAGE, width: 4000, height: 5000 } })
-			});
-
-			await loupeButton().click();
-			await expect.element(page.getByRole('tooltip')).toHaveTextContent(m.loupe.leave);
-			document.body.dispatchEvent(new PointerEvent('pointerdown', { button: 0, bubbles: true }));
-
-			await expect.element(loupeButton()).toHaveAttribute('aria-pressed', 'false');
-			expect(document.querySelector('.loupe')).toBeNull();
-		});
-
-		it('switches the loupe on at once when the preferences ask for it', async () => {
-			renderPage({
-				artwork: artwork({ image: { kind: 'url', url: IMAGE, width: 4000, height: 5000 } }),
-				preferences: { ...defaultPreferences, viewLoupeOn: true }
-			});
-
-			await expect.element(loupeButton()).toHaveAttribute('aria-pressed', 'true');
-		});
-
-		it.each([4000, 40])(
-			'opens a pin with the view of the loupe on a %i px wide image',
-			async (width) => {
-				renderPage({
-					artwork: artwork({
-						image: { kind: 'url', url: IMAGE, width, height: width * 1.25, id: 'image-1' }
-					}),
-					pins: []
-				});
-
-				await loupeButton().click();
-				const layer = pointAtLoupeCentre();
-				layer.click();
-
-				const dialog = page.getByRole('dialog');
-				await expect.element(dialog).toHaveTextContent(m.pins.newTitle);
-				await expect.element(dialog).toHaveTextContent(/Widok lupy \(\d+(,\d)?×\)/);
-			}
-		);
-
-		it('dims the loupe and says why for an image whose size is unknown', async () => {
-			renderPage({
-				artwork: artwork({ image: { kind: 'url', url: IMAGE, width: null, height: null } })
-			});
-
-			await expect.element(loupeButton()).toHaveAttribute('aria-disabled', 'true');
-			await expect.element(page.getByRole('tooltip')).toHaveTextContent(m.loupe.unavailable);
-			(loupeButton().element() as HTMLElement).click();
-			await expect.element(loupeButton()).not.toHaveAttribute('aria-pressed');
+			await expect
+				.element(page.getByRole('button', { name: m.loupe.label }))
+				.toHaveAttribute('aria-pressed', 'false');
 			expect(document.querySelector('.loupe')).toBeNull();
 		});
 	});

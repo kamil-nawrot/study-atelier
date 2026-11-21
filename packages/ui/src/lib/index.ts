@@ -63,10 +63,11 @@ export {
 	scrollForDrag,
 	thumbGeometry
 } from './overlay-scrollbar/overlay-scrollbar.ts';
-export { PopoverState, popoverHold } from './popover-state/popover-state.svelte';
+export { PopoverState, hoverRevealDelay, popoverHold } from './popover-state/popover-state.svelte';
 export type { ArtworkTileImage } from './types/artwork-tile-image';
 export type { ChoiceTile } from './types/choice-tile';
 export type { SearchSelectOption } from './types/search-select-option';
+export type { SearchSelectCreate } from './types/search-select-create';
 export type { SelectOption } from './types/select-option';
 export type { StepOption } from './types/step-option';
 export type { TabOption } from './types/tab-option';

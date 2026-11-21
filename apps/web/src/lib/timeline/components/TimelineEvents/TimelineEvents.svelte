@@ -8,7 +8,7 @@
 	import { cutLabel } from '#lib/timeline/labels/labels.ts';
 	import { NAME_MAX_WIDTH } from '#lib/timeline/label-width/label-width.ts';
 	import { nameTooltipAlign } from '#lib/timeline/name-tooltip/name-tooltip.ts';
-	import { drawnRibbon, namePlace } from '#lib/timeline/name-place/name-place.ts';
+	import { drawnRibbon, placeNames } from '#lib/timeline/name-place/name-place.ts';
 	import { boxStyle } from '#lib/timeline/stage/stage.ts';
 	import type { StageGeometry } from '#lib/timeline/types/stage-geometry.ts';
 	import type { Era } from '#lib/timeline/types/era.ts';
@@ -45,7 +45,7 @@
 
 	let vertical = $derived(geometry.orientation === 'vertical');
 	let perYear = $derived(geometry.length / (layoutSpan ?? geometry.view.span));
-	let laid = $derived(layEvents(events, era, perYear, labelWidth));
+	let laid = $derived(layEvents(events, era, perYear, labelWidth, lanes));
 	let near = $derived(
 		laid
 			.map((item) => ({
@@ -61,29 +61,35 @@
 		start: Math.max(0, geometry.position(era.start)),
 		end: Math.min(geometry.length, geometry.position(era.end))
 	});
-	let visible = $derived(
+	let drawn = $derived(
 		near
 			.filter((shown) => shown.item.lane < lanes)
-			.map((shown) => {
-				const pin = shown.item.shape === 'pin';
-				const drawn = pin
-					? { start: shown.from, end: shown.to }
-					: drawnRibbon(shown.from, shown.to, geometry.length);
-				return {
-					...shown,
-					drawn,
-					place: namePlace(
-						{
-							from: drawn.start,
-							to: drawn.end,
-							pin,
-							inside: shown.item.inside,
-							name: labelWidth(shown.item.event)
-						},
-						bounds
-					)
-				};
-			})
+			.map((shown) => ({
+				...shown,
+				drawn:
+					shown.item.shape === 'pin'
+						? { start: shown.from, end: shown.to }
+						: drawnRibbon(shown.from, shown.to, geometry.length)
+			}))
+	);
+	let places = $derived(
+		placeNames(
+			drawn.map((shown) => ({
+				id: shown.item.event.id,
+				lane: shown.item.lane,
+				pin: shown.item.shape === 'pin',
+				from: shown.drawn.start,
+				to: shown.drawn.end,
+				name: labelWidth(shown.item.event)
+			})),
+			bounds
+		)
+	);
+	let visible = $derived(
+		drawn.map((shown) => ({
+			...shown,
+			place: places.get(shown.item.event.id) ?? { side: 'none' as const, shift: 0 }
+		}))
 	);
 	let hidden = $derived(
 		near.filter((shown) => shown.item.lane >= lanes && shown.to > 0 && shown.from < geometry.length)
@@ -117,7 +123,7 @@
 
 	function align(shown: (typeof visible)[number]): 'start' | 'end' {
 		return nameTooltipAlign(
-			{ from: shown.from, to: shown.to, inside: shown.item.inside },
+			{ from: shown.from, to: shown.to, inside: shown.place.side === 'inside' },
 			geometry.length,
 			vertical
 		);
@@ -125,7 +131,11 @@
 </script>
 
 {#snippet name(shown: (typeof visible)[number])}
-	{#if nameCut(shown.item.event)}
+	{#if shown.place.side === 'none'}
+		<Tooltip align={align(shown)} placement={placement(shown)} text={shown.item.event.name}>
+			<span class="hit" aria-hidden="true"></span>
+		</Tooltip>
+	{:else if nameCut(shown.item.event)}
 		<Tooltip align={align(shown)} placement={placement(shown)} text={shown.item.event.name}>
 			<span style:max-inline-size="{NAME_MAX_WIDTH}px" class="name" aria-hidden="true"
 				>{label(shown.item)}</span
@@ -150,7 +160,8 @@
 		<button
 			style={boxStyle(geometry, { along: (shown.from + shown.to) / 2, across: across(shown.item) })}
 			class="pin"
-			class:before={shown.place.before}
+			class:before={shown.place.side === 'before'}
+			class:nameless={shown.place.side === 'none'}
 			class:selected={shown.item.event.id === selected}
 			class:vertical
 			{@attach shown.item.event.id === selected ? anchorOf : undefined}
@@ -173,8 +184,9 @@
 			})}
 			style:--name-shift="{shown.place.shift}px"
 			class="ribbon"
-			class:before={shown.place.before}
-			class:outside={!shown.item.inside}
+			class:before={shown.place.side === 'before'}
+			class:nameless={shown.place.side === 'none'}
+			class:outside={shown.place.side === 'after' || shown.place.side === 'before'}
 			class:selected={shown.item.event.id === selected}
 			class:vertical
 			{@attach shown.item.event.id === selected ? anchorOf : undefined}
@@ -299,14 +311,27 @@
 		bottom: 100%;
 	}
 
+	.ribbon.nameless > :global(.tooltip),
+	.pin.nameless > :global(.tooltip) {
+		position: absolute;
+		inset: 0;
+	}
+
+	.hit {
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+	}
+
 	.ribbon.selected {
 		border-color: var(--color-highlight);
 		background: var(--color-highlight);
 		color: var(--color-on-fg);
 	}
 
-	.ribbon.selected.outside .name {
-		color: var(--color-fg);
+	.ribbon.selected.outside .name,
+	.pin.selected .name {
+		color: var(--color-highlight);
 	}
 
 	.pin {

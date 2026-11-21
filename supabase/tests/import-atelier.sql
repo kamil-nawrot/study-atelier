@@ -5,7 +5,8 @@ begin;
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-00000000000a', 'owner-a@example.test'),
   ('00000000-0000-0000-0000-00000000000b', 'owner-b@example.test'),
-  ('00000000-0000-0000-0000-00000000000c', 'owner-c@example.test');
+  ('00000000-0000-0000-0000-00000000000c', 'owner-c@example.test'),
+  ('00000000-0000-0000-0000-00000000000d', 'owner-d@example.test');
 
 set local role authenticated;
 select set_config('request.jwt.claims',
@@ -154,7 +155,12 @@ begin
 
   counts := public.import_atelier(payload || jsonb_build_object('exhibit_tiers', jsonb_build_array(
     jsonb_build_object('exhibit', 'collection', 'tier', 1, 'tiers', 9, 'unlocked_at', '2026-10-20T10:00:00Z'),
-    jsonb_build_object('exhibit', 'removed_exhibit', 'tier', 1, 'tiers', 1, 'unlocked_at', '2026-10-20T10:00:00Z'))));
+    jsonb_build_object('exhibit', 'removed_exhibit', 'tier', 1, 'tiers', 1, 'unlocked_at', '2026-10-20T10:00:00Z')))
+    || jsonb_build_object('review_cards', (payload -> 'review_cards') || (
+      select jsonb_agg(card.value || '{"facet": "style"}')
+        from jsonb_array_elements(payload -> 'review_cards') as card
+        where card.value ->> 'facet' = 'date'
+    )));
   assert (counts ->> 'artworks')::integer = 3, 'import_atelier does not count the artworks';
   assert (counts ->> 'learner_flags')::integer = 2, 'import_atelier does not carry the flags';
   assert exists (
@@ -209,6 +215,8 @@ begin
   assert (select document -> 'content' -> 0 -> 'attrs' ->> 'artworkId' from public.exhibitions)
       = (select id::text from public.artworks where title = 'Girl'),
     'an exhibition does not follow the new id of its artwork';
+  assert not exists (select 1 from public.review_cards where facet = 'style'),
+    'the import keeps a style card of an older export';
   assert (select stability from public.review_cards where facet = 'date') = 4
     and (select mode from public.review_log where facet = 'date') = 'year',
     'the date card or its answer does not survive the import';
@@ -302,6 +310,20 @@ begin
   end;
   assert rejected, 'a row that breaks a check was accepted';
   assert (select count(*) from public.artworks) = 0, 'a failed import left rows behind';
+end;
+$$;
+
+select set_config('request.jwt.claims',
+  '{"sub": "00000000-0000-0000-0000-00000000000d", "role": "authenticated"}', true);
+
+do $$
+begin
+  perform public.import_atelier(jsonb_build_object('glossary_entries', jsonb_build_array(
+    jsonb_build_object('id', gen_random_uuid(), 'name', 'Vasari', 'category', 'person'),
+    jsonb_build_object('id', gen_random_uuid(), 'name', 'Apse', 'category', 'architecture'))));
+  assert (select array_agg(entry.category order by entry.name) from public.glossary_entries as entry)
+      = '{architecture,scholar}',
+    'a person of an export made before the figures is not imported as a scholar';
 end;
 $$;
 

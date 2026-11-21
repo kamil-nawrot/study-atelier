@@ -45,9 +45,8 @@ function artworkIdsOf(step: SessionStep): string[] {
 }
 
 function heldItem(item: ReviewItem, holds: Holds): ReviewItem | undefined {
-	const kind = item.facet === 'style' ? 'quiz_style' : item.mode;
-	if (!heldKind(holds, item.artwork.id, kind)) return item;
-	if (holds.artworks.has(item.artwork.id) || item.facet === 'style') return undefined;
+	if (!heldKind(holds, item.artwork.id, item.mode)) return item;
+	if (holds.artworks.has(item.artwork.id)) return undefined;
 	return { artwork: item.artwork, card: item.card, mode: 'flashcard' };
 }
 

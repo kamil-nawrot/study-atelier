@@ -54,12 +54,14 @@ beforeEach(() => forgetCached());
 function cardIndexRows(
 	values: Record<string, unknown>[],
 	periodEras: unknown[] = [],
-	stylePeriods: unknown[] = []
+	stylePeriods: unknown[] = [],
+	authorEras: unknown[] = []
 ): void {
 	rpc.mockResolvedValue({
 		data: {
 			values: values.map((value) => ({ visit_count: 0, ...value })),
 			period_eras: periodEras,
+			author_eras: authorEras,
 			style_periods: stylePeriods
 		},
 		error: null
@@ -111,6 +113,20 @@ describe('loadCardIndex', () => {
 		]);
 	});
 
+	it('keeps the year of the oldest artwork of a value', async () => {
+		cardIndexRows([
+			{ id: 'p1', category_code: 'period', name: 'Barok', artwork_count: 2, first_year: -50 },
+			{ id: 'p2', category_code: 'period', name: 'Gotyk', artwork_count: 0 }
+		]);
+
+		const { index } = await loadCardIndex();
+
+		expect(index.values).toEqual([
+			{ id: 'p1', category: 'period', name: 'Barok', count: 2, firstYear: -50 },
+			{ id: 'p2', category: 'period', name: 'Gotyk', count: 0 }
+		]);
+	});
+
 	it('keeps the number of visits of a place', async () => {
 		cardIndexRows([
 			{ id: 'l1', category_code: 'location', name: 'Louvre', artwork_count: 0, visit_count: 2 },
@@ -139,10 +155,31 @@ describe('loadCardIndex', () => {
 			index: {
 				values: [{ id: 'p1', category: 'period', name: 'Classical', count: 2 }],
 				periodEras: [{ periodId: 'p1', eraCode: 'antiquity', count: 2 }],
+				authorEras: [],
 				stylePeriods: [{ styleId: 's1', periodId: 'p1', count: 1 }]
 			},
 			ownValues: []
 		});
+	});
+
+	it('maps the eras of the authors with their counts and oldest years', async () => {
+		cardIndexRows(
+			[{ id: 'a1', category_code: 'author', name: 'Giotto', artwork_count: 3 }],
+			[],
+			[],
+			[
+				{ author_id: 'a1', era_code: 'middle_ages', artwork_count: 2, oldest_year: 1305 },
+				{ author_id: 'a1', era_code: 'early_modern', artwork_count: 1 },
+				{ author_id: 'a1', era_code: 'unknown', artwork_count: 1 }
+			]
+		);
+
+		const { index } = await loadCardIndex();
+
+		expect(index.authorEras).toEqual([
+			{ authorId: 'a1', eraCode: 'middle_ages', count: 2, oldestYear: 1305 },
+			{ authorId: 'a1', eraCode: 'early_modern', count: 1 }
+		]);
 	});
 
 	it('keeps the values of the learner own list fields apart from the card index', async () => {

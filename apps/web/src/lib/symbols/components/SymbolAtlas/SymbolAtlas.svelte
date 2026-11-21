@@ -82,7 +82,7 @@
 <style>
 	.atlas {
 		display: grid;
-		gap: var(--spacing-6);
+		gap: calc(var(--spacing-6) + var(--spacing-3));
 	}
 
 	.grid {

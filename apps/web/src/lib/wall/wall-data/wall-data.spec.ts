@@ -364,7 +364,7 @@ describe('loadAtelier', () => {
 
 		const artworks = await loadResolved();
 
-		expect(fetchCommonsThumbnails).toHaveBeenCalledWith(['Test.jpg'], 500);
+		expect(fetchCommonsThumbnails).toHaveBeenCalledWith(['Test.jpg'], 500, expect.any(Set));
 		expect(artworks[0].image).toMatchObject({ src: thumbnailUrl, width: 1000, height: 750 });
 		expect(artworks[0].image?.srcset).toContain('960px-Test.jpg 960w');
 		expect(artworks[0].image?.srcset).not.toContain('1280px-');
@@ -700,7 +700,7 @@ describe('resolveImages', () => {
 			pending('b', { ownPath: 'owner/own.jpg' })
 		]);
 
-		expect(fetchCommonsThumbnails).toHaveBeenCalledWith(['A.jpg'], 500);
+		expect(fetchCommonsThumbnails).toHaveBeenCalledWith(['A.jpg'], 500, expect.any(Set));
 		expect(createSignedUrls).toHaveBeenCalledWith(['owner/own.jpg'], expect.any(Number));
 		expect(resolved[0].pendingImage).toBeUndefined();
 		expect(resolved[0].image?.src).toContain('Special:FilePath/A.jpg');
@@ -729,7 +729,7 @@ describe('resolveImages', () => {
 			pending('c', { sourceFile: 'C.jpg' })
 		]);
 
-		expect(fetchCommonsThumbnails).toHaveBeenCalledWith(['C.jpg'], 500);
+		expect(fetchCommonsThumbnails).toHaveBeenCalledWith(['C.jpg'], 500, expect.any(Set));
 		expect(createSignedUrls).not.toHaveBeenCalled();
 		expect(resolved.map((artwork) => artwork.image?.src)).toEqual([
 			'https://upload.wikimedia.org/thumb/a/ab/A.jpg/500px-A.jpg',
@@ -822,7 +822,7 @@ describe('loadTrash', () => {
 		expect(artworks[1].image).toBeUndefined();
 		expect(artworks[2].image).toBeUndefined();
 		expect(artworks[1].pendingImage).toBeUndefined();
-		expect(fetchCommonsThumbnails).toHaveBeenCalledWith(['Test.jpg'], 500);
+		expect(fetchCommonsThumbnails).toHaveBeenCalledWith(['Test.jpg'], 500, expect.any(Set));
 		expect(createSignedUrls).not.toHaveBeenCalled();
 	});
 

@@ -14,6 +14,7 @@
 </script>
 
 <script lang="ts">
+	import type { SearchSelectCreate } from '../../types/search-select-create';
 	import type { SearchSelectOption } from '../../types/search-select-option';
 	import X from '@lucide/svelte/icons/x';
 	import { tick } from 'svelte';
@@ -30,7 +31,8 @@
 		error?: string;
 		disabled?: boolean;
 		id?: string;
-		create?: { label: (query: string) => string; onselect: (query: string) => void };
+		required?: boolean;
+		create?: readonly SearchSelectCreate[];
 	};
 
 	let {
@@ -42,7 +44,8 @@
 		error,
 		disabled = false,
 		id,
-		create
+		required = false,
+		create = []
 	}: Props = $props();
 
 	const CREATE = '\u0000create';
@@ -69,14 +72,20 @@
 			: options
 	);
 	const creatable = $derived(
-		create !== undefined &&
+		create.length > 0 &&
 			typed &&
 			searchKey(query) !== '' &&
 			!options.some((option) => searchKey(option.label) === searchKey(query))
 	);
 	const shown = $derived<readonly SearchSelectOption[]>(
-		creatable && create
-			? [...filtered, { value: CREATE, label: create.label(query.trim()) }]
+		creatable
+			? [
+					...filtered,
+					...create.map((action, index) => ({
+						value: `${CREATE}${index}`,
+						label: action.label(query.trim())
+					}))
+				]
 			: filtered
 	);
 	const expanded = $derived(open && !disabled);
@@ -109,12 +118,15 @@
 	}
 
 	function pick(option: SearchSelectOption): void {
-		if (option.value === CREATE && create) {
+		const action = option.value.startsWith(CREATE)
+			? create[Number(option.value.slice(CREATE.length))]
+			: undefined;
+		if (action) {
 			const name = query.trim();
 			open = false;
 			typed = false;
 			query = selected?.label ?? '';
-			create.onselect(name);
+			action.onselect(name);
 			return;
 		}
 		value = option.value;
@@ -170,7 +182,9 @@
 </script>
 
 <div class="field">
-	<label for={inputId}>{label}</label>
+	<label for={inputId}
+		>{label}{#if required}<span class="required-mark" aria-hidden="true">*</span>{/if}</label
+	>
 	<div class="control" class:disabled class:invalid={!!error}>
 		<input
 			bind:this={input}
@@ -181,6 +195,7 @@
 			aria-describedby={message ? messageId : undefined}
 			aria-expanded={expanded}
 			aria-invalid={error ? true : undefined}
+			aria-required={required || undefined}
 			autocomplete="off"
 			{disabled}
 			onblur={close}

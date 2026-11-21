@@ -425,7 +425,8 @@ export const pl = {
 		sort: {
 			label: 'Kolejność',
 			recent: 'Ostatnio dodane',
-			year: 'Według daty powstania',
+			year: 'Od najstarszych',
+			yearNewest: 'Od najnowszych',
 			author: 'Według autorów'
 		},
 		grouping: {
@@ -627,7 +628,6 @@ export const pl = {
 		styleLocked: 'Najpierw wybierz okres.',
 		material: 'Materiał',
 		location: 'Miejsce',
-		locationHint: 'Gdzie dzieło znajduje się teraz?',
 		notesPlaceholder: 'Co warto zapamiętać? Skąd znasz to dzieło?',
 		notesLinkHint:
 			'Wpisz @, żeby dodać odnośnik do autora, epoki albo miejsca, albo #, żeby dodać odnośnik do dzieła.',
@@ -954,7 +954,6 @@ export const pl = {
 		roundLines: {
 			years: 'Trafiony rok powstania:',
 			orders: 'Poprawnie chronologicznie ułożone dzieła:',
-			styles: 'Poprawnie dopasowane style:',
 			definitions: 'Poprawnie odgadnięte pojęcia:',
 			symbols: 'Poprawnie rozpoznane symbole:',
 			events: 'Trafione daty z Kalendarium:',
@@ -1152,7 +1151,8 @@ export const pl = {
 	},
 	cardIndex: {
 		title: 'Kartoteka',
-		lead: 'Tu porządkujesz swoje epoki, okresy, style, autorów, miejsca i wydarzenia. Możesz też dodać własne pola, żeby dokładniej opisywać dzieła.',
+		openInCardIndex: 'Otwórz w kartotece',
+		lead: 'Kartoteka pozwala Ci porządkować epoki, okresy, style, autorów, miejsca i wydarzenia. Możesz też dodawać własne pola, żeby dokładniej opisywać swoją kolekcję.',
 		loadErrorTitle: 'Nie udało się wczytać Kartoteki',
 		tabsLabel: 'Rodzaje wartości',
 		tabs: {
@@ -1164,6 +1164,9 @@ export const pl = {
 			own: 'Własne pola'
 		},
 		emptyEra: 'W tej epoce nie ma jeszcze okresów.',
+		emptyEraAuthors: 'Żaden autor nie ma jeszcze dzieła z tej epoki.',
+		emptyEraEvents: 'Nie ma jeszcze Twoich wydarzeń z tej epoki.',
+		authorsWithoutEra: 'Autorzy bez dzieł z epoką',
 		periodsWithoutEra: 'Okresy bez epoki',
 		stylesWithoutPeriod: 'Style bez okresu',
 		placesWithoutCountry: 'Miejsca bez kraju',
@@ -1195,9 +1198,9 @@ export const pl = {
 		sorts: {
 			name: 'Według nazwy',
 			count: 'Według liczby dzieł',
-			life: 'Według lat życia',
-			country: 'Według kraju',
-			date: 'Według daty'
+			oldest: 'Od najstarszych',
+			newest: 'Od najnowszych',
+			country: 'Według kraju'
 		},
 		noResults: (query: string): string =>
 			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment nazwy.`,
@@ -1327,8 +1330,12 @@ export const pl = {
 		},
 		oneValue: 'jedna wartość',
 		manyValues: 'kilka wartości',
+		closedList: 'zamknięta',
+		notOnList: (name: string): string =>
+			`Nie ma „${name}” na liście. Nowe wartości dodasz w Kartotece.`,
 		summary: (parts: string[]): string => parts.join(' · '),
 		noValues: 'Nie ma tu jeszcze wartości. Dodaj pierwszą tutaj albo wpisz ją przy dziele.',
+		noValuesClosed: 'Nie ma tu jeszcze wartości. Dodaj pierwszą tutaj.',
 		addValue: 'Dodaj wartość',
 		newValueTitle: (field: string): string => `Nowa wartość pola „${field}”`,
 		added: (name: string): string => `Dodano wartość „${name}”.`,
@@ -1338,12 +1345,16 @@ export const pl = {
 		ticked: 'Tak',
 		form: {
 			newTitle: 'Nowe pole',
+			editTitle: (name: string): string => `Edytuj pole „${name}”`,
 			description: 'Opis (opcjonalnie)',
 			descriptionHint:
 				'Wyjaśnienie, które może w przyszłości pomóc zdecydować, co wpisywać w tym polu.',
 			kind: 'Rodzaj',
 			kindFixed: 'Wybranego rodzaju nie będzie można zmienić po utworzeniu pola.',
 			multiple: 'Dzieło może mieć kilka wartości',
+			closed: 'Tylko wartości z Kartoteki',
+			closedHint:
+				'W formularzu dzieła wybierzesz tylko spośród wartości, które już są na liście. Nowe dodasz na stronie pola w Kartotece.',
 			limited: 'Tylko dla wybranych typów dzieł',
 			types: 'Typy dzieł',
 			typesHint: 'Pole pojawi się tylko przy dziełach tych typów.',
@@ -1368,7 +1379,12 @@ export const pl = {
 			mergeHint: (name: string, count: string): string =>
 				`Masz już „${name}” (${count}). Zapisz, a połączę je w jeden.`,
 			kind: 'wartości',
-			errorTitle: 'Nie udało się zapisać wartości'
+			errorTitle: 'Nie udało się zapisać wartości',
+			deleteTitle: (name: string): string => `Usunąć wartość „${name}”?`,
+			deleteDescription: (field: string): string =>
+				`Żadne dzieło jej nie używa, więc zniknie z listy pola „${field}”.`,
+			deleteBlocked: (count: string): string =>
+				`Ta wartość ma jeszcze ${count}, więc nie da się jej usunąć. Możesz ją połączyć z inną: w edycji zmień jej nazwę na nazwę tamtej.`
 		},
 		errorTitle: 'Nie udało się zmienić pola',
 		loadErrorTitle: 'Nie udało się wczytać własnych pól',
@@ -1455,6 +1471,11 @@ export const pl = {
 		lead: 'Na Zapleczu gromadzą się dzieła i kartki ze Słowniczka, które wymagają poprawki – zarówno te oflagowane przez Ciebie, jak i te z brakami w informacjach. Możesz tutaj zająć się ich porządkowaniem i uzupełnianiem.',
 		menuCount: (count: number): string => `${count} do poprawki`,
 		tabs: { flags: 'Twoje flagi', missing: 'Braki danych' },
+		count: (count: number): string =>
+			`${count} ${plural(count, { one: 'pozycja', few: 'pozycje', many: 'pozycji' })}`,
+		search: 'Szukaj po tytule',
+		noResults: (query: string): string =>
+			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment tytułu.`,
 		fixAll: 'Poprawiaj po kolei',
 		fix: 'Popraw',
 		markFixed: 'Oznacz jako poprawione',
@@ -1476,10 +1497,12 @@ export const pl = {
 			image: 'brak obrazu',
 			definition: 'brak definicji'
 		},
+		brokenImage: (number?: number) =>
+			number === undefined ? 'obraz nie działa' : `obraz ${number} nie działa`,
 		emptyFlagsTitle: 'Nic do poprawki',
 		emptyFlags: 'Gdy coś w pytaniu albo w dziele się nie zgadza, oznacz to flagą. Trafi tutaj.',
 		emptyMissingTitle: 'Niczego nie brakuje',
-		emptyMissing: 'Wszystkie dzieła mają styl, rok i obraz, a pojęcia definicje.',
+		emptyMissing: 'Wszystkie dzieła mają styl, rok i działający obraz, a pojęcia definicje.',
 		loadErrorTitle: 'Nie udało się wczytać Zaplecza',
 		progress: (position: number, total: number): string => `${position} z ${total}`,
 		skip: 'Pomiń',
@@ -1491,9 +1514,8 @@ export const pl = {
 	},
 	pins: {
 		switchLabel: (count: number): string => `Pinezki (${count})`,
-		editorNote: 'Pinezki zapisują się od razu, niezależnie od przycisku „Zapisz”.',
 		editHint:
-			'Wskaż miejsce na obrazie, żeby dodać pinezkę. Przeciągnij pinezkę, żeby ją przesunąć.',
+			'Wskaż miejsce na obrazie, żeby dodać pinezkę. Przeciągnij pinezkę, żeby zmienić jej miejsce. Pinezki zapisują się od razu, niezależnie od dzieła.',
 		imagePins: (count: number): string => `Jego pinezki (${count}) usuną się po zapisaniu.`,
 		placeHere: 'Dodaj pinezkę w tym miejscu',
 		marker: (number: number, name?: string, view = false): string =>
@@ -1502,9 +1524,10 @@ export const pl = {
 		removeView: 'Usuń widok',
 		newTitle: 'Nowa pinezka',
 		title: 'Pinezka',
-		term: 'Pojęcie ze Słowniczka',
-		termPlaceholder: 'Szukaj pojęcia',
+		term: 'Pojęcie lub postać ze Słowniczka',
+		termPlaceholder: 'Szukaj pojęcia lub postaci',
 		createTerm: (name: string): string => `Dodaj pojęcie „${name}”`,
+		createFigure: (name: string): string => `Dodaj postać „${name}”`,
 		symbol: 'Symbol z atlasu',
 		symbolMeaning: 'Znaczenie na tym dziele',
 		text: 'Opis',
@@ -1527,6 +1550,7 @@ export const pl = {
 		tabsLabel: 'Słowniczek',
 		tabs: {
 			terms: 'Pojęcia',
+			figures: 'Postaci',
 			symbols: 'Symbole'
 		},
 		back: 'Słowniczek',
@@ -1546,12 +1570,28 @@ export const pl = {
 		},
 		loadErrorTitle: 'Nie udało się wczytać słowniczka',
 		categoryNames: {
-			person: 'Osoba',
 			architecture: 'Architektura',
 			painting: 'Malarstwo',
 			sculpture: 'Rzeźba',
 			technique: 'Technika i materiał',
-			general: 'Pojęcie ogólne'
+			iconography: 'Ikonografia',
+			general: 'Pojęcie ogólne',
+			ruler: 'Władca',
+			patron: 'Fundator i mecenas',
+			artist: 'Artysta',
+			scholar: 'Uczony i badacz',
+			sacred: 'Postać biblijna i święty',
+			myth: 'Bóstwo i postać mitu'
+		},
+		figures: {
+			count: (count: number): string =>
+				`${count} ${plural(count, { one: 'postać', few: 'postaci', many: 'postaci' })}`,
+			add: 'Dodaj postać',
+			search: 'Szukaj postaci',
+			emptyTitle: 'Nie masz jeszcze żadnej postaci',
+			empty:
+				'Zapisuj tu ludzi, bogów i świętych, których spotykasz w historii sztuki. Gdy pojawią się w notatce, zobaczysz, kim byli.',
+			addFirst: 'Dodaj pierwszą postać'
 		},
 		card: {
 			source: 'Na podstawie Wikipedii, CC BY-SA 4.0',
@@ -1582,8 +1622,10 @@ export const pl = {
 		form: {
 			newTitle: 'Nowe pojęcie',
 			editTitle: 'Edycja pojęcia',
-			namePlaceholder: 'Np. tympanon, sfumato, Lorenzo Medici',
-			nameTaken: (name: string): string => `Masz już w Słowniczku pojęcie „${name}”.`,
+			newFigureTitle: 'Nowa postać',
+			editFigureTitle: 'Edycja postaci',
+			nameTaken: (name: string, figure = false): string =>
+				`Masz już w Słowniczku ${figure ? 'postać' : 'pojęcie'} „${name}”.`,
 			category: 'Kategoria',
 			categoryRequired: 'Wybierz kategorię.',
 			definition: 'Definicja',
@@ -1625,11 +1667,14 @@ export const pl = {
 				'Formy nie pokazują się pod nazwą. Dzięki nim pojęcie znajdzie się w notatkach także odmienione.',
 			authorWarningSuffix:
 				' jest już w Kartotece jako autor. Możesz dodać tę osobę także tutaj albo opisać na stronie autora.',
-			errorTitle: 'Nie udało się zapisać pojęcia'
+			errorTitle: 'Nie udało się zapisać pojęcia',
+			figureErrorTitle: 'Nie udało się zapisać postaci'
 		},
 		quick: {
 			add: 'Dodaj pojęcie',
-			errorTitle: 'Nie udało się dodać pojęcia'
+			addFigure: 'Dodaj postać',
+			errorTitle: 'Nie udało się dodać pojęcia',
+			figureErrorTitle: 'Nie udało się dodać postaci'
 		},
 		articles: {
 			title: 'Który to artykuł?',
@@ -2557,6 +2602,14 @@ export const pl = {
 			'Zapisuj tu swoje wizyty w muzeach, galeriach i zabytkach oraz podróże, podczas których zwiedzasz całe miasto. Przy każdym wpisie możesz zaznaczyć dzieła, które udało Ci się zobaczyć na żywo, i dodać notatkę z wrażeniami.',
 		addFirst: 'Dodaj pierwszy wpis',
 		loadErrorTitle: 'Nie udało się wczytać kroniki',
+		search: 'Szukaj miejsca',
+		sortLabel: 'Sortuj',
+		sorts: {
+			newest: 'Od najnowszych',
+			oldest: 'Od najstarszych'
+		},
+		noResults: (query: string): string =>
+			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment nazwy miejsca.`,
 		back: 'Kronika',
 		seen: (count: number): string => `${workCount(count)} na żywo`,
 		seenCount: (count: number): string =>
@@ -2564,6 +2617,18 @@ export const pl = {
 		kind: 'Wizyta',
 		artworkVisits: (count: number): string => `Widziane na żywo · ${visitCount(count)}`,
 		placeVisits: (count: number): string => `Z Twojej kroniki · ${visitCount(count)}`,
+		tripCountryDialog: {
+			title: 'Czy na pewno zapisać wizytę w tej podróży?',
+			description: (
+				place: string,
+				placeCountry: string,
+				trip: string,
+				tripCountry: string
+			): string =>
+				`Miejsce „${place}” leży w kraju: ${placeCountry}, a podróż „${trip}” dotyczy kraju: ${tripCountry}. Jeśli to pomyłka, wybierz inną podróż albo „Poza podróżą”.`,
+			back: 'Wróć do formularza',
+			confirm: 'Zapisz mimo to'
+		},
 		inYear: (year: number): string => `${year} roku`,
 		saved: (place: string, date: string): string => `Zapisano wizytę: ${place}, ${date}.`,
 		view: {
@@ -2592,7 +2657,7 @@ export const pl = {
 			placeHint: 'Muzeum, galeria albo kościół. Dzieła, które tam są, będą od razu zaznaczone.',
 			placeRequired: 'Wybierz, gdzie była wizyta.',
 			date: 'Data',
-			dateHint: 'Wystarczy sam rok, jeśli dokładniej nie pamiętasz.',
+			dateHint: 'Możesz wpisać datę przybliżoną, dokładny dzień i miesiąc są opcjonalne.',
 			day: 'Dzień',
 			month: 'Miesiąc',
 			year: 'Rok',
@@ -2629,7 +2694,6 @@ export const pl = {
 			view: {
 				visitsTitle: 'Wizyty w czasie podróży',
 				seenTitle: 'Widziane na żywo podczas zwiedzania',
-				noArtworks: 'Do tej podróży nie ma jeszcze dzieł. Kliknij „Edytuj”, żeby je zaznaczyć.',
 				deleted: (dates: string): string => `Usunięto podróż z ${dates}.`
 			},
 			deleteConfirm: {
@@ -2652,6 +2716,8 @@ export const pl = {
 				endBeforeStart: 'Podróż nie może się skończyć, zanim się zaczęła.',
 				endApproximate: 'Bez dokładnych dni podróż ma jedną datę: miesiąc albo rok.',
 				endDayMissing: 'Wpisz dzień wyjazdu.',
+				fromCity: 'Z tego miasta',
+				fromSites: 'Z zabytków w tym mieście',
 				ticked:
 					'Dzieła z miasta i jego zabytków są już zaznaczone. Odznacz to, czego tym razem nie było.',
 				noPlace: 'Po wybraniu miasta pojawią się tu jego dzieła.',
@@ -2661,7 +2727,7 @@ export const pl = {
 	},
 	timeline: {
 		title: 'Kalendarium',
-		lead: 'Twoje dzieła i wydarzenia w prawdziwej skali czasu, epoka po epoce.',
+		lead: 'W Kalendarium zobaczysz, jak Twoja kolekcja wiąże się z biegiem dziejów. W każdej epoce możesz zestawić dzieła i wydarzenia historyczne, aby zyskać nowy kontekst do analizy sztuki.',
 		emptyTitle: 'Kalendarium jest jeszcze puste',
 		empty:
 			'Tutaj zobaczysz swoje dzieła na osi czasu, każde w roku swojego powstania. Dzieła pojawią się same, gdy wpiszesz im datę. Możesz też dodać wydarzenia i okresy historyczne, a ich opis i daty uzupełnić z Wikipedii, żeby widzieć, co działo się w tym samym czasie.',
@@ -2720,13 +2786,17 @@ export const pl = {
 				`${years} ${plural(years, { one: 'rok', few: 'lata', many: 'lat' })}`,
 			artworksOfTime: 'Dzieła z tego czasu',
 			noArtworks: 'W tym czasie nie powstało żadne dzieło z Twojej kolekcji.',
-			showWhole: 'Pokaż cały okres na osi'
+			showWhole: 'Pokaż cały okres na osi',
+			source: 'Na podstawie Wikipedii, CC BY-SA 4.0',
+			details: 'Pokaż szczegóły',
+			close: 'Zamknij panel wydarzenia'
 		},
 		deleteConfirm: {
 			title: (name: string): string => `Usunąć wydarzenie „${name}”?`,
 			description: 'Zniknie z Kalendarium. Żadne dzieło się nie zmieni.'
 		},
 		deleted: (name: string): string => `Usunięto wydarzenie „${name}”.`,
+		openInAtelier: 'Otwórz w atelier',
 		noEvents: 'Nie ma tu jeszcze wydarzeń.',
 		hiddenEvents: (count: number): string =>
 			`${count} ${plural(count, { one: 'wydarzenie', few: 'wydarzenia', many: 'wydarzeń' })} poza widokiem. Przybliż, żeby je zobaczyć.`,
@@ -2735,7 +2805,8 @@ export const pl = {
 		lane: (name: string, count: number): string => `${name} · ${count}`,
 		filters: {
 			lanes: 'Okresy i style',
-			lanesHint: (era: string): string => `Wybierz maksymalnie 5 z epoki ${era}.`,
+			intro:
+				'Wybierz okresy lub style, a każdy z nich dostanie na osi własny wiersz i kolor. Pozostałe filtry zawężają dzieła widoczne w epoce.',
 			lanesFull: 'Wybrano maksymalną liczbę okresów i stylów. Odznacz któryś, żeby wybrać inny.',
 			periods: 'Okresy',
 			styles: 'Style',
@@ -3076,6 +3147,7 @@ export const pl = {
 			termsByName: 'Hasła od A do Z',
 			noTerm: 'Nic nie pasuje. Sprawdź pisownię albo dodaj nowe pojęcie.',
 			createTerm: (name: string): string => `Dodaj pojęcie „${name}”`,
+			createFigure: (name: string): string => `Dodaj postać „${name}”`,
 			noTerms: 'W Słowniczku nie ma jeszcze haseł.',
 			browseGlossary: 'Otwórz Słowniczek…',
 			glossaryAs: 'Dodaj jako',
@@ -3198,8 +3270,26 @@ export const pl = {
 		exhibitionMeta: (count: number, date: string): string => `${workCount(count)} · ${date}`,
 		exhibitionRestored: (title: string): string => `Przywrócono wystawę „${title}”.`,
 		exhibitionDeleteTitle: (title: string): string => `Usunąć wystawę „${title}” na zawsze?`,
-		exhibitionDeleteDescription: 'Zniknie razem ze swoimi tekstami. Dzieła zostaną w atelier.',
-		exhibitionDeleted: (title: string): string => `Usunięto wystawę „${title}” na zawsze.`
+		exhibitionDeleteDescription:
+			'Wystawa zniknie bezpowrotnie. Dzieła z kolekcji zostaną w Atelier.',
+		exhibitionDeleted: (title: string): string => `Usunięto wystawę „${title}” na zawsze.`,
+		clear: 'Wyczyść Archiwum',
+		clearTitle: 'Wyczyścić Archiwum?',
+		clearDescription: (artworks: number, exhibitions: number): string => {
+			const parts = [
+				...(artworks > 0 ? [`${workCount(artworks)} razem z Twoimi obrazami`] : []),
+				...(exhibitions > 0 ? [archivedExhibitionCount(exhibitions)] : [])
+			];
+			const verb =
+				parts.length > 1
+					? 'znikną'
+					: plural(artworks || exhibitions, { one: 'zniknie', few: 'znikną', many: 'zniknie' });
+			return `${parts.join(' i ')} ${verb} bezpowrotnie.`;
+		},
+		clearUnderstood: 'Rozumiem, że tego nie da się cofnąć',
+		clearing: 'Czyszczenie…',
+		cleared: 'Wyczyszczono Archiwum.',
+		clearErrorTitle: 'Nie udało się wyczyścić Archiwum'
 	}
 };
 
@@ -3233,6 +3323,10 @@ function visitCount(count: number): string {
 
 function placeCount(count: number): string {
 	return `${count} ${plural(count, { one: 'miejsce', few: 'miejsca', many: 'miejsc' })}`;
+}
+
+function archivedExhibitionCount(count: number): string {
+	return `${count} ${plural(count, { one: 'wystawa', few: 'wystawy', many: 'wystaw' })}`;
 }
 
 function workCount(count: number): string {

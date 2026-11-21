@@ -81,4 +81,33 @@ describe('definitionItems', () => {
 			}
 		}
 	});
+
+	it('fills a figure question with figures of other categories before terms', () => {
+		const figures = [
+			entry('Charlemagne', 'ruler'),
+			entry('Otto', 'ruler'),
+			entry('Giotto', 'artist'),
+			entry('Duccio', 'artist'),
+			...glossary
+		];
+		const [item] = definitionItems([figures[0]], figures, Math.random);
+
+		const labels = item.quiz.options.map((option) => option.label).sort();
+		expect(labels).toEqual(['Charlemagne', 'Duccio', 'Giotto', 'Otto']);
+	});
+
+	it('fills a term question with terms of other categories before figures', () => {
+		const mixed = [
+			entry('Apse', 'architecture'),
+			entry('Nave', 'architecture'),
+			entry('Impasto', 'technique'),
+			entry('Sfumato', 'technique'),
+			entry('Giotto', 'artist'),
+			entry('Duccio', 'artist')
+		];
+		const [item] = definitionItems([mixed[0]], mixed, Math.random);
+
+		const labels = item.quiz.options.map((option) => option.label).sort();
+		expect(labels).toEqual(['Apse', 'Impasto', 'Nave', 'Sfumato']);
+	});
 });

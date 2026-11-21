@@ -74,10 +74,16 @@ describe('searchQuery', () => {
 		expect(searchQuery('sfumato', 'painting', true)).toBe('sfumato malarstwo');
 	});
 
+	it('adds the hint for iconography and for gods and figures of myth', () => {
+		expect(searchQuery('hodegetria', 'iconography', true)).toBe('hodegetria ikonografia');
+		expect(searchQuery('Dionizos', 'myth', true)).toBe('Dionizos mitologia');
+	});
+
 	it('adds nothing for the other categories or without the hint', () => {
 		expect(searchQuery(' sfumato ', 'technique', true)).toBe('sfumato');
 		expect(searchQuery('idea', 'general', true)).toBe('idea');
-		expect(searchQuery('Dawid', 'person', true)).toBe('Dawid');
+		expect(searchQuery('Dawid', 'ruler', true)).toBe('Dawid');
+		expect(searchQuery('Sebastian', 'sacred', true)).toBe('Sebastian');
 		expect(searchQuery('nawa', 'architecture', false)).toBe('nawa');
 	});
 });
@@ -253,27 +259,50 @@ describe('searchArticles', () => {
 		expect(articles.map((article) => article.title)).toEqual(['Łuk (architektura)']);
 	});
 
-	it('keeps only articles about people for a person, by their Wikidata class', async () => {
+	it.each(['ruler', 'patron', 'artist', 'scholar'] as const)(
+		'keeps only articles about people for the figure category %s, by their Wikidata class',
+		async (category) => {
+			stubWikipedia({
+				Dawid: {
+					hits: [
+						{ pageid: 7, title: 'Dawid (rzeźba)' },
+						{ pageid: 8, title: 'Dawid (król)' }
+					],
+					pages: [
+						page(7, 'Dawid (rzeźba)', 'Dawid to rzeźba Michała Anioła.', { wikibase_item: 'Q1' }),
+						page(8, 'Dawid (król)', 'Dawid był królem Izraela.', { wikibase_item: 'Q2' })
+					],
+					humans: ['Q2']
+				}
+			});
+
+			const articles = await searchArticles('Dawid', category);
+
+			expect(articles.map((article) => article.title)).toEqual(['Dawid (król)']);
+		}
+	);
+
+	it('keeps articles that are not about people for a saint or a figure of myth', async () => {
 		stubWikipedia({
 			Dawid: {
-				hits: [
-					{ pageid: 7, title: 'Dawid (rzeźba)' },
-					{ pageid: 8, title: 'Dawid (król)' }
-				],
-				pages: [
-					page(7, 'Dawid (rzeźba)', 'Dawid to rzeźba Michała Anioła.', { wikibase_item: 'Q1' }),
-					page(8, 'Dawid (król)', 'Dawid był królem Izraela.', { wikibase_item: 'Q2' })
-				],
-				humans: ['Q2']
+				hits: [{ pageid: 7, title: 'Dawid (rzeźba)' }],
+				pages: [page(7, 'Dawid (rzeźba)', 'Dawid to rzeźba.', { wikibase_item: 'Q1' })]
+			},
+			'Dionizos mitologia': {
+				hits: [{ pageid: 9, title: 'Dionizos' }],
+				pages: [page(9, 'Dionizos', 'Dionizos to bóg wina.', { wikibase_item: 'Q3' })]
 			}
 		});
 
-		const articles = await searchArticles('Dawid', 'person');
-
-		expect(articles.map((article) => article.title)).toEqual(['Dawid (król)']);
+		expect((await searchArticles('Dawid', 'sacred')).map((article) => article.title)).toEqual([
+			'Dawid (rzeźba)'
+		]);
+		expect((await searchArticles('Dionizos', 'myth')).map((article) => article.title)).toEqual([
+			'Dionizos'
+		]);
 	});
 
-	it('gives nothing for a person when no article is about a human', async () => {
+	it('gives nothing for a scholar when no article is about a human', async () => {
 		stubWikipedia({
 			Dawid: {
 				hits: [{ pageid: 7, title: 'Dawid (rzeźba)' }],
@@ -281,7 +310,7 @@ describe('searchArticles', () => {
 			}
 		});
 
-		expect(await searchArticles('Dawid', 'person')).toEqual([]);
+		expect(await searchArticles('Dawid', 'scholar')).toEqual([]);
 	});
 
 	it('gives at most five articles', async () => {

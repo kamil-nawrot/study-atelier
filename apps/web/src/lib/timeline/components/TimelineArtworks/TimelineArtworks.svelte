@@ -1,9 +1,8 @@
 <script lang="ts">
+	import { onDestroy } from 'svelte';
 	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
-	import { resolve } from '$app/paths';
-	import { ArtworkTile } from '@study-atelier/ui';
+	import { hoverRevealDelay } from '@study-atelier/ui';
 	import { resolveImages } from '#lib/wall/wall-data/wall-data.ts';
-	import { eraIcon, eraName } from '#lib/catalogue/eras/eras.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { ArtworkLane } from '#lib/timeline/types/artwork-lane.ts';
@@ -13,6 +12,7 @@
 	import { boxStyle } from '#lib/timeline/stage/stage.ts';
 	import type { StageGeometry } from '#lib/timeline/types/stage-geometry.ts';
 	import type { Era } from '#lib/timeline/types/era.ts';
+	import TimelineArtworkPreview from '#lib/timeline/components/TimelineArtworkPreview/TimelineArtworkPreview.svelte';
 
 	type Props = {
 		artworks: readonly WallArtwork[];
@@ -54,10 +54,16 @@
 	const VISIBLE_MARGIN = 40;
 	const PREVIEW_GAP = 8;
 	const LANE_LABEL = 22;
+	const HIDE_DELAY_MS = 150;
+	const PREVIEW_CHROME = 140;
+	const PREVIEW_IMAGE_MIN = 96;
+	const PREVIEW_IMAGE_MAX = 240;
 
 	let hovered = $state<string | null>(null);
 	let pinnedKey = $state<string | null>(null);
 	let previewHeight = $state(0);
+	let hideTimer: ReturnType<typeof setTimeout> | undefined;
+	let revealTimer: ReturnType<typeof setTimeout> | undefined;
 	const resolved = new SvelteMap<string, WallArtwork>();
 	const loading = new SvelteSet<string>();
 
@@ -67,7 +73,10 @@
 	let zoneSize = $derived(geometry.artworksSize);
 	let zoneFrom = $derived(geometry.artworksFrom);
 	let laned = $derived(lanes.length > 0 && !vertical);
-	let before = $derived(Math.max(0, geometry.position(era.start)));
+	let before = $derived(Math.max(0, Math.min(geometry.position(era.start), geometry.length)));
+	let imageHeight = $derived(
+		Math.max(PREVIEW_IMAGE_MIN, Math.min(PREVIEW_IMAGE_MAX, geometry.artworksSize - PREVIEW_CHROME))
+	);
 	let laneMarks = $derived(
 		(laned ? lanes : [undefined]).map((lane) => ({
 			lane,
@@ -128,14 +137,43 @@
 		}
 	}
 
+	function keep(): void {
+		clearTimeout(hideTimer);
+	}
+
+	function stopReveal(): void {
+		clearTimeout(revealTimer);
+	}
+
 	function show(key: string, artwork: WallArtwork): void {
+		stopReveal();
+		keep();
 		hovered = key;
 		void loadImage(artwork);
 	}
 
-	function hide(key: string): void {
-		if (hovered === key) hovered = null;
+	function reveal(key: string, artwork: WallArtwork): void {
+		stopReveal();
+		revealTimer = setTimeout(() => show(key, artwork), hoverRevealDelay());
 	}
+
+	function hide(key: string): void {
+		stopReveal();
+		if (hovered !== key) return;
+		keep();
+		hideTimer = setTimeout(() => {
+			if (hovered === key) hovered = null;
+		}, HIDE_DELAY_MS);
+	}
+
+	function leavePreview(): void {
+		if (hovered !== null) hide(hovered);
+	}
+
+	onDestroy(() => {
+		keep();
+		stopReveal();
+	});
 
 	function choose(key: string, artwork: WallArtwork, event: MouseEvent): void {
 		if (event instanceof PointerEvent && event.pointerType === 'mouse') return;
@@ -234,7 +272,7 @@
 		onclick={(event) => choose(dot.key, dot.mark.item, event)}
 		onfocus={(event) =>
 			event.currentTarget.matches(':focus-visible') && show(dot.key, dot.mark.item)}
-		onpointerenter={(event) => event.pointerType === 'mouse' && show(dot.key, dot.mark.item)}
+		onpointerenter={(event) => event.pointerType === 'mouse' && reveal(dot.key, dot.mark.item)}
 		onpointerleave={(event) => event.pointerType === 'mouse' && hide(dot.key)}
 		type="button"
 	>
@@ -244,32 +282,18 @@
 			<circle cx="5" cy="5" r="5" />
 		</svg>
 	</button>
-{/each}
-
-{#if shown}
-	{@const artwork = artworkOf(shown.mark)}
-	<div
-		style={previewStyle(shown)}
-		class="preview"
-		aria-hidden="true"
-		inert
-		bind:clientHeight={previewHeight}
-	>
-		<ArtworkTile
-			authors={artwork.authors}
+	{#if shown?.key === dot.key}
+		<TimelineArtworkPreview
+			style={previewStyle(shown)}
+			artwork={artworkOf(shown.mark)}
 			date={dateOf(shown.mark)}
-			favourite={artwork.favourite}
-			favouriteLabel={artwork.favourite ? m.favourite.remove : m.favourite.add}
-			href={resolve('/(app)/atelier/[number]', { number: String(artwork.number) })}
-			image={artwork.image}
-			imageUnavailable={artwork.imageUnavailable}
-			mark={artwork.eraCode ? eraIcon(artwork.eraCode) : undefined}
-			markLabel={artwork.eraCode ? eraName(artwork.eraCode) : undefined}
-			number={artwork.number}
-			title={artwork.title}
+			{imageHeight}
+			onkeep={keep}
+			onleave={leavePreview}
+			bind:height={previewHeight}
 		/>
-	</div>
-{/if}
+	{/if}
+{/each}
 
 <style>
 	.mark {
@@ -370,12 +394,5 @@
 	.empty.vertical {
 		text-align: center;
 		transform: translateY(-50%);
-	}
-
-	.preview {
-		position: absolute;
-		z-index: 5;
-		display: grid;
-		pointer-events: none;
 	}
 </style>

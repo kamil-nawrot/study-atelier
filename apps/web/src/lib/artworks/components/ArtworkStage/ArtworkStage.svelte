@@ -12,6 +12,7 @@
 	import { MediaQuery } from 'svelte/reactivity';
 	import { page } from '$app/state';
 	import type { ResolvedPathname } from '$app/types';
+	import { checkCommonsImages } from '#lib/images/broken-images/broken-images.ts';
 	import GiottoFly from '#lib/career/components/GiottoFly/GiottoFly.svelte';
 	import FlipLinks from '#lib/artworks/components/FlipLinks/FlipLinks.svelte';
 	import StageActions from '#lib/artworks/components/StageActions/StageActions.svelte';
@@ -191,6 +192,7 @@
 					<ArtworkImage
 						{alt}
 						height={image.height}
+						onfailed={() => void checkCommonsImages([current])}
 						sizes="(min-width: 768px) 60vw, 100vw"
 						src={image.src}
 						srcset={image.srcset}

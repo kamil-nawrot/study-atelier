@@ -7,9 +7,10 @@
 	type Props = {
 		visit: Visit;
 		stub?: string;
+		wrap?: boolean;
 	};
 
-	let { visit, stub }: Props = $props();
+	let { visit, stub, wrap = false }: Props = $props();
 
 	let text = $derived(stub ?? visit.place);
 
@@ -30,7 +31,7 @@
 	</span>
 	<TicketStub small>
 		{#if text}
-			<span class="place">{text}</span>
+			<span class="place" class:wrap>{text}</span>
 		{/if}
 	</TicketStub>
 </a>
@@ -95,6 +96,16 @@
 		line-height: var(--line-height-lg);
 		text-overflow: ellipsis;
 		white-space: nowrap;
+	}
+
+	.wrap {
+		display: -webkit-box;
+		font-size: var(--font-size-md);
+		line-height: var(--line-height-md);
+		white-space: normal;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		line-clamp: 2;
 	}
 
 	.ticket:hover .place,

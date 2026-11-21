@@ -59,6 +59,7 @@
 			error={nameError}
 			label={m.common.name}
 			maxlength={SYMBOL_NAME_MAX_LENGTH}
+			required
 			bind:value={symbolName}
 		/>
 		<TextField

@@ -98,11 +98,13 @@ afterEach(() => {
 });
 
 describe('suggestsForms', () => {
-	it('suggests forms for one or two words in any category but a person', () => {
+	it('suggests forms for one or two words of a term but not of a figure', () => {
 		expect(suggestsForms('nawa', 'architecture')).toBe(true);
 		expect(suggestsForms(' sklepienie  krzyżowe ', 'architecture')).toBe(true);
 		expect(suggestsForms('ołtarz z predellą bocznego', 'general')).toBe(false);
-		expect(suggestsForms('Giorgio Vasari', 'person')).toBe(false);
+		expect(suggestsForms('hodegetria', 'iconography')).toBe(true);
+		expect(suggestsForms('Giorgio Vasari', 'artist')).toBe(false);
+		expect(suggestsForms('Zeus', 'myth')).toBe(false);
 		expect(suggestsForms('nawa', null)).toBe(false);
 		expect(suggestsForms('  ', 'general')).toBe(false);
 	});

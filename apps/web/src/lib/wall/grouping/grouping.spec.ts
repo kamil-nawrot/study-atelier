@@ -126,6 +126,10 @@ describe('orderWall', () => {
 		expect(orderWall(artworks, 'year').map((item) => item.number)).toEqual([2, 1, 3]);
 	});
 
+	it('orders by the date of creation from the newest, artworks without a year last', () => {
+		expect(orderWall(artworks, 'year-newest').map((item) => item.number)).toEqual([1, 2, 3]);
+	});
+
 	it('keeps equal years in record number order and orders a year span by its end', () => {
 		const ordered = orderWall(
 			[

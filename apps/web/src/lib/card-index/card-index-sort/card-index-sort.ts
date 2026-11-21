@@ -4,7 +4,7 @@ import { readStoredJson, writeStored } from '#lib/shared/utils/storage/storage.t
 
 const SORT_KEY = 'study-atelier:card-index-sort';
 
-export const CARD_INDEX_SORTS = ['name', 'count', 'life', 'country', 'date'] as const;
+export const CARD_INDEX_SORTS = ['name', 'count', 'oldest', 'newest', 'country'] as const;
 
 export type CardIndexSort = (typeof CARD_INDEX_SORTS)[number];
 
@@ -15,14 +15,15 @@ export type SortableRecord = {
 	birthYear?: number;
 	country?: string;
 	year?: number;
+	firstYear?: number;
 };
 
 const TAB_SORTS: Record<string, CardIndexSort[]> = {
-	timeline: ['name', 'count'],
+	timeline: ['name', 'count', 'oldest', 'newest'],
 	material: ['name', 'count'],
-	author: ['name', 'count', 'life'],
+	author: ['name', 'count', 'oldest', 'newest'],
 	location: ['name', 'count'],
-	events: ['name', 'date'],
+	events: ['name', 'oldest', 'newest'],
 	own: ['name', 'count']
 };
 
@@ -58,14 +59,18 @@ function missingLast<T>(
 	return compare(a, b);
 }
 
+function startOf(record: SortableRecord): number | undefined {
+	return record.year ?? record.birthYear ?? record.firstYear;
+}
+
 const COLLATOR = new Intl.Collator(locale);
 
 const COMPARE: Record<CardIndexSort, (a: SortableRecord, b: SortableRecord) => number> = {
 	name: () => 0,
 	count: (a, b) => (b.count ?? 0) - (a.count ?? 0),
-	life: (a, b) => missingLast(a.birthYear, b.birthYear, (x, y) => x - y),
-	country: (a, b) => missingLast(a.country, b.country, COLLATOR.compare),
-	date: (a, b) => missingLast(a.year, b.year, (x, y) => x - y)
+	oldest: (a, b) => missingLast(startOf(a), startOf(b), (x, y) => x - y),
+	newest: (a, b) => missingLast(startOf(a), startOf(b), (x, y) => y - x),
+	country: (a, b) => missingLast(a.country, b.country, COLLATOR.compare)
 };
 
 export function sortRecords<T extends SortableRecord>(

@@ -34,6 +34,22 @@
 		width: auto;
 	}
 
+	.grouping-panel:not(.fill) :global(.steps) {
+		position: relative;
+		padding-block-start: calc(var(--font-size-sm) * var(--line-height-sm) + var(--spacing-3));
+	}
+
+	.grouping-panel:not(.fill) :global(.steps .label) {
+		position: absolute;
+		inset-block-start: 0;
+		inset-inline-start: 0;
+	}
+
+	.grouping-panel:not(.fill) .caption {
+		width: 0;
+		min-width: 100%;
+	}
+
 	.caption {
 		font-variant-numeric: tabular-nums;
 	}

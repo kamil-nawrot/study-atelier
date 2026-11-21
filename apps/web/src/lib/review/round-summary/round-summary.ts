@@ -13,7 +13,6 @@ export function roundSummary(session: ReviewSession, tomorrow: number): SessionS
 		free: session.free,
 		years: session.years,
 		orders: session.orders,
-		styles: session.styles,
 		definitions: extraScoreOf(session.extraAnswers, 'quiz_definition'),
 		symbols: extraScoreOf(session.extraAnswers, 'quiz_symbol'),
 		events: extraScoreOf(session.extraAnswers, 'event_year'),

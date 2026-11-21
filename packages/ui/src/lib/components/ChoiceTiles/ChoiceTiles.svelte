@@ -10,6 +10,7 @@
 		columns?: number;
 		narrowColumns?: number;
 		disabled?: boolean;
+		required?: boolean;
 		onchange?: (value: string | null) => void;
 	};
 
@@ -21,6 +22,7 @@
 		columns,
 		narrowColumns,
 		disabled = false,
+		required = false,
 		onchange
 	}: Props = $props();
 
@@ -49,8 +51,14 @@
 	style:--narrow-columns={narrowColumns ?? (options.length === 4 ? 2 : 3)}
 	{disabled}
 >
-	<legend>{label}</legend>
-	<div class="tiles" class:dense={(narrowColumns ?? 0) >= 4}>
+	<legend
+		>{label}{#if required}<span class="required-mark" aria-hidden="true">*</span>{/if}</legend
+	>
+	<div
+		class="tiles"
+		class:crowded={(columns ?? options.length) > 4}
+		class:dense={(narrowColumns ?? 0) >= 4}
+	>
 		{#each options as option (option.value)}
 			<label class="tile" class:selected={value === option.value}>
 				<input
@@ -59,6 +67,7 @@
 					onchange={() => choose(option.value)}
 					onclick={(event) => clearChosen(event, option)}
 					onkeydown={(event) => onkeydown(event, option)}
+					{required}
 					type="radio"
 					value={option.value}
 				/>
@@ -177,6 +186,12 @@
 
 		.tiles {
 			grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+		}
+	}
+
+	@container (min-width: 600px) and (max-width: 719.98px) {
+		.tiles.crowded {
+			grid-template-columns: repeat(var(--narrow-columns), minmax(0, 1fr));
 		}
 	}
 </style>

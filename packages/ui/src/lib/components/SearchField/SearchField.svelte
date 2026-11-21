@@ -88,6 +88,7 @@
 
 	input::placeholder {
 		color: var(--color-fg-muted);
+		font-size: var(--font-size-sm);
 	}
 
 	.search:has(input:disabled) {
@@ -114,12 +115,6 @@
 
 	.clear:hover {
 		color: var(--color-fg);
-	}
-
-	@media (max-width: 767.98px) {
-		input::placeholder {
-			font-size: var(--font-size-sm);
-		}
 	}
 
 	@media (min-width: 768px) {

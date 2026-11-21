@@ -49,7 +49,10 @@ describe('ArtworkRelationsField', () => {
 			page.getByRole('combobox', { name: m.artworkRelations.type }),
 			m.artworkRelations.types.copyFrom
 		);
-		await userEvent.fill(page.getByRole('combobox', { name: m.artworkRelations.search }), 'the');
+		await userEvent.fill(
+			page.getByRole('combobox', { name: m.artworkRelations.search }).last(),
+			'the'
+		);
 		await userEvent.click(page.getByRole('option', { name: /The Kiss/ }));
 
 		await expect
@@ -65,7 +68,10 @@ describe('ArtworkRelationsField', () => {
 		field([{ key: 'venus', type: 'related', artwork: venus }]);
 
 		await userEvent.click(page.getByRole('button', { name: m.artworkRelations.add }));
-		await userEvent.fill(page.getByRole('combobox', { name: m.artworkRelations.search }), 'the');
+		await userEvent.fill(
+			page.getByRole('combobox', { name: m.artworkRelations.search }).last(),
+			'the'
+		);
 
 		await expect.element(page.getByRole('option', { name: /The Kiss/ })).toBeVisible();
 		expect(page.getByRole('option', { name: /^Mona Lisa/ }).query()).toBeNull();
@@ -86,7 +92,7 @@ describe('ArtworkRelationsField', () => {
 		await expect.element(first).toHaveAttribute('aria-invalid', 'true');
 		await expect.element(second).not.toHaveAttribute('aria-invalid');
 		await expect
-			.element(page.getByRole('combobox', { name: m.artworkRelations.search }))
+			.element(page.getByRole('combobox', { name: m.artworkRelations.search }).last())
 			.toHaveAttribute('aria-invalid', 'true');
 		await userEvent.click(
 			page.getByRole('button', { name: m.artworkRelations.removeEmpty, exact: true })

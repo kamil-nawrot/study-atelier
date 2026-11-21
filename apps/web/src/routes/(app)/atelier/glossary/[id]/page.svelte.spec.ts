@@ -179,9 +179,21 @@ describe('glossary entry page', () => {
 		await page.getByRole('alertdialog').getByRole('button', { name: m.common.delete }).click();
 
 		expect(deleteGlossaryEntry).toHaveBeenCalledWith('a-tympanum');
-		expect(goto).toHaveBeenCalledWith('/atelier/glossary', {
+		expect(goto).toHaveBeenCalledWith('/atelier/glossary?tab=terms', {
 			refreshAll: true,
 			state: { glossaryMessage: m.glossary.view.deleted('Tympanum') }
+		});
+	});
+
+	it('returns to the figures tab after deleting a figure', async () => {
+		renderEntry({ ...tympanum, name: 'Charlemagne', category: 'ruler' });
+
+		await page.getByRole('button', { name: m.common.delete }).click();
+		await page.getByRole('alertdialog').getByRole('button', { name: m.common.delete }).click();
+
+		expect(goto).toHaveBeenCalledWith('/atelier/glossary?tab=figures', {
+			refreshAll: true,
+			state: { glossaryMessage: m.glossary.view.deleted('Charlemagne') }
 		});
 	});
 
@@ -261,13 +273,21 @@ describe('glossary entry page', () => {
 		window.addEventListener('click', stop);
 
 		const link = document.querySelector('a.back') as HTMLAnchorElement;
-		expect(link.getAttribute('href')).toBe('/atelier/glossary');
+		expect(link.getAttribute('href')).toBe('/atelier/glossary?tab=terms');
 		link.click();
 
 		window.removeEventListener('click', stop);
 		expect(followed).toBe(true);
 		expect(go).not.toHaveBeenCalled();
 		go.mockRestore();
+	});
+
+	it('links a figure opened from elsewhere to the figures tab', async () => {
+		setBackPlace(undefined);
+		renderEntry({ ...tympanum, category: 'artist' });
+
+		const link = document.querySelector('a.back') as HTMLAnchorElement;
+		expect(link.getAttribute('href')).toBe('/atelier/glossary?tab=figures');
 	});
 
 	it('lists the artworks whose pins carry the entry and leads to the pin', async () => {

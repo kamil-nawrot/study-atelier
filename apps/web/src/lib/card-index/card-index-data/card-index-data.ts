@@ -67,15 +67,24 @@ export function loadCardIndex(): Promise<CardIndexResult> {
 	return cached(cacheKeys.cardIndex, fetchCardIndex);
 }
 
+type AuthorEraRow = {
+	author_id: string;
+	era_code: string;
+	artwork_count: number;
+	oldest_year?: number;
+};
+
 type CardIndexRow = {
 	values: (UsageRow & {
 		sort_name?: string;
 		birth_year?: number;
+		first_year?: number;
 		country_code?: string;
 		place_type?: string;
 		city_id?: string;
 	})[];
 	period_eras: PeriodEraRow[];
+	author_eras: AuthorEraRow[];
 	style_periods: StylePeriodRow[];
 };
 
@@ -90,6 +99,7 @@ function recordOf(row: CardIndexRow['values'][number]): CardIndexRecord[] {
 			...(row.visit_count ? { visits: row.visit_count } : {}),
 			...(row.sort_name ? { sortName: row.sort_name } : {}),
 			...(row.birth_year === undefined ? {} : { birthYear: row.birth_year }),
+			...(row.first_year === undefined ? {} : { firstYear: row.first_year }),
 			...(row.country_code ? { countryCode: row.country_code } : {}),
 			...(isPlaceType(row.place_type) ? { placeType: row.place_type } : {}),
 			...(row.city_id ? { cityId: row.city_id } : {})
@@ -113,6 +123,14 @@ async function fetchCardIndex(): Promise<CardIndexResult> {
 					periodId: row.period_id,
 					eraCode: row.era_code as EraCode,
 					count: row.artwork_count
+				})),
+			authorEras: rows.author_eras
+				.filter((row) => isEraCode(row.era_code))
+				.map((row) => ({
+					authorId: row.author_id,
+					eraCode: row.era_code as EraCode,
+					count: row.artwork_count,
+					...(row.oldest_year === undefined ? {} : { oldestYear: row.oldest_year })
 				})),
 			stylePeriods: rows.style_periods.map((row) => ({
 				styleId: row.style_id,

@@ -179,7 +179,9 @@ describe('edit artwork page', () => {
 		await expect
 			.element(page.getByRole('radio', { name: `${era.name} ${eraYearsText('early_modern')}` }))
 			.toBeChecked();
-		await expect.element(page.getByText('Dutch Golden Age', { exact: true })).toBeVisible();
+		await expect
+			.element(page.getByRole('combobox', { name: m.artworkForm.period }))
+			.toHaveValue('Dutch Golden Age');
 		await expect.element(page.getByText('Delft school', { exact: true })).toBeVisible();
 		await expect.element(page.getByRole('button', { name: /Delft school/ })).toBeVisible();
 	});
@@ -197,13 +199,14 @@ describe('edit artwork page', () => {
 
 	it('keeps the period of an artwork without an era when an era is chosen', async () => {
 		renderPage({ artwork: artwork({ eraCode: null, period: 'Pointillism', styles: [] }) });
-		await expect.element(page.getByText('Pointillism', { exact: true })).toBeVisible();
+		const period = page.getByRole('combobox', { name: m.artworkForm.period });
+		await expect.element(period).toHaveValue('Pointillism');
 
 		await userEvent.click(
 			page.getByRole('radio', { name: `${m.eras.modern.name} ${eraYearsText('modern')}` })
 		);
 
-		await expect.element(page.getByText('Pointillism', { exact: true })).toBeVisible();
+		await expect.element(period).toHaveValue('Pointillism');
 	});
 
 	it('fills the form with the saved artwork and has no "save and add next"', async () => {
@@ -215,7 +218,9 @@ describe('edit artwork page', () => {
 		await expect.element(titleField()).toHaveValue('The Milkmaid');
 		await expect.element(page.getByText('Johannes Vermeer', { exact: true })).toBeVisible();
 		await expect.element(page.getByText('Delft school', { exact: true })).toBeVisible();
-		await expect.element(page.getByText('Rijksmuseum', { exact: true })).toBeVisible();
+		await expect
+			.element(page.getByRole('combobox', { name: m.artworkForm.location }))
+			.toHaveValue('Rijksmuseum');
 		await expect
 			.element(page.getByRole('textbox', { name: m.artworkForm.year }))
 			.toHaveValue('1658');
@@ -361,6 +366,7 @@ describe('edit artwork page', () => {
 				description: null,
 				kind: 'list',
 				multiple: true,
+				closed: false,
 				typeCodes: []
 			},
 			{
@@ -369,6 +375,7 @@ describe('edit artwork page', () => {
 				description: null,
 				kind: 'text',
 				multiple: false,
+				closed: false,
 				typeCodes: []
 			},
 			{
@@ -377,6 +384,7 @@ describe('edit artwork page', () => {
 				description: null,
 				kind: 'flag',
 				multiple: false,
+				closed: false,
 				typeCodes: []
 			}
 		];
@@ -400,6 +408,47 @@ describe('edit artwork page', () => {
 		);
 	});
 
+	it('offers only the existing values of a closed list and says when nothing matches', async () => {
+		const motifs: OwnFieldDefinition = {
+			id: 'motifs',
+			name: 'Motifs',
+			description: null,
+			kind: 'list',
+			multiple: true,
+			closed: true,
+			typeCodes: []
+		};
+		renderPage({ artwork: artwork(), ownFields: [motifs] }, '7', { motifs: ['Angel', 'Putto'] });
+		const field = page.getByRole('combobox', { name: 'Motifs' });
+
+		await field.fill('Put');
+		await expect.element(page.getByRole('option', { name: 'Putto' })).toBeVisible();
+
+		await field.fill('Lion');
+		await expect.element(page.getByText(m.ownFields.notOnList('Lion'))).toBeVisible();
+		await expect
+			.element(page.getByRole('option', { name: m.ui.valueField.add('Lion') }))
+			.not.toBeInTheDocument();
+	});
+
+	it('does not say that a value the artwork already has is not on a closed list', async () => {
+		const motifs: OwnFieldDefinition = {
+			id: 'motifs',
+			name: 'Motifs',
+			description: null,
+			kind: 'list',
+			multiple: true,
+			closed: true,
+			typeCodes: []
+		};
+		renderPage({ artwork: artwork({ own: { motifs: ['Putto'] } }), ownFields: [motifs] }, '7', {
+			motifs: ['Angel', 'Putto']
+		});
+
+		await page.getByRole('combobox', { name: 'Motifs' }).fill('Putto');
+		await expect.element(page.getByText(m.ownFields.notOnList('Putto'))).not.toBeInTheDocument();
+	});
+
 	it('asks before dropping the values of own fields the new type does not take', async () => {
 		const ownFields: OwnFieldDefinition[] = [
 			{
@@ -408,6 +457,7 @@ describe('edit artwork page', () => {
 				description: null,
 				kind: 'text',
 				multiple: false,
+				closed: false,
 				typeCodes: ['architecture']
 			},
 			{
@@ -416,6 +466,7 @@ describe('edit artwork page', () => {
 				description: null,
 				kind: 'text',
 				multiple: false,
+				closed: false,
 				typeCodes: []
 			}
 		];

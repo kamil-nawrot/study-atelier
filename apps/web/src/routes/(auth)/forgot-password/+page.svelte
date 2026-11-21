@@ -44,6 +44,7 @@
 				autocomplete="email"
 				error={emailError}
 				label={m.common.email}
+				required
 				type="email"
 				bind:value={email}
 			/>

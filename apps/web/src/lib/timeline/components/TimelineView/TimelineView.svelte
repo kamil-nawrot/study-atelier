@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { onDestroy, untrack } from 'svelte';
 	import { MediaQuery } from 'svelte/reactivity';
-	import { eraTitle } from '#lib/catalogue/eras/eras.ts';
+	import { overlayScrollbar } from '@study-atelier/ui';
 	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/i18n.ts';
-	import { availableSteps, eraView, focusView } from '#lib/timeline/scale/scale.ts';
+	import { availableSteps, eraView, focusView, panView } from '#lib/timeline/scale/scale.ts';
 	import { TimelineCamera } from '#lib/timeline/camera/camera.svelte.ts';
 	import { readingText } from '#lib/timeline/reading/reading.ts';
 	import type { StepKey } from '#lib/timeline/types/step-key.ts';
@@ -15,28 +15,26 @@
 		eventsIn,
 		lanesForEra
 	} from '#lib/timeline/event-lanes/event-lanes.ts';
-	import { NARROW_WIDTH, orientationFor, verticalLength } from '#lib/timeline/stage/stage.ts';
+	import {
+		NARROW_WIDTH,
+		orientationFor,
+		panelOverStage,
+		roomBesidePanel,
+		verticalLength
+	} from '#lib/timeline/stage/stage.ts';
 	import { AxisRoom } from '#lib/timeline/axis-room/axis-room.svelte.ts';
 	import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
 	import type { TimelineFilter } from '#lib/timeline/types/timeline-filter.ts';
 	import type { TimelinePlace } from '#lib/timeline/types/timeline-place.ts';
 	import type { TimelineSelection } from '#lib/timeline/types/timeline-selection.ts';
-	import { eraOfYear, rememberEra } from '#lib/timeline/start/start.ts';
-	import {
-		entriesSpan,
-		eraOf,
-		eras,
-		overlaps,
-		spanOfYears,
-		yearAt
-	} from '#lib/timeline/time/time.ts';
+	import { rememberEra } from '#lib/timeline/start/start.ts';
+	import { entriesSpan, eraOf, eras, spanOfYears, yearAt } from '#lib/timeline/time/time.ts';
 	import type { Era } from '#lib/timeline/types/era.ts';
 	import type { TimeSpan } from '#lib/timeline/types/time-span.ts';
 	import FilterTags from '#lib/wall/components/FilterTags/FilterTags.svelte';
 	import {
 		applyTimelineFilter,
 		artworkLanes as lanesForArtworks,
-		artworksIn,
 		emptyTimelineFilter,
 		forOtherEra,
 		isEmptyTimelineFilter,
@@ -48,9 +46,7 @@
 	} from '#lib/timeline/filter/filter.ts';
 	import { labelCut, labelWidth as measureLabel } from '#lib/timeline/label-width/label-width.ts';
 	import EraStrip from '#lib/timeline/components/EraStrip/EraStrip.svelte';
-	import EventCard from '#lib/timeline/components/EventCard/EventCard.svelte';
-	import EventDeleteDialog from '#lib/timeline/components/EventDeleteDialog/EventDeleteDialog.svelte';
-	import EventPopover from '#lib/timeline/components/EventPopover/EventPopover.svelte';
+	import EventPanel from '#lib/timeline/components/EventPanel/EventPanel.svelte';
 	import TimelineControls from '#lib/timeline/components/TimelineControls/TimelineControls.svelte';
 	import TimelineEvents from '#lib/timeline/components/TimelineEvents/TimelineEvents.svelte';
 	import TimelineArtworks from '#lib/timeline/components/TimelineArtworks/TimelineArtworks.svelte';
@@ -61,7 +57,6 @@
 		initialFocus?: TimeSpan;
 		artworks?: readonly WallArtwork[];
 		events?: readonly TimelineEvent[];
-		ondeleted?: (event: TimelineEvent) => void | Promise<void>;
 		onerachange?: (code: EraCode) => void;
 		filter?: TimelineFilter;
 		showEvents?: boolean;
@@ -73,7 +68,6 @@
 		initialFocus,
 		artworks = [],
 		events = [],
-		ondeleted,
 		onerachange,
 		filter = $bindable(emptyTimelineFilter()),
 		showEvents = true,
@@ -82,6 +76,8 @@
 
 	const NOW_SHARE = 40;
 	const SPOKEN_DELAY_MS = 500;
+	const PANEL_ROOM_GAP = 12;
+	const PANEL_MIN = 160;
 	const labelWidth = (event: TimelineEvent): number => measureLabel(event.name);
 	const nameCut = (event: TimelineEvent): boolean => labelCut(event.name);
 
@@ -97,10 +93,9 @@
 	let selected = $state<TimelineSelection>(null);
 	let width = $state(0);
 	let viewportHeight = $state(0);
-	let deleteOpen = $state(false);
-	let deleting = $state<TimelineEvent>();
 	let anchor = $state<HTMLElement>();
-	let stageBox = $state<HTMLElement>();
+	let splitWidth = $state(0);
+	let stageHeight = $state(0);
 	const axisRoom = new AxisRoom();
 	const wide = new MediaQuery('min-width: 768px');
 
@@ -114,21 +109,25 @@
 	let orientation = $derived(orientationFor(width));
 	let eraEvents = $derived(eventsIn(events, era));
 	let laidLabelWidth = $derived(orientation === 'vertical' ? () => 0 : labelWidth);
-	let lanes = $derived(
-		lanesForEra(
-			eraEvents,
-			era,
-			orientation === 'vertical'
-				? verticalLength(viewportHeight, wide.current ? 0 : axisRoom.room)
-				: width,
-			laidLabelWidth,
-			width < NARROW_WIDTH ? EVENT_LANES_NARROW : EVENT_LANES
-		)
-	);
 	let selectedEvent = $derived(
 		showEvents && selected?.kind === 'event'
 			? events.find((event) => event.id === selected?.id)
 			: undefined
+	);
+	let room = $derived(
+		selectedEvent && !wide.current ? roomBesidePanel(axisRoom.room) : axisRoom.room
+	);
+	let panelHeight = $derived(
+		wide.current ? stageHeight : Math.max(axisRoom.room - stageHeight - PANEL_ROOM_GAP, PANEL_MIN)
+	);
+	let lanes = $derived(
+		lanesForEra(
+			eraEvents,
+			era,
+			orientation === 'vertical' ? verticalLength(viewportHeight, wide.current ? 0 : room) : width,
+			laidLabelWidth,
+			width < NARROW_WIDTH ? EVENT_LANES_NARROW : EVENT_LANES
+		)
 	);
 	let tint = $derived(
 		selectedEvent ? spanOfYears(selectedEvent.yearFrom, selectedEvent.yearTo) : undefined
@@ -157,14 +156,6 @@
 		if (gone) untrack(() => (selected = null));
 	});
 
-	function spanOf(item: { yearFrom: number | null; yearTo: number | null }): TimeSpan | undefined {
-		return item.yearTo === null ? undefined : spanOfYears(item.yearFrom, item.yearTo);
-	}
-
-	function artworksOf(event: TimelineEvent): WallArtwork[] {
-		return artworksIn(collection, spanOfYears(event.yearFrom, event.yearTo));
-	}
-
 	function laneColourOf(artwork: WallArtwork): string | undefined {
 		const [first] = lanesOf(artwork, filter);
 		return first === undefined ? undefined : laneColour(first);
@@ -174,21 +165,24 @@
 		selected = selected?.kind === kind && selected.id === id ? null : { kind, id };
 	}
 
-	function askDelete(event: TimelineEvent): void {
-		deleting = event;
-		deleteOpen = true;
-	}
-
 	function showWhole(event: TimelineEvent): void {
 		const focus = focusView(era, spanOfYears(event.yearFrom, event.yearTo));
 		camera.step = focus.step;
 		camera.animateTo(focus.view);
 	}
 
-	function chooseArtwork(artwork: WallArtwork): void {
-		const span = spanOf(artwork);
-		if (span && !overlaps(span, era) && artwork.yearTo !== null) openEra(eraOfYear(artwork.yearTo));
-		selected = { kind: 'artwork', id: artwork.id };
+	function chooseEvent(event: TimelineEvent): void {
+		toggle('event', event.id);
+		if (wide.current || selected === null) return;
+		const span = spanOfYears(event.yearFrom, event.yearTo);
+		const by = (span.start + span.end) / 2 - camera.target.center;
+		camera.animateTo(panView(camera.target, by, era));
+	}
+
+	function closeEvent(): void {
+		const target = anchor;
+		selected = null;
+		target?.focus();
 	}
 
 	export function capture(): TimelinePlace {
@@ -221,8 +215,6 @@
 <div class="timeline">
 	<EraStrip current={code} eras={allEras} onselect={openEra} />
 
-	<p class="era-name" class:visually-hidden={!wide.current} aria-live="polite">{eraTitle(code)}</p>
-
 	<TimelineControls
 		{code}
 		onera={openEra}
@@ -248,92 +240,71 @@
 		<p class="caption">{m.timeline.noEvents}</p>
 	{/if}
 
-	<div bind:this={stageBox} {@attach axisRoom.attach()} bind:clientWidth={width}>
-		<TimelineStage
-			artworkLanes={orientation === 'horizontal' ? artworkLanes.length : 0}
-			axisRoom={wide.current ? 0 : axisRoom.room}
-			{era}
-			eventLanes={showEvents && (orientation === 'horizontal' || eraEvents.length > 0) ? lanes : 0}
-			onbackground={() => (selected = null)}
-			onkeypan={(share) => camera.panShare(share)}
-			onpan={(by) => camera.pan(by)}
-			onsettle={() => camera.settle()}
-			onstep={(direction, anchor) => camera.moveStep(direction, anchor)}
-			{orientation}
-			readingNames={orientation === 'vertical' ? now.map((event) => event.name) : []}
-			{tint}
-			view={camera.view}
-			{viewportHeight}
+	<div class="split" class:over={panelOverStage(splitWidth)} bind:clientWidth={splitWidth}>
+		<div
+			class="stage"
+			{@attach axisRoom.attach()}
+			bind:clientHeight={stageHeight}
+			bind:clientWidth={width}
 		>
-			{#snippet events(geometry)}
-				{#if showEvents}
-					<TimelineEvents
+			<TimelineStage
+				artworkLanes={orientation === 'horizontal' ? artworkLanes.length : 0}
+				axisRoom={wide.current ? 0 : room}
+				{era}
+				eventLanes={showEvents && (orientation === 'horizontal' || eraEvents.length > 0)
+					? lanes
+					: 0}
+				onbackground={() => (selected = null)}
+				onkeypan={(share) => camera.panShare(share)}
+				onpan={(by) => camera.pan(by)}
+				onsettle={() => camera.settle()}
+				onstep={(direction, anchor) => camera.moveStep(direction, anchor)}
+				{orientation}
+				readingNames={orientation === 'vertical' ? now.map((event) => event.name) : []}
+				{tint}
+				view={camera.view}
+				{viewportHeight}
+			>
+				{#snippet events(geometry)}
+					{#if showEvents}
+						<TimelineEvents
+							{era}
+							events={eraEvents}
+							{geometry}
+							labelWidth={laidLabelWidth}
+							{lanes}
+							layoutSpan={camera.target.span}
+							{nameCut}
+							onselect={chooseEvent}
+							selected={selected?.kind === 'event' ? selected.id : null}
+							bind:anchor
+						/>
+					{/if}
+				{/snippet}
+				{#snippet artworks(geometry)}
+					<TimelineArtworks
+						artworks={collection}
+						colourOf={laneColourOf}
+						empty={filtering ? m.timeline.filters.empty : undefined}
 						{era}
-						events={eraEvents}
 						{geometry}
-						labelWidth={laidLabelWidth}
-						{lanes}
+						lanes={artworkLanes}
 						layoutSpan={camera.target.span}
-						{nameCut}
-						onselect={(event) => toggle('event', event.id)}
-						selected={selected?.kind === 'event' ? selected.id : null}
-						bind:anchor
+						onselect={(artwork) => toggle('artwork', artwork.id)}
+						selected={selected?.kind === 'artwork' ? selected.id : null}
+						spans={showSpans}
 					/>
-				{/if}
-			{/snippet}
-			{#snippet artworks(geometry)}
-				<TimelineArtworks
-					artworks={collection}
-					colourOf={laneColourOf}
-					empty={filtering ? m.timeline.filters.empty : undefined}
-					{era}
-					{geometry}
-					lanes={artworkLanes}
-					layoutSpan={camera.target.span}
-					onselect={(artwork) => toggle('artwork', artwork.id)}
-					selected={selected?.kind === 'artwork' ? selected.id : null}
-					spans={showSpans}
-				/>
-			{/snippet}
-		</TimelineStage>
+				{/snippet}
+			</TimelineStage>
+		</div>
+		{#if selectedEvent}
+			{@const event = selectedEvent}
+			<aside style:max-height="{panelHeight}px" {@attach overlayScrollbar()}>
+				<EventPanel {event} onclose={closeEvent} onwhole={() => showWhole(event)} />
+			</aside>
+		{/if}
 	</div>
-
-	{#if selectedEvent && !wide.current}
-		{@const event = selectedEvent}
-		<EventCard
-			artworks={artworksOf(event)}
-			{event}
-			onartwork={chooseArtwork}
-			ondelete={() => askDelete(event)}
-			onwhole={() => showWhole(event)}
-		/>
-	{/if}
 </div>
-
-{#if wide.current}
-	<EventPopover
-		{anchor}
-		artworks={selectedEvent ? artworksOf(selectedEvent) : []}
-		boundary={stageBox}
-		event={selectedEvent}
-		onartwork={chooseArtwork}
-		onclose={() => (selected = null)}
-		ondelete={askDelete}
-		onwhole={showWhole}
-		view={camera.view}
-	/>
-{/if}
-
-{#if deleting}
-	<EventDeleteDialog
-		event={deleting}
-		ondeleted={(event) => {
-			selected = null;
-			return ondeleted?.(event);
-		}}
-		bind:open={deleteOpen}
-	/>
-{/if}
 
 <style>
 	.timeline {
@@ -341,13 +312,43 @@
 		gap: var(--spacing-3);
 	}
 
-	.era-name {
-		justify-self: center;
-		padding-block: var(--spacing-3);
-		font-family: var(--font-family-title), Georgia, serif;
-		font-size: var(--font-size-2xl);
-		font-style: italic;
-		font-weight: var(--font-weight-regular);
-		line-height: var(--line-height-2xl);
+	.split {
+		display: grid;
+		gap: var(--spacing-3);
+	}
+
+	.stage {
+		min-width: 0;
+	}
+
+	aside {
+		overflow-y: auto;
+	}
+
+	@media (min-width: 768px) {
+		.split {
+			position: relative;
+			display: flex;
+			align-items: flex-start;
+			gap: var(--spacing-8);
+		}
+
+		.stage {
+			flex: 1;
+		}
+
+		aside {
+			flex: none;
+			width: 320px;
+		}
+
+		.over aside {
+			position: absolute;
+			top: 0;
+			right: 0;
+			padding: var(--spacing-4);
+			border-left: var(--border-width-base) solid var(--color-line);
+			background: var(--color-bg);
+		}
 	}
 </style>

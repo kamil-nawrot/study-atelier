@@ -27,6 +27,7 @@ type FieldRow = {
 	description: string | null;
 	kind: string;
 	multiple: boolean;
+	closed: boolean;
 	type_codes: string[];
 };
 
@@ -45,6 +46,7 @@ function definitionOf(row: FieldRow): OwnFieldDefinition {
 		description: row.description,
 		kind: row.kind as OwnFieldKind,
 		multiple: row.multiple,
+		closed: row.kind === 'list' && row.closed,
 		typeCodes: (row.type_codes ?? []).filter(isArtworkTypeCode)
 	};
 }
@@ -55,7 +57,7 @@ function fieldsQuery(): PromiseLike<{
 }> {
 	return supabase
 		.from('artwork_fields')
-		.select('id, name, description, kind, multiple, type_codes')
+		.select('id, name, description, kind, multiple, closed, type_codes')
 		.order('position');
 }
 
@@ -92,32 +94,44 @@ function cleanDescription(input: string): string | null {
 	return input.trim() || null;
 }
 
-async function run(call: PromiseLike<{ error: { code?: string } | null }>): Promise<ActionResult> {
-	const { error } = await call;
+function forgetChanged(): void {
 	forgetCached([
 		cacheKeys.atelier,
 		cacheKeys.cardIndex,
 		cacheKeys.categoryValues,
 		cacheKeys.ownFields
 	]);
+}
+
+async function run(call: PromiseLike<{ error: { code?: string } | null }>): Promise<ActionResult> {
+	const { error } = await call;
+	forgetChanged();
 	return error ? { error: await failureMessage(error, cardIndexErrorMessage) } : {};
 }
 
-export function createOwnField(input: OwnFieldInput): Promise<ActionResult> {
-	return run(
-		supabase.from('artwork_fields').insert({
+export async function createOwnField(
+	input: OwnFieldInput
+): Promise<ActionResult & { id?: string }> {
+	const { data, error } = await supabase
+		.from('artwork_fields')
+		.insert({
 			name: input.name.trim(),
 			description: cleanDescription(input.description),
 			kind: input.kind,
 			multiple: input.kind === 'list' && input.multiple,
+			closed: input.kind === 'list' && input.closed,
 			type_codes: chosenTypes(input)
 		})
-	);
+		.select('id')
+		.single();
+	forgetChanged();
+	if (error) return { error: await failureMessage(error, cardIndexErrorMessage) };
+	return { id: data.id };
 }
 
 export function updateOwnField(
 	field: OwnField,
-	input: Pick<OwnFieldInput, 'name' | 'description' | 'limited' | 'typeCodes'>
+	input: Pick<OwnFieldInput, 'name' | 'description' | 'closed' | 'limited' | 'typeCodes'>
 ): Promise<ActionResult> {
 	return run(
 		supabase
@@ -125,6 +139,7 @@ export function updateOwnField(
 			.update({
 				name: input.name.trim(),
 				description: cleanDescription(input.description),
+				closed: field.kind === 'list' && input.closed,
 				type_codes: chosenTypes(input)
 			})
 			.eq('id', field.id)
@@ -167,4 +182,8 @@ export function addOwnValue(field: OwnField, name: string): Promise<ActionResult
 	return run(
 		supabase.from('category_values').insert({ category_code: field.id, name: name.trim() })
 	);
+}
+
+export function deleteOwnValue(value: OwnValue): Promise<ActionResult> {
+	return run(supabase.rpc('delete_unused_value', { target_value: value.id }));
 }

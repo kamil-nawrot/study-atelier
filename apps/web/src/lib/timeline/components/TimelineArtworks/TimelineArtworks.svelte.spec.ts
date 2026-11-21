@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { tick } from 'svelte';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import '@study-atelier/ui/styles.css';
@@ -20,7 +21,101 @@ function centre(element: Element): { x: number; y: number } {
 	return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
 }
 
+function pointer(element: Element, type: 'pointerenter' | 'pointerleave'): void {
+	element.dispatchEvent(new PointerEvent(type, { pointerType: 'mouse' }));
+}
+
+async function renderAltarpiece(): Promise<HTMLElement> {
+	const { container } = await render(TimelineArtworks, {
+		artworks: [altarpiece],
+		era: renaissance,
+		geometry: stageGeometry(view, 400, 0),
+		selected: null,
+		onselect: () => {}
+	});
+	return container;
+}
+
 describe('TimelineArtworks', () => {
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it('opens the preview of a hovered artwork after the hover delay of other cards', async () => {
+		const container = await renderAltarpiece();
+		const mark = container.querySelector('.mark') as HTMLElement;
+		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+
+		pointer(mark, 'pointerenter');
+		vi.advanceTimersByTime(300);
+		await tick();
+		expect(container.querySelector('.preview')).toBeNull();
+
+		vi.advanceTimersByTime(20);
+		await tick();
+		expect(container.querySelector('.preview')?.textContent).toContain('Altarpiece');
+	});
+
+	it('opens nothing when the pointer leaves the artwork before the delay', async () => {
+		const container = await renderAltarpiece();
+		const mark = container.querySelector('.mark') as HTMLElement;
+		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+
+		pointer(mark, 'pointerenter');
+		vi.advanceTimersByTime(200);
+		pointer(mark, 'pointerleave');
+		vi.advanceTimersByTime(1000);
+		await tick();
+
+		expect(container.querySelector('.preview')).toBeNull();
+	});
+
+	it('closes a shown preview when the pointer crosses another artwork before the delay', async () => {
+		const portrait = testArtwork(2, 'Portrait', { date: '1580', yearFrom: 1580, yearTo: 1580 });
+		const { container } = await render(TimelineArtworks, {
+			artworks: [altarpiece, portrait],
+			era: renaissance,
+			geometry: stageGeometry(view, 400, 0),
+			selected: null,
+			onselect: () => {}
+		});
+		const [first, second] = container.querySelectorAll<HTMLElement>('.mark');
+		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+
+		pointer(first, 'pointerenter');
+		vi.advanceTimersByTime(1000);
+		await tick();
+		expect(container.querySelector('.preview')).not.toBeNull();
+
+		pointer(first, 'pointerleave');
+		pointer(second, 'pointerenter');
+		vi.advanceTimersByTime(50);
+		pointer(second, 'pointerleave');
+		vi.advanceTimersByTime(1000);
+		await tick();
+
+		expect(container.querySelector('.preview')).toBeNull();
+	});
+
+	it('puts the preview right after the dot it belongs to', async () => {
+		const portrait = testArtwork(2, 'Portrait', { date: '1580', yearFrom: 1580, yearTo: 1580 });
+		const { container } = await render(TimelineArtworks, {
+			artworks: [altarpiece, portrait],
+			era: renaissance,
+			geometry: stageGeometry(view, 400, 0),
+			selected: null,
+			onselect: () => {}
+		});
+		const [first] = container.querySelectorAll<HTMLElement>('.mark');
+		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+
+		pointer(first, 'pointerenter');
+		vi.advanceTimersByTime(1000);
+		await tick();
+
+		expect(first.nextElementSibling?.classList.contains('preview')).toBe(true);
+	});
+
 	it('takes the pointer only on the dot of an artwork made over years, not on its line', async () => {
 		const { container } = await render(TimelineArtworks, {
 			artworks: [altarpiece],

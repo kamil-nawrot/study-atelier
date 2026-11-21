@@ -3,6 +3,8 @@
 	import ListChecks from '@lucide/svelte/icons/list-checks';
 	import { onMount } from 'svelte';
 	import { Alert, Button, EmptyState, PageHeader, Tabs, Toast } from '@study-atelier/ui';
+	import ListTools from '#lib/shared/lists/ListTools/ListTools.svelte';
+	import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 	import { refreshAll } from '$app/navigation';
 	import type { ResolvedPathname } from '$app/types';
 	import { deleteFlag } from '#lib/backroom/backroom-data/backroom-data.ts';
@@ -14,6 +16,7 @@
 	import { fixSession } from '#lib/backroom/fix-session/fix-session.svelte.ts';
 	import type { BackroomRow } from '#lib/backroom/types/backroom-row.ts';
 	import type { BackroomTerm } from '#lib/backroom/types/backroom-term.ts';
+	import type { BrokenImage } from '#lib/backroom/types/broken-image.ts';
 	import type { FlagRecord } from '#lib/backroom/types/flag-record.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -22,12 +25,13 @@
 		flags: readonly FlagRecord[];
 		artworks: readonly WallArtwork[];
 		terms: readonly BackroomTerm[];
+		brokenImages?: readonly BrokenImage[];
 		error?: string;
 		message?: string;
 		onimage?: (artwork: WallArtwork) => void;
 	};
 
-	let { flags, artworks, terms, error, message, onimage }: Props = $props();
+	let { flags, artworks, terms, brokenImages = [], error, message, onimage }: Props = $props();
 
 	let toast: Toast;
 	let tab = $state('flags');
@@ -46,8 +50,13 @@
 			terms
 		)
 	);
-	let missing = $derived(missingRows(artworks, terms));
+	let missing = $derived(missingRows(artworks, terms, brokenImages));
 	let shown = $derived(tab === 'flags' ? flagged : missing);
+	let query = $state('');
+	let term = $derived(normalizeForSearch(query));
+	let visible = $derived(
+		term ? shown.filter((row) => normalizeForSearch(row.title).includes(term)) : shown
+	);
 
 	onMount(() => {
 		fixSession.clear();
@@ -56,9 +65,10 @@
 	});
 
 	function fix(index: number, queue: boolean): void {
+		const row = visible[index];
 		const start = fixStart(
-			shown.map((row) => row.entry),
-			index
+			shown.map((item) => item.entry),
+			Math.max(0, shown.indexOf(row))
 		);
 		fixSession.start(start.entries, start.position, queue);
 	}
@@ -86,7 +96,13 @@
 	}
 </script>
 
-<PageHeader lead={m.backroom.lead} />
+<PageHeader lead={m.backroom.lead}>
+	{#snippet aside()}
+		{#if !error && shown.length > 0}
+			<span class="caption">{m.backroom.count(visible.length)}</span>
+		{/if}
+	{/snippet}
+</PageHeader>
 
 <Tabs label={m.backroom.title} {tabs} bind:value={tab}>
 	{#if failure}
@@ -106,20 +122,27 @@
 		/>
 	{:else}
 		<div class="tools">
-			<Button
-				href={shown[0].entry.path as ResolvedPathname}
-				icon={ListChecks}
-				onclick={() => fix(0, true)}
-			>
-				{m.backroom.fixAll}
-			</Button>
+			<ListTools searchLabel={m.backroom.search} sortLabel="" bind:query>
+				{#snippet actions()}
+					<Button
+						href={(visible[0] ?? shown[0]).entry.path as ResolvedPathname}
+						icon={ListChecks}
+						onclick={() => fix(0, true)}
+					>
+						{m.backroom.fixAll}
+					</Button>
+				{/snippet}
+			</ListTools>
 		</div>
+		{#if visible.length === 0}
+			<p class="no-results">{m.backroom.noResults(query.trim())}</p>
+		{/if}
 		<BackroomList
 			{busy}
 			onfix={(index) => fix(index, false)}
 			onfixed={markFixed}
 			{onimage}
-			rows={shown}
+			rows={visible}
 		/>
 	{/if}
 </Tabs>
@@ -128,8 +151,10 @@
 
 <style>
 	.tools {
-		display: flex;
-		justify-content: flex-end;
 		padding-bottom: var(--spacing-2);
+	}
+
+	.no-results {
+		color: var(--color-fg-muted);
 	}
 </style>

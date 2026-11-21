@@ -16,6 +16,7 @@
 <AtelierLayout email={data.session.user.email ?? ''} heading title={m.backroom.title}>
 	<BackroomView
 		{artworks}
+		brokenImages={data.brokenImages}
 		error={data.error}
 		flags={data.flags}
 		message={page.state.backroomMessage}

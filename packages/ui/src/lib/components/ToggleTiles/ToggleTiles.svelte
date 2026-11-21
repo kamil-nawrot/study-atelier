@@ -10,6 +10,7 @@
 		values?: string[];
 		columns?: number;
 		narrowColumns?: number;
+		required?: boolean;
 		onchange?: (values: string[]) => void;
 	};
 
@@ -19,6 +20,7 @@
 		values = $bindable([]),
 		columns = 3,
 		narrowColumns,
+		required = false,
 		onchange
 	}: Props = $props();
 
@@ -29,7 +31,9 @@
 </script>
 
 <fieldset style:--columns={columns} style:--narrow-columns={narrowColumns ?? columns}>
-	<legend>{label}</legend>
+	<legend
+		>{label}{#if required}<span class="required-mark" aria-hidden="true">*</span>{/if}</legend
+	>
 	<div class="tiles">
 		{#each options as option (option.value)}
 			<label class="tile" class:selected={values.includes(option.value)}>

@@ -34,3 +34,24 @@ export async function deletePermanently(id: string): Promise<TrashActionResult> 
 	await Promise.all(paths.flatMap((path) => (path ? [removeOwnImage(path)] : [])));
 	return {};
 }
+
+export async function clearTrash(): Promise<TrashActionResult> {
+	const { data: trashed, error: readError } = await supabase
+		.from('artworks')
+		.select('id, artwork_images(own_image_path)')
+		.not('deleted_at', 'is', null);
+	if (readError) return { error: await failureMessage(readError, artworkErrorMessage) };
+	const { data: deleted, error } = await supabase
+		.from('artworks')
+		.delete()
+		.not('deleted_at', 'is', null)
+		.select('id');
+	forgetCached([cacheKeys.atelier, cacheKeys.cardIndex, cacheKeys.categoryValues]);
+	if (error) return { error: await failureMessage(error, artworkErrorMessage) };
+	const gone = new Set((deleted ?? []).map((row) => row.id));
+	const paths = (trashed ?? [])
+		.filter((row) => gone.has(row.id))
+		.flatMap((row) => row.artwork_images.map((image) => image.own_image_path));
+	await Promise.all(paths.flatMap((path) => (path ? [removeOwnImage(path)] : [])));
+	return {};
+}

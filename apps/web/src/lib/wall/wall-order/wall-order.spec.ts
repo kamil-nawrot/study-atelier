@@ -33,6 +33,9 @@ describe('wall order', () => {
 		rememberWallOrder('year');
 		expect(rememberedWallOrder()).toBe('year');
 
+		rememberWallOrder('year-newest');
+		expect(rememberedWallOrder()).toBe('year-newest');
+
 		rememberWallOrder('author');
 		expect(rememberedWallOrder()).toBe('author');
 

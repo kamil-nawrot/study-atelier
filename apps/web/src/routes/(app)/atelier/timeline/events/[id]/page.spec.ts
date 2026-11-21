@@ -11,7 +11,7 @@ vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({ loadAtelier: vi.fn() }));
 vi.mock('#lib/timeline/timeline-data/timeline-data.ts', () => ({ loadTimelineEvent: vi.fn() }));
 vi.mock('#lib/card-index/card-index-data/card-index-data.ts', () => ({
 	loadCardIndex: vi.fn(async () => ({
-		index: { values: [], periodEras: [], stylePeriods: [] },
+		index: { values: [], periodEras: [], authorEras: [], stylePeriods: [] },
 		ownValues: []
 	}))
 }));

@@ -1,5 +1,4 @@
 <script lang="ts">
-	import Clipboard from '@lucide/svelte/icons/clipboard';
 	import ImagePlus from '@lucide/svelte/icons/image-plus';
 	import Search from '@lucide/svelte/icons/search';
 	import Trash from '@lucide/svelte/icons/trash';
@@ -11,12 +10,13 @@
 		Icon,
 		ImageCredit,
 		NoImage,
-		Primer
+		Primer,
+		StageBackdrop
 	} from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import ImageSearchDialog from '#lib/images/components/ImageSearchDialog/ImageSearchDialog.svelte';
 	import OwnImageDialog from '#lib/images/components/OwnImageDialog/OwnImageDialog.svelte';
-	import PasteKeys from '#lib/images/components/PasteKeys/PasteKeys.svelte';
+	import ImageHints from '#lib/images/components/ImageHints/ImageHints.svelte';
 	import { ImageInput, releaseImage } from '#lib/images/image-input/image-input.svelte.ts';
 	import type { ImageCandidate } from '#lib/images/types/image-candidate.ts';
 	import type { ImageSearchQuery } from '#lib/images/types/image-search-query.ts';
@@ -45,6 +45,7 @@
 		removeWarning?: string;
 		filling?: boolean;
 		compactEmpty?: boolean;
+		staged?: boolean;
 	};
 
 	let {
@@ -62,7 +63,8 @@
 		overlay,
 		removeWarning,
 		filling = false,
-		compactEmpty = false
+		compactEmpty = false,
+		staged = false
 	}: Props = $props();
 
 	const id = $props.id();
@@ -78,6 +80,9 @@
 
 	let preview = $derived(artworkImageSource(image, COMMONS_PREVIEW_WIDTH));
 	let credit = $derived(artworkImageCredit(image));
+	let ratio = $derived(
+		preview?.width && preview.height ? preview.width / preview.height : undefined
+	);
 	let ownImage = $derived(image !== null && image.kind !== 'commons');
 
 	function openSearch(): void {
@@ -110,10 +115,17 @@
 
 <section
 	style:--image-height="{height}px"
+	style:--image-ratio={ratio}
 	class="image"
+	class:filled={preview !== undefined || filling}
+	class:sized={ratio !== undefined}
+	class:staged
 	aria-label={texts.label}
 	bind:offsetHeight={height}
 >
+	{#if staged && preview}
+		<StageBackdrop src={preview.src} />
+	{/if}
 	{@render slots?.()}
 	<figure class="picture">
 		<div class="mat" class:compact={compactEmpty && !preview}>
@@ -122,7 +134,7 @@
 					<ArtworkImage
 						{alt}
 						height={preview.height}
-						sizes="(min-width: 768px) 40vw, 100vw"
+						sizes="(min-width: 768px) 50vw, 100vw"
 						src={preview.src}
 						srcset={preview.srcset}
 						width={preview.width}
@@ -170,27 +182,7 @@
 	{#if input.pasteError}
 		<p class="paste-error" role="alert">{input.pasteError}</p>
 	{/if}
-	<ul class="hints">
-		{#if !searchReady}
-			<li class="caption">
-				<Icon icon={Search} size="sm" />
-				<span>{texts.findHint}</span>
-			</li>
-		{/if}
-		{#each hints as hint (hint.text)}
-			<li class="caption">
-				<Icon icon={hint.icon} size="sm" />
-				<span>{hint.text}</span>
-			</li>
-		{/each}
-		<li class="caption paste-hint">
-			<Icon icon={Clipboard} size="sm" />
-			<span>
-				{m.artworkForm.pasteHintForm}
-				<PasteKeys />
-			</span>
-		</li>
-	</ul>
+	<ImageHints hints={searchReady ? hints : [{ icon: Search, text: texts.findHint }, ...hints]} />
 </section>
 
 <ImageSearchDialog onpick={pickCandidate} {query} bind:open={input.searchOpen} />
@@ -234,7 +226,7 @@
 	.image {
 		display: grid;
 		align-content: start;
-		gap: var(--spacing-3);
+		gap: var(--spacing-4);
 	}
 
 	.picture {
@@ -288,38 +280,11 @@
 		flex: 1 1 auto;
 	}
 
-	.hints {
-		display: grid;
-		gap: var(--spacing-2);
-		margin: 0;
-		list-style: none;
-	}
-
-	.hints li {
-		display: flex;
-		align-items: start;
-		gap: var(--spacing-2);
-	}
-
-	.hints li > :global(svg) {
-		flex: none;
-	}
-
-	.hints li.paste-hint {
-		display: none;
-	}
-
 	.paste-error {
 		margin: 0;
 		color: var(--color-danger);
 		font-size: var(--font-size-xs);
 		line-height: var(--line-height-xs);
-	}
-
-	@media (pointer: fine) {
-		.hints li.paste-hint {
-			display: flex;
-		}
 	}
 
 	@media (min-width: 768px) {
@@ -334,6 +299,103 @@
 
 		.image-actions > :global(*) {
 			flex: none;
+		}
+	}
+
+	.staged {
+		--color-stage-bg: var(--color-bg);
+		--stage-room: calc(2 * var(--spacing-3) + var(--spacing-12));
+
+		position: relative;
+		isolation: isolate;
+		overflow: hidden;
+		background: var(--color-stage-bg);
+	}
+
+	.staged > :global(:not(.stage-backdrop)) {
+		position: relative;
+		z-index: 1;
+	}
+
+	.staged .picture {
+		container-type: size;
+		justify-items: center;
+		align-content: center;
+		min-height: 0;
+	}
+
+	.staged .mat {
+		width: fit-content;
+		max-width: 100%;
+		padding: var(--spacing-3) var(--spacing-3) var(--spacing-4);
+	}
+
+	.staged .frame {
+		width: fit-content;
+	}
+
+	.staged .mat :global(img) {
+		width: auto;
+		max-width: calc(100cqw - var(--stage-room, 0px));
+		max-height: calc(100cqh - var(--stage-room, 0px));
+	}
+
+	.staged.sized .mat :global(img) {
+		width: min(
+			calc(100cqw - var(--stage-room, 0px)),
+			calc((100cqh - var(--stage-room, 0px)) * var(--image-ratio))
+		);
+		max-height: none;
+	}
+
+	.staged .primed,
+	.staged .empty {
+		width: auto;
+		height: calc(100cqh - var(--stage-room, 0px));
+	}
+
+	.staged .image-actions {
+		justify-content: center;
+	}
+
+	@media (max-width: 767.98px) {
+		.staged {
+			gap: var(--spacing-4);
+			padding: var(--spacing-4) var(--page-inline, var(--spacing-4)) var(--spacing-6);
+		}
+
+		.staged.filled .picture {
+			height: 50svh;
+		}
+
+		.staged:not(.filled) .picture {
+			container-type: normal;
+		}
+
+		.staged:not(.filled) .mat {
+			width: 100%;
+		}
+
+		.staged:not(.filled) :is(.primed, .empty) {
+			height: 140px;
+		}
+	}
+
+	@media (min-width: 768px) {
+		.staged {
+			position: relative;
+			top: auto;
+			grid-template-rows: auto minmax(0, 1fr) auto auto;
+			align-content: stretch;
+			gap: var(--spacing-4);
+			height: 100%;
+			padding: var(--spacing-6) var(--spacing-8);
+		}
+
+		.staged > :global(.hints) {
+			justify-self: center;
+			min-height: calc(3 * var(--font-size-xs) * var(--line-height-xs) + 2 * var(--spacing-2));
+			max-width: var(--size-content-default);
 		}
 	}
 </style>

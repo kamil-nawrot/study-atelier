@@ -177,14 +177,14 @@
 	}
 
 	@media (max-width: 767.98px) {
-		.bar :global(:is(.button, .icon-button)),
-		.bar :global(:is(.button, .icon-button):is(:disabled, [aria-disabled='true'])) {
+		.bar :global(:is(.button, .icon-button):not(dialog *)),
+		.bar :global(:is(.button, .icon-button):not(dialog *):is(:disabled, [aria-disabled='true'])) {
 			position: relative;
 			border-color: transparent;
 			background: transparent;
 		}
 
-		.bar :global(.button.primary) {
+		.bar :global(.button.primary:not(dialog *)) {
 			color: var(--color-fg);
 		}
 
@@ -211,6 +211,19 @@
 	.body {
 		display: flex;
 		align-items: flex-start;
+	}
+
+	.body:has(:global([data-bleed])) {
+		--content-bleed: max(
+			var(--page-inline),
+			calc((100cqw - var(--panel-width) - var(--size-content-wide)) / 2)
+		);
+
+		container: atelier-body / inline-size;
+	}
+
+	.body:has(:global([data-bleed])) .content {
+		padding-top: 0;
 	}
 
 	.content {

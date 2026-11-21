@@ -202,6 +202,14 @@ export const ARTWORKS = [
 	artwork(10, 'Untitled study', ['Learner Example'], null, null, {})
 ];
 
+export const BROKEN_IMAGES = [
+	{ number: 3, position: 0 },
+	{ number: 6, position: 2 }
+].map(({ number, position }) => {
+	const row = ARTWORKS.find((candidate) => candidate.record_number === number);
+	return { artwork_id: row.id, position };
+});
+
 const ARTWORK_PLACES = [
 	[2, 'MoMA, New York'],
 	[3, 'Mauritshuis'],
@@ -461,6 +469,35 @@ export const PERIOD_ERA_USAGE = usage(
 			: [];
 	})
 );
+
+export const AUTHOR_ERA_USAGE = [
+	...ARTWORKS.filter((row) => !row.deleted_at)
+		.flatMap((row) =>
+			row.artwork_values
+				.filter(({ category_values: value }) => value.category_code === 'author')
+				.map(({ category_values: value }) => ({
+					author_id: valueId('author', value.name),
+					era_code: row.era_code,
+					year: row.year_from ?? row.year_to
+				}))
+		)
+		.filter((row) => row.era_code)
+		.reduce((groups, row) => {
+			const key = `${row.author_id} ${row.era_code}`;
+			const group = groups.get(key) ?? {
+				author_id: row.author_id,
+				era_code: row.era_code,
+				artwork_count: 0,
+				oldest_year: null
+			};
+			group.artwork_count += 1;
+			if (row.year !== null && (group.oldest_year === null || row.year < group.oldest_year)) {
+				group.oldest_year = row.year;
+			}
+			return groups.set(key, group);
+		}, new Map())
+		.values()
+];
 
 export const STYLE_PERIOD_USAGE = usage(
 	ARTWORKS.flatMap((row) => {
@@ -1120,7 +1157,7 @@ export const GLOSSARY_ENTRIES = [
 	glossaryEntry(
 		6,
 		'Giorgio Vasari',
-		'person',
+		'artist',
 		'Włoski malarz, architekt i pisarz, autor „Żywotów najsławniejszych malarzy, rzeźbiarzy i architektów”.',
 		[],
 		'Giorgio Vasari',
@@ -1172,6 +1209,89 @@ export const GLOSSARY_ENTRIES = [
 			`${name}: krótka definicja do zrzutów ekranu.`,
 			name === 'Nawa' ? ['nawy', 'nawie', 'nawę', 'nawą'] : []
 		)
+	),
+	glossaryEntry(
+		40,
+		'Hodegetria',
+		'iconography',
+		'Typ ikonograficzny Matki Boskiej, która wskazuje dłonią Dzieciątko na swoim ręku jako drogę zbawienia.',
+		[],
+		'Hodegetria'
+	),
+	glossaryEntry(
+		41,
+		'Ramzes II',
+		'ruler',
+		'Faraon z XIX dynastii, budowniczy świątyń w Abu Simbel i Ramesseum.',
+		[],
+		'Ramzes II Wielki'
+	),
+	glossaryEntry(
+		42,
+		'Jean-François Champollion',
+		'scholar',
+		'Francuski egiptolog, który odczytał hieroglify egipskie na podstawie kamienia z Rosetty.',
+		[],
+		'Jean-François Champollion',
+		{ sortName: 'Champollion, Jean-François' }
+	),
+	glossaryEntry(
+		43,
+		'Lorenzo Medici',
+		'patron',
+		'Florencki władca i mecenas sztuki, opiekun Botticellego i młodego Michała Anioła.',
+		[],
+		'Lorenzo Medici',
+		{ sortName: 'Medici, Lorenzo' }
+	),
+	glossaryEntry(
+		44,
+		'Herkules',
+		'myth',
+		'Heros mitologii greckiej i rzymskiej, syn Zeusa, znany z dwunastu prac.',
+		[],
+		'Herakles'
+	),
+	glossaryEntry(
+		45,
+		'Święty Sebastian',
+		'sacred',
+		'Rzymski żołnierz i męczennik, przedstawiany jako młodzieniec przeszyty strzałami.',
+		[],
+		'Święty Sebastian'
+	),
+	glossaryEntry(
+		46,
+		'Zeus',
+		'myth',
+		'Najwyższy bóg w mitologii greckiej, władca nieba i piorunów.',
+		[],
+		'Zeus'
+	),
+	glossaryEntry(
+		47,
+		'Bernard z Clairvaux',
+		'sacred',
+		'Francuski mnich cysterski, opat w Clairvaux i doktor Kościoła.',
+		[],
+		'Bernard z Clairvaux'
+	),
+	glossaryEntry(
+		48,
+		'Kazimierz Michałowski',
+		'scholar',
+		'Polski archeolog i egiptolog, twórca polskiej szkoły archeologii śródziemnomorskiej.',
+		[],
+		'Kazimierz Michałowski',
+		{ sortName: 'Michałowski, Kazimierz' }
+	),
+	glossaryEntry(
+		49,
+		'Karol Wielki',
+		'ruler',
+		'Król Franków i cesarz, patron odrodzenia karolińskiego.',
+		[],
+		'Karol Wielki'
 	)
 ];
 
@@ -1368,6 +1488,7 @@ export const OWN_FIELDS = [
 		description: null,
 		kind: 'list',
 		multiple: false,
+		closed: false,
 		type_codes: []
 	},
 	{
@@ -1376,6 +1497,7 @@ export const OWN_FIELDS = [
 		description: 'Co przedstawia dzieło',
 		kind: 'list',
 		multiple: true,
+		closed: false,
 		type_codes: ['painting', 'sculpture']
 	},
 	{
@@ -1384,6 +1506,7 @@ export const OWN_FIELDS = [
 		description: 'Podręcznik i strona',
 		kind: 'text',
 		multiple: false,
+		closed: false,
 		type_codes: []
 	},
 	{
@@ -1392,6 +1515,7 @@ export const OWN_FIELDS = [
 		description: null,
 		kind: 'flag',
 		multiple: false,
+		closed: false,
 		type_codes: []
 	}
 ];

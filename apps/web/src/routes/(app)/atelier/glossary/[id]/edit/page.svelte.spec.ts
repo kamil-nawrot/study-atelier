@@ -3,6 +3,7 @@ import { page, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { goto } from '$app/navigation';
 import { m } from '#lib/i18n/i18n.ts';
+import { isFigure } from '#lib/glossary/categories/categories.ts';
 import { saveGlossaryEntry } from '#lib/glossary/glossary-data/glossary-data.ts';
 import { searchArticles } from '#lib/glossary/wikipedia/wikipedia.ts';
 import { fetchForms } from '#lib/glossary/wiktionary/wiktionary.ts';
@@ -43,6 +44,7 @@ function renderEdit(
 			entry: entry ?? undefined,
 			entries,
 			index: testCardIndex(),
+			kind: entry && isFigure(entry.category) ? 'figure' : 'term',
 			...failure
 		},
 		params: { id: entry?.id ?? 'unknown' }
@@ -166,8 +168,22 @@ describe('edit glossary entry page', () => {
 			.toBeVisible();
 	});
 
-	it('does not look up the synonyms of a person', async () => {
-		renderEdit(testEntry('a-lorenzo', 'Lorenzo Medici', { category: 'person' }));
+	it('titles the form of a figure and offers only the figure categories', async () => {
+		renderEdit(testEntry('a-lorenzo', 'Lorenzo Medici', { category: 'patron' }));
+
+		await expect
+			.element(page.getByRole('heading', { level: 1 }))
+			.toHaveTextContent(m.glossary.form.editFigureTitle);
+		await expect
+			.element(page.getByRole('radio', { name: m.glossary.categoryNames.patron }))
+			.toBeChecked();
+		await expect
+			.element(page.getByRole('radio', { name: m.glossary.categoryNames.architecture }))
+			.not.toBeInTheDocument();
+	});
+
+	it('does not look up the synonyms of a figure', async () => {
+		renderEdit(testEntry('a-lorenzo', 'Lorenzo Medici', { category: 'patron' }));
 
 		await addSynonym('Wspaniały');
 

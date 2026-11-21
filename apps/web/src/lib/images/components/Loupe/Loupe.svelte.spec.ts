@@ -34,8 +34,10 @@ function point(layer: HTMLElement, x: number, y: number): void {
 	);
 }
 
-function wheel(layer: HTMLElement, deltaY: number): void {
-	layer.dispatchEvent(new WheelEvent('wheel', { deltaY, bubbles: true, cancelable: true }));
+function wheel(layer: HTMLElement, deltaY: number, init: WheelEventInit = {}): void {
+	layer.dispatchEvent(
+		new WheelEvent('wheel', { deltaY, bubbles: true, cancelable: true, ...init })
+	);
 }
 
 function level(): string | null | undefined {
@@ -68,16 +70,26 @@ describe('Loupe', () => {
 		);
 	});
 
-	it('changes the level with the wheel from 1.5 up to the full resolution', async () => {
+	it('changes the level in proportion to the wheel delta, from 1.5 up to the full resolution', async () => {
 		const { layer } = renderLoupe();
 		point(layer, 100, 150);
 
-		wheel(layer, 100);
+		wheel(layer, 10);
+		await vi.waitFor(() => expect(level()).toBe('2×'));
+		for (let step = 0; step < 4; step += 1) wheel(layer, 100);
 		await vi.waitFor(() => expect(level()).toBe('1,5×'));
-		wheel(layer, 100);
-		await vi.waitFor(() => expect(level()).toBe('1,5×'));
-		for (let step = 0; step < 4; step += 1) wheel(layer, -100);
+		for (let step = 0; step < 10; step += 1) wheel(layer, -100);
 		await vi.waitFor(() => expect(level()).toBe('4×'));
+	});
+
+	it('zooms a small delta by a small amount and a large one by more', async () => {
+		const { layer } = renderLoupe();
+		point(layer, 100, 150);
+
+		wheel(layer, -50);
+		await vi.waitFor(() => expect(level()).toBe('2,2×'));
+		wheel(layer, -200);
+		await vi.waitFor(() => expect(level()).toBe('3,3×'));
 	});
 
 	it('keeps a source no wider than shown at 1.5, whatever the wheel does', async () => {

@@ -5,6 +5,8 @@ import type { StageGeometry } from '#lib/timeline/types/stage-geometry.ts';
 
 export const NARROW_WIDTH = 768;
 export const ZONE_GAP = 8;
+export const PANEL_WIDTH = 320;
+export const PANEL_GAP = 32;
 
 const AXIS_HEIGHT = 52;
 const ZONE_LABEL_HEIGHT = 22;
@@ -19,6 +21,7 @@ const VERTICAL_SHARE = 0.66;
 const VERTICAL_MIN = 440;
 const VERTICAL_MAX = 820;
 const VERTICAL_FIT_MIN = 280;
+const PANEL_STAGE_SHARE = 0.5;
 
 type Box = {
 	along: number;
@@ -29,6 +32,14 @@ type Box = {
 
 export function orientationFor(width: number): Orientation {
 	return width > 0 && width < NARROW_WIDTH ? 'vertical' : 'horizontal';
+}
+
+export function panelOverStage(available: number): boolean {
+	return available - PANEL_WIDTH - PANEL_GAP < NARROW_WIDTH;
+}
+
+export function roomBesidePanel(room: number): number {
+	return room > 0 ? Math.max(VERTICAL_FIT_MIN, Math.round(room * PANEL_STAGE_SHARE)) : 0;
 }
 
 export function verticalLength(viewportHeight: number, room = 0): number {

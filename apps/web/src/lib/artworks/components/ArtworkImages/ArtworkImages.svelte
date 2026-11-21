@@ -311,9 +311,7 @@
 	{alt}
 	{compactEmpty}
 	filling={selected === 0 && matchStatus === 'searching'}
-	hints={pinImageId === undefined
-		? []
-		: [{ icon: PinIcon, text: `${m.pins.editHint} ${m.pins.editorNote}` }]}
+	hints={pinImageId === undefined ? [] : [{ icon: PinIcon, text: m.pins.editHint }]}
 	onsearch={stopMatch}
 	overlay={pinLayer}
 	{query}
@@ -322,6 +320,7 @@
 	{searchReady}
 	slots={slotRow}
 	source={matchStatusLine}
+	staged
 	status={pinStatus}
 	{texts}
 	bind:image={current, setCurrent}
@@ -331,20 +330,17 @@
 	.slots {
 		display: flex;
 		flex-wrap: wrap;
+		justify-content: center;
 		align-items: center;
 		gap: var(--spacing-2);
-	}
-
-	.slots > :global(:last-child:not(.slot)) {
-		margin-left: auto;
 	}
 
 	.slot {
 		position: relative;
 		display: grid;
 		place-items: center;
-		width: 64px;
-		height: 64px;
+		width: 56px;
+		height: 56px;
 		padding: 0;
 		overflow: hidden;
 		border: var(--border-width-base) solid var(--color-fg-muted);

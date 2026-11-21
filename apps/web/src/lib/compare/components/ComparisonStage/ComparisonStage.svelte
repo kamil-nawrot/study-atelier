@@ -10,7 +10,6 @@
 		artworkLargeSource
 	} from '#lib/images/artwork-image/artwork-image.ts';
 	import PaletteBand from '#lib/images/components/PaletteBand/PaletteBand.svelte';
-	import { LOUPE_MIN_RATIO } from '#lib/images/loupe/loupe.ts';
 	import type { PaletteLoader } from '#lib/images/palette-loader/palette-loader.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 
@@ -33,9 +32,7 @@
 	let frameWidth = $state(0);
 	let image = $derived(artworkImageSource(artwork.image, STAGE_WIDTH));
 	let large = $derived(artworkLargeSource(artwork.image));
-	let ready = $derived(
-		large !== undefined && frameWidth > 0 && large.width >= LOUPE_MIN_RATIO * frameWidth
-	);
+	let ready = $derived(large !== undefined && frameWidth > 0);
 	let authors = $derived(
 		artwork.authors.length > 0 ? artwork.authors.join(', ') : m.ui.unknownAuthor
 	);
@@ -166,6 +163,7 @@
 	}
 
 	figcaption > :global(.meta) {
+		justify-content: center;
 		font-size: var(--font-size-sm);
 		line-height: var(--line-height-sm);
 	}

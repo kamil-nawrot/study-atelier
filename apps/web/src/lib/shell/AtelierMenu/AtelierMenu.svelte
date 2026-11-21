@@ -338,9 +338,11 @@
 	}
 
 	.dense .item {
+		box-sizing: border-box;
+		height: var(--spacing-6);
 		padding-block: var(--spacing-1);
 		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
+		line-height: var(--spacing-4);
 	}
 
 	a.item:hover,

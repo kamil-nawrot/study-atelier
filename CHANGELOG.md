@@ -2,6 +2,41 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.26.0] - 2026-11-20
+
+Archiwum and Zaplecze are polished after their first use, every list and form gets a tidier layout, Kalendarium opens an event in a side panel, the glossary keeps its figures on a tab of their own, and the style question returns to the recognition of an artwork.
+
+### Added
+
+- "Wyczyść Archiwum" empties the whole Archiwum, artworks and exhibitions together, from one button in its header.
+- Zaplecze remembers images that stopped loading and lists them among the missing data, and the counts, a search and a calmer layout help to go through the list; "Poprawiaj po kolei" goes over the whole list.
+- "Otwórz w kartotece" in the value cards of an artwork leads to the value's page in Kartoteka.
+- Kartoteka groups authors and events by era, and sorts them, periods and styles "Od najstarszych" or "Od najnowszych".
+- Own fields have a form page of their own, can be closed lists that take new values only in Kartoteka, and their values can be deleted.
+- Słowniczek has a tab "Postaci" with figures sorted into categories (ruler, patron, artist, scholar, sacred figure, myth), a category "Ikonografia" and dividers between letters.
+- Kalendarium shows an event in a side panel and opens an artwork preview after the same hover delay as other cards; event names appear on the axis only where they fit.
+- The artwork form shows the image on a stage that stays still while the form scrolls.
+- Required fields are marked, "p.n.e." is a block at the end of the year input, and a field with one value shows it as text.
+
+### Changed
+
+- The wall sorts by date of creation in both directions, the grouping popover fits its hint, and the loupe in Porównanie works on low-resolution artworks and centres its caption.
+- The loupe zooms in proportion to the wheel or trackpad movement, so it is smooth on high resolutions.
+- Archiwum shows dates and counts the same way for artworks and exhibitions, and the deleting text of an exhibition is clearer.
+- The style question is part of the recognition of an artwork again instead of a card of its own, so existing style cards are removed.
+- Polish across Kartoteka, Kronika (search, order, trips, warning about a place in another country), Słowniczek, Kalendarium, Wystawy and the forms of an artwork and an author portrait: leads, counters, spacing, search placeholders and the text counter of long fields.
+- Internal: conventions of form fields recorded in the design system, a code review of the version with its fixes, and the working rules moved from project memory into the docs.
+
+### Fixed
+
+- The lower rows of the menu no longer shift between the open and the collapsed state.
+- Old exports with an "Osoba" glossary entry import again, a closed list no longer calls a chosen value missing, a Kalendarium preview no longer stays open, and "Poprawiaj po kolei" with a search no longer opens a page outside its queue.
+- A browser spec of the artwork page failed at random; it no longer does.
+
+### Migrations run on production
+
+7 migrations run on production with this release and change existing data in two places: `20261120090000_style_question_back_in_recognition` deletes the review cards of the style question (the schedule of artwork and date cards stays) and `20261120120000_glossary_figures` moves the glossary category "person" to "scholar". The others add the column `broken_at` of `artwork_images` with its trigger, the column `closed` of `artwork_fields`, and replace `card_index`, `review_round`, `review_session`, `record_review`, `review_round_counts`, `review_round_size`, `extra_round` and `import_atelier`; `fill_style_cards` and `next_style_card` are dropped.
+
 ## [0.25.0] - 2026-11-17
 
 Weak spots get a place of their own: any question can be flagged "Do poprawki" and fixed later in Zaplecze, terms, symbols and the dates of Kalendarium events come back at the pace of the learner's memory, and the map opens a crowded group without a tangle of lines.
@@ -1123,3 +1158,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.24.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.24.0
 [0.24.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.24.1
 [0.25.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.25.0
+[0.26.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.26.0

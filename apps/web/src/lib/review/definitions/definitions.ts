@@ -1,5 +1,6 @@
 import type { Preferences } from '#lib/profile/types/preferences.ts';
 import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
+import { isFigure } from '#lib/glossary/categories/categories.ts';
 import { shuffle, shuffleQuiz } from '#lib/review/quiz/quiz.ts';
 import type { ExtraCard } from '#lib/review/types/extra-card.ts';
 import type { RoundTerm } from '#lib/review/types/round-term.ts';
@@ -16,6 +17,11 @@ export function definitionCount(
 	return preferences.reviewGlossaryOn ? preferences.reviewGlossaryQuestions : 0;
 }
 
+function closeness(entry: GlossaryTerm, term: GlossaryTerm): number {
+	if (entry.category === term.category) return 2;
+	return isFigure(entry.category) === isFigure(term.category) ? 1 : 0;
+}
+
 export function wrongNames(
 	term: GlossaryTerm,
 	glossary: readonly GlossaryTerm[],
@@ -24,7 +30,7 @@ export function wrongNames(
 	const others = shuffle(
 		glossary.filter((entry) => nameKey(entry) !== nameKey(term)),
 		random
-	).sort((a, b) => Number(b.category === term.category) - Number(a.category === term.category));
+	).sort((a, b) => closeness(b, term) - closeness(a, term));
 	const names = new Map(others.map((entry) => [nameKey(entry), entry.name]));
 	return [...names.values()].slice(0, 3);
 }

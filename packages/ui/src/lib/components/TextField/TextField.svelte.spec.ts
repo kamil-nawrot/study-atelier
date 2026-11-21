@@ -40,4 +40,24 @@ describe('TextField', () => {
 		await expect.element(field).toHaveAttribute('aria-busy', 'true');
 		expect(document.querySelectorAll('.filling-lines .line')).toHaveLength(1);
 	});
+
+	it('marks a required field with a hidden asterisk and aria-required', async () => {
+		render(TextField, { label: 'Title', required: true });
+
+		await expect
+			.element(page.getByRole('textbox', { name: 'Title' }))
+			.toHaveAttribute('aria-required', 'true');
+		expect(document.querySelector('label .required-mark')?.getAttribute('aria-hidden')).toBe(
+			'true'
+		);
+	});
+
+	it('renders the inside snippet within the outline of the input', async () => {
+		render(TextField, { label: 'Year', inside: action });
+
+		const input = page.getByRole('textbox', { name: 'Year' }).element();
+		expect(
+			input.closest('.control')?.contains(page.getByRole('button', { name: 'Use' }).element())
+		).toBe(true);
+	});
 });

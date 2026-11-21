@@ -9,6 +9,7 @@ import {
 	SIGNED_URL_SECONDS
 } from '#lib/images/bucket/bucket.ts';
 import {
+	checkedOwnImageUrls,
 	ownImageUrl,
 	ownImageUrls,
 	removeAllOwnFiles,
@@ -179,6 +180,34 @@ describe('ownImageUrls', () => {
 			['user-id/a.png', 'user-id/b.png'],
 			SIGNED_URL_SECONDS
 		);
+	});
+
+	it('names the files that storage does not have', async () => {
+		bucket.createSignedUrls.mockResolvedValue({
+			data: [
+				{
+					path: 'user-id/a.png',
+					signedUrl: 'https://storage.example.com/signed/a.png',
+					error: null
+				},
+				{ path: 'user-id/b.png', signedUrl: '', error: 'Object not found' }
+			],
+			error: null
+		});
+
+		const checked = await checkedOwnImageUrls(['user-id/a.png', 'user-id/b.png']);
+
+		expect(checked.missing).toEqual(['user-id/b.png']);
+		expect(checked.urls.get('user-id/a.png')).toBe('https://storage.example.com/signed/a.png');
+	});
+
+	it('names no missing file when the whole request fails', async () => {
+		await expect(checkedOwnImageUrls([])).resolves.toEqual({ urls: new Map(), missing: [] });
+		bucket.createSignedUrls.mockResolvedValue({ data: null, error: new Error('Network') });
+		await expect(checkedOwnImageUrls(['user-id/a.png'])).resolves.toEqual({
+			urls: new Map(),
+			missing: []
+		});
 	});
 
 	it('asks nothing for no files and returns nothing when the request fails', async () => {

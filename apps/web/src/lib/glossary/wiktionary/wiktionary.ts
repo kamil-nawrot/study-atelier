@@ -1,4 +1,5 @@
 import { fetchJson, withDeadline } from '#lib/images/wikimedia/wikimedia.ts';
+import { isFigure } from '#lib/glossary/categories/categories.ts';
 import { cleanForms } from '#lib/glossary/glossary/glossary.ts';
 import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
 
@@ -61,7 +62,7 @@ function wordsOf(name: string): string[] {
 
 export function suggestsForms(name: string, category: GlossaryCategory | null): boolean {
 	const count = wordsOf(name).length;
-	return category !== null && category !== 'person' && count > 0 && count <= MAX_WORDS;
+	return category !== null && !isFigure(category) && count > 0 && count <= MAX_WORDS;
 }
 
 export function polishSection(wikitext: string): string {

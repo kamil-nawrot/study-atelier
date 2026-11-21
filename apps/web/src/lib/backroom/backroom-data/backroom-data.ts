@@ -5,6 +5,7 @@ import type { FlagReason } from '#lib/backroom/types/flag-reason.ts';
 import type { FlagRecord } from '#lib/backroom/types/flag-record.ts';
 import type { FlagTarget } from '#lib/backroom/types/flag-target.ts';
 import type { StoredFlag } from '#lib/backroom/types/stored-flag.ts';
+import type { BrokenImage } from '#lib/backroom/types/broken-image.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 
@@ -131,4 +132,17 @@ export async function loadItemFlags(target?: FlagTarget): Promise<StoredFlag[]> 
 		return narrowed.order('id').range(from, to);
 	});
 	return error ? [] : rows.map(storedOf);
+}
+
+export async function loadBrokenImages(): Promise<BrokenImage[]> {
+	const { rows, error } = await fetchAll<{ artwork_id: string; position: number }>((from, to) =>
+		supabase
+			.from('artwork_images')
+			.select('artwork_id, position')
+			.not('broken_at', 'is', null)
+			.order('artwork_id')
+			.order('position')
+			.range(from, to)
+	);
+	return error ? [] : rows.map((row) => ({ artworkId: row.artwork_id, position: row.position }));
 }
