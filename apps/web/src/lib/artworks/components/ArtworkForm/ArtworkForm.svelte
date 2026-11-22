@@ -355,7 +355,7 @@
 		{/snippet}
 	</StagedFormColumns>
 
-	<FormActions bind:height={barHeight}>
+	<FormActions staged bind:height={barHeight}>
 		<Button href={cancelHref} onclick={oncancel}>
 			{labels?.cancel ?? m.common.cancel}
 		</Button>

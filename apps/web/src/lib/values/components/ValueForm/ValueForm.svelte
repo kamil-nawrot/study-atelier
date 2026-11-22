@@ -334,7 +334,7 @@
 			</div>
 		{/if}
 
-		<FormActions bind:height={barHeight}>
+		<FormActions staged={!!form.author && !!record} bind:height={barHeight}>
 			<Button href={cancelHref} onclick={oncancel}>
 				{m.common.cancel}
 			</Button>
