@@ -32,7 +32,7 @@
 	a {
 		display: grid;
 		gap: var(--spacing-1);
-		padding: var(--spacing-3);
+		padding: var(--spacing-4) var(--spacing-3);
 		color: var(--color-fg);
 		text-decoration: none;
 	}
