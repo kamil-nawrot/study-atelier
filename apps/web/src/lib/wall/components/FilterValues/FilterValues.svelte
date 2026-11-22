@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { tick, type Snippet } from 'svelte';
+	import { tick } from 'svelte';
 	import { SearchField, TextButton, ToggleTag } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
@@ -15,7 +15,7 @@
 		limit?: number;
 		heading?: 'h3' | 'h4';
 		disabled?: (value: string) => boolean;
-		mark?: Snippet<[string]>;
+		tint?: (value: string) => string | undefined;
 	};
 
 	let {
@@ -28,7 +28,7 @@
 		limit,
 		heading = 'h3',
 		disabled,
-		mark
+		tint
 	}: Props = $props();
 
 	let query = $state('');
@@ -69,8 +69,8 @@
 						disabled={disabled?.(option.value)}
 						onclick={() => onchoose(option.value)}
 						pressed={chosen.includes(option.value)}
+						tint={tint?.(option.value)}
 					>
-						{@render mark?.(option.value)}
 						<span class="name" title={name(option.value)}>{name(option.value)}</span>
 					</ToggleTag>
 				</li>
