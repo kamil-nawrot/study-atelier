@@ -327,7 +327,9 @@
 	.split {
 		display: grid;
 		gap: var(--spacing-3);
-		margin-inline: calc(-1 * var(--content-bleed, 0px));
+		position: relative;
+		left: calc(-1 * var(--content-bleed, 0px));
+		width: calc(100% + 2 * var(--content-bleed, 0px));
 	}
 
 	.stage {

@@ -43,14 +43,7 @@
 			{@const parts = tagParts(tag)}
 			{@const fill = colour?.(tag)}
 			{#if fill}
-				<svg
-					style:fill
-					class="swatch"
-					aria-hidden="true"
-					height="8"
-					viewBox="0 0 8 8"
-					width="8"
-				>
+				<svg style:fill class="swatch" aria-hidden="true" height="8" viewBox="0 0 8 8" width="8">
 					<circle cx="4" cy="4" r="4" />
 				</svg>
 			{/if}
