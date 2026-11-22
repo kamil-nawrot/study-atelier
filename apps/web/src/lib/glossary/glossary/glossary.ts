@@ -6,7 +6,8 @@ import {
 	figureDraftChanged,
 	figureDraftOf
 } from '#lib/glossary/figure-form/figure-form.ts';
-import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
+import type { GlossaryFilter } from '#lib/glossary/types/glossary-filter.ts';
+import type { GlossaryKind } from '#lib/glossary/types/glossary-kind.ts';
 import type { GlossaryDraft } from '#lib/glossary/types/glossary-draft.ts';
 import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 
@@ -77,8 +78,8 @@ export function groupByLetter(entries: readonly GlossaryEntry[]): LetterGroup[] 
 
 export function countByCategory(
 	entries: readonly GlossaryEntry[]
-): Record<GlossaryCategory, number> {
-	const counts: Record<GlossaryCategory, number> = {
+): Record<GlossaryFilter, number> {
+	const counts: Record<GlossaryFilter, number> = {
 		architecture: 0,
 		painting: 0,
 		sculpture: 0,
@@ -90,21 +91,22 @@ export function countByCategory(
 		artist: 0,
 		scholar: 0,
 		sacred: 0,
-		myth: 0
+		myth: 0,
+		none: 0
 	};
-	for (const entry of entries) counts[entry.category] += 1;
+	for (const entry of entries) counts[entry.category ?? 'none'] += 1;
 	return counts;
 }
 
 export function filterEntries(
 	entries: readonly GlossaryEntry[],
-	categories: ReadonlySet<GlossaryCategory>,
+	categories: ReadonlySet<GlossaryFilter>,
 	query: string
 ): GlossaryEntry[] {
 	const term = normalizeForSearch(query);
 	return entries.filter(
 		(entry) =>
-			(categories.size === 0 || categories.has(entry.category)) &&
+			(categories.size === 0 || categories.has(entry.category ?? 'none')) &&
 			(!term || normalizeForSearch(entry.name).includes(term))
 	);
 }
@@ -165,9 +167,10 @@ export function cappedForms(forms: readonly string[]): string[] {
 	return cleanForms(forms).slice(0, FORMS_MAX_COUNT);
 }
 
-export function emptyDraft(): GlossaryDraft {
+export function emptyDraft(kind: GlossaryKind = 'term'): GlossaryDraft {
 	return {
 		name: '',
+		kind,
 		category: null,
 		definition: '',
 		synonyms: [],
@@ -182,6 +185,7 @@ export function emptyDraft(): GlossaryDraft {
 export function draftOf(entry: GlossaryEntry): GlossaryDraft {
 	return {
 		name: entry.name,
+		kind: entry.kind,
 		category: entry.category,
 		definition: entry.definition,
 		synonyms: [...entry.synonyms],

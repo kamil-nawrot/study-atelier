@@ -18,10 +18,12 @@
 <a href={resolve('/(app)/atelier/glossary/[id]', { id: entry.id })}>
 	<span class="head">
 		<span class="name">{entry.name}</span>
-		<span class="category">
-			<Icon icon={glossaryCategoryIcon(entry.category)} size="sm" />
-			{glossaryCategoryName(entry.category)}
-		</span>
+		{#if entry.category}
+			<span class="category">
+				<Icon icon={glossaryCategoryIcon(entry.category)} size="sm" />
+				{glossaryCategoryName(entry.category)}
+			</span>
+		{/if}
 	</span>
 	{#if entry.definition}
 		<span class="sentence">{leadSentences(entry.definition)}</span>

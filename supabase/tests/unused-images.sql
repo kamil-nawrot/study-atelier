@@ -31,8 +31,8 @@ begin
   insert into public.author_details (value_id, own_image_path)
     values (author, '00000000-0000-0000-0000-00000000000a/portrait.webp');
 
-  insert into public.glossary_entries (name, category, own_image_path, image_width, image_height)
-    values ('Vasari', 'artist', '00000000-0000-0000-0000-00000000000a/figure.webp', 3, 4);
+  insert into public.glossary_entries (name, kind, category, own_image_path, image_width, image_height)
+    values ('Vasari', 'figure', 'artist', '00000000-0000-0000-0000-00000000000a/figure.webp', 3, 4);
 
   insert into public.artwork_pins (image_id, x, y, view_width)
     select image.id, 0.5, 0.5, 0.1

@@ -368,7 +368,7 @@ begin
     ('akwaforta', null, 'general'), ('barok', null, 'general'), ('chiaroscuro', null, 'general'),
     ('dyptyk', null, 'general'), ('Écorché', null, 'general'), ('fresk', null, 'general'),
     ('gotyk', null, 'general'), ('hieratyzm', null, 'general'), ('impast', null, 'general'),
-    ('japonizm', null, 'general'), ('Kazimierz Michałowski', 'Michałowski', 'scholar'),
+    ('japonizm', null, 'general'), ('Kazimierz Michałowski', 'Michałowski', null),
     ('Łuk triumfalny', null, 'general'), ('nawa', null, 'general'), ('„Ostatnia Wieczerza”', null, 'general'),
     ('putto', null, 'general'), ('rokoko', null, 'general'), ('ślimacznica', null, 'general'),
     ('tympanon', null, 'general'), ('umbra', null, 'general'), ('witraż', null, 'general'),

@@ -1,3 +1,4 @@
+import { isFigure } from '#lib/glossary/categories/categories.ts';
 import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 import type { WikipediaArticle } from '#lib/glossary/types/wikipedia-article.ts';
 import type { TermDefinitionResult } from '#lib/glossary/types/term-definition-result.ts';
@@ -7,10 +8,12 @@ export function testEntry(
 	name: string,
 	overrides: Partial<GlossaryEntry> = {}
 ): GlossaryEntry {
+	const category = overrides.category === undefined ? 'architecture' : overrides.category;
 	const entry = {
 		id,
 		name,
-		category: 'architecture' as const,
+		kind: isFigure(category) ? ('figure' as const) : ('term' as const),
+		category,
 		definition: `${name} is a test definition. It has a second sentence.`,
 		synonyms: [],
 		forms: [],

@@ -192,14 +192,46 @@ describe('new glossary entry page', () => {
 		expect(saveGlossaryEntry).not.toHaveBeenCalled();
 	});
 
-	it('requires a name and a category', async () => {
+	it('requires a name but not a category', async () => {
 		renderNew();
 
 		await saveButton().click();
 
 		await expect.element(page.getByText(m.valueForm.nameRequired)).toBeVisible();
-		await expect.element(page.getByText(m.glossary.form.categoryRequired)).toBeVisible();
 		expect(saveGlossaryEntry).not.toHaveBeenCalled();
+
+		await nameField().fill('Herkules');
+		await saveButton().click();
+
+		expect(saveGlossaryEntry).toHaveBeenCalledWith(
+			expect.objectContaining({ name: 'Herkules', kind: 'term', category: null }),
+			undefined,
+			undefined
+		);
+	});
+
+	it('clears a chosen category when the learner clicks it again', async () => {
+		renderNew(undefined, 'figure');
+
+		await nameField().fill('Herkules');
+		await category(m.glossary.categoryNames.myth).click();
+		await category(m.glossary.categoryNames.myth).click();
+		await saveButton().click();
+
+		expect(saveGlossaryEntry).toHaveBeenCalledWith(
+			expect.objectContaining({ name: 'Herkules', kind: 'figure', category: null }),
+			undefined,
+			undefined
+		);
+	});
+
+	it('searches Wikipedia by the name alone while no category is chosen', async () => {
+		renderNew();
+
+		await nameField().fill('nawa');
+		await vi.advanceTimersByTimeAsync(700);
+
+		expect(searchArticles).toHaveBeenCalledWith('nawa', null);
 	});
 
 	it('says the name is taken, ignoring letter case and diacritics', async () => {
@@ -498,6 +530,7 @@ describe('new glossary entry page', () => {
 		expect(saveGlossaryEntry).toHaveBeenCalledWith(
 			{
 				name: 'nawa',
+				kind: 'term',
 				category: 'architecture',
 				definition: NAWA.extract,
 				synonyms: [],

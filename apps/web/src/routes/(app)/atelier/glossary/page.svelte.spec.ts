@@ -205,6 +205,30 @@ describe('glossary page', () => {
 		await expect.element(entryLink('Fresco')).toBeVisible();
 	});
 
+	it('offers "Bez kategorii" only when an entry has no category, and filters by it', async () => {
+		renderGlossary([
+			...testGlossary(),
+			testEntry('a-kampanila', 'Kampanila', { category: null }),
+			testEntry('f-none', 'Herkules', { kind: 'figure', category: null })
+		]);
+
+		const none = page.getByRole('button', { name: `${m.glossary.noCategory} 1` });
+		await expect.element(entryLink('Kampanila')).not.toHaveTextContent(m.glossary.noCategory);
+		await none.click();
+
+		await expect.element(entryLink('Kampanila')).toBeVisible();
+		await expect.element(entryLink('Tympanum')).not.toBeInTheDocument();
+		await expect.element(entryLink('Herkules')).not.toBeInTheDocument();
+	});
+
+	it('offers no "Bez kategorii" when every entry has a category', async () => {
+		renderGlossary();
+
+		expect(
+			page.getByRole('button', { name: new RegExp(m.glossary.noCategory) }).elements()
+		).toHaveLength(0);
+	});
+
 	it('disables a category without entries', async () => {
 		renderGlossary();
 

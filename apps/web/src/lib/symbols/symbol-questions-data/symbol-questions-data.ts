@@ -3,7 +3,6 @@ import { IMAGE_COLUMNS, imageOf } from '#lib/images/image-record/image-record.ts
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 import type { ImageRow } from '#lib/images/types/image-row.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
-import { isFigure } from '#lib/glossary/categories/categories.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { symbolErrorMessage } from '#lib/symbols/errors/errors.ts';
 import type { SymbolQuestionPin } from '#lib/symbols/types/symbol-question-pin.ts';
@@ -21,7 +20,7 @@ type PinRow = {
 		text: string;
 		symbol_meaning_contexts: {
 			position: number;
-			glossary_entries: { name: string; category: string } | null;
+			glossary_entries: { name: string; kind: string } | null;
 		}[];
 	} | null;
 	artwork_images: { id: string; artwork_id: string };
@@ -29,7 +28,7 @@ type PinRow = {
 
 type ImagePinRow = { id: string; artwork_images: ImageRow & { id: string } };
 
-const COLUMNS = `id, x, y, text, view_width, crop_path, symbols!inner(id, name), symbol_meanings(id, text, symbol_meaning_contexts(position, glossary_entries(name, category))), artwork_images!inner(id, artwork_id, artworks!inner(deleted_at))`;
+const COLUMNS = `id, x, y, text, view_width, crop_path, symbols!inner(id, name), symbol_meanings(id, text, symbol_meaning_contexts(position, glossary_entries(name, kind))), artwork_images!inner(id, artwork_id, artworks!inner(deleted_at))`;
 
 const IMAGE_SELECT = `id, artwork_images!inner(id, ${IMAGE_COLUMNS.join(', ')})`;
 
@@ -39,7 +38,7 @@ function personsOf(
 	return [...contexts]
 		.sort((first, second) => first.position - second.position)
 		.flatMap(({ glossary_entries: entry }) =>
-			entry && isFigure(entry.category) ? [entry.name] : []
+			entry?.kind === 'figure' ? [entry.name] : []
 		);
 }
 

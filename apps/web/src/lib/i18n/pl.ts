@@ -1584,6 +1584,11 @@ export const pl = {
 			sacred: 'Postać biblijna i święty',
 			myth: 'Bóstwo i postać mitu'
 		},
+		noCategory: 'Bez kategorii',
+		kindNames: {
+			term: 'Pojęcie',
+			figure: 'Postać'
+		},
 		figures: {
 			count: (count: number): string =>
 				`${count} ${plural(count, { one: 'postać', few: 'postaci', many: 'postaci' })}`,
@@ -1628,10 +1633,9 @@ export const pl = {
 			nameTaken: (name: string, figure = false): string =>
 				`Masz już w Słowniczku ${figure ? 'postać' : 'pojęcie'} „${name}”.`,
 			category: 'Kategoria',
-			categoryRequired: 'Wybierz kategorię.',
 			definition: 'Definicja',
 			definitionPending:
-				'Wpisz nazwę i wybierz kategorię, aby spróbować wyszukać definicję w Wikipedii.',
+				'Wpisz nazwę, aby spróbować wyszukać definicję w Wikipedii.',
 			definitionSearching: 'Wyszukiwanie w Wikipedii…',
 			definitionNone: 'Wikipedia nie zna tego słowa. Napisz definicję własnymi słowami.',
 			definitionFailed:
@@ -1673,7 +1677,7 @@ export const pl = {
 			figure: {
 				definition: 'Notka biograficzna',
 				definitionPending:
-					'Wpisz nazwę i wybierz kategorię, aby spróbować wyszukać notkę biograficzną w Wikipedii.',
+					'Wpisz nazwę, aby spróbować wyszukać notkę biograficzną w Wikipedii.',
 				definitionNone: 'Wikipedia nie zna tej postaci. Napisz notkę własnymi słowami.',
 				definitionFailed:
 					'Nie udało się połączyć z Wikipedią. Możesz napisać notkę własnymi słowami albo spróbować jeszcze raz.',
@@ -1698,8 +1702,8 @@ export const pl = {
 		},
 		articles: {
 			title: 'Który to artykuł?',
-			description: (name: string, category: string): string =>
-				`Wyniki z Wikipedii dla „${name}” w kategorii ${category}. Wybierz ten, o który ci chodzi.`,
+			description: (name: string, category: string | null): string =>
+				`Wyniki z Wikipedii dla „${name}”${category ? ` w kategorii ${category}` : ''}. Wybierz ten, o który ci chodzi.`,
 			listLabel: 'Artykuły z Wikipedii',
 			searching: 'Wyszukiwanie w Wikipedii…',
 			use: 'Użyj tego artykułu'

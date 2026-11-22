@@ -15,6 +15,7 @@ vi.mock('#lib/glossary/glossary-data/glossary-data.ts', () => ({
 const sfumato: GlossaryTerm = {
 	id: 't1',
 	name: 'Sfumato',
+	kind: 'term' as const,
 	category: 'technique',
 	synonyms: [],
 	forms: [],

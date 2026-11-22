@@ -3,7 +3,7 @@ import { matchingTerms, termOf } from '#lib/exhibitions/editor/term-search/term-
 import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 
 function term(id: string, name: string, synonyms: string[] = []): GlossaryTerm {
-	return { id, name, category: 'technique', synonyms, forms: [], hasDefinition: true };
+	return { id, name, kind: 'term' as const, category: 'technique', synonyms, forms: [], hasDefinition: true };
 }
 
 const terms = [

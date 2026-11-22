@@ -35,6 +35,7 @@ function row(overrides: Record<string, unknown> = {}): Record<string, unknown> {
 		id: ID,
 		owner_id: 'owner',
 		name: 'Tympanum',
+		kind: 'term',
 		category: 'architecture',
 		definition: 'A definition.',
 		synonyms: ['tympan'],
@@ -71,6 +72,7 @@ async function keepsGlossaryCached(): Promise<boolean> {
 
 const draft: GlossaryDraft = {
 	name: '  Tympanum ',
+	kind: 'term',
 	category: 'architecture',
 	definition: ' A definition. ',
 	synonyms: [' tympan ', 'Tympan'],
@@ -96,7 +98,8 @@ describe('loadTermIndex', () => {
 		const query = chain({
 			data: [
 				{ ...row(), has_definition: true },
-				{ ...row({ id: 'other', category: 'music' }), has_definition: true }
+				{ ...row({ id: 'other', category: 'music' }), has_definition: true },
+				{ ...row({ id: 'none', category: null, kind: 'figure' }), has_definition: false }
 			],
 			error: null
 		});
@@ -105,17 +108,27 @@ describe('loadTermIndex', () => {
 		await loadTermIndex();
 
 		expect(query.select).toHaveBeenCalledWith(
-			'id, name, category, synonyms, forms, has_definition'
+			'id, name, kind, category, synonyms, forms, has_definition'
 		);
 		expect(query.select).toHaveBeenCalledOnce();
 		expect(first.terms).toEqual([
 			{
 				id: ID,
 				name: 'Tympanum',
+				kind: 'term',
 				category: 'architecture',
 				synonyms: ['tympan'],
 				forms: ['tympana'],
 				hasDefinition: true
+			},
+			{
+				id: 'none',
+				name: 'Tympanum',
+				kind: 'figure',
+				category: null,
+				synonyms: ['tympan'],
+				forms: ['tympana'],
+				hasDefinition: false
 			}
 		]);
 	});
@@ -251,6 +264,7 @@ describe('loadGlossary', () => {
 			{
 				id: ID,
 				name: 'Tympanum',
+				kind: 'term',
 				category: 'architecture',
 				definition: 'A definition.',
 				synonyms: ['tympan'],
@@ -268,6 +282,7 @@ describe('loadGlossary', () => {
 			{
 				id: 'other',
 				name: 'Tympanum',
+				kind: 'term',
 				category: 'architecture',
 				definition: '',
 				synonyms: ['tympan'],
@@ -280,10 +295,32 @@ describe('loadGlossary', () => {
 		]);
 	});
 
-	it('leaves out a row with a category it does not know', async () => {
-		chain({ data: [row({ category: 'music' })], error: null });
+	it('leaves out a row with a category or a kind it does not know, or a category of the other kind', async () => {
+		chain({
+			data: [
+				row({ category: 'music' }),
+				row({ kind: 'person' }),
+				row({ kind: 'figure', category: 'painting' })
+			],
+			error: null
+		});
 
 		expect((await loadGlossary()).entries).toEqual([]);
+	});
+
+	it('keeps a term and a figure without a category', async () => {
+		chain({
+			data: [row({ id: 'a', category: null }), row({ id: 'b', kind: 'figure', category: null })],
+			error: null
+		});
+
+		const { entries } = await loadGlossary();
+
+		expect(entries.map(({ id, kind, category }) => ({ id, kind, category }))).toEqual([
+			{ id: 'a', kind: 'term', category: null },
+			{ id: 'b', kind: 'figure', category: null }
+		]);
+		expect(entries[1].figure).toBeDefined();
 	});
 
 	it('gives a message and no entries when loading fails', async () => {
@@ -310,6 +347,7 @@ describe('loadGlossaryEntry', () => {
 	it('loads the life years, country and portrait of a figure and none for a term', async () => {
 		chain({
 			data: row({
+				kind: 'figure',
 				category: 'artist',
 				birth_year: 1511,
 				death_year: 1574,
@@ -365,6 +403,7 @@ describe('saveGlossaryEntry', () => {
 		const result = await saveGlossaryEntry(draft);
 
 		expect(query.insert).toHaveBeenCalledWith({
+			kind: 'term',
 			name: 'Tympanum',
 			category: 'architecture',
 			definition: 'A definition.',
@@ -385,6 +424,7 @@ describe('saveGlossaryEntry', () => {
 		await saveGlossaryEntry({
 			...draft,
 			name: 'Pheidias',
+			kind: 'figure',
 			category: 'artist',
 			figure: {
 				...emptyFigureDraft(),
@@ -436,7 +476,13 @@ describe('saveGlossaryEntry', () => {
 		};
 
 		await saveGlossaryEntry(
-			{ ...draft, name: 'Pheidias', category: 'artist', figure: emptyFigureDraft() },
+			{
+				...draft,
+				name: 'Pheidias',
+				kind: 'figure',
+				category: 'artist',
+				figure: emptyFigureDraft()
+			},
 			ID,
 			previous
 		);
@@ -515,8 +561,27 @@ describe('saveGlossaryEntry', () => {
 		expect(await saveGlossaryEntry(draft)).toEqual({ error: m.glossary.errors.invalid });
 	});
 
-	it('does not save an entry without a category', async () => {
-		expect((await saveGlossaryEntry({ ...draft, category: null })).error).toBe(
+	it('saves an entry without a category', async () => {
+		const query = chain({ data: { id: ID }, error: null });
+
+		await saveGlossaryEntry({ ...draft, category: null });
+
+		expect(query.insert).toHaveBeenCalledWith(
+			expect.objectContaining({ kind: 'term', category: null })
+		);
+	});
+
+	it('sends the kind only with a new entry, never with an edit', async () => {
+		const query = chain({ data: { id: ID }, error: null });
+
+		await saveGlossaryEntry({ ...draft, category: null }, ID);
+
+		expect(query.update).toHaveBeenCalledWith(expect.not.objectContaining({ kind: 'term' }));
+		expect(query.update).toHaveBeenCalledWith(expect.objectContaining({ category: null }));
+	});
+
+	it('does not save a category of the other kind', async () => {
+		expect((await saveGlossaryEntry({ ...draft, kind: 'figure' })).error).toBe(
 			m.glossary.errors.invalid
 		);
 		expect(from).not.toHaveBeenCalled();
