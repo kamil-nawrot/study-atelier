@@ -72,4 +72,3 @@ describe('ToggleTag', () => {
 		expect(tinted.getBoundingClientRect().width).toBe(width);
 	});
 });
-

@@ -101,9 +101,9 @@
 			disabled={(value) => unavailable('periods', value)}
 			heading="h4"
 			limit={FREQUENT_LIMIT}
-			tint={(value) => laneTint('periods', value)}
 			onchoose={(value) => (filter = toggleLane(filter, { field: 'periods', value }))}
 			options={laneOptions(artworks, filter, 'periods')}
+			tint={(value) => laneTint('periods', value)}
 			title={m.timeline.filters.periods}
 		/>
 		<FilterValues
@@ -112,9 +112,9 @@
 			disabled={(value) => unavailable('styles', value)}
 			heading="h4"
 			limit={FREQUENT_LIMIT}
-			tint={(value) => laneTint('styles', value)}
 			onchoose={(value) => (filter = toggleLane(filter, { field: 'styles', value }))}
 			options={laneOptions(artworks, filter, 'styles')}
+			tint={(value) => laneTint('styles', value)}
 			title={m.timeline.filters.styles}
 		/>
 	</section>
