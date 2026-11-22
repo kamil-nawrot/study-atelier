@@ -39,7 +39,10 @@
 	let failure = $state<string>();
 	let busy = $state(false);
 
-	const definition = new DefinitionSearch(() => form);
+	const definition = new DefinitionSearch(
+		() => form,
+		() => figure
+	);
 	definition.follow();
 
 	$effect.pre(() => {
@@ -141,8 +144,8 @@
 			form.name.trim(),
 			glossaryCategoryName(form.category).toLocaleLowerCase('pl')
 		)}
-		failedText={m.glossary.form.definitionFailed}
-		noneText={m.glossary.form.definitionNone}
+		failedText={definition.texts.definitionFailed}
+		noneText={definition.texts.definitionNone}
 		onuse={(article) => definition.use(article)}
 		status={definition.status === 'idle' ? 'searching' : definition.status}
 		bind:open={definition.articlesOpen}

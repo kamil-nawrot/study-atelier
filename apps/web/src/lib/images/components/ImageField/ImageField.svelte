@@ -126,7 +126,9 @@
 	{#if staged && preview}
 		<StageBackdrop src={preview.src} />
 	{/if}
-	{@render slots?.()}
+	<div class="top">
+		{@render slots?.()}
+	</div>
 	<figure class="picture">
 		<div class="mat" class:compact={compactEmpty && !preview}>
 			{#if preview}

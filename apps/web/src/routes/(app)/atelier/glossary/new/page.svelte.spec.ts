@@ -141,6 +141,42 @@ describe('new glossary entry page', () => {
 
 		expect(saveGlossaryEntry).toHaveBeenCalledWith(
 			expect.objectContaining({ name: 'Herkules', category: 'myth' }),
+			undefined,
+			undefined
+		);
+	});
+
+	it('words the fields of a figure for a person and adds life years, country and a portrait', async () => {
+		renderNew(undefined, 'figure');
+
+		await expect.element(page.getByLabelText(m.glossary.form.figure.definition)).toBeVisible();
+		await expect
+			.element(page.getByRole('combobox', { name: m.glossary.form.figure.synonyms }))
+			.toBeVisible();
+		await expect.element(page.getByText(m.glossary.form.figure.synonymsHint)).toBeVisible();
+		await expect.element(page.getByText(m.glossary.form.figure.formsHint)).toBeVisible();
+		await expect.element(page.getByText(m.valueForm.lifeYears)).toBeVisible();
+		await expect.element(page.getByLabelText(m.valueForm.authorCountry)).toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.valueForm.portrait.own }))
+			.toBeVisible();
+	});
+
+	it('saves the life years and the country of a figure', async () => {
+		renderNew(undefined, 'figure');
+
+		await nameField().fill('Fidiasz');
+		await category(m.glossary.categoryNames.artist).click();
+		await page.getByLabelText(m.valueForm.birthYear).fill('1452');
+		await page.getByLabelText(m.valueForm.deathYear).fill('1519');
+		await page.getByLabelText(m.valueForm.authorCountry).fill('Grecja');
+		await saveButton().click();
+
+		expect(saveGlossaryEntry).toHaveBeenCalledWith(
+			expect.objectContaining({
+				figure: expect.objectContaining({ birthYear: '1452', deathYear: '1519', country: 'Grecja' })
+			}),
+			undefined,
 			undefined
 		);
 	});
@@ -468,6 +504,7 @@ describe('new glossary entry page', () => {
 				forms: ['nawy', 'nawie'],
 				sortByOther: false,
 				sortName: '',
+				figure: expect.any(Object),
 				source: {
 					title: 'Nawa',
 					url: 'https://pl.wikipedia.org/wiki/Nawa',
@@ -475,6 +512,7 @@ describe('new glossary entry page', () => {
 					fetchedOn: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/)
 				}
 			},
+			undefined,
 			undefined
 		);
 		expect(goto).toHaveBeenCalledWith('/atelier/glossary/new-id', {
@@ -501,6 +539,7 @@ describe('new glossary entry page', () => {
 				sortByOther: true,
 				sortName: 'Nawa, główna'
 			}),
+			undefined,
 			undefined
 		);
 	});
@@ -552,6 +591,7 @@ describe('new glossary entry page', () => {
 		await saveButton().click();
 		expect(saveGlossaryEntry).toHaveBeenCalledWith(
 			expect.objectContaining({ forms: ['nawy', 'nawie'] }),
+			undefined,
 			undefined
 		);
 	});
@@ -586,7 +626,7 @@ describe('new glossary entry page', () => {
 		await category(m.glossary.categoryNames.artist).click();
 		await vi.advanceTimersByTimeAsync(700);
 
-		await expect.element(page.getByText(m.glossary.form.formsSkipped)).toBeVisible();
+		await expect.element(page.getByText(m.glossary.form.figure.formsSkipped)).toBeVisible();
 		expect(fetchForms).not.toHaveBeenCalled();
 	});
 
@@ -634,6 +674,7 @@ describe('new glossary entry page', () => {
 
 		expect(saveGlossaryEntry).toHaveBeenCalledWith(
 			expect.objectContaining({ name: 'xyzzy', definition: '', source: null }),
+			undefined,
 			undefined
 		);
 	});

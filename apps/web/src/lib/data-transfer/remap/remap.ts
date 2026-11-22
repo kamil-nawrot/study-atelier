@@ -45,7 +45,7 @@ export const IMPORT_TABLES = [
 ] as const;
 
 const UUID = new RegExp(UUID_PATTERN, 'g');
-const IMAGE_PATH_TABLES = ['artworks', 'artwork_images', 'author_details'];
+const IMAGE_PATH_TABLES = ['artworks', 'artwork_images', 'author_details', 'glossary_entries'];
 
 type Remapped = {
 	payload: Record<string, ExportRow[]>;

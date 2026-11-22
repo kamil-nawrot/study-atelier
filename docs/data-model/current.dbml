@@ -459,6 +459,19 @@ Table glossary_entries {
   synonyms "text[]" [not null, default: `'{}'::text[]`]
   sort_name text
   has_definition boolean [note: 'generated: (COALESCE(btrim(definition), \'\'::text) <> \'\'::text)']
+  birth_year integer
+  death_year integer
+  years_approximate boolean [not null, default: `false`]
+  country text
+  source_wikidata_id text
+  source_image_file text
+  source_image_licence text
+  source_image_licence_url text
+  source_image_attribution text
+  own_image_path text
+  own_image_url text
+  image_width integer
+  image_height integer
 
   indexes {
     (id, owner_id) [unique]

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
+import { emptyFigureDraft } from '#lib/glossary/figure-form/figure-form.ts';
 import { cached, forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import {
@@ -74,7 +75,8 @@ const draft: GlossaryDraft = {
 		url: 'https://pl.wikipedia.org/wiki/Tympanum',
 		licence: 'CC BY-SA 4.0',
 		fetchedOn: '2026-10-17'
-	}
+	},
+	figure: emptyFigureDraft()
 };
 
 describe('loadTermIndex', () => {
@@ -339,6 +341,59 @@ describe('saveGlossaryEntry', () => {
 			source_fetched_on: '2026-10-17'
 		});
 		expect(result).toEqual({ id: ID });
+	});
+
+	it('writes the life years, country and commons portrait of a figure', async () => {
+		const query = chain({ data: { id: ID }, error: null });
+
+		await saveGlossaryEntry({
+			...draft,
+			name: 'Pheidias',
+			category: 'artist',
+			figure: {
+				...emptyFigureDraft(),
+				birthYear: '490',
+				birthBeforeCommonEra: true,
+				deathYear: '430',
+				deathBeforeCommonEra: true,
+				yearsApproximate: true,
+				country: ' Grecja ',
+				image: {
+					kind: 'commons',
+					wikidataId: 'Q1',
+					file: 'Pheidias.jpg',
+					licence: 'CC BY',
+					licenceUrl: null,
+					attribution: 'Someone',
+					width: 3,
+					height: 4
+				}
+			}
+		});
+
+		expect(query.insert).toHaveBeenCalledWith(
+			expect.objectContaining({
+				birth_year: -490,
+				death_year: -430,
+				years_approximate: true,
+				country: 'Grecja',
+				source_wikidata_id: 'Q1',
+				source_image_file: 'Pheidias.jpg',
+				own_image_path: null,
+				image_width: 3,
+				image_height: 4
+			})
+		);
+	});
+
+	it('leaves the figure columns out when a term is saved', async () => {
+		const query = chain({ data: { id: ID }, error: null });
+
+		await saveGlossaryEntry(draft);
+
+		expect(query.insert).toHaveBeenCalledWith(
+			expect.not.objectContaining({ birth_year: expect.anything() })
+		);
 	});
 
 	it('updates an existing entry and clears an empty definition and a removed source', async () => {

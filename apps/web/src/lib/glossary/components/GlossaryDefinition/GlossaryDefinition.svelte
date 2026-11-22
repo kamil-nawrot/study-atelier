@@ -16,7 +16,7 @@
 	<TextArea
 		filling={search.filling}
 		hint={search.hint}
-		label={m.glossary.form.definition}
+		label={search.texts.definition}
 		maxlength={DEFINITION_MAX_LENGTH}
 		placeholder={search.placeholder}
 		rows={7}
