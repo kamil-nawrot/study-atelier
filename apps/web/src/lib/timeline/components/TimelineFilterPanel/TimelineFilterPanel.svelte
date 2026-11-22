@@ -50,27 +50,15 @@
 		return tiles.map((tile) => ({ ...tile, count: counts.get(tile.value) ?? 0 }));
 	}
 
+	function laneTint(field: LaneField, value: string): string | undefined {
+		const index = laneIndex(filter, { field, value });
+		return index < 0 ? undefined : laneColour(index);
+	}
+
 	function unavailable(field: LaneField, value: string): boolean {
 		return full && laneIndex(filter, { field, value }) < 0;
 	}
 </script>
-
-{#snippet swatch(field: LaneField, value: string)}
-	{@const index = laneIndex(filter, { field, value })}
-	{#if index >= 0}
-		<svg style:fill={laneColour(index)} aria-hidden="true" height="8" viewBox="0 0 8 8" width="8">
-			<circle cx="4" cy="4" r="4" />
-		</svg>
-	{/if}
-{/snippet}
-
-{#snippet periodSwatch(value: string)}
-	{@render swatch('periods', value)}
-{/snippet}
-
-{#snippet styleSwatch(value: string)}
-	{@render swatch('styles', value)}
-{/snippet}
 
 <div class="panel">
 	<p class="intro">{m.timeline.filters.intro}</p>
@@ -113,7 +101,7 @@
 			disabled={(value) => unavailable('periods', value)}
 			heading="h4"
 			limit={FREQUENT_LIMIT}
-			mark={periodSwatch}
+			tint={(value) => laneTint('periods', value)}
 			onchoose={(value) => (filter = toggleLane(filter, { field: 'periods', value }))}
 			options={laneOptions(artworks, filter, 'periods')}
 			title={m.timeline.filters.periods}
@@ -124,7 +112,7 @@
 			disabled={(value) => unavailable('styles', value)}
 			heading="h4"
 			limit={FREQUENT_LIMIT}
-			mark={styleSwatch}
+			tint={(value) => laneTint('styles', value)}
 			onchoose={(value) => (filter = toggleLane(filter, { field: 'styles', value }))}
 			options={laneOptions(artworks, filter, 'styles')}
 			title={m.timeline.filters.styles}
