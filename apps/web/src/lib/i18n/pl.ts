@@ -508,6 +508,7 @@ export const pl = {
 			activeLabel: 'Aktywne filtry',
 			clear: 'Wyczyść filtry',
 			removeTag: (label: string): string => `Usuń filtr: ${label}`,
+			moreTags: (count: number): string => `Pokaż wszystkie filtry, jeszcze ${count}`,
 			noResultsTitle: 'Nie udało się znaleźć żadnego pasującego dzieła',
 			noResults:
 				'Żadne dzieło nie pasuje do wybranych przez Ciebie filtrów. Spróbuj zmienić kryteria filtrowania i wyszukać jeszcze raz.',
