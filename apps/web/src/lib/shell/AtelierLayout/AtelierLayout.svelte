@@ -213,7 +213,7 @@
 		align-items: flex-start;
 	}
 
-	.body:has(:global([data-bleed])) {
+	.body:has(:global([data-bleed], [data-fill-stage])) {
 		--content-bleed: max(
 			var(--page-inline),
 			calc((100cqw - var(--panel-width) - var(--size-content-wide)) / 2)
@@ -224,6 +224,10 @@
 
 	.body:has(:global([data-bleed])) .content {
 		padding-top: 0;
+	}
+
+	.body .content:has(:global([data-fill-stage])) {
+		padding-bottom: var(--bottom-inset);
 	}
 
 	.content {

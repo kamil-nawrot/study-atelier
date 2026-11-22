@@ -14,6 +14,8 @@ const LANE_HORIZONTAL = 28;
 const ARTWORKS_HEIGHT = 300;
 const ARTWORKS_HEIGHT_NARROW = 220;
 const ARTWORK_LANE_MIN = 72;
+const ARTWORKS_FILL_MIN = 160;
+const ARTWORK_LANE_FILL_MIN = 36;
 
 const AXIS_WIDTH = 64;
 const LANE_VERTICAL = 18;
@@ -81,8 +83,14 @@ export function stageGeometry(
 	const eventsFrom = AXIS_HEIGHT + (eventLanes > 0 ? ZONE_LABEL_HEIGHT : 0);
 	const eventsSize = eventLanes > 0 ? eventLanes * LANE_HORIZONTAL + ZONE_GAP : 0;
 	const artworksFrom = eventsFrom + eventsSize + ZONE_LABEL_HEIGHT;
-	const height = width < NARROW_WIDTH ? ARTWORKS_HEIGHT_NARROW : ARTWORKS_HEIGHT;
-	const artworkLane = artworkLanes > 0 ? Math.max(height / artworkLanes, ARTWORK_LANE_MIN) : height;
+	const filling = room > 0;
+	const height = filling
+		? Math.max(room - artworksFrom - ZONE_GAP, ARTWORKS_FILL_MIN)
+		: width < NARROW_WIDTH
+			? ARTWORKS_HEIGHT_NARROW
+			: ARTWORKS_HEIGHT;
+	const laneMin = filling ? ARTWORK_LANE_FILL_MIN : ARTWORK_LANE_MIN;
+	const artworkLane = artworkLanes > 0 ? Math.max(height / artworkLanes, laneMin) : height;
 	const artworksSize = artworkLanes > 0 ? artworkLane * artworkLanes : height;
 	return {
 		orientation,

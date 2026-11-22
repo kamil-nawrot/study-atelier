@@ -39,6 +39,15 @@ describe('stage geometry', () => {
 		);
 	});
 
+	it('fills the room below the stage whatever the number of lanes', () => {
+		const one = stageGeometry(view, 1200, 2, 'horizontal', 0, 0, 600);
+		const five = stageGeometry(view, 1200, 2, 'horizontal', 0, 5, 600);
+		expect(one.breadth).toBe(600);
+		expect(five.breadth).toBe(600);
+		expect(five.artworkLane).toBe(five.artworksSize / 5);
+		expect(stageGeometry(view, 1200, 2, 'horizontal', 0, 5, 300).artworkLane).toBe(36);
+	});
+
 	it('leaves no room for events when the band is hidden', () => {
 		const shown = stageGeometry(view, 1200, 2);
 		const hidden = stageGeometry(view, 1200, 0);

@@ -22,7 +22,7 @@
 		roomBesidePanel,
 		verticalLength
 	} from '#lib/timeline/stage/stage.ts';
-	import { AxisRoom } from '#lib/timeline/axis-room/axis-room.svelte.ts';
+	import { AXIS_GAP, AxisRoom } from '#lib/timeline/axis-room/axis-room.svelte.ts';
 	import type { TimelineEvent } from '#lib/timeline/types/timeline-event.ts';
 	import type { TimelineFilter } from '#lib/timeline/types/timeline-filter.ts';
 	import type { TimelinePlace } from '#lib/timeline/types/timeline-place.ts';
@@ -61,6 +61,7 @@
 		filter?: TimelineFilter;
 		showEvents?: boolean;
 		showSpans?: boolean;
+		onfilters?: () => void;
 	};
 
 	let {
@@ -71,7 +72,8 @@
 		onerachange,
 		filter = $bindable(emptyTimelineFilter()),
 		showEvents = true,
-		showSpans = true
+		showSpans = true,
+		onfilters
 	}: Props = $props();
 
 	const NOW_SHARE = 40;
@@ -117,6 +119,7 @@
 	let room = $derived(
 		selectedEvent && !wide.current ? roomBesidePanel(axisRoom.room) : axisRoom.room
 	);
+	let fullRoom = $derived(axisRoom.room > 0 ? axisRoom.room + AXIS_GAP : 0);
 	let panelHeight = $derived(
 		wide.current ? stageHeight : Math.max(axisRoom.room - stageHeight - PANEL_ROOM_GAP, PANEL_MIN)
 	);
@@ -212,7 +215,7 @@
 
 <svelte:window bind:innerHeight={viewportHeight} />
 
-<div class="timeline">
+<div class="timeline" data-fill-stage>
 	<EraStrip current={code} eras={allEras} onselect={openEra} />
 
 	<TimelineControls
@@ -224,15 +227,18 @@
 		{steps}
 	/>
 
-	<FilterTags
-		colour={(tag) => {
-			const at = tagLane(filter, tag);
-			return at < 0 ? undefined : laneColour(at);
-		}}
-		onclear={() => (filter = emptyTimelineFilter())}
-		onremove={(tag) => (filter = removeTimelineTag(filter, tag))}
-		{tags}
-	/>
+	<div class="tags">
+		<FilterTags
+			colour={(tag) => {
+				const at = tagLane(filter, tag);
+				return at < 0 ? undefined : laneColour(at);
+			}}
+			onclear={() => (filter = emptyTimelineFilter())}
+			onmore={onfilters}
+			onremove={(tag) => (filter = removeTimelineTag(filter, tag))}
+			{tags}
+		/>
+	</div>
 
 	<p class="visually-hidden" aria-live="polite">{spoken}</p>
 
@@ -249,7 +255,7 @@
 		>
 			<TimelineStage
 				artworkLanes={orientation === 'horizontal' ? artworkLanes.length : 0}
-				axisRoom={wide.current ? 0 : room}
+				axisRoom={wide.current ? fullRoom : room}
 				{era}
 				eventLanes={showEvents && (orientation === 'horizontal' || eraEvents.length > 0)
 					? lanes
@@ -312,9 +318,18 @@
 		gap: var(--spacing-3);
 	}
 
+	.tags {
+		display: grid;
+		align-content: center;
+		min-height: var(--size-control);
+	}
+
 	.split {
 		display: grid;
 		gap: var(--spacing-3);
+		position: relative;
+		left: calc(-1 * var(--content-bleed, 0px));
+		width: calc(100% + 2 * var(--content-bleed, 0px));
 	}
 
 	.stage {

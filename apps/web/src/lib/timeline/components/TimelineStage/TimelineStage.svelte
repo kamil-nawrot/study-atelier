@@ -153,7 +153,7 @@
 		position: relative;
 		overflow: hidden;
 		isolation: isolate;
-		border-block: var(--border-width-hairline) solid var(--color-tag);
+		border-top: var(--border-width-hairline) solid var(--color-tag);
 		touch-action: none;
 		cursor: grab;
 		user-select: none;

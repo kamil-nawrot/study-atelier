@@ -57,4 +57,20 @@ describe('FilterTags', () => {
 
 		expect(onclear).toHaveBeenCalledOnce();
 	});
+
+	it('collapses the tags that do not fit in one line into a button that opens the filters', async () => {
+		const many = filterTags({
+			...emptyFilter(),
+			styles: ['Impressionism', 'Baroque', 'Mannerism', 'Rococo', 'Romanticism', 'Cubism']
+		});
+		const onmore = vi.fn();
+		await page.viewport(360, 700);
+		render(FilterTags, { tags: many, onremove: () => {}, onclear: () => {}, onmore });
+
+		const more = page.getByRole('button', { name: /Pokaż wszystkie filtry/ });
+		await expect.element(more).toBeVisible();
+		await more.click();
+		expect(onmore).toHaveBeenCalledOnce();
+		await expect.element(page.getByRole('button', { name: m.atelier.filters.clear })).toBeVisible();
+	});
 });
