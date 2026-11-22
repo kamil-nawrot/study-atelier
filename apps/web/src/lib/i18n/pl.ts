@@ -1634,8 +1634,7 @@ export const pl = {
 				`Masz już w Słowniczku ${figure ? 'postać' : 'pojęcie'} „${name}”.`,
 			category: 'Kategoria',
 			definition: 'Definicja',
-			definitionPending:
-				'Wpisz nazwę, aby spróbować wyszukać definicję w Wikipedii.',
+			definitionPending: 'Wpisz nazwę, aby spróbować wyszukać definicję w Wikipedii.',
 			definitionSearching: 'Wyszukiwanie w Wikipedii…',
 			definitionNone: 'Wikipedia nie zna tego słowa. Napisz definicję własnymi słowami.',
 			definitionFailed:
@@ -1676,8 +1675,7 @@ export const pl = {
 			figureErrorTitle: 'Nie udało się zapisać postaci',
 			figure: {
 				definition: 'Notka biograficzna',
-				definitionPending:
-					'Wpisz nazwę, aby spróbować wyszukać notkę biograficzną w Wikipedii.',
+				definitionPending: 'Wpisz nazwę, aby spróbować wyszukać notkę biograficzną w Wikipedii.',
 				definitionNone: 'Wikipedia nie zna tej postaci. Napisz notkę własnymi słowami.',
 				definitionFailed:
 					'Nie udało się połączyć z Wikipedią. Możesz napisać notkę własnymi słowami albo spróbować jeszcze raz.',

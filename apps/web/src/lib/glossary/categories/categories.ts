@@ -105,9 +105,7 @@ export function glossaryEntryLabel(entry: {
 	kind: GlossaryKind;
 	category: GlossaryCategory | null;
 }): string {
-	return entry.category
-		? glossaryCategoryName(entry.category)
-		: m.glossary.kindNames[entry.kind];
+	return entry.category ? glossaryCategoryName(entry.category) : m.glossary.kindNames[entry.kind];
 }
 
 export function glossaryCategoryTiles(kind: GlossaryKind): ChoiceTile[] {

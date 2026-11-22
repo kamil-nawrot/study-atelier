@@ -76,9 +76,7 @@ export function groupByLetter(entries: readonly GlossaryEntry[]): LetterGroup[] 
 	return groups;
 }
 
-export function countByCategory(
-	entries: readonly GlossaryEntry[]
-): Record<GlossaryFilter, number> {
+export function countByCategory(entries: readonly GlossaryEntry[]): Record<GlossaryFilter, number> {
 	const counts: Record<GlossaryFilter, number> = {
 		architecture: 0,
 		painting: 0,

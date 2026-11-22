@@ -100,20 +100,18 @@
 		return changes.confirmLeave();
 	}
 
-	const errors = new LiveErrors<{ name?: string; life?: AuthorFieldErrors }>(
-		() => {
-			const name = form.name.trim();
-			const conflict = name ? findNameConflict(entries, name, existing?.id) : undefined;
-			return {
-				name: !name
-					? m.valueForm.nameRequired
-					: conflict
-						? m.glossary.form.nameTaken(name, conflict.kind === 'figure')
-						: undefined,
-				life: figure ? validateLifeYears(form.figure) : undefined
-			};
-		}
-	);
+	const errors = new LiveErrors<{ name?: string; life?: AuthorFieldErrors }>(() => {
+		const name = form.name.trim();
+		const conflict = name ? findNameConflict(entries, name, existing?.id) : undefined;
+		return {
+			name: !name
+				? m.valueForm.nameRequired
+				: conflict
+					? m.glossary.form.nameTaken(name, conflict.kind === 'figure')
+					: undefined,
+			life: figure ? validateLifeYears(form.figure) : undefined
+		};
+	});
 
 	function submit(): Promise<void> {
 		return formState.run(async () => {

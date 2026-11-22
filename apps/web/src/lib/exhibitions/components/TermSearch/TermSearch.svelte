@@ -2,10 +2,7 @@
 	import { resolve } from '$app/paths';
 	import { Icon, SearchField, TextButton } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
-	import {
-		glossaryEntryIcon,
-		glossaryEntryLabel
-	} from '#lib/glossary/categories/categories.ts';
+	import { glossaryEntryIcon, glossaryEntryLabel } from '#lib/glossary/categories/categories.ts';
 	import { matchingTerms } from '#lib/exhibitions/editor/term-search/term-search.ts';
 	import type { GlossaryKind } from '#lib/glossary/types/glossary-kind.ts';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';

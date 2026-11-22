@@ -26,7 +26,14 @@ function flag(extra: Partial<StoredFlag>): StoredFlag {
 const jerome = testArtwork(1, 'Saint Jerome');
 const david = testArtwork(2, 'David');
 const quiz = { options: [{ label: 'A' }], answer: 0 };
-const term = { id: 't1', name: 'Vanitas', kind: 'term' as const, category: 'painting' as const, synonyms: [], forms: [] };
+const term = {
+	id: 't1',
+	name: 'Vanitas',
+	kind: 'term' as const,
+	category: 'painting' as const,
+	synonyms: [],
+	forms: []
+};
 
 describe('holds', () => {
 	it('holds a whole artwork for its image and only one kind for a pin or two fitting answers', () => {

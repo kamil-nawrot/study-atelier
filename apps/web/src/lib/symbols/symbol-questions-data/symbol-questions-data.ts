@@ -37,9 +37,7 @@ function personsOf(
 ): string[] {
 	return [...contexts]
 		.sort((first, second) => first.position - second.position)
-		.flatMap(({ glossary_entries: entry }) =>
-			entry?.kind === 'figure' ? [entry.name] : []
-		);
+		.flatMap(({ glossary_entries: entry }) => (entry?.kind === 'figure' ? [entry.name] : []));
 }
 
 export async function loadSymbolQuestionPins(pinIds: readonly string[]): Promise<{

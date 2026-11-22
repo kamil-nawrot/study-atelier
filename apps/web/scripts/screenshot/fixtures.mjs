@@ -706,6 +706,8 @@ export function fakeSession() {
 	};
 }
 
+const FIGURE_CATEGORIES = ['ruler', 'patron', 'artist', 'scholar', 'sacred', 'myth'];
+
 function glossaryEntry(
 	number,
 	name,
@@ -713,12 +715,13 @@ function glossaryEntry(
 	definition,
 	forms = [],
 	article = null,
-	{ synonyms = [], sortName = null, figure = {} } = {}
+	{ synonyms = [], sortName = null, figure = {}, kind = null } = {}
 ) {
 	return {
 		id: `00000000-0000-4000-9000-${String(number).padStart(12, '0')}`,
 		owner_id: USER.id,
 		name,
+		kind: kind ?? (FIGURE_CATEGORIES.includes(category) ? 'figure' : 'term'),
 		category,
 		definition,
 		synonyms,
@@ -1316,6 +1319,23 @@ export const GLOSSARY_ENTRIES = [
 		'Król Franków i cesarz, patron odrodzenia karolińskiego.',
 		[],
 		'Karol Wielki'
+	),
+	glossaryEntry(
+		50,
+		'Kampanila',
+		null,
+		'Wolno stojąca wieża dzwonnicza przy kościele, typowa dla architektury włoskiej.',
+		['kampanili'],
+		'Kampanila'
+	),
+	glossaryEntry(
+		51,
+		'Simonetta Vespucci',
+		null,
+		'Florencka szlachcianka uważana za wzór piękna wczesnego renesansu.',
+		[],
+		'Simonetta Vespucci',
+		{ kind: 'figure', sortName: 'Vespucci, Simonetta' }
 	)
 ];
 
