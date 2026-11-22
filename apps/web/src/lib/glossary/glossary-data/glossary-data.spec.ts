@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
+import { testEntry } from '#lib/testing/glossary/glossary.ts';
+import { removeOwnImage } from '#lib/images/own-image-data/own-image-data.ts';
+import { emptyFigureDraft } from '#lib/glossary/figure-form/figure-form.ts';
 import { cached, forgetCached } from '#lib/shared/data/data-cache/data-cache.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import {
@@ -16,6 +19,11 @@ import type { GlossaryDraft } from '#lib/glossary/types/glossary-draft.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { from: vi.fn(), auth: { signOut: vi.fn() } }
+}));
+
+vi.mock('#lib/images/own-image-data/own-image-data.ts', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/images/own-image-data/own-image-data.ts')>()),
+	removeOwnImage: vi.fn()
 }));
 
 const from = vi.mocked(supabase.from);
@@ -74,7 +82,8 @@ const draft: GlossaryDraft = {
 		url: 'https://pl.wikipedia.org/wiki/Tympanum',
 		licence: 'CC BY-SA 4.0',
 		fetchedOn: '2026-10-17'
-	}
+	},
+	figure: emptyFigureDraft()
 };
 
 describe('loadTermIndex', () => {
@@ -298,6 +307,35 @@ describe('loadGlossaryEntry', () => {
 		expect(result.entry?.name).toBe('Tympanum');
 	});
 
+	it('loads the life years, country and portrait of a figure and none for a term', async () => {
+		chain({
+			data: row({
+				category: 'artist',
+				birth_year: 1511,
+				death_year: 1574,
+				years_approximate: false,
+				country: 'Włochy',
+				own_image_url: 'https://example.test/vasari.jpg',
+				image_width: 3,
+				image_height: 4
+			}),
+			error: null
+		});
+
+		const figure = (await loadGlossaryEntry(ID)).entry?.figure;
+
+		expect(figure).toMatchObject({
+			birthYear: 1511,
+			deathYear: 1574,
+			country: 'Włochy',
+			image: { kind: 'url', url: 'https://example.test/vasari.jpg' }
+		});
+
+		chain({ data: row(), error: null });
+
+		expect((await loadGlossaryEntry(ID)).entry?.figure).toBeUndefined();
+	});
+
 	it('says an entry does not exist without asking for an id that is not one', async () => {
 		expect(await loadGlossaryEntry('not-an-id')).toEqual({ notFound: true });
 		expect(from).not.toHaveBeenCalled();
@@ -339,6 +377,81 @@ describe('saveGlossaryEntry', () => {
 			source_fetched_on: '2026-10-17'
 		});
 		expect(result).toEqual({ id: ID });
+	});
+
+	it('writes the life years, country and commons portrait of a figure', async () => {
+		const query = chain({ data: { id: ID }, error: null });
+
+		await saveGlossaryEntry({
+			...draft,
+			name: 'Pheidias',
+			category: 'artist',
+			figure: {
+				...emptyFigureDraft(),
+				birthYear: '490',
+				birthBeforeCommonEra: true,
+				deathYear: '430',
+				deathBeforeCommonEra: true,
+				yearsApproximate: true,
+				country: ' Grecja ',
+				image: {
+					kind: 'commons',
+					wikidataId: 'Q1',
+					file: 'Pheidias.jpg',
+					licence: 'CC BY',
+					licenceUrl: null,
+					attribution: 'Someone',
+					width: 3,
+					height: 4
+				}
+			}
+		});
+
+		expect(query.insert).toHaveBeenCalledWith(
+			expect.objectContaining({
+				birth_year: -490,
+				death_year: -430,
+				years_approximate: true,
+				country: 'Grecja',
+				source_wikidata_id: 'Q1',
+				source_image_file: 'Pheidias.jpg',
+				own_image_path: null,
+				image_width: 3,
+				image_height: 4
+			})
+		);
+	});
+
+	it('removes the uploaded portrait a saved figure no longer uses', async () => {
+		chain({ data: { id: ID }, error: null });
+		const previous = {
+			...testEntry('a-vasari', 'Pheidias', { category: 'artist' }),
+			figure: {
+				birthYear: null,
+				deathYear: null,
+				yearsApproximate: false,
+				country: null,
+				image: { kind: 'upload' as const, path: 'owner/old.webp', width: 3, height: 4 }
+			}
+		};
+
+		await saveGlossaryEntry(
+			{ ...draft, name: 'Pheidias', category: 'artist', figure: emptyFigureDraft() },
+			ID,
+			previous
+		);
+
+		expect(removeOwnImage).toHaveBeenCalledWith('owner/old.webp');
+	});
+
+	it('leaves the figure columns out when a term is saved', async () => {
+		const query = chain({ data: { id: ID }, error: null });
+
+		await saveGlossaryEntry(draft);
+
+		expect(query.insert).toHaveBeenCalledWith(
+			expect.not.objectContaining({ birth_year: expect.anything() })
+		);
 	});
 
 	it('updates an existing entry and clears an empty definition and a removed source', async () => {

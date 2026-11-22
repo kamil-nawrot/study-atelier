@@ -1,5 +1,6 @@
 import { untrack } from 'svelte';
 import { m } from '#lib/i18n/i18n.ts';
+import { glossaryFormTexts } from '#lib/glossary/form-texts/form-texts.ts';
 import { autoFetch } from '#lib/profile/auto-fetch/auto-fetch.svelte.ts';
 import type { GlossaryDraft } from '#lib/glossary/types/glossary-draft.ts';
 import type { WikipediaArticle } from '#lib/glossary/types/wikipedia-article.ts';
@@ -26,9 +27,19 @@ export class DefinitionSearch {
 	#pendingArticle = $state<WikipediaArticle>();
 	#request = 0;
 	readonly #form: () => GlossaryDraft;
+	readonly #figure: () => boolean;
 
-	constructor(form: () => GlossaryDraft) {
+	constructor(form: () => GlossaryDraft, figure: () => boolean = () => false) {
 		this.#form = form;
+		this.#figure = figure;
+	}
+
+	get figure(): boolean {
+		return this.#figure();
+	}
+
+	get texts(): typeof m.glossary.form {
+		return glossaryFormTexts(this.figure);
 	}
 
 	get form(): GlossaryDraft {
@@ -37,9 +48,9 @@ export class DefinitionSearch {
 
 	hint = $derived(
 		this.status === 'none'
-			? m.glossary.form.definitionNone
+			? this.texts.definitionNone
 			: this.status === 'failed'
-				? m.glossary.form.definitionFailed
+				? this.texts.definitionFailed
 				: undefined
 	);
 	filling = $derived(this.status === 'searching' && this.#filling);
@@ -47,8 +58,8 @@ export class DefinitionSearch {
 		this.filling
 			? undefined
 			: autoFetch.definition
-				? m.glossary.form.definitionPending
-				: m.glossary.form.definitionManual
+				? this.texts.definitionPending
+				: this.texts.definitionManual
 	);
 	searchable = $derived(
 		!autoFetch.definition &&

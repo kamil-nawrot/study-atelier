@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { createRawSnippet } from 'svelte';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
-import ArtworkFormColumns from './ArtworkFormColumns.svelte';
+import StagedFormColumns from './StagedFormColumns.svelte';
 
 const head = createRawSnippet(() => ({ render: () => '<label>Tytuł <input /></label>' }));
 const images = createRawSnippet(() => ({ render: () => '<p>Scena</p>' }));
@@ -13,10 +13,10 @@ function boxOf(text: string): DOMRect {
 }
 
 function renderColumns(onfocusin = vi.fn()): void {
-	render(ArtworkFormColumns, { actionsHeight: 80, onfocusin, head, images, fields });
+	render(StagedFormColumns, { actionsHeight: 80, onfocusin, head, images, fields });
 }
 
-describe('ArtworkFormColumns', () => {
+describe('StagedFormColumns', () => {
 	it('puts the stage above the title on a phone', async () => {
 		await page.viewport(390, 844);
 		renderColumns();

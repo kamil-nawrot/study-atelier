@@ -3,7 +3,7 @@
 
 	type Props = {
 		actionsHeight: number;
-		onfocusin: (event: FocusEvent) => void;
+		onfocusin?: (event: FocusEvent) => void;
 		head: Snippet;
 		images: Snippet;
 		fields: Snippet;

@@ -4,10 +4,10 @@
 	import YearGroup from '#lib/shared/forms/YearGroup/YearGroup.svelte';
 	import YearInput from '#lib/shared/forms/YearInput/YearInput.svelte';
 	import type { AuthorFieldErrors } from '#lib/values/types/author-field-errors.ts';
-	import type { AuthorFormState } from '#lib/values/types/author-form-state.ts';
+	import type { LifeFormState } from '#lib/values/types/life-form-state.ts';
 
 	type Props = {
-		author: AuthorFormState;
+		author: LifeFormState;
 		errors: AuthorFieldErrors;
 	};
 

@@ -15,10 +15,7 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import { loadValuePageContent } from '#lib/card-index/card-index-data/card-index-data.ts';
 	import { planEraMove, planNameChange } from '#lib/card-index/card-index/card-index.ts';
-	import {
-		AUTHOR_COUNTRY_MAX_LENGTH,
-		validateAuthorForm
-	} from '#lib/values/author-form/author-form.ts';
+	import { validateAuthorForm } from '#lib/values/author-form/author-form.ts';
 	import { VALUE_NAME_MAX_LENGTH } from '#lib/card-index/category-values/category-values.ts';
 	import { eraName } from '#lib/catalogue/eras/eras.ts';
 	import { cityOfTown, ownCities } from '#lib/values/city-options/city-options.ts';
@@ -44,14 +41,14 @@
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import PlaceField from '#lib/map/components/PlaceField/PlaceField.svelte';
 	import PlaceFields from '#lib/values/components/PlaceFields/PlaceFields.svelte';
+	import StagedFormColumns from '#lib/shared/forms/StagedFormColumns/StagedFormColumns.svelte';
 	import ImageField from '#lib/images/components/ImageField/ImageField.svelte';
 	import EraBoundsField from '#lib/values/components/EraBoundsField/EraBoundsField.svelte';
 	import { validateEraBounds } from '#lib/values/era-bounds-form/era-bounds-form.ts';
 	import { eraJunctions } from '#lib/catalogue/era-bounds/era-bounds.svelte.ts';
 	import type { EraBoundsErrors } from '#lib/values/types/era-bounds-errors.ts';
 	import AuthorSortField from '#lib/values/components/AuthorSortField/AuthorSortField.svelte';
-	import AuthorLifeFields from '#lib/values/components/AuthorLifeFields/AuthorLifeFields.svelte';
-	import AuthorRelationsField from '#lib/author-relations/components/AuthorRelationsField/AuthorRelationsField.svelte';
+	import AuthorFields from '#lib/values/components/AuthorFields/AuthorFields.svelte';
 	import PeriodErasField from '#lib/values/components/PeriodErasField/PeriodErasField.svelte';
 	import StylePeriodsField from '#lib/values/components/StylePeriodsField/StylePeriodsField.svelte';
 
@@ -72,6 +69,7 @@
 	const initialForm = (): ValueFormFields =>
 		untrack(() => initialValueForm(record, index, details, era));
 	let eraField = $state<EraBoundsField>();
+	let barHeight = $state(0);
 
 	let form = $state<ValueFormFields>(initialForm());
 	let created = $state<ValueSubject>();
@@ -212,121 +210,131 @@
 	}
 </script>
 
+{#snippet nameFields()}
+	{#if record && kind}
+		<div class="name">
+			<TextField
+				autocomplete="off"
+				error={errors.current.name}
+				hint={mergeTarget
+					? m.valueForm.mergeHint(
+							kind.accusative,
+							mergeTarget.name,
+							m.atelier.count(mergeTarget.count)
+						)
+					: undefined}
+				label={m.common.name}
+				maxlength={VALUE_NAME_MAX_LENGTH}
+				required
+				bind:value={form.name}
+			/>
+			{#if form.author}
+				<AuthorSortField bind:author={form.author} />
+			{/if}
+		</div>
+	{/if}
+{/snippet}
+
+{#snippet detailFields()}
+	{#if form.location}
+		<PlaceFields {cities} typeError={errors.current.placeType} bind:location={form.location} />
+	{/if}
+
+	{#if form.author}
+		<AuthorFields
+			authorId={record?.id}
+			authors={index.values.filter((value) => value.category === 'author')}
+			errors={errors.current.author ?? {}}
+			bind:author={form.author}
+		/>
+	{/if}
+
+	{#if record?.category === 'period'}
+		<PeriodErasField bind:eraCodes={form.eraCodes} />
+	{/if}
+
+	{#if record?.category === 'style'}
+		<StylePeriodsField {index} styleId={record.id} bind:periodIds={form.periodIds} />
+	{/if}
+
+	<TextArea
+		counter
+		label={m.valueForm.summary}
+		maxRows={8}
+		maxlength={SUMMARY_MAX_LENGTH}
+		placeholder={m.valueForm.summaryPlaceholder}
+		rows={3}
+		bind:value={form.details.summary}
+	/>
+
+	<NotesEditor
+		hint={noteLinks ? m.valueForm.notesLinkHint : undefined}
+		label={m.common.notes}
+		links={noteLinks}
+		placeholder={m.valueForm.notesPlaceholder}
+		bind:value={form.details.notes}
+	/>
+
+	{#if era && form.eraBounds}
+		<EraBoundsField
+			bind:this={eraField}
+			code={era}
+			errors={errors.current.eraBounds ?? {}}
+			bind:bounds={form.eraBounds}
+		/>
+	{/if}
+{/snippet}
+
 <div class="page">
 	<Form error={formState.error} errorTitle={m.valueForm.errorTitle} onsubmit={submit}>
-		<div class="columns" class:author={form.author}>
-			{#if form.author && record}
-				<ImageField
-					alt={form.name.trim() || record.name}
-					query={{ kind: 'person', name: form.name }}
-					searchReady={form.name.trim() !== ''}
-					texts={m.valueForm.portrait}
-					bind:image={form.author.image}
-				/>
-			{/if}
-			<div class="fields">
-				{#if record && kind}
-					<div class="name">
-						<TextField
-							autocomplete="off"
-							error={errors.current.name}
-							hint={mergeTarget
-								? m.valueForm.mergeHint(
-										kind.accusative,
-										mergeTarget.name,
-										m.atelier.count(mergeTarget.count)
-									)
-								: undefined}
-							label={m.common.name}
-							maxlength={VALUE_NAME_MAX_LENGTH}
-							required
-							bind:value={form.name}
+		{#if form.author && record}
+			<StagedFormColumns actionsHeight={barHeight}>
+				{#snippet head()}
+					{@render nameFields()}
+				{/snippet}
+				{#snippet images()}
+					{#if form.author}
+						<ImageField
+							alt={form.name.trim() || record.name}
+							compactEmpty
+							query={{ kind: 'person', name: form.name }}
+							searchReady={form.name.trim() !== ''}
+							staged
+							texts={m.valueForm.portrait}
+							bind:image={form.author.image}
 						/>
-						{#if form.author}
-							<AuthorSortField bind:author={form.author} />
-						{/if}
-					</div>
-				{/if}
-
-				{#if form.location}
-					<PlaceFields
-						{cities}
-						typeError={errors.current.placeType}
-						bind:location={form.location}
-					/>
-				{/if}
-
-				{#if form.author}
-					<AuthorLifeFields errors={errors.current.author ?? {}} bind:author={form.author} />
-					<TextField
-						autocomplete="off"
-						hint={m.valueForm.authorCountryHint}
-						label={m.valueForm.authorCountry}
-						maxlength={AUTHOR_COUNTRY_MAX_LENGTH}
-						bind:value={form.author.country}
-					/>
-					<AuthorRelationsField
-						authorId={record?.id}
-						authors={index.values.filter((value) => value.category === 'author')}
-						error={errors.current.author?.relations}
-						bind:rows={form.author.relations}
-					/>
-				{/if}
-
-				{#if record?.category === 'period'}
-					<PeriodErasField bind:eraCodes={form.eraCodes} />
-				{/if}
-
-				{#if record?.category === 'style'}
-					<StylePeriodsField {index} styleId={record.id} bind:periodIds={form.periodIds} />
-				{/if}
-
-				<TextArea
-					counter
-					label={m.valueForm.summary}
-					maxRows={8}
-					maxlength={SUMMARY_MAX_LENGTH}
-					placeholder={m.valueForm.summaryPlaceholder}
-					rows={3}
-					bind:value={form.details.summary}
-				/>
-
-				<NotesEditor
-					hint={noteLinks ? m.valueForm.notesLinkHint : undefined}
-					label={m.common.notes}
-					links={noteLinks}
-					placeholder={m.valueForm.notesPlaceholder}
-					bind:value={form.details.notes}
-				/>
-
-				{#if era && form.eraBounds}
-					<EraBoundsField
-						bind:this={eraField}
-						code={era}
-						errors={errors.current.eraBounds ?? {}}
-						bind:bounds={form.eraBounds}
+					{/if}
+				{/snippet}
+				{#snippet fields()}
+					{@render detailFields()}
+				{/snippet}
+			</StagedFormColumns>
+		{:else}
+			<div class="columns">
+				<div class="fields">
+					{@render nameFields()}
+					{@render detailFields()}
+				</div>
+				{#if form.location && !creating && !form.location.city}
+					<PlaceField
+						name={form.name}
+						city={form.location.placeType === 'city'}
+						oncountry={(code) => form.location && (form.location.countryCode = code)}
+						ontown={form.location.placeType === 'city' ? undefined : chooseTown}
+						bind:point={
+							() => form.location?.point ?? null,
+							(point) => form.location && (form.location.point = point)
+						}
+						bind:wikidataId={
+							() => form.location?.wikidataId ?? null,
+							(wikidataId) => form.location && (form.location.wikidataId = wikidataId)
+						}
 					/>
 				{/if}
 			</div>
-			{#if form.location && !creating && !form.location.city}
-				<PlaceField
-					name={form.name}
-					city={form.location.placeType === 'city'}
-					oncountry={(code) => form.location && (form.location.countryCode = code)}
-					ontown={form.location.placeType === 'city' ? undefined : chooseTown}
-					bind:point={
-						() => form.location?.point ?? null,
-						(point) => form.location && (form.location.point = point)
-					}
-					bind:wikidataId={
-						() => form.location?.wikidataId ?? null,
-						(wikidataId) => form.location && (form.location.wikidataId = wikidataId)
-					}
-				/>
-			{/if}
-		</div>
+		{/if}
 
-		<FormActions>
+		<FormActions bind:height={barHeight}>
 			<Button href={cancelHref} onclick={oncancel}>
 				{m.common.cancel}
 			</Button>
@@ -416,11 +424,6 @@
 
 		.fields {
 			max-width: var(--size-content-default);
-		}
-
-		.columns.author {
-			grid-template-columns: minmax(220px, 1fr) minmax(0, 1.25fr);
-			gap: var(--spacing-12);
 		}
 	}
 </style>

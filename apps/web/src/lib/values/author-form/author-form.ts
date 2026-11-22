@@ -10,6 +10,7 @@ import {
 import type { AuthorDetails } from '#lib/values/types/author-details.ts';
 import type { AuthorFieldErrors } from '#lib/values/types/author-field-errors.ts';
 import type { AuthorFormState } from '#lib/values/types/author-form-state.ts';
+import type { LifeFormState } from '#lib/values/types/life-form-state.ts';
 
 export const AUTHOR_COUNTRY_MAX_LENGTH = 60;
 
@@ -40,12 +41,10 @@ export function authorFormFromDetails(details: AuthorDetails): AuthorFormState {
 	};
 }
 
-export function validateAuthorForm(form: AuthorFormState): AuthorFieldErrors {
+export function validateLifeYears(form: LifeFormState): AuthorFieldErrors {
 	const birth = parseYear(form.birthYear);
 	const death = parseYear(form.deathYear);
 	const errors: AuthorFieldErrors = {};
-	const relationsError = authorRelationError(form.relations);
-	if (relationsError) errors.relations = relationsError;
 	const birthError = birth === null ? undefined : yearError(birth, form.birthBeforeCommonEra);
 	const deathError = death === null ? undefined : yearError(death, form.deathBeforeCommonEra);
 	if (birthError) errors.birthYear = birthError;
@@ -55,6 +54,51 @@ export function validateAuthorForm(form: AuthorFormState): AuthorFieldErrors {
 	const died = form.deathBeforeCommonEra ? -death : death;
 	if (died < born) errors.deathYear = m.valueForm.lifeYearsOrder;
 	return errors;
+}
+
+export function validateAuthorForm(form: AuthorFormState): AuthorFieldErrors {
+	const errors = validateLifeYears(form);
+	const relationsError = authorRelationError(form.relations);
+	if (relationsError) errors.relations = relationsError;
+	return errors;
+}
+
+export function emptyLifeForm(): LifeFormState {
+	return {
+		birthYear: '',
+		birthBeforeCommonEra: false,
+		deathYear: '',
+		deathBeforeCommonEra: false,
+		yearsApproximate: false
+	};
+}
+
+export function lifeFormFromYears(
+	birthYear: number | null,
+	deathYear: number | null,
+	yearsApproximate: boolean
+): LifeFormState {
+	return {
+		birthYear: birthYear === null ? '' : String(Math.abs(birthYear)),
+		birthBeforeCommonEra: birthYear !== null && birthYear < 0,
+		deathYear: deathYear === null ? '' : String(Math.abs(deathYear)),
+		deathBeforeCommonEra: deathYear !== null && deathYear < 0,
+		yearsApproximate
+	};
+}
+
+export function lifeYearsFromForm(form: LifeFormState): {
+	birthYear: number | null;
+	deathYear: number | null;
+	yearsApproximate: boolean;
+} {
+	const birthYear = signedYear(parseYear(form.birthYear), form.birthBeforeCommonEra);
+	const deathYear = signedYear(parseYear(form.deathYear), form.deathBeforeCommonEra);
+	return {
+		birthYear,
+		deathYear,
+		yearsApproximate: form.yearsApproximate && (birthYear !== null || deathYear !== null)
+	};
 }
 
 export function authorDetailsFromForm(form: AuthorFormState): AuthorDetails {
