@@ -49,4 +49,4 @@ Chosen options: "B" and "2", because the bleed gives the axis about 40% more wid
 
 - Design: [ATL-842](https://linear.app/kamil-nawrot/issue/ATL-842); build: [ATL-844](https://linear.app/kamil-nawrot/issue/ATL-844); requirement R-331.
 - The former heights (300 px of artworks, a lane of at least 72 px) were set in the code only, so no earlier decision is superseded.
-- The text of "+n" for screen readers and its tooltip, "Pokaż wszystkie filtry, jeszcze {n}", is a draft until the owner agrees it.
+- The text of "+n" for screen readers and its tooltip is "Pokaż wszystkie filtry, jeszcze {n}", agreed by the owner.
