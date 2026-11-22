@@ -10,8 +10,8 @@ const SEARCH_DELAY_MS = 600;
 
 type SearchStatus = 'idle' | 'searching' | 'found' | 'none' | 'failed';
 
-function keyOf(name: string, category: string): string {
-	return `${name.trim()}|${category}`;
+function keyOf(name: string, category: string | null): string {
+	return `${name.trim()}|${category ?? ''}`;
 }
 
 export class DefinitionSearch {
@@ -66,8 +66,7 @@ export class DefinitionSearch {
 			this.status !== 'searching' &&
 			this.status !== 'failed' &&
 			!this.form.source &&
-			this.form.name.trim() !== '' &&
-			!!this.form.category
+			this.form.name.trim() !== ''
 	);
 
 	follow(): void {
@@ -75,7 +74,7 @@ export class DefinitionSearch {
 			const name = this.form.name.trim();
 			const category = this.form.category;
 			untrack(() => this.#cancelFilling());
-			if (!name || !category || !autoFetch.definition) return;
+			if (!name || !autoFetch.definition) return;
 			if (keyOf(name, category) === this.#stoppedKey) return;
 			const timer = setTimeout(() => {
 				if (untrack(() => this.#replaceable())) void this.search(true);
@@ -92,7 +91,7 @@ export class DefinitionSearch {
 	}
 
 	stop(): void {
-		this.#stoppedKey = keyOf(this.form.name, this.form.category ?? '');
+		this.#stoppedKey = keyOf(this.form.name, this.form.category);
 		this.#cancelFilling();
 	}
 
@@ -109,7 +108,7 @@ export class DefinitionSearch {
 	async search(fill: boolean): Promise<void> {
 		const name = this.form.name.trim();
 		const category = this.form.category;
-		if (!name || !category) return;
+		if (!name) return;
 		const current = ++this.#request;
 		this.status = 'searching';
 		this.#filling = fill && this.#replaceable();
@@ -140,7 +139,7 @@ export class DefinitionSearch {
 	async openArticles(): Promise<void> {
 		this.articlesOpen = true;
 		const { name, category } = this.form;
-		if (category && this.#articlesKey === keyOf(name, category) && this.articles.length > 0) {
+		if (this.#articlesKey === keyOf(name, category) && this.articles.length > 0) {
 			this.status = 'found';
 			return;
 		}

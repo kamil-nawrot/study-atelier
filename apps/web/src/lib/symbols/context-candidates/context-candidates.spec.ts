@@ -15,6 +15,7 @@ describe('contextCandidates', () => {
 				{
 					id: 't1',
 					name: 'Saint Peter',
+					kind: 'figure' as const,
 					category: 'sacred',
 					synonyms: [],
 					forms: [],
@@ -23,6 +24,7 @@ describe('contextCandidates', () => {
 				{
 					id: 't3',
 					name: 'Zeus',
+					kind: 'figure' as const,
 					category: 'myth',
 					synonyms: [],
 					forms: [],
@@ -31,6 +33,7 @@ describe('contextCandidates', () => {
 				{
 					id: 't2',
 					name: 'Apse',
+					kind: 'term' as const,
 					category: 'architecture',
 					synonyms: [],
 					forms: [],

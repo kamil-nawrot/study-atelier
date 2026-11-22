@@ -40,10 +40,12 @@
 	});
 </script>
 
-<span class="kind overline">
-	<Icon icon={glossaryCategoryIcon(term.category)} size="sm" />
-	{glossaryCategoryName(term.category)}
-</span>
+{#if term.category}
+	<span class="kind overline">
+		<Icon icon={glossaryCategoryIcon(term.category)} size="sm" />
+		{glossaryCategoryName(term.category)}
+	</span>
+{/if}
 <span class="name">{term.name}</span>
 <span class="answer" role="status">
 	{#if term.hasDefinition}

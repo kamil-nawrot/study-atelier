@@ -52,8 +52,12 @@ function wikipediaUrl(parameters: Record<string, string>): string {
 	return `${WIKIPEDIA_API}?${query}`;
 }
 
-export function searchQuery(name: string, category: GlossaryCategory, withHint: boolean): string {
-	const hint = CATEGORY_HINTS[category];
+export function searchQuery(
+	name: string,
+	category: GlossaryCategory | null,
+	withHint: boolean
+): string {
+	const hint = category ? CATEGORY_HINTS[category] : undefined;
 	return withHint && hint ? `${name.trim()} ${hint}` : name.trim();
 }
 
@@ -157,13 +161,16 @@ export function articleOf(page: Page, max = DEFINITION_MAX_LENGTH): WikipediaArt
 
 export function searchArticles(
 	name: string,
-	category: GlossaryCategory
+	category: GlossaryCategory | null
 ): Promise<WikipediaArticle[]> {
 	return withDeadline(findArticles(name, category));
 }
 
-async function findArticles(name: string, category: GlossaryCategory): Promise<WikipediaArticle[]> {
-	const humans = HUMAN_CATEGORIES.includes(category);
+async function findArticles(
+	name: string,
+	category: GlossaryCategory | null
+): Promise<WikipediaArticle[]> {
+	const humans = category !== null && HUMAN_CATEGORIES.includes(category);
 	const attempts = humans
 		? [searchQuery(name, category, false)]
 		: [searchQuery(name, category, true), searchQuery(name, category, false)];

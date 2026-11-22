@@ -41,9 +41,9 @@
 
 	let synonymOptions = $derived(newOption(synonymsQuery, form.synonyms));
 	let formOptions = $derived(newOption(formsQuery, form.forms));
-	let formsEligible = $derived(suggestsForms(form.name, form.category));
+	let formsEligible = $derived(suggestsForms(form.name, form.kind));
 	let formsShownStatus = $derived<FormsStatus>(
-		form.name.trim() && form.category && !formsEligible ? 'skipped' : formsStatus
+		form.name.trim() && !formsEligible ? 'skipped' : formsStatus
 	);
 	let formsOffer = $derived.by((): FormsOffer | undefined => {
 		if (!formsEligible) return undefined;
@@ -87,11 +87,11 @@
 
 	async function suggestForms(): Promise<void> {
 		const name = form.name.trim();
-		if (!suggestsForms(name, form.category)) return;
+		if (!suggestsForms(name, form.kind)) return;
 		const current = ++formsRequest;
 		formsStatus = 'searching';
 		synonymMessage = undefined;
-		const words = form.synonyms.filter((word) => suggestsForms(word, form.category));
+		const words = form.synonyms.filter((word) => suggestsForms(word, form.kind));
 		try {
 			const [found, ...synonyms] = await Promise.all(
 				[name, ...words].map((word) => fetchForms(word))
@@ -110,7 +110,7 @@
 	}
 
 	async function addSynonymForms(word: string): Promise<void> {
-		if (!suggestsForms(word, form.category)) return;
+		if (!suggestsForms(word, form.kind)) return;
 		const key = synonymKey(word);
 		synonymMessage = m.glossary.form.synonymFormsSearching(word);
 		try {
@@ -153,15 +153,15 @@
 	$effect(() => {
 		if (existing) return;
 		const name = form.name.trim();
-		const category = form.category;
+		const kind = form.kind;
 		untrack(() => {
 			if (formsStatus !== 'searching') return;
 			formsRequest += 1;
 			formsStatus = 'idle';
 		});
-		if (!name || !category) return;
+		if (!name) return;
 		if (name.toLocaleLowerCase('pl') === stoppedName) return;
-		if (!suggestsForms(name, category)) {
+		if (!suggestsForms(name, kind)) {
 			untrack(() => {
 				formsRequest += 1;
 				formsStatus = 'idle';

@@ -25,6 +25,7 @@ function definition(id: string): SessionStep {
 		term: {
 			id,
 			name: id,
+			kind: 'term' as const,
 			category: 'painting',
 			synonyms: [],
 			forms: [],

@@ -186,7 +186,7 @@ describe('glossary entry page', () => {
 	});
 
 	it('returns to the figures tab after deleting a figure', async () => {
-		renderEntry({ ...tympanum, name: 'Charlemagne', category: 'ruler' });
+		renderEntry({ ...tympanum, name: 'Charlemagne', kind: 'figure', category: 'ruler' });
 
 		await page.getByRole('button', { name: m.common.delete }).click();
 		await page.getByRole('alertdialog').getByRole('button', { name: m.common.delete }).click();
@@ -284,7 +284,7 @@ describe('glossary entry page', () => {
 
 	it('links a figure opened from elsewhere to the figures tab', async () => {
 		setBackPlace(undefined);
-		renderEntry({ ...tympanum, category: 'artist' });
+		renderEntry({ ...tympanum, kind: 'figure', category: null });
 
 		const link = document.querySelector('a.back') as HTMLAnchorElement;
 		expect(link.getAttribute('href')).toBe('/atelier/glossary?tab=figures');

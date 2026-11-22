@@ -1,6 +1,5 @@
 import type { Preferences } from '#lib/profile/types/preferences.ts';
 import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
-import { isFigure } from '#lib/glossary/categories/categories.ts';
 import { shuffle, shuffleQuiz } from '#lib/review/quiz/quiz.ts';
 import type { ExtraCard } from '#lib/review/types/extra-card.ts';
 import type { RoundTerm } from '#lib/review/types/round-term.ts';
@@ -18,8 +17,8 @@ export function definitionCount(
 }
 
 function closeness(entry: GlossaryTerm, term: GlossaryTerm): number {
-	if (entry.category === term.category) return 2;
-	return isFigure(entry.category) === isFigure(term.category) ? 1 : 0;
+	if (entry.kind !== term.kind) return 0;
+	return term.category !== null && entry.category === term.category ? 2 : 1;
 }
 
 export function wrongNames(

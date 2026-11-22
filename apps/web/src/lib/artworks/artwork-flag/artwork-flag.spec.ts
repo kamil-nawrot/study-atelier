@@ -28,6 +28,7 @@ describe('artwork flag', () => {
 					{
 						id: 'term-1',
 						name: 'Vanitas',
+						kind: 'term' as const,
 						category: 'painting',
 						synonyms: [],
 						forms: [],

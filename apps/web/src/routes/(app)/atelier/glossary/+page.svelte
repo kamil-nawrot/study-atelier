@@ -5,7 +5,6 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
-	import { isFigure } from '#lib/glossary/categories/categories.ts';
 	import GlossaryList from '#lib/glossary/components/GlossaryList/GlossaryList.svelte';
 	import {
 		GLOSSARY_TABS,
@@ -13,7 +12,7 @@
 		rememberGlossaryTab,
 		rememberedGlossaryTab
 	} from '#lib/glossary/glossary-tab/glossary-tab.ts';
-	import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
+	import type { GlossaryFilter } from '#lib/glossary/types/glossary-filter.ts';
 	import SymbolAtlas from '#lib/symbols/components/SymbolAtlas/SymbolAtlas.svelte';
 	import { loadSymbolAtlas, type AtlasResult } from '#lib/symbols/symbols-data/symbols-data.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -29,11 +28,11 @@
 	let query = $state('');
 	let figureQuery = $state('');
 	let symbolQuery = $state('');
-	let chosen = $state<GlossaryCategory[]>([]);
-	let figureChosen = $state<GlossaryCategory[]>([]);
+	let chosen = $state<GlossaryFilter[]>([]);
+	let figureChosen = $state<GlossaryFilter[]>([]);
 	let symbols = $derived(tab === 'symbols');
-	let terms = $derived(data.entries.filter((entry) => !isFigure(entry.category)));
-	let figures = $derived(data.entries.filter((entry) => isFigure(entry.category)));
+	let terms = $derived(data.entries.filter((entry) => entry.kind === 'term'));
+	let figures = $derived(data.entries.filter((entry) => entry.kind === 'figure'));
 	let atlas = $state<AtlasResult>();
 
 	type Saved = {
@@ -41,8 +40,8 @@
 		query: string;
 		figureQuery?: string;
 		symbolQuery?: string;
-		chosen: GlossaryCategory[];
-		figureChosen?: GlossaryCategory[];
+		chosen: GlossaryFilter[];
+		figureChosen?: GlossaryFilter[];
 		scroll?: number;
 	};
 

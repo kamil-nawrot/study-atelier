@@ -8,6 +8,7 @@ const david = testArtwork(2, 'David', { hasImage: false });
 const term = {
 	id: 'term-1',
 	name: 'Vanitas',
+	kind: 'term' as const,
 	category: 'painting' as const,
 	synonyms: [],
 	forms: []

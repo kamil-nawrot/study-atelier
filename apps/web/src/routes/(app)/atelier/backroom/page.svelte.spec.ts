@@ -45,6 +45,7 @@ const undated = testArtwork(3, 'Undated', { styles: ['Gothic'], yearTo: null });
 const term = {
 	id: 'term-1',
 	name: 'Tympanum',
+	kind: 'term' as const,
 	category: 'architecture' as const,
 	synonyms: [],
 	forms: [],

@@ -110,6 +110,7 @@ function flashcards(...numbers: number[]): SessionRow[] {
 const terms: GlossaryEntry[] = ['Apse', 'Nave', 'Crypt', 'Choir'].map((name) => ({
 	id: name,
 	name,
+	kind: 'term' as const,
 	category: 'architecture',
 	definition: `${name} is a part of a church.`,
 	synonyms: [],

@@ -64,6 +64,7 @@ describe('NewTermDialog', () => {
 		expect(onadded).toHaveBeenCalledWith({
 			id: 'new-id',
 			name: 'nawa',
+			kind: 'term',
 			category: 'architecture',
 			synonyms: [],
 			forms: [],
@@ -71,14 +72,28 @@ describe('NewTermDialog', () => {
 		});
 	});
 
-	it('asks for a category and refuses a name the glossary has', async () => {
+	it('refuses a name the glossary has', async () => {
 		openDialog('APSYDA');
 
 		await addButton().click();
 
 		await expect.element(page.getByText(m.glossary.form.nameTaken('APSYDA'))).toBeVisible();
-		await expect.element(page.getByText(m.glossary.form.categoryRequired)).toBeVisible();
 		expect(saveGlossaryEntry).not.toHaveBeenCalled();
+	});
+
+	it('adds a term without a category', async () => {
+		vi.mocked(searchArticles).mockResolvedValue([]);
+		const onadded = openDialog();
+
+		await vi.advanceTimersByTimeAsync(700);
+		await addButton().click();
+
+		expect(saveGlossaryEntry).toHaveBeenCalledWith(
+			expect.objectContaining({ name: 'nawa', kind: 'term', category: null })
+		);
+		expect(onadded).toHaveBeenCalledWith(
+			expect.objectContaining({ id: 'new-id', kind: 'term', category: null })
+		);
 	});
 
 	it('shows why the term could not be added', async () => {

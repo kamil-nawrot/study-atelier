@@ -42,6 +42,7 @@ describe('recordExtraAnswer', () => {
 				term: {
 					id: 'term-1',
 					name: 'Apse',
+					kind: 'term' as const,
 					category: 'architecture',
 					definition: 'A recess.',
 					synonyms: [],

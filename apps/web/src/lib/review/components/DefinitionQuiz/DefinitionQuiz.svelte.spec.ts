@@ -10,6 +10,7 @@ const item: DefinitionItem = {
 	term: {
 		id: 'apse',
 		name: 'Absyda',
+		kind: 'term' as const,
 		category: 'architecture',
 		definition: 'Absyda zamyka nawę kościoła. W apsydzie stoi ołtarz.',
 		synonyms: ['apsyda'],
