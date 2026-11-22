@@ -503,9 +503,13 @@ describe('glossary page', () => {
 				testEntry('f-ramses', 'Ramzes II', { category: 'ruler' })
 			]);
 
+			document.documentElement.style.setProperty('--border-width-hairline', '1px');
+			document.documentElement.style.setProperty('--color-line', 'red');
 			const rows = [...document.querySelectorAll<HTMLElement>('.group li')];
-			const dividers = rows.map((row) => getComputedStyle(row, '::before').content !== 'none');
-			expect(dividers).toEqual([false, false, true]);
+			const dividers = rows.map((row) => getComputedStyle(row).borderBottomStyle !== 'none');
+			document.documentElement.style.removeProperty('--border-width-hairline');
+			document.documentElement.style.removeProperty('--color-line');
+			expect(dividers).toEqual([false, true, false]);
 		});
 	});
 

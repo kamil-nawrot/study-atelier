@@ -199,15 +199,13 @@
 
 	.newest {
 		display: grid;
-		gap: var(--spacing-2);
+		padding: 0;
+		border-top: var(--border-width-hairline) solid var(--color-line);
 	}
 
-	.group li + li::before {
-		content: '';
-		display: block;
-		max-width: var(--size-content-default);
-		margin: var(--spacing-1) var(--spacing-3);
-		border-top: var(--border-width-hairline) solid var(--color-tag);
+	.newest li,
+	.group li:not(:last-child) {
+		border-bottom: var(--border-width-hairline) solid var(--color-line);
 	}
 
 	@media (max-width: 767.98px) {
