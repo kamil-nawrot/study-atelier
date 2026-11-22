@@ -219,6 +219,7 @@ describe('ExhibitionEditorPane', () => {
 				{
 					id: 't1',
 					name: 'Sfumato',
+					kind: 'term' as const,
 					category: 'technique',
 					synonyms: [],
 					forms: [],

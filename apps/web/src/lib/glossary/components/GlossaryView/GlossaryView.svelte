@@ -56,10 +56,12 @@
 	{/if}
 	<div class="text">
 		<header>
-			<p class="kind overline">
-				<Icon icon={glossaryCategoryIcon(entry.category)} size="sm" />
-				{glossaryCategoryName(entry.category)}
-			</p>
+			{#if entry.category}
+				<p class="kind overline">
+					<Icon icon={glossaryCategoryIcon(entry.category)} size="sm" />
+					{glossaryCategoryName(entry.category)}
+				</p>
+			{/if}
 			<h1>{entry.name}</h1>
 			{#if figure && (lifeYears || figure.country)}
 				<p class="caption">

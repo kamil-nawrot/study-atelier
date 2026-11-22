@@ -6,7 +6,15 @@ import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 import TermSearch from './TermSearch.svelte';
 
 function term(id: string, name: string, synonyms: string[] = []): GlossaryTerm {
-	return { id, name, category: 'technique', synonyms, forms: [], hasDefinition: true };
+	return {
+		id,
+		name,
+		kind: 'term' as const,
+		category: 'technique',
+		synonyms,
+		forms: [],
+		hasDefinition: true
+	};
 }
 
 const terms = [term('t1', 'Sfumato'), term('t2', 'Światłocień', ['chiaroscuro'])];

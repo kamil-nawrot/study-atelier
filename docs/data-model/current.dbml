@@ -447,7 +447,7 @@ Table glossary_entries {
   id uuid [pk, default: `gen_random_uuid()`]
   owner_id uuid [not null, default: `auth.uid()`]
   name text [not null]
-  category text [not null, note: 'architecture, painting, sculpture, technique, iconography, general, ruler, patron, artist, scholar, sacred, myth']
+  category text
   definition text
   forms "text[]" [not null, default: `'{}'::text[]`]
   source_title text
@@ -472,6 +472,7 @@ Table glossary_entries {
   own_image_url text
   image_width integer
   image_height integer
+  kind text [not null, default: `'term'::text`, note: 'term, figure']
 
   indexes {
     (id, owner_id) [unique]

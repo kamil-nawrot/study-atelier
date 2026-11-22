@@ -104,7 +104,8 @@ describe('countByCategory', () => {
 			artist: 0,
 			scholar: 0,
 			sacred: 0,
-			myth: 0
+			myth: 0,
+			none: 0
 		});
 	});
 });
@@ -133,6 +134,15 @@ describe('filterEntries', () => {
 
 	it('combines the categories with the query', () => {
 		expect(filterEntries(entries, new Set(['patron'] as const), 'tymp')).toEqual([]);
+	});
+
+	it('counts and keeps the entries without a category under "none"', () => {
+		const withNone = [...entries, testEntry('a-none', 'Kampanila', { category: null })];
+
+		expect(countByCategory(withNone).none).toBe(1);
+		expect(
+			filterEntries(withNone, new Set(['none', 'painting'] as const), '').map((entry) => entry.name)
+		).toEqual(['Chiaroscuro', 'Kampanila']);
 	});
 });
 

@@ -1,7 +1,6 @@
 import { fetchJson, withDeadline } from '#lib/images/wikimedia/wikimedia.ts';
-import { isFigure } from '#lib/glossary/categories/categories.ts';
 import { cleanForms } from '#lib/glossary/glossary/glossary.ts';
-import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
+import type { GlossaryKind } from '#lib/glossary/types/glossary-kind.ts';
 
 const WIKTIONARY_API = 'https://pl.wiktionary.org/w/api.php';
 const NOUN_TEMPLATE = 'odmiana-rzeczownik-polski';
@@ -60,9 +59,9 @@ function wordsOf(name: string): string[] {
 	return name.replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
 }
 
-export function suggestsForms(name: string, category: GlossaryCategory | null): boolean {
+export function suggestsForms(name: string, kind: GlossaryKind): boolean {
 	const count = wordsOf(name).length;
-	return category !== null && !isFigure(category) && count > 0 && count <= MAX_WORDS;
+	return kind === 'term' && count > 0 && count <= MAX_WORDS;
 }
 
 export function polishSection(wikitext: string): string {

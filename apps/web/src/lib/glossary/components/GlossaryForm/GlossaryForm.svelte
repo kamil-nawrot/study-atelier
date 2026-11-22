@@ -24,9 +24,7 @@
 	import {
 		glossaryCategoryName,
 		glossaryCategoryTiles,
-		isFigure,
-		isGlossaryCategory,
-		kindOf
+		isGlossaryCategory
 	} from '#lib/glossary/categories/categories.ts';
 	import { DefinitionSearch } from '#lib/glossary/definition-search/definition-search.svelte.ts';
 	import { saveGlossaryEntry } from '#lib/glossary/glossary-data/glossary-data.ts';
@@ -69,9 +67,10 @@
 	const flags = new FormFlags('term', () => (entry ? { termId: entry.id } : undefined));
 
 	const existing = untrack(() => entry);
-	const figure = untrack(() => kind) === 'figure';
-	const tiles = glossaryCategoryTiles(figure ? 'figure' : 'term');
-	const initial = (): GlossaryDraft => (existing ? draftOf(existing) : emptyDraft());
+	const entryKind = existing?.kind ?? untrack(() => kind);
+	const figure = entryKind === 'figure';
+	const tiles = glossaryCategoryTiles(entryKind);
+	const initial = (): GlossaryDraft => (existing ? draftOf(existing) : emptyDraft(entryKind));
 
 	let form = $state<GlossaryDraft>(initial());
 
@@ -91,7 +90,7 @@
 		draftChanged
 	);
 
-	let author = $derived(isFigure(form.category) ? authorNamed(index, form.name) : undefined);
+	let author = $derived(figure ? authorNamed(index, form.name) : undefined);
 
 	function chooseCategory(value: string | null): void {
 		form.category = isGlossaryCategory(value) ? value : null;
@@ -101,21 +100,18 @@
 		return changes.confirmLeave();
 	}
 
-	const errors = new LiveErrors<{ name?: string; category?: string; life?: AuthorFieldErrors }>(
-		() => {
-			const name = form.name.trim();
-			const conflict = name ? findNameConflict(entries, name, existing?.id) : undefined;
-			return {
-				name: !name
-					? m.valueForm.nameRequired
-					: conflict
-						? m.glossary.form.nameTaken(name, kindOf(conflict.category) === 'figure')
-						: undefined,
-				category: form.category ? undefined : m.glossary.form.categoryRequired,
-				life: figure ? validateLifeYears(form.figure) : undefined
-			};
-		}
-	);
+	const errors = new LiveErrors<{ name?: string; life?: AuthorFieldErrors }>(() => {
+		const name = form.name.trim();
+		const conflict = name ? findNameConflict(entries, name, existing?.id) : undefined;
+		return {
+			name: !name
+				? m.valueForm.nameRequired
+				: conflict
+					? m.glossary.form.nameTaken(name, conflict.kind === 'figure')
+					: undefined,
+			life: figure ? validateLifeYears(form.figure) : undefined
+		};
+	});
 
 	function submit(): Promise<void> {
 		return formState.run(async () => {
@@ -182,20 +178,15 @@
 {/snippet}
 
 {#snippet detailFields()}
-	<div class="category">
-		<ChoiceTiles
-			columns={3}
-			label={m.glossary.form.category}
-			narrowColumns={2}
-			onchange={chooseCategory}
-			options={tiles}
-			required
-			value={form.category}
-		/>
-		{#if errors.current.category}
-			<span class="error">{errors.current.category}</span>
-		{/if}
-	</div>
+	<ChoiceTiles
+		clearable
+		columns={3}
+		label={m.glossary.form.category}
+		narrowColumns={2}
+		onchange={chooseCategory}
+		options={tiles}
+		value={form.category}
+	/>
 
 	{#if figure}
 		<AuthorLifeFields errors={errors.current.life ?? {}} bind:author={form.figure} />
@@ -270,21 +261,19 @@
 
 <DiscardDialog {changes} description={m.common.discardDescription} />
 
-{#if form.category}
-	<ArticleDialog
-		articles={definition.articles}
-		currentTitle={form.source?.title}
-		description={m.glossary.articles.description(
-			form.name.trim(),
-			glossaryCategoryName(form.category).toLocaleLowerCase('pl')
-		)}
-		failedText={definition.texts.definitionFailed}
-		noneText={definition.texts.definitionNone}
-		onuse={(article) => definition.use(article)}
-		status={definition.status === 'idle' ? 'searching' : definition.status}
-		bind:open={definition.articlesOpen}
-	/>
-{/if}
+<ArticleDialog
+	articles={definition.articles}
+	currentTitle={form.source?.title}
+	description={m.glossary.articles.description(
+		form.name.trim(),
+		form.category ? glossaryCategoryName(form.category).toLocaleLowerCase('pl') : null
+	)}
+	failedText={definition.texts.definitionFailed}
+	noneText={definition.texts.definitionNone}
+	onuse={(article) => definition.use(article)}
+	status={definition.status === 'idle' ? 'searching' : definition.status}
+	bind:open={definition.articlesOpen}
+/>
 
 <Dialog
 	description={m.glossary.replaceConfirm.description}
@@ -323,8 +312,7 @@
 	}
 
 	.name,
-	.sort,
-	.category {
+	.sort {
 		display: grid;
 		gap: var(--spacing-2);
 	}
@@ -332,12 +320,6 @@
 	.name a {
 		color: inherit;
 		text-underline-offset: 0.2em;
-	}
-
-	.error {
-		color: var(--color-danger);
-		font-size: var(--font-size-sm);
-		line-height: var(--line-height-sm);
 	}
 
 	@media (min-width: 768px) {

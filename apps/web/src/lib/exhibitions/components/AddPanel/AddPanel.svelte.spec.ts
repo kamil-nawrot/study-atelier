@@ -67,6 +67,7 @@ describe('AddPanel', () => {
 				{
 					id: 't1',
 					name: 'Sfumato',
+					kind: 'term' as const,
 					category: 'technique',
 					synonyms: [],
 					forms: [],
@@ -202,7 +203,12 @@ describe('AddPanel', () => {
 		await userEvent.click(dialog.getByRole('button', { name: m.glossary.quick.add }));
 
 		expect(ontermadded).toHaveBeenCalledWith(
-			expect.objectContaining({ id: 'term-1', name: 'Impasto', category: 'technique' })
+			expect.objectContaining({
+				id: 'term-1',
+				name: 'Impasto',
+				kind: 'term' as const,
+				category: 'technique'
+			})
 		);
 		expect(onadd).toHaveBeenCalledWith({ kind: 'term', termId: 'term-1', name: 'Impasto' });
 	});

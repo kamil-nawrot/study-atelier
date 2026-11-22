@@ -1094,7 +1094,7 @@ export type Database = {
       glossary_entries: {
         Row: {
           birth_year: number | null;
-          category: string;
+          category: string | null;
           country: string | null;
           created_at: string;
           death_year: number | null;
@@ -1104,6 +1104,7 @@ export type Database = {
           id: string;
           image_height: number | null;
           image_width: number | null;
+          kind: string;
           name: string;
           own_image_path: string | null;
           own_image_url: string | null;
@@ -1125,7 +1126,7 @@ export type Database = {
         ComputedFields: never;
         Insert: {
           birth_year?: number | null;
-          category: string;
+          category?: string | null;
           country?: string | null;
           created_at?: string;
           death_year?: number | null;
@@ -1135,6 +1136,7 @@ export type Database = {
           id?: string;
           image_height?: number | null;
           image_width?: number | null;
+          kind?: string;
           name: string;
           own_image_path?: string | null;
           own_image_url?: string | null;
@@ -1155,7 +1157,7 @@ export type Database = {
         };
         Update: {
           birth_year?: number | null;
-          category?: string;
+          category?: string | null;
           country?: string | null;
           created_at?: string;
           death_year?: number | null;
@@ -1165,6 +1167,7 @@ export type Database = {
           id?: string;
           image_height?: number | null;
           image_width?: number | null;
+          kind?: string;
           name?: string;
           own_image_path?: string | null;
           own_image_url?: string | null;

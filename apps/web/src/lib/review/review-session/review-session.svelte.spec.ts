@@ -55,6 +55,7 @@ function definition(name: string): DefinitionItem {
 		term: {
 			id: name,
 			name,
+			kind: 'term' as const,
 			category: 'architecture',
 			definition: `${name} is a part of a church.`,
 			synonyms: [],

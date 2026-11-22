@@ -14,6 +14,7 @@ const item: NoteGapItem = {
 	term: {
 		id: 'tympanon',
 		name: 'tympanon',
+		kind: 'term' as const,
 		category: 'architecture',
 		synonyms: [],
 		forms: [],

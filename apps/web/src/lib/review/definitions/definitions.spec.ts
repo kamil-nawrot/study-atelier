@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { isFigure } from '#lib/glossary/categories/categories.ts';
 import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
 import type { DefinedTerm } from '#lib/review/types/defined-term.ts';
 import type { DefinitionItem } from '#lib/review/types/definition-item.ts';
@@ -12,6 +13,7 @@ function entry(
 	return {
 		id: name,
 		name,
+		kind: isFigure(category) ? 'figure' : 'term',
 		category,
 		definition,
 		synonyms: [],

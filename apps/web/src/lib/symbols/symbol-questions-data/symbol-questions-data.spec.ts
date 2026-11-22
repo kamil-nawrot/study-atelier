@@ -66,9 +66,9 @@ describe('symbol questions data', () => {
 						id: 'meaning-1',
 						text: 'Power of the Church',
 						symbol_meaning_contexts: [
-							{ position: 2, glossary_entries: { name: 'Paul', category: 'sacred' } },
-							{ position: 0, glossary_entries: { name: 'Peter', category: 'scholar' } },
-							{ position: 1, glossary_entries: { name: 'Vanitas', category: 'general' } },
+							{ position: 2, glossary_entries: { name: 'Paul', kind: 'figure' } },
+							{ position: 0, glossary_entries: { name: 'Peter', kind: 'figure' } },
+							{ position: 1, glossary_entries: { name: 'Vanitas', kind: 'term' } },
 							{ position: 3, glossary_entries: null }
 						]
 					},

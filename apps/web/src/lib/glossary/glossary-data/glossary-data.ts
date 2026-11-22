@@ -19,7 +19,11 @@ import type { StoredImage } from '#lib/images/types/stored-image.ts';
 import { figureDetailsOf } from '#lib/glossary/figure-form/figure-form.ts';
 import type { FigureDetails } from '#lib/glossary/types/figure-details.ts';
 import { isUuid } from '#lib/shared/utils/ids/ids.ts';
-import { isFigure, isGlossaryCategory } from '#lib/glossary/categories/categories.ts';
+import {
+	fitsKind,
+	isGlossaryCategory,
+	isGlossaryKind
+} from '#lib/glossary/categories/categories.ts';
 import { glossaryErrorMessage, isNameTakenError } from '#lib/glossary/errors/errors.ts';
 import { cleanForms, sortNameOf } from '#lib/glossary/glossary/glossary.ts';
 import type { GlossaryDraft } from '#lib/glossary/types/glossary-draft.ts';
@@ -27,6 +31,8 @@ import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 import type { TermDefinitionResult } from '#lib/glossary/types/term-definition-result.ts';
 import type { GlossaryEntryResult } from '#lib/glossary/types/glossary-entry-result.ts';
+import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
+import type { GlossaryKind } from '#lib/glossary/types/glossary-kind.ts';
 
 type GlossaryResult = {
 	entries: GlossaryEntry[];
@@ -39,9 +45,12 @@ type TermIndexResult = {
 };
 
 type Row = Database['public']['Tables']['glossary_entries']['Row'];
-type TermRow = Pick<Row, 'id' | 'name' | 'category' | 'synonyms' | 'forms' | 'has_definition'>;
+type TermRow = Pick<
+	Row,
+	'id' | 'name' | 'kind' | 'category' | 'synonyms' | 'forms' | 'has_definition'
+>;
 
-const TERM_COLUMNS = 'id, name, category, synonyms, forms, has_definition';
+const TERM_COLUMNS = 'id, name, kind, category, synonyms, forms, has_definition';
 const DEFINITION_COLUMNS =
 	'definition, source_title, source_url, source_licence, source_fetched_on';
 type Write = Database['public']['Tables']['glossary_entries']['Insert'];
@@ -56,8 +65,17 @@ type GlossaryDeleteResult = {
 	error?: string;
 };
 
+type Classified = { kind: GlossaryKind; category: GlossaryCategory | null };
+
+function classified(row: Pick<Row, 'kind' | 'category'>): Classified | undefined {
+	if (!isGlossaryKind(row.kind)) return undefined;
+	if (row.category === null) return { kind: row.kind, category: null };
+	if (!isGlossaryCategory(row.category) || !fitsKind(row.category, row.kind)) return undefined;
+	return { kind: row.kind, category: row.category };
+}
+
 function figureOf(row: Row): FigureDetails | undefined {
-	if (!isFigure(row.category)) return undefined;
+	if (row.kind !== 'figure') return undefined;
 	return {
 		birthYear: row.birth_year,
 		deathYear: row.death_year,
@@ -68,12 +86,13 @@ function figureOf(row: Row): FigureDetails | undefined {
 }
 
 function entryOf(row: Row): GlossaryEntry | undefined {
-	if (!isGlossaryCategory(row.category)) return undefined;
+	const kind = classified(row);
+	if (!kind) return undefined;
 	const figure = figureOf(row);
 	return {
 		id: row.id,
 		name: row.name,
-		category: row.category,
+		...kind,
 		definition: row.definition ?? '',
 		synonyms: row.synonyms,
 		forms: row.forms,
@@ -86,7 +105,7 @@ function entryOf(row: Row): GlossaryEntry | undefined {
 }
 
 function figureColumns(draft: GlossaryDraft, image: StoredImage | null): Partial<Write> {
-	if (!draft.category || !isFigure(draft.category)) return {};
+	if (draft.kind !== 'figure') return {};
 	const details = figureDetailsOf(draft.figure);
 	return {
 		birth_year: details.birthYear,
@@ -98,7 +117,7 @@ function figureColumns(draft: GlossaryDraft, image: StoredImage | null): Partial
 }
 
 function writeOf(draft: GlossaryDraft, image: StoredImage | null): Write | undefined {
-	if (!draft.category) return undefined;
+	if (draft.category && !fitsKind(draft.category, draft.kind)) return undefined;
 	const definition = draft.definition.trim();
 	return {
 		name: draft.name.trim(),
@@ -121,11 +140,12 @@ export async function loadGlossary(): Promise<GlossaryResult> {
 }
 
 function termOf(row: TermRow): GlossaryTerm | undefined {
-	if (!isGlossaryCategory(row.category)) return undefined;
+	const kind = classified(row);
+	if (!kind) return undefined;
 	return {
 		id: row.id,
 		name: row.name,
-		category: row.category,
+		...kind,
 		synonyms: row.synonyms,
 		forms: row.forms,
 		hasDefinition: row.has_definition === true
@@ -202,7 +222,7 @@ export async function saveGlossaryEntry(
 	existingId?: string,
 	previous?: GlossaryEntry
 ): Promise<GlossarySaveResult> {
-	const figure = draft.category !== null && isFigure(draft.category);
+	const figure = draft.kind === 'figure';
 	const stored = figure ? await storedImage(draft.figure.image) : { image: null };
 	if (stored.error !== undefined) return { error: stored.error };
 	const write = writeOf(draft, stored.image);
@@ -210,7 +230,11 @@ export async function saveGlossaryEntry(
 	const newUpload = draft.figure.image?.kind === 'file' ? uploadPath(stored.image) : null;
 	const call = existingId
 		? supabase.from('glossary_entries').update(write).eq('id', existingId).select('id').single()
-		: supabase.from('glossary_entries').insert(write).select('id').single();
+		: supabase
+				.from('glossary_entries')
+				.insert({ ...write, kind: draft.kind })
+				.select('id')
+				.single();
 	const { data, error } = await call;
 	if (error) {
 		if (newUpload) await removeOwnImage(newUpload);

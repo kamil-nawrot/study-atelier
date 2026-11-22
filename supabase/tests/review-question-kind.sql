@@ -190,8 +190,9 @@ declare
 begin
   select id into ruled from public.artworks where title = 'Work 7';
   update public.profiles set review_quiz_kinds = array['quiz_title', 'quiz_image', 'quiz_author', 'quiz_pin'];
-  insert into public.glossary_entries (name, category) values
-    ('Charlemagne', 'ruler'), ('Otto', 'ruler'), ('Giotto', 'artist'), ('Duccio', 'artist');
+  insert into public.glossary_entries (name, kind, category) values
+    ('Charlemagne', 'figure', 'ruler'), ('Otto', 'figure', 'ruler'), ('Giotto', 'figure', 'artist'),
+    ('Duccio', 'figure', null), ('Tondo', 'term', null);
   insert into public.artwork_pins (image_id, x, y, glossary_entry_id)
     select image.id, 0.5, 0.5, term.id
       from public.artwork_images as image, public.glossary_entries as term
