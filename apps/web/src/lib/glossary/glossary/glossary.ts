@@ -1,6 +1,11 @@
 import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 import type { CardIndexData } from '#lib/catalogue/types/card-index-data.ts';
 import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
+import {
+	emptyFigureDraft,
+	figureDraftChanged,
+	figureDraftOf
+} from '#lib/glossary/figure-form/figure-form.ts';
 import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
 import type { GlossaryDraft } from '#lib/glossary/types/glossary-draft.ts';
 import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
@@ -169,7 +174,8 @@ export function emptyDraft(): GlossaryDraft {
 		forms: [],
 		sortByOther: false,
 		sortName: '',
-		source: null
+		source: null,
+		figure: emptyFigureDraft()
 	};
 }
 
@@ -182,7 +188,8 @@ export function draftOf(entry: GlossaryEntry): GlossaryDraft {
 		forms: [...entry.forms],
 		sortByOther: entry.sortName !== null,
 		sortName: entry.sortName ?? '',
-		source: entry.source ? { ...entry.source } : null
+		source: entry.source ? { ...entry.source } : null,
+		figure: figureDraftOf(entry.figure)
 	};
 }
 
@@ -200,7 +207,8 @@ export function draftChanged(current: GlossaryDraft, reference: GlossaryDraft): 
 			JSON.stringify(cleanForms(reference.synonyms)) ||
 		JSON.stringify(cleanForms(current.forms)) !== JSON.stringify(cleanForms(reference.forms)) ||
 		sortNameOf(current) !== sortNameOf(reference) ||
-		JSON.stringify(current.source) !== JSON.stringify(reference.source)
+		JSON.stringify(current.source) !== JSON.stringify(reference.source) ||
+		figureDraftChanged(current.figure, reference.figure)
 	);
 }
 

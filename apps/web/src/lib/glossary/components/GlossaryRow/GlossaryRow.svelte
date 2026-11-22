@@ -50,7 +50,7 @@
 	.head {
 		display: flex;
 		flex-wrap: wrap;
-		align-items: baseline;
+		align-items: center;
 		gap: var(--spacing-1) var(--spacing-3);
 	}
 
@@ -62,15 +62,11 @@
 
 	.category {
 		display: inline-flex;
-		align-items: baseline;
+		align-items: center;
 		gap: var(--spacing-1);
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-sm);
 		line-height: var(--line-height-sm);
-	}
-
-	.category :global(svg) {
-		align-self: center;
 	}
 
 	.sentence {

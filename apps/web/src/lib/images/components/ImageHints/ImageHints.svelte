@@ -40,8 +40,10 @@
 
 	.hints li {
 		display: flex;
-		align-items: start;
+		align-items: center;
 		gap: var(--spacing-2);
+		font-size: var(--font-size-xs);
+		line-height: var(--line-height-xs);
 	}
 
 	.hints li > :global(svg) {

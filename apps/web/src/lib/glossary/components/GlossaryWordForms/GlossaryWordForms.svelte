@@ -2,6 +2,7 @@
 	import { untrack } from 'svelte';
 	import { ValueField, type ValueOption } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
+	import { glossaryFormTexts } from '#lib/glossary/form-texts/form-texts.ts';
 	import { autoFetch } from '#lib/profile/auto-fetch/auto-fetch.svelte.ts';
 	import { cappedForms, SYNONYMS_MAX_COUNT } from '#lib/glossary/glossary/glossary.ts';
 	import type { GlossaryDraft } from '#lib/glossary/types/glossary-draft.ts';
@@ -16,12 +17,14 @@
 	type Props = {
 		form: GlossaryDraft;
 		existing?: GlossaryEntry;
+		figure?: boolean;
 		onfilling?: (filling: boolean) => void;
 	};
 
-	let { form = $bindable(), existing, onfilling }: Props = $props();
+	let { form = $bindable(), existing, figure = false, onfilling }: Props = $props();
 
 	const SEARCH_DELAY_MS = 600;
+	const texts = $derived(glossaryFormTexts(figure));
 
 	let synonymsQuery = $state('');
 	let formsQuery = $state('');
@@ -178,10 +181,8 @@
 </script>
 
 <ValueField
-	hint={form.synonyms.length >= SYNONYMS_MAX_COUNT
-		? m.glossary.form.synonymsFull
-		: m.glossary.form.synonymsHint}
-	label={m.glossary.form.synonyms}
+	hint={form.synonyms.length >= SYNONYMS_MAX_COUNT ? texts.synonymsFull : texts.synonymsHint}
+	label={texts.synonyms}
 	max={SYNONYMS_MAX_COUNT}
 	options={synonymOptions}
 	bind:query={synonymsQuery}
@@ -189,6 +190,7 @@
 />
 
 <InflectionField
+	{figure}
 	message={formsStatus === 'searching' ? undefined : synonymMessage}
 	offer={formsOffer}
 	onfetch={suggestForms}

@@ -1,4 +1,5 @@
 import type { WikipediaSource } from '#lib/shared/types/wikipedia-source.ts';
+import type { FigureDraft } from './figure-draft.ts';
 import type { GlossaryCategory } from './glossary-category.ts';
 
 export type GlossaryDraft = {
@@ -10,4 +11,5 @@ export type GlossaryDraft = {
 	sortByOther: boolean;
 	sortName: string;
 	source: WikipediaSource | null;
+	figure: FigureDraft;
 };

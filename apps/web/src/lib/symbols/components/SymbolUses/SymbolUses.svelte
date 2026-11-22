@@ -49,7 +49,10 @@
 		align-items: baseline;
 		gap: var(--spacing-1) var(--spacing-4);
 		padding-block: var(--spacing-3);
-		border-bottom: var(--border-width-hairline) solid var(--color-line);
+	}
+
+	li + li {
+		border-top: var(--border-width-hairline) solid var(--color-tag);
 	}
 
 	.name {
