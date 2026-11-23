@@ -606,6 +606,14 @@ describe('deleteGlossaryEntry', () => {
 		expect(await deleteGlossaryEntry(ID)).toEqual({});
 		expect(query.delete).toHaveBeenCalled();
 		expect(query.eq).toHaveBeenCalledWith('id', ID);
+		expect(removeOwnImage).not.toHaveBeenCalled();
+	});
+
+	it('removes the uploaded portrait of a deleted figure', async () => {
+		chain({ data: [{ own_image_path: 'owner/portrait.webp' }], error: null });
+
+		expect(await deleteGlossaryEntry(ID)).toEqual({});
+		expect(removeOwnImage).toHaveBeenCalledWith('owner/portrait.webp');
 	});
 
 	it('forgets the cached glossary after a delete', async () => {

@@ -113,7 +113,7 @@ export class DefinitionSearch {
 		this.status = 'searching';
 		this.#filling = fill && this.#replaceable();
 		try {
-			const found = await searchArticles(name, category);
+			const found = await searchArticles(name, category, this.figure);
 			if (current !== this.#request) return;
 			this.#filling = false;
 			this.articles = found;
