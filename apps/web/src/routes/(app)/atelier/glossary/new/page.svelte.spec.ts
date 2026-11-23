@@ -231,7 +231,7 @@ describe('new glossary entry page', () => {
 		await nameField().fill('nawa');
 		await vi.advanceTimersByTimeAsync(700);
 
-		expect(searchArticles).toHaveBeenCalledWith('nawa', null);
+		expect(searchArticles).toHaveBeenCalledWith('nawa', null, false);
 	});
 
 	it('says the name is taken, ignoring letter case and diacritics', async () => {
@@ -276,7 +276,7 @@ describe('new glossary entry page', () => {
 		await fillAndSearch();
 
 		expect(searchArticles).toHaveBeenCalledTimes(1);
-		expect(searchArticles).toHaveBeenCalledWith('nawa', 'architecture');
+		expect(searchArticles).toHaveBeenCalledWith('nawa', 'architecture', false);
 		await expect.element(definitionField()).toHaveValue(NAWA.extract);
 		await expect
 			.element(page.getByText(/Na podstawie: Wikipedia, „Nawa”, CC BY-SA 4.0/))
@@ -300,7 +300,7 @@ describe('new glossary entry page', () => {
 		await page.getByRole('button', { name: m.glossary.form.searchDefinition }).click();
 		await vi.advanceTimersByTimeAsync(0);
 
-		expect(searchArticles).toHaveBeenCalledWith('nawa', 'architecture');
+		expect(searchArticles).toHaveBeenCalledWith('nawa', 'architecture', false);
 		await expect.element(definitionField()).toHaveValue(NAWA.extract);
 	});
 
@@ -346,7 +346,7 @@ describe('new glossary entry page', () => {
 		await vi.advanceTimersByTimeAsync(400);
 
 		expect(searchArticles).toHaveBeenCalledTimes(1);
-		expect(searchArticles).toHaveBeenCalledWith('nawa', 'architecture');
+		expect(searchArticles).toHaveBeenCalledWith('nawa', 'architecture', false);
 	});
 
 	it('locks the definition and saving while it waits for Wikipedia', async () => {

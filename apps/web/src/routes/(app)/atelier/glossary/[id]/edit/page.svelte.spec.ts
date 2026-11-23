@@ -290,7 +290,7 @@ describe('edit glossary entry page', () => {
 		await expect
 			.element(page.getByLabelText(m.glossary.form.definition))
 			.toHaveValue('Tympanon, another article.');
-		expect(searchArticles).toHaveBeenCalledWith('Tympanum', 'architecture');
+		expect(searchArticles).toHaveBeenCalledWith('Tympanum', 'architecture', false);
 	});
 
 	it('says in the article picker that Wikipedia has nothing', async () => {

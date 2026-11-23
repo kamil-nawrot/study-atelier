@@ -247,8 +247,14 @@ export async function saveGlossaryEntry(
 }
 
 export async function deleteGlossaryEntry(id: string): Promise<GlossaryDeleteResult> {
-	const { error } = await supabase.from('glossary_entries').delete().eq('id', id);
+	const { data, error } = await supabase
+		.from('glossary_entries')
+		.delete()
+		.eq('id', id)
+		.select('own_image_path');
 	if (error) return { error: await failureMessage(error, glossaryErrorMessage) };
 	forgetCached([cacheKeys.glossary]);
+	const portrait = data?.[0]?.own_image_path;
+	if (portrait) await removeOwnImage(portrait);
 	return {};
 }

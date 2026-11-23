@@ -338,6 +338,7 @@
 
 	aside {
 		overflow-y: auto;
+		padding-inline: var(--content-bleed, 0px);
 	}
 
 	@media (min-width: 768px) {
@@ -345,7 +346,7 @@
 			position: relative;
 			display: flex;
 			align-items: flex-start;
-			gap: var(--spacing-8);
+			gap: 0;
 		}
 
 		.stage {
@@ -354,16 +355,19 @@
 
 		aside {
 			flex: none;
+			box-sizing: border-box;
+			align-self: stretch;
 			width: 320px;
+			padding: var(--spacing-6) var(--spacing-4) var(--spacing-12);
+			border-left: var(--border-width-hairline) solid var(--color-tag);
+			background: var(--color-bg);
 		}
 
 		.over aside {
 			position: absolute;
 			top: 0;
 			right: 0;
-			padding: var(--spacing-4);
-			border-left: var(--border-width-base) solid var(--color-line);
-			background: var(--color-bg);
+			bottom: 0;
 		}
 	}
 </style>

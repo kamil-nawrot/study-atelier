@@ -161,16 +161,18 @@ export function articleOf(page: Page, max = DEFINITION_MAX_LENGTH): WikipediaArt
 
 export function searchArticles(
 	name: string,
-	category: GlossaryCategory | null
+	category: GlossaryCategory | null,
+	figure = false
 ): Promise<WikipediaArticle[]> {
-	return withDeadline(findArticles(name, category));
+	return withDeadline(findArticles(name, category, figure));
 }
 
 async function findArticles(
 	name: string,
-	category: GlossaryCategory | null
+	category: GlossaryCategory | null,
+	figure: boolean
 ): Promise<WikipediaArticle[]> {
-	const humans = category !== null && HUMAN_CATEGORIES.includes(category);
+	const humans = category === null ? figure : HUMAN_CATEGORIES.includes(category);
 	const attempts = humans
 		? [searchQuery(name, category, false)]
 		: [searchQuery(name, category, true), searchQuery(name, category, false)];
