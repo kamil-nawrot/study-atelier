@@ -16,4 +16,10 @@ describe('FormActions', () => {
 		await expect.element(footer.getByRole('link', { name: 'Cancel' })).toBeVisible();
 		await expect.element(footer.getByRole('button', { name: 'Save' })).toBeVisible();
 	});
+
+	it('marks a bar that spans an image stage', async () => {
+		render(FormActions, { children: actions, staged: true });
+
+		await expect.element(page.getByRole('contentinfo')).toHaveClass(/staged/);
+	});
 });
