@@ -18,10 +18,12 @@
 <a href={resolve('/(app)/atelier/glossary/[id]', { id: entry.id })}>
 	<span class="head">
 		<span class="name">{entry.name}</span>
-		<span class="category">
-			<Icon icon={glossaryCategoryIcon(entry.category)} size="sm" />
-			{glossaryCategoryName(entry.category)}
-		</span>
+		{#if entry.category}
+			<span class="category">
+				<Icon icon={glossaryCategoryIcon(entry.category)} size="sm" />
+				{glossaryCategoryName(entry.category)}
+			</span>
+		{/if}
 	</span>
 	{#if entry.definition}
 		<span class="sentence">{leadSentences(entry.definition)}</span>
@@ -32,7 +34,7 @@
 	a {
 		display: grid;
 		gap: var(--spacing-1);
-		padding: var(--spacing-3);
+		padding: var(--spacing-4) var(--spacing-3);
 		color: var(--color-fg);
 		text-decoration: none;
 	}
@@ -50,7 +52,7 @@
 	.head {
 		display: flex;
 		flex-wrap: wrap;
-		align-items: baseline;
+		align-items: center;
 		gap: var(--spacing-1) var(--spacing-3);
 	}
 
@@ -62,15 +64,11 @@
 
 	.category {
 		display: inline-flex;
-		align-items: baseline;
+		align-items: center;
 		gap: var(--spacing-1);
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-sm);
 		line-height: var(--line-height-sm);
-	}
-
-	.category :global(svg) {
-		align-self: center;
 	}
 
 	.sentence {

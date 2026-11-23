@@ -1,5 +1,10 @@
 <script lang="ts">
-	import { Icon } from '@study-atelier/ui';
+	import { ArtworkImage, Icon, ImageCredit, MetaLine } from '@study-atelier/ui';
+	import {
+		artworkImageCredit,
+		artworkImageSource
+	} from '#lib/images/artwork-image/artwork-image.ts';
+	import { formatLifeYears } from '#lib/catalogue/years/years.ts';
 	import MentionedIn from '#lib/notes/components/MentionedIn/MentionedIn.svelte';
 	import type { Mention } from '#lib/notes/types/mention.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -20,48 +25,83 @@
 
 	let { entry, entries = [], mentions = [] }: Props = $props();
 
+	const PORTRAIT_WIDTH = 500;
+
+	const figure = $derived(entry.figure);
+	const portrait = $derived(artworkImageSource(figure?.image ?? null, PORTRAIT_WIDTH));
+	const credit = $derived(artworkImageCredit(figure?.image ?? null));
+	const lifeYears = $derived(
+		figure ? formatLifeYears(figure.birthYear, figure.deathYear, figure.yearsApproximate) : ''
+	);
 	const others = $derived(entries.filter((candidate) => candidate.id !== entry.id));
 </script>
 
-<article>
-	<header>
-		<p class="kind overline">
-			<Icon icon={glossaryCategoryIcon(entry.category)} size="sm" />
-			{glossaryCategoryName(entry.category)}
-		</p>
-		<h1>{entry.name}</h1>
-		{#if entry.synonyms.length > 0}
-			<p class="caption">{m.glossary.view.also(entry.synonyms.join(', '))}</p>
-		{/if}
-	</header>
-
-	{#if entry.definition}
-		<blockquote>
-			<div class="definition">
-				<GlossaryNotes entries={others} plain value={entry.definition} />
+<article class:with-portrait={portrait}>
+	{#if portrait}
+		<figure class="portrait">
+			<div class="mat">
+				<ArtworkImage
+					alt={entry.name}
+					height={portrait.height}
+					sizes="(min-width: 768px) 320px, 100vw"
+					src={portrait.src}
+					srcset={portrait.srcset}
+					width={portrait.width}
+				/>
+				{#if credit}
+					<ImageCredit label={m.artwork.creditLabel} text={credit} tone="mat" />
+				{/if}
 			</div>
-			{#if entry.source}
-				<p class="caption">
-					{m.common.wikipediaSource}<a
-						href={entry.source.url}
-						rel="external noreferrer"
-						target="_blank">„{entry.source.title}”</a
-					>,
-					<a href={WIKIPEDIA_LICENCE_URL} rel="external noreferrer" target="_blank"
-						>{entry.source.licence}</a
-					>
+		</figure>
+	{/if}
+	<div class="text">
+		<header>
+			{#if entry.category}
+				<p class="kind overline">
+					<Icon icon={glossaryCategoryIcon(entry.category)} size="sm" />
+					{glossaryCategoryName(entry.category)}
 				</p>
 			{/if}
-		</blockquote>
-	{:else}
-		<p class="empty">{m.glossary.view.noDefinition}</p>
-	{/if}
+			<h1>{entry.name}</h1>
+			{#if figure && (lifeYears || figure.country)}
+				<p class="caption">
+					<MetaLine parts={[lifeYears || null, figure.country]} />
+				</p>
+			{/if}
+			{#if entry.synonyms.length > 0}
+				<p class="caption">{m.glossary.view.also(entry.synonyms.join(', '))}</p>
+			{/if}
+		</header>
 
-	<MentionedIn heading={m.glossary.view.mentionsHeading} {mentions} />
+		{#if entry.definition}
+			<blockquote>
+				<div class="definition">
+					<GlossaryNotes entries={others} plain value={entry.definition} />
+				</div>
+				{#if entry.source}
+					<p class="caption">
+						{m.common.wikipediaSource}<a
+							href={entry.source.url}
+							rel="external noreferrer"
+							target="_blank">„{entry.source.title}”</a
+						>,
+						<a href={WIKIPEDIA_LICENCE_URL} rel="external noreferrer" target="_blank"
+							>{entry.source.licence}</a
+						>
+					</p>
+				{/if}
+			</blockquote>
+		{:else}
+			<p class="empty">{m.glossary.view.noDefinition}</p>
+		{/if}
+
+		<MentionedIn heading={m.glossary.view.mentionsHeading} {mentions} />
+	</div>
 </article>
 
 <style>
 	article,
+	.text,
 	header {
 		display: grid;
 		gap: var(--spacing-2);
@@ -69,7 +109,31 @@
 
 	article {
 		gap: var(--spacing-8);
+	}
+
+	.text {
+		align-content: start;
+		gap: var(--spacing-8);
 		max-width: var(--size-content-default);
+	}
+
+	.portrait {
+		display: grid;
+		align-self: start;
+		margin: 0;
+	}
+
+	.mat {
+		position: relative;
+		padding: var(--spacing-2);
+		background: var(--color-mat-bg);
+	}
+
+	.mat :global(img) {
+		display: block;
+		width: 100%;
+		height: auto;
+		background: var(--color-mat-window);
 	}
 
 	.kind {
@@ -115,5 +179,12 @@
 
 	.empty {
 		color: var(--color-fg-muted);
+	}
+
+	@media (min-width: 768px) {
+		article.with-portrait {
+			grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+			gap: var(--spacing-12);
+		}
 	}
 </style>

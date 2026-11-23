@@ -1,8 +1,7 @@
 import { resolve } from '$app/paths';
 import type { ResolvedPathname } from '$app/types';
 import { readStored, writeStored } from '#lib/shared/utils/storage/storage.ts';
-import { isFigure } from '#lib/glossary/categories/categories.ts';
-import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
+import type { GlossaryKind } from '#lib/glossary/types/glossary-kind.ts';
 
 const TAB_KEY = 'study-atelier:glossary-tab';
 
@@ -24,11 +23,11 @@ export function rememberedGlossaryTab(requested?: string | null): GlossaryTab {
 	return isGlossaryTab(stored) ? stored : 'terms';
 }
 
-export function glossaryTabOf(category: GlossaryCategory): GlossaryTab {
-	return isFigure(category) ? 'figures' : 'terms';
+export function glossaryTabOf(kind: GlossaryKind): GlossaryTab {
+	return kind === 'figure' ? 'figures' : 'terms';
 }
 
-export function glossaryListPath(entry?: { category: GlossaryCategory }): ResolvedPathname {
+export function glossaryListPath(entry?: { kind: GlossaryKind }): ResolvedPathname {
 	const path = resolve('/(app)/atelier/glossary');
-	return (entry ? `${path}?tab=${glossaryTabOf(entry.category)}` : path) as ResolvedPathname;
+	return (entry ? `${path}?tab=${glossaryTabOf(entry.kind)}` : path) as ResolvedPathname;
 }

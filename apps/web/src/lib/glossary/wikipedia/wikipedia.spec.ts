@@ -259,7 +259,7 @@ describe('searchArticles', () => {
 		expect(articles.map((article) => article.title)).toEqual(['Łuk (architektura)']);
 	});
 
-	it.each(['ruler', 'patron', 'artist', 'scholar'] as const)(
+	it.each(['ruler', 'patron', 'artist', 'scholar', null] as const)(
 		'keeps only articles about people for the figure category %s, by their Wikidata class',
 		async (category) => {
 			stubWikipedia({
@@ -276,7 +276,7 @@ describe('searchArticles', () => {
 				}
 			});
 
-			const articles = await searchArticles('Dawid', category);
+			const articles = await searchArticles('Dawid', category, true);
 
 			expect(articles.map((article) => article.title)).toEqual(['Dawid (król)']);
 		}

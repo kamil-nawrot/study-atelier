@@ -1,6 +1,6 @@
 # 0338. Keep figures on a tab of their own in the glossary
 
-- Status: accepted
+- Status: accepted; the required category and the kind told by the category are superseded by [0341](0341-let-a-glossary-entry-have-no-category.md)
 - Date: 2026-11-20
 
 ## Context and problem statement

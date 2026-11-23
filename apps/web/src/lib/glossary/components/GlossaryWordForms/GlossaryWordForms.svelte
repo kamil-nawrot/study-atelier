@@ -2,6 +2,7 @@
 	import { untrack } from 'svelte';
 	import { ValueField, type ValueOption } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
+	import { glossaryFormTexts } from '#lib/glossary/form-texts/form-texts.ts';
 	import { autoFetch } from '#lib/profile/auto-fetch/auto-fetch.svelte.ts';
 	import { cappedForms, SYNONYMS_MAX_COUNT } from '#lib/glossary/glossary/glossary.ts';
 	import type { GlossaryDraft } from '#lib/glossary/types/glossary-draft.ts';
@@ -16,12 +17,14 @@
 	type Props = {
 		form: GlossaryDraft;
 		existing?: GlossaryEntry;
+		figure?: boolean;
 		onfilling?: (filling: boolean) => void;
 	};
 
-	let { form = $bindable(), existing, onfilling }: Props = $props();
+	let { form = $bindable(), existing, figure = false, onfilling }: Props = $props();
 
 	const SEARCH_DELAY_MS = 600;
+	const texts = $derived(glossaryFormTexts(figure));
 
 	let synonymsQuery = $state('');
 	let formsQuery = $state('');
@@ -38,9 +41,9 @@
 
 	let synonymOptions = $derived(newOption(synonymsQuery, form.synonyms));
 	let formOptions = $derived(newOption(formsQuery, form.forms));
-	let formsEligible = $derived(suggestsForms(form.name, form.category));
+	let formsEligible = $derived(suggestsForms(form.name, form.kind));
 	let formsShownStatus = $derived<FormsStatus>(
-		form.name.trim() && form.category && !formsEligible ? 'skipped' : formsStatus
+		form.name.trim() && !formsEligible ? 'skipped' : formsStatus
 	);
 	let formsOffer = $derived.by((): FormsOffer | undefined => {
 		if (!formsEligible) return undefined;
@@ -84,11 +87,11 @@
 
 	async function suggestForms(): Promise<void> {
 		const name = form.name.trim();
-		if (!suggestsForms(name, form.category)) return;
+		if (!suggestsForms(name, form.kind)) return;
 		const current = ++formsRequest;
 		formsStatus = 'searching';
 		synonymMessage = undefined;
-		const words = form.synonyms.filter((word) => suggestsForms(word, form.category));
+		const words = form.synonyms.filter((word) => suggestsForms(word, form.kind));
 		try {
 			const [found, ...synonyms] = await Promise.all(
 				[name, ...words].map((word) => fetchForms(word))
@@ -107,7 +110,7 @@
 	}
 
 	async function addSynonymForms(word: string): Promise<void> {
-		if (!suggestsForms(word, form.category)) return;
+		if (!suggestsForms(word, form.kind)) return;
 		const key = synonymKey(word);
 		synonymMessage = m.glossary.form.synonymFormsSearching(word);
 		try {
@@ -150,15 +153,15 @@
 	$effect(() => {
 		if (existing) return;
 		const name = form.name.trim();
-		const category = form.category;
+		const kind = form.kind;
 		untrack(() => {
 			if (formsStatus !== 'searching') return;
 			formsRequest += 1;
 			formsStatus = 'idle';
 		});
-		if (!name || !category) return;
+		if (!name) return;
 		if (name.toLocaleLowerCase('pl') === stoppedName) return;
-		if (!suggestsForms(name, category)) {
+		if (!suggestsForms(name, kind)) {
 			untrack(() => {
 				formsRequest += 1;
 				formsStatus = 'idle';
@@ -178,10 +181,8 @@
 </script>
 
 <ValueField
-	hint={form.synonyms.length >= SYNONYMS_MAX_COUNT
-		? m.glossary.form.synonymsFull
-		: m.glossary.form.synonymsHint}
-	label={m.glossary.form.synonyms}
+	hint={form.synonyms.length >= SYNONYMS_MAX_COUNT ? texts.synonymsFull : texts.synonymsHint}
+	label={texts.synonyms}
 	max={SYNONYMS_MAX_COUNT}
 	options={synonymOptions}
 	bind:query={synonymsQuery}
@@ -189,6 +190,7 @@
 />
 
 <InflectionField
+	{figure}
 	message={formsStatus === 'searching' ? undefined : synonymMessage}
 	offer={formsOffer}
 	onfetch={suggestForms}

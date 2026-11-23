@@ -320,10 +320,14 @@ do $$
 begin
   perform public.import_atelier(jsonb_build_object('glossary_entries', jsonb_build_array(
     jsonb_build_object('id', gen_random_uuid(), 'name', 'Vasari', 'category', 'person'),
+    jsonb_build_object('id', gen_random_uuid(), 'name', 'Zeus', 'category', 'myth'),
     jsonb_build_object('id', gen_random_uuid(), 'name', 'Apse', 'category', 'architecture'))));
   assert (select array_agg(entry.category order by entry.name) from public.glossary_entries as entry)
-      = '{architecture,scholar}',
+      = '{architecture,scholar,myth}',
     'a person of an export made before the figures is not imported as a scholar';
+  assert (select array_agg(entry.kind order by entry.name) from public.glossary_entries as entry)
+      = '{term,figure,figure}',
+    'an export made before the kind of an entry does not get it from the category';
 end;
 $$;
 

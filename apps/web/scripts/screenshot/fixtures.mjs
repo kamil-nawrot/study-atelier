@@ -706,6 +706,8 @@ export function fakeSession() {
 	};
 }
 
+const FIGURE_CATEGORIES = ['ruler', 'patron', 'artist', 'scholar', 'sacred', 'myth'];
+
 function glossaryEntry(
 	number,
 	name,
@@ -713,12 +715,13 @@ function glossaryEntry(
 	definition,
 	forms = [],
 	article = null,
-	{ synonyms = [], sortName = null } = {}
+	{ synonyms = [], sortName = null, figure = {}, kind = null } = {}
 ) {
 	return {
 		id: `00000000-0000-4000-9000-${String(number).padStart(12, '0')}`,
 		owner_id: USER.id,
 		name,
+		kind: kind ?? (FIGURE_CATEGORIES.includes(category) ? 'figure' : 'term'),
 		category,
 		definition,
 		synonyms,
@@ -728,6 +731,20 @@ function glossaryEntry(
 		source_url: article ? `https://pl.wikipedia.org/wiki/${encodeURIComponent(article)}` : null,
 		source_licence: article ? 'CC BY-SA 4.0' : null,
 		source_fetched_on: article ? '2026-10-17' : null,
+		birth_year: null,
+		death_year: null,
+		years_approximate: false,
+		country: null,
+		source_wikidata_id: null,
+		source_image_file: null,
+		source_image_licence: null,
+		source_image_licence_url: null,
+		source_image_attribution: null,
+		own_image_path: null,
+		own_image_url: null,
+		image_width: null,
+		image_height: null,
+		...figure,
 		created_at: '2026-10-17T06:00:00Z',
 		updated_at: '2026-10-17T06:00:00Z'
 	};
@@ -1161,7 +1178,17 @@ export const GLOSSARY_ENTRIES = [
 		'Włoski malarz, architekt i pisarz, autor „Żywotów najsławniejszych malarzy, rzeźbiarzy i architektów”.',
 		[],
 		'Giorgio Vasari',
-		{ sortName: 'Vasari, Giorgio' }
+		{
+			sortName: 'Vasari, Giorgio',
+			figure: {
+				birth_year: 1511,
+				death_year: 1574,
+				country: 'Włochy',
+				own_image_url: `${IMAGE_HOST}/own-vasari-480x600.svg`,
+				image_width: 480,
+				image_height: 600
+			}
+		}
 	),
 	glossaryEntry(
 		7,
@@ -1292,6 +1319,23 @@ export const GLOSSARY_ENTRIES = [
 		'Król Franków i cesarz, patron odrodzenia karolińskiego.',
 		[],
 		'Karol Wielki'
+	),
+	glossaryEntry(
+		50,
+		'Kampanila',
+		null,
+		'Wolno stojąca wieża dzwonnicza przy kościele, typowa dla architektury włoskiej.',
+		['kampanili'],
+		'Kampanila'
+	),
+	glossaryEntry(
+		51,
+		'Simonetta Vespucci',
+		null,
+		'Florencka szlachcianka uważana za wzór piękna wczesnego renesansu.',
+		[],
+		'Simonetta Vespucci',
+		{ kind: 'figure', sortName: 'Vespucci, Simonetta' }
 	)
 ];
 

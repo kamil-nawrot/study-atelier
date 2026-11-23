@@ -205,6 +205,30 @@ describe('glossary page', () => {
 		await expect.element(entryLink('Fresco')).toBeVisible();
 	});
 
+	it('offers "Bez kategorii" only when an entry has no category, and filters by it', async () => {
+		renderGlossary([
+			...testGlossary(),
+			testEntry('a-kampanila', 'Kampanila', { category: null }),
+			testEntry('f-none', 'Herkules', { kind: 'figure', category: null })
+		]);
+
+		const none = page.getByRole('button', { name: `${m.glossary.noCategory} 1` });
+		await expect.element(entryLink('Kampanila')).not.toHaveTextContent(m.glossary.noCategory);
+		await none.click();
+
+		await expect.element(entryLink('Kampanila')).toBeVisible();
+		await expect.element(entryLink('Tympanum')).not.toBeInTheDocument();
+		await expect.element(entryLink('Herkules')).not.toBeInTheDocument();
+	});
+
+	it('offers no "Bez kategorii" when every entry has a category', async () => {
+		renderGlossary();
+
+		expect(
+			page.getByRole('button', { name: new RegExp(m.glossary.noCategory) }).elements()
+		).toHaveLength(0);
+	});
+
 	it('disables a category without entries', async () => {
 		renderGlossary();
 
@@ -479,9 +503,13 @@ describe('glossary page', () => {
 				testEntry('f-ramses', 'Ramzes II', { category: 'ruler' })
 			]);
 
+			document.documentElement.style.setProperty('--border-width-hairline', '1px');
+			document.documentElement.style.setProperty('--color-line', 'red');
 			const rows = [...document.querySelectorAll<HTMLElement>('.group li')];
-			const dividers = rows.map((row) => getComputedStyle(row, '::before').content !== 'none');
-			expect(dividers).toEqual([false, false, true]);
+			const dividers = rows.map((row) => getComputedStyle(row).borderBottomStyle !== 'none');
+			document.documentElement.style.removeProperty('--border-width-hairline');
+			document.documentElement.style.removeProperty('--color-line');
+			expect(dividers).toEqual([false, true, false]);
 		});
 	});
 

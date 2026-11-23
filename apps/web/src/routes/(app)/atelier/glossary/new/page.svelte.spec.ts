@@ -141,6 +141,42 @@ describe('new glossary entry page', () => {
 
 		expect(saveGlossaryEntry).toHaveBeenCalledWith(
 			expect.objectContaining({ name: 'Herkules', category: 'myth' }),
+			undefined,
+			undefined
+		);
+	});
+
+	it('words the fields of a figure for a person and adds life years, country and a portrait', async () => {
+		renderNew(undefined, 'figure');
+
+		await expect.element(page.getByLabelText(m.glossary.form.figure.definition)).toBeVisible();
+		await expect
+			.element(page.getByRole('combobox', { name: m.glossary.form.figure.synonyms }))
+			.toBeVisible();
+		await expect.element(page.getByText(m.glossary.form.figure.synonymsHint)).toBeVisible();
+		await expect.element(page.getByText(m.glossary.form.figure.formsHint)).toBeVisible();
+		await expect.element(page.getByText(m.valueForm.lifeYears)).toBeVisible();
+		await expect.element(page.getByLabelText(m.valueForm.authorCountry)).toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.valueForm.portrait.own }))
+			.toBeVisible();
+	});
+
+	it('saves the life years and the country of a figure', async () => {
+		renderNew(undefined, 'figure');
+
+		await nameField().fill('Fidiasz');
+		await category(m.glossary.categoryNames.artist).click();
+		await page.getByLabelText(m.valueForm.birthYear).fill('1452');
+		await page.getByLabelText(m.valueForm.deathYear).fill('1519');
+		await page.getByLabelText(m.valueForm.authorCountry).fill('Grecja');
+		await saveButton().click();
+
+		expect(saveGlossaryEntry).toHaveBeenCalledWith(
+			expect.objectContaining({
+				figure: expect.objectContaining({ birthYear: '1452', deathYear: '1519', country: 'Grecja' })
+			}),
+			undefined,
 			undefined
 		);
 	});
@@ -156,14 +192,46 @@ describe('new glossary entry page', () => {
 		expect(saveGlossaryEntry).not.toHaveBeenCalled();
 	});
 
-	it('requires a name and a category', async () => {
+	it('requires a name but not a category', async () => {
 		renderNew();
 
 		await saveButton().click();
 
 		await expect.element(page.getByText(m.valueForm.nameRequired)).toBeVisible();
-		await expect.element(page.getByText(m.glossary.form.categoryRequired)).toBeVisible();
 		expect(saveGlossaryEntry).not.toHaveBeenCalled();
+
+		await nameField().fill('Herkules');
+		await saveButton().click();
+
+		expect(saveGlossaryEntry).toHaveBeenCalledWith(
+			expect.objectContaining({ name: 'Herkules', kind: 'term', category: null }),
+			undefined,
+			undefined
+		);
+	});
+
+	it('clears a chosen category when the learner clicks it again', async () => {
+		renderNew(undefined, 'figure');
+
+		await nameField().fill('Herkules');
+		await category(m.glossary.categoryNames.myth).click();
+		await category(m.glossary.categoryNames.myth).click();
+		await saveButton().click();
+
+		expect(saveGlossaryEntry).toHaveBeenCalledWith(
+			expect.objectContaining({ name: 'Herkules', kind: 'figure', category: null }),
+			undefined,
+			undefined
+		);
+	});
+
+	it('searches Wikipedia by the name alone while no category is chosen', async () => {
+		renderNew();
+
+		await nameField().fill('nawa');
+		await vi.advanceTimersByTimeAsync(700);
+
+		expect(searchArticles).toHaveBeenCalledWith('nawa', null, false);
 	});
 
 	it('says the name is taken, ignoring letter case and diacritics', async () => {
@@ -208,7 +276,7 @@ describe('new glossary entry page', () => {
 		await fillAndSearch();
 
 		expect(searchArticles).toHaveBeenCalledTimes(1);
-		expect(searchArticles).toHaveBeenCalledWith('nawa', 'architecture');
+		expect(searchArticles).toHaveBeenCalledWith('nawa', 'architecture', false);
 		await expect.element(definitionField()).toHaveValue(NAWA.extract);
 		await expect
 			.element(page.getByText(/Na podstawie: Wikipedia, „Nawa”, CC BY-SA 4.0/))
@@ -232,7 +300,7 @@ describe('new glossary entry page', () => {
 		await page.getByRole('button', { name: m.glossary.form.searchDefinition }).click();
 		await vi.advanceTimersByTimeAsync(0);
 
-		expect(searchArticles).toHaveBeenCalledWith('nawa', 'architecture');
+		expect(searchArticles).toHaveBeenCalledWith('nawa', 'architecture', false);
 		await expect.element(definitionField()).toHaveValue(NAWA.extract);
 	});
 
@@ -278,7 +346,7 @@ describe('new glossary entry page', () => {
 		await vi.advanceTimersByTimeAsync(400);
 
 		expect(searchArticles).toHaveBeenCalledTimes(1);
-		expect(searchArticles).toHaveBeenCalledWith('nawa', 'architecture');
+		expect(searchArticles).toHaveBeenCalledWith('nawa', 'architecture', false);
 	});
 
 	it('locks the definition and saving while it waits for Wikipedia', async () => {
@@ -462,12 +530,14 @@ describe('new glossary entry page', () => {
 		expect(saveGlossaryEntry).toHaveBeenCalledWith(
 			{
 				name: 'nawa',
+				kind: 'term',
 				category: 'architecture',
 				definition: NAWA.extract,
 				synonyms: [],
 				forms: ['nawy', 'nawie'],
 				sortByOther: false,
 				sortName: '',
+				figure: expect.any(Object),
 				source: {
 					title: 'Nawa',
 					url: 'https://pl.wikipedia.org/wiki/Nawa',
@@ -475,6 +545,7 @@ describe('new glossary entry page', () => {
 					fetchedOn: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/)
 				}
 			},
+			undefined,
 			undefined
 		);
 		expect(goto).toHaveBeenCalledWith('/atelier/glossary/new-id', {
@@ -501,6 +572,7 @@ describe('new glossary entry page', () => {
 				sortByOther: true,
 				sortName: 'Nawa, główna'
 			}),
+			undefined,
 			undefined
 		);
 	});
@@ -552,6 +624,7 @@ describe('new glossary entry page', () => {
 		await saveButton().click();
 		expect(saveGlossaryEntry).toHaveBeenCalledWith(
 			expect.objectContaining({ forms: ['nawy', 'nawie'] }),
+			undefined,
 			undefined
 		);
 	});
@@ -586,7 +659,7 @@ describe('new glossary entry page', () => {
 		await category(m.glossary.categoryNames.artist).click();
 		await vi.advanceTimersByTimeAsync(700);
 
-		await expect.element(page.getByText(m.glossary.form.formsSkipped)).toBeVisible();
+		await expect.element(page.getByText(m.glossary.form.figure.formsSkipped)).toBeVisible();
 		expect(fetchForms).not.toHaveBeenCalled();
 	});
 
@@ -634,6 +707,7 @@ describe('new glossary entry page', () => {
 
 		expect(saveGlossaryEntry).toHaveBeenCalledWith(
 			expect.objectContaining({ name: 'xyzzy', definition: '', source: null }),
+			undefined,
 			undefined
 		);
 	});

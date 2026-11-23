@@ -55,8 +55,8 @@ function nameField(): ReturnType<typeof page.getByRole> {
 	return page.getByLabelText(m.common.name);
 }
 
-async function addSynonym(word: string): Promise<void> {
-	await page.getByRole('combobox', { name: m.glossary.form.synonyms }).fill(word);
+async function addSynonym(word: string, label = m.glossary.form.synonyms): Promise<void> {
+	await page.getByRole('combobox', { name: label }).fill(word);
 	await userEvent.keyboard('{Enter}');
 	await vi.advanceTimersByTimeAsync(0);
 }
@@ -185,7 +185,7 @@ describe('edit glossary entry page', () => {
 	it('does not look up the synonyms of a figure', async () => {
 		renderEdit(testEntry('a-lorenzo', 'Lorenzo Medici', { category: 'patron' }));
 
-		await addSynonym('Wspaniały');
+		await addSynonym('Wspaniały', m.glossary.form.figure.synonyms);
 
 		expect(fetchForms).not.toHaveBeenCalled();
 	});
@@ -241,7 +241,8 @@ describe('edit glossary entry page', () => {
 
 		expect(saveGlossaryEntry).toHaveBeenCalledWith(
 			expect.objectContaining({ name: 'Tympanon', forms: ['tympana', 'tympanum’s'] }),
-			tympanum.id
+			tympanum.id,
+			tympanum
 		);
 		expect(goto).toHaveBeenCalledWith(`/atelier/glossary/${tympanum.id}`, {
 			replace: true,
@@ -289,7 +290,7 @@ describe('edit glossary entry page', () => {
 		await expect
 			.element(page.getByLabelText(m.glossary.form.definition))
 			.toHaveValue('Tympanon, another article.');
-		expect(searchArticles).toHaveBeenCalledWith('Tympanum', 'architecture');
+		expect(searchArticles).toHaveBeenCalledWith('Tympanum', 'architecture', false);
 	});
 
 	it('says in the article picker that Wikipedia has nothing', async () => {

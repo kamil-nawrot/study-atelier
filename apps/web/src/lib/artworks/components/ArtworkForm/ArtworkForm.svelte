@@ -47,7 +47,7 @@
 	import ArtworkEraFields from '#lib/artworks/components/ArtworkEraFields/ArtworkEraFields.svelte';
 	import FixNote from '#lib/backroom/components/FixNote/FixNote.svelte';
 	import { FormFlags } from '#lib/backroom/form-flags/form-flags.svelte.ts';
-	import ArtworkFormColumns from '#lib/artworks/components/ArtworkFormColumns/ArtworkFormColumns.svelte';
+	import StagedFormColumns from '#lib/shared/forms/StagedFormColumns/StagedFormColumns.svelte';
 	import ArtworkImages from '#lib/artworks/components/ArtworkImages/ArtworkImages.svelte';
 	import ArtworkRelationsField from '#lib/artwork-relations/components/ArtworkRelationsField/ArtworkRelationsField.svelte';
 	import ArtworkOwnFields from '#lib/artworks/components/ArtworkOwnFields/ArtworkOwnFields.svelte';
@@ -218,7 +218,7 @@
 </script>
 
 <Form error={formState.error} errorTitle={m.artworkForm.errorTitle} onsubmit={submit}>
-	<ArtworkFormColumns actionsHeight={barHeight} onfocusin={wantSuggestions}>
+	<StagedFormColumns actionsHeight={barHeight} onfocusin={wantSuggestions}>
 		{#snippet head()}
 			<FixNote field="top" {flags} />
 			<FixNote field="image" {flags} />
@@ -353,9 +353,9 @@
 				bind:value={form.notes}
 			/>
 		{/snippet}
-	</ArtworkFormColumns>
+	</StagedFormColumns>
 
-	<FormActions bind:height={barHeight}>
+	<FormActions staged bind:height={barHeight}>
 		<Button href={cancelHref} onclick={oncancel}>
 			{labels?.cancel ?? m.common.cancel}
 		</Button>

@@ -73,7 +73,6 @@
 		"apps/web/src/lib/glossary/components/GlossaryFormPage/GlossaryFormPage.svelte",
 		"apps/web/src/lib/glossary/components/GlossaryList/GlossaryList.svelte",
 		"apps/web/src/lib/glossary/components/GlossaryTermCard/GlossaryTermCard.svelte",
-		"apps/web/src/lib/glossary/components/GlossaryView/GlossaryView.svelte",
 		"apps/web/src/lib/glossary/components/GlossaryWordForms/GlossaryWordForms.svelte",
 		"apps/web/src/lib/glossary/components/InflectionField/InflectionField.svelte",
 		"apps/web/src/lib/images/components/ImageField/ImageField.svelte",

@@ -43,6 +43,7 @@ describe('flag question', () => {
 				term: {
 					id: 't',
 					name: 'Vanitas',
+					kind: 'term' as const,
 					category: 'painting',
 					synonyms: [],
 					forms: [],

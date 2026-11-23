@@ -4,8 +4,7 @@
 	import {
 		glossaryCategoryName,
 		glossaryCategoryTiles,
-		isGlossaryCategory,
-		kindOf
+		isGlossaryCategory
 	} from '#lib/glossary/categories/categories.ts';
 	import { DefinitionSearch } from '#lib/glossary/definition-search/definition-search.svelte.ts';
 	import { saveGlossaryEntry } from '#lib/glossary/glossary-data/glossary-data.ts';
@@ -35,25 +34,25 @@
 
 	let form = $state<GlossaryDraft>(emptyDraft());
 	let nameError = $state<string>();
-	let categoryError = $state<string>();
 	let failure = $state<string>();
 	let busy = $state(false);
 
-	const definition = new DefinitionSearch(() => form);
+	const definition = new DefinitionSearch(
+		() => form,
+		() => figure
+	);
 	definition.follow();
 
 	$effect.pre(() => {
 		if (!open) return;
-		form = { ...emptyDraft(), name: name.trim() };
+		form = { ...emptyDraft(kind), name: name.trim() };
 		nameError = undefined;
-		categoryError = undefined;
 		failure = undefined;
 		busy = false;
 	});
 
 	function chooseCategory(value: string | null): void {
 		form.category = isGlossaryCategory(value) ? value : null;
-		categoryError = undefined;
 	}
 
 	function check(trimmed: string): boolean {
@@ -61,15 +60,14 @@
 		nameError = !trimmed
 			? m.valueForm.nameRequired
 			: conflict
-				? m.glossary.form.nameTaken(trimmed, kindOf(conflict.category) === 'figure')
+				? m.glossary.form.nameTaken(trimmed, conflict.kind === 'figure')
 				: undefined;
-		categoryError = form.category ? undefined : m.glossary.form.categoryRequired;
-		return !nameError && !categoryError;
+		return !nameError;
 	}
 
 	async function add(): Promise<void> {
 		const trimmed = form.name.trim();
-		if (busy || definition.filling || !check(trimmed) || !form.category) return;
+		if (busy || definition.filling || !check(trimmed)) return;
 		busy = true;
 		failure = undefined;
 		const result = await saveGlossaryEntry({ ...$state.snapshot(form), name: trimmed });
@@ -86,6 +84,7 @@
 		onadded({
 			id: result.id,
 			name: trimmed,
+			kind: form.kind,
 			category: form.category,
 			synonyms: [],
 			forms: [],
@@ -110,20 +109,15 @@
 			required
 			bind:value={form.name}
 		/>
-		<div class="category">
-			<ChoiceTiles
-				columns={3}
-				label={m.glossary.form.category}
-				narrowColumns={2}
-				onchange={chooseCategory}
-				options={tiles}
-				required
-				value={form.category}
-			/>
-			{#if categoryError}
-				<span class="error">{categoryError}</span>
-			{/if}
-		</div>
+		<ChoiceTiles
+			clearable
+			columns={3}
+			label={m.glossary.form.category}
+			narrowColumns={2}
+			onchange={chooseCategory}
+			options={tiles}
+			value={form.category}
+		/>
 		<GlossaryDefinition search={definition} />
 	</div>
 	{#snippet footer()}
@@ -133,21 +127,19 @@
 		</Button>
 	{/snippet}
 </Dialog>
-{#if form.category}
-	<ArticleDialog
-		articles={definition.articles}
-		currentTitle={form.source?.title}
-		description={m.glossary.articles.description(
-			form.name.trim(),
-			glossaryCategoryName(form.category).toLocaleLowerCase('pl')
-		)}
-		failedText={m.glossary.form.definitionFailed}
-		noneText={m.glossary.form.definitionNone}
-		onuse={(article) => definition.use(article)}
-		status={definition.status === 'idle' ? 'searching' : definition.status}
-		bind:open={definition.articlesOpen}
-	/>
-{/if}
+<ArticleDialog
+	articles={definition.articles}
+	currentTitle={form.source?.title}
+	description={m.glossary.articles.description(
+		form.name.trim(),
+		form.category ? glossaryCategoryName(form.category).toLocaleLowerCase('pl') : null
+	)}
+	failedText={definition.texts.definitionFailed}
+	noneText={definition.texts.definitionNone}
+	onuse={(article) => definition.use(article)}
+	status={definition.status === 'idle' ? 'searching' : definition.status}
+	bind:open={definition.articlesOpen}
+/>
 <Dialog
 	description={m.glossary.replaceConfirm.description}
 	size="small"
@@ -168,16 +160,5 @@
 	.fields {
 		display: grid;
 		gap: var(--spacing-4);
-	}
-
-	.category {
-		display: grid;
-		gap: var(--spacing-2);
-	}
-
-	.error {
-		color: var(--color-danger);
-		font-size: var(--font-size-sm);
-		line-height: var(--line-height-sm);
 	}
 </style>

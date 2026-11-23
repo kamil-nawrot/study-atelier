@@ -508,6 +508,7 @@ export const pl = {
 			activeLabel: 'Aktywne filtry',
 			clear: 'Wyczyść filtry',
 			removeTag: (label: string): string => `Usuń filtr: ${label}`,
+			moreTags: (count: number): string => `Pokaż wszystkie filtry, jeszcze ${count}`,
 			noResultsTitle: 'Nie udało się znaleźć żadnego pasującego dzieła',
 			noResults:
 				'Żadne dzieło nie pasuje do wybranych przez Ciebie filtrów. Spróbuj zmienić kryteria filtrowania i wyszukać jeszcze raz.',
@@ -1583,6 +1584,11 @@ export const pl = {
 			sacred: 'Postać biblijna i święty',
 			myth: 'Bóstwo i postać mitu'
 		},
+		noCategory: 'Bez kategorii',
+		kindNames: {
+			term: 'Pojęcie',
+			figure: 'Postać'
+		},
 		figures: {
 			count: (count: number): string =>
 				`${count} ${plural(count, { one: 'postać', few: 'postaci', many: 'postaci' })}`,
@@ -1627,10 +1633,8 @@ export const pl = {
 			nameTaken: (name: string, figure = false): string =>
 				`Masz już w Słowniczku ${figure ? 'postać' : 'pojęcie'} „${name}”.`,
 			category: 'Kategoria',
-			categoryRequired: 'Wybierz kategorię.',
 			definition: 'Definicja',
-			definitionPending:
-				'Wpisz nazwę i wybierz kategorię, aby spróbować wyszukać definicję w Wikipedii.',
+			definitionPending: 'Wpisz nazwę, aby spróbować wyszukać definicję w Wikipedii.',
 			definitionSearching: 'Wyszukiwanie w Wikipedii…',
 			definitionNone: 'Wikipedia nie zna tego słowa. Napisz definicję własnymi słowami.',
 			definitionFailed:
@@ -1668,7 +1672,25 @@ export const pl = {
 			authorWarningSuffix:
 				' jest już w Kartotece jako autor. Możesz dodać tę osobę także tutaj albo opisać na stronie autora.',
 			errorTitle: 'Nie udało się zapisać pojęcia',
-			figureErrorTitle: 'Nie udało się zapisać postaci'
+			figureErrorTitle: 'Nie udało się zapisać postaci',
+			figure: {
+				definition: 'Notka biograficzna',
+				definitionPending: 'Wpisz nazwę, aby spróbować wyszukać notkę biograficzną w Wikipedii.',
+				definitionNone: 'Wikipedia nie zna tej postaci. Napisz notkę własnymi słowami.',
+				definitionFailed:
+					'Nie udało się połączyć z Wikipedią. Możesz napisać notkę własnymi słowami albo spróbować jeszcze raz.',
+				definitionManual: 'Napisz notkę własnymi słowami albo poszukaj jej w Wikipedii.',
+				synonyms: 'Znana również jako',
+				synonymsHint:
+					'Inne nazwy tej postaci będą używane przy wyszukiwaniu wystąpień w notatkach.',
+				synonymsFull: 'Możesz dodać najwyżej 3 nazwy.',
+				formsSkipped: 'Odmianę nazwy tej postaci musisz dopisać samodzielnie.',
+				formsNone:
+					'Nie udało się odszukać tej nazwy w słowniku. Możesz dopisać jej formy samodzielnie.',
+				formsHint:
+					'Formy nie pokazują się pod nazwą. Dzięki nim postać znajdzie się w notatkach także w odmienionej nazwie.',
+				sortNameHint: 'Według tej wartości postać trafi pod właściwą literę.'
+			}
 		},
 		quick: {
 			add: 'Dodaj pojęcie',
@@ -1678,8 +1700,8 @@ export const pl = {
 		},
 		articles: {
 			title: 'Który to artykuł?',
-			description: (name: string, category: string): string =>
-				`Wyniki z Wikipedii dla „${name}” w kategorii ${category}. Wybierz ten, o który ci chodzi.`,
+			description: (name: string, category: string | null): string =>
+				`Wyniki z Wikipedii dla „${name}”${category ? ` w kategorii ${category}` : ''}. Wybierz ten, o który ci chodzi.`,
 			listLabel: 'Artykuły z Wikipedii',
 			searching: 'Wyszukiwanie w Wikipedii…',
 			use: 'Użyj tego artykułu'

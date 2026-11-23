@@ -10,13 +10,16 @@ import { m } from '#lib/i18n/i18n.ts';
 import {
 	categoriesOf,
 	FIGURE_CATEGORIES,
+	fitsKind,
 	GLOSSARY_CATEGORIES,
 	glossaryCategoryIcon,
 	glossaryCategoryName,
 	glossaryCategoryTiles,
+	glossaryEntryIcon,
+	glossaryEntryLabel,
 	isFigure,
 	isGlossaryCategory,
-	kindOf,
+	isGlossaryKind,
 	TERM_CATEGORIES
 } from './categories.ts';
 
@@ -53,10 +56,25 @@ describe('glossary categories', () => {
 	it('tells a figure from a term', () => {
 		expect(FIGURE_CATEGORIES.every(isFigure)).toBe(true);
 		expect(TERM_CATEGORIES.some(isFigure)).toBe(false);
-		expect(kindOf('myth')).toBe('figure');
-		expect(kindOf('iconography')).toBe('term');
+		expect(fitsKind('myth', 'figure')).toBe(true);
+		expect(fitsKind('myth', 'term')).toBe(false);
+		expect(fitsKind('iconography', 'term')).toBe(true);
 		expect(categoriesOf('figure')).toBe(FIGURE_CATEGORIES);
 		expect(categoriesOf('term')).toBe(TERM_CATEGORIES);
+		expect(isGlossaryKind('figure')).toBe(true);
+		expect(isGlossaryKind('person')).toBe(false);
+	});
+
+	it('labels an entry by its category, or by its kind when it has none', () => {
+		expect(glossaryEntryLabel({ kind: 'term', category: 'painting' })).toBe('Malarstwo');
+		expect(glossaryEntryLabel({ kind: 'term', category: null })).toBe('Pojęcie');
+		expect(glossaryEntryLabel({ kind: 'figure', category: null })).toBe('Postać');
+		expect(glossaryEntryIcon({ kind: 'figure', category: 'myth' })).toBe(
+			glossaryCategoryIcon('myth')
+		);
+		expect(glossaryEntryIcon({ kind: 'term', category: null })).not.toBe(
+			glossaryEntryIcon({ kind: 'figure', category: null })
+		);
 	});
 
 	it('names every category from the dictionary', () => {

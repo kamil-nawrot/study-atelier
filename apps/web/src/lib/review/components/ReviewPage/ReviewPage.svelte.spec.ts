@@ -188,6 +188,7 @@ describe('ReviewPage', () => {
 				term: {
 					id: 'apse',
 					name: 'Apse',
+					kind: 'term' as const,
 					category: 'architecture',
 					definition: 'The apse closes the nave of a church.',
 					synonyms: [],

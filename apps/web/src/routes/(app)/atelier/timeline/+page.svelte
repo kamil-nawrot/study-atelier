@@ -133,6 +133,7 @@
 			{initialEra}
 			{initialFocus}
 			onerachange={(code) => (era = code)}
+			onfilters={() => (wide.current ? (panelOpen = true) : (dialogOpen = true))}
 			{showEvents}
 			{showSpans}
 			bind:filter

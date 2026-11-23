@@ -447,7 +447,7 @@ Table glossary_entries {
   id uuid [pk, default: `gen_random_uuid()`]
   owner_id uuid [not null, default: `auth.uid()`]
   name text [not null]
-  category text [not null, note: 'architecture, painting, sculpture, technique, iconography, general, ruler, patron, artist, scholar, sacred, myth']
+  category text
   definition text
   forms "text[]" [not null, default: `'{}'::text[]`]
   source_title text
@@ -459,6 +459,20 @@ Table glossary_entries {
   synonyms "text[]" [not null, default: `'{}'::text[]`]
   sort_name text
   has_definition boolean [note: 'generated: (COALESCE(btrim(definition), \'\'::text) <> \'\'::text)']
+  birth_year integer
+  death_year integer
+  years_approximate boolean [not null, default: `false`]
+  country text
+  source_wikidata_id text
+  source_image_file text
+  source_image_licence text
+  source_image_licence_url text
+  source_image_attribution text
+  own_image_path text
+  own_image_url text
+  image_width integer
+  image_height integer
+  kind text [not null, default: `'term'::text`, note: 'term, figure']
 
   indexes {
     (id, owner_id) [unique]

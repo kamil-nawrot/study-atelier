@@ -35,7 +35,7 @@ begin
   select id into image from public.artwork_images where artwork_id = painting;
   select id into caravaggio from public.category_values where name = 'Caravaggio';
   select id into merisi from public.category_values where name = 'Merisi';
-  insert into public.glossary_entries (name, category) values ('Saint Peter', 'sacred') returning id into peter;
+  insert into public.glossary_entries (name, kind, category) values ('Saint Peter', 'figure', 'sacred') returning id into peter;
   rejected := false;
   begin
     insert into public.glossary_entries (name, category) values ('Saint Andrew', 'person');

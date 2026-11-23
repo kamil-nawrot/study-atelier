@@ -38,9 +38,9 @@ describe('loadGlossaryForm', () => {
 		expect(requestedKind(null)).toBe('term');
 	});
 
-	it('gives an edited entry the kind of its category', async () => {
+	it('gives an edited entry its own kind', async () => {
 		vi.mocked(loadGlossaryEntry).mockResolvedValue({
-			entry: { ...entry, category: 'artist' }
+			entry: { ...entry, kind: 'figure', category: null }
 		});
 
 		await expect(loadGlossaryForm('a-apse', 'term')).resolves.toMatchObject({ kind: 'figure' });

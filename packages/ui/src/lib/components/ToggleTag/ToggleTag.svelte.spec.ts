@@ -60,4 +60,15 @@ describe('ToggleTag', () => {
 		await expect.element(page.getByRole('button', { name: 'Baroque' })).toBeDisabled();
 		expect(onclick).not.toHaveBeenCalled();
 	});
+
+	it('takes its tint when pressed and keeps its width', async () => {
+		render(ToggleTag, { children: label, count: 3 });
+		const button = page.getByRole('button', { name: 'Baroque 3' });
+		const width = button.element().getBoundingClientRect().width;
+		render(ToggleTag, { children: label, count: 3, pressed: true, tint: 'rgb(200, 120, 40)' });
+		const tinted = page.getByRole('button', { name: 'Baroque 3' }).nth(1).element();
+
+		expect(getComputedStyle(tinted).backgroundColor).toBe('rgb(200, 120, 40)');
+		expect(tinted.getBoundingClientRect().width).toBe(width);
+	});
 });

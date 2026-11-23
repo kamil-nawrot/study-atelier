@@ -3,13 +3,14 @@
 
 	type Props = {
 		height?: number;
+		staged?: boolean;
 		children: Snippet;
 	};
 
-	let { height = $bindable(0), children }: Props = $props();
+	let { height = $bindable(0), staged = false, children }: Props = $props();
 </script>
 
-<footer class="actions" data-action-bar bind:offsetHeight={height}>
+<footer class="actions" class:staged data-action-bar bind:offsetHeight={height}>
 	{@render children()}
 </footer>
 
@@ -54,6 +55,16 @@
 
 		.actions > :global(:first-child) {
 			margin-right: auto;
+		}
+
+		.staged {
+			width: calc(100% + 2 * var(--content-bleed, 0px));
+			translate: calc(-1 * var(--content-bleed, 0px));
+			padding-inline: var(--spacing-12)
+				max(
+					min(var(--content-bleed, 0px), var(--spacing-12)),
+					calc(50% + var(--content-bleed, 0px) - var(--spacing-12) - var(--size-content-default))
+				);
 		}
 	}
 </style>

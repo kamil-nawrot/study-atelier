@@ -12,7 +12,7 @@ function term(
 	category: GlossaryTerm['category'] = 'architecture',
 	forms: string[] = []
 ): GlossaryTerm {
-	return { id: name, name, category, synonyms: [], forms, hasDefinition: false };
+	return { id: name, name, kind: 'term', category, synonyms: [], forms, hasDefinition: false };
 }
 
 const glossary = [

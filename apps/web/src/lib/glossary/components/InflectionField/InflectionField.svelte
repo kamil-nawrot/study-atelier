@@ -8,6 +8,7 @@
 	import ChevronUp from '@lucide/svelte/icons/chevron-up';
 	import { Icon, ValueField, type ValueOption } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
+	import { glossaryFormTexts } from '#lib/glossary/form-texts/form-texts.ts';
 
 	type Props = {
 		forms: string[];
@@ -17,6 +18,7 @@
 		status?: FormsStatus;
 		offer?: FormsOffer;
 		message?: string;
+		figure?: boolean;
 		onfetch?: () => void;
 		onstop?: () => void;
 	};
@@ -29,6 +31,7 @@
 		status = 'idle',
 		offer,
 		message,
+		figure = false,
 		onfetch,
 		onstop
 	}: Props = $props();
@@ -37,19 +40,20 @@
 	const labelId = `${id}-label`;
 	const fieldId = `${id}-field`;
 	const hintId = `${id}-hint`;
+	const texts = $derived(glossaryFormTexts(figure));
 
-	const STATUS_TEXTS: Partial<Record<FormsStatus, string>> = {
+	const statusTexts: Partial<Record<FormsStatus, string>> = $derived({
 		searching: m.glossary.form.formsSearching,
-		skipped: m.glossary.form.formsSkipped,
-		none: m.glossary.form.formsNone,
+		skipped: texts.formsSkipped,
+		none: texts.formsNone,
 		failed: m.glossary.form.formsFailed
-	};
+	});
 
 	let filling = $derived(status === 'searching');
 	let summary = $derived(
 		message ??
 			(status === 'searching' || forms.length === 0
-				? STATUS_TEXTS[status]
+				? statusTexts[status]
 				: m.glossary.form.formsCount(forms.length))
 	);
 	let action = $derived(
@@ -101,7 +105,7 @@
 			/>
 		</div>
 	{/if}
-	<span id={hintId} class="hint">{m.glossary.form.formsHint}</span>
+	<span id={hintId} class="hint">{texts.formsHint}</span>
 </div>
 
 <style>

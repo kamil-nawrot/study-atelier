@@ -6,10 +6,18 @@
 		pressed?: boolean;
 		count?: number;
 		disabled?: boolean;
+		tint?: string;
 		onclick?: () => void;
 	};
 
-	let { children, pressed = $bindable(false), count, disabled = false, onclick }: Props = $props();
+	let {
+		children,
+		pressed = $bindable(false),
+		count,
+		disabled = false,
+		tint,
+		onclick
+	}: Props = $props();
 
 	function toggle(): void {
 		pressed = !pressed;
@@ -18,6 +26,7 @@
 </script>
 
 <button
+	style:--toggle-tint={tint}
 	class="toggle"
 	class:pressed
 	aria-pressed={pressed}
@@ -54,7 +63,7 @@
 	}
 
 	.toggle.pressed {
-		background: var(--color-fg);
+		background: var(--toggle-tint, var(--color-fg));
 		color: var(--color-on-fg);
 	}
 

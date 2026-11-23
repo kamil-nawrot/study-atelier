@@ -24,9 +24,7 @@
 	import {
 		glossaryCategoryName,
 		glossaryCategoryTiles,
-		isFigure,
-		isGlossaryCategory,
-		kindOf
+		isGlossaryCategory
 	} from '#lib/glossary/categories/categories.ts';
 	import { DefinitionSearch } from '#lib/glossary/definition-search/definition-search.svelte.ts';
 	import { saveGlossaryEntry } from '#lib/glossary/glossary-data/glossary-data.ts';
@@ -43,6 +41,13 @@
 	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 	import type { GlossaryKind } from '#lib/glossary/types/glossary-kind.ts';
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
+	import { glossaryFormTexts } from '#lib/glossary/form-texts/form-texts.ts';
+	import { FIGURE_COUNTRY_MAX_LENGTH } from '#lib/glossary/figure-form/figure-form.ts';
+	import { validateLifeYears } from '#lib/values/author-form/author-form.ts';
+	import type { AuthorFieldErrors } from '#lib/values/types/author-field-errors.ts';
+	import AuthorLifeFields from '#lib/values/components/AuthorLifeFields/AuthorLifeFields.svelte';
+	import ImageField from '#lib/images/components/ImageField/ImageField.svelte';
+	import StagedFormColumns from '#lib/shared/forms/StagedFormColumns/StagedFormColumns.svelte';
 	import ArticleDialog from '#lib/glossary/components/ArticleDialog/ArticleDialog.svelte';
 	import GlossaryDefinition from '#lib/glossary/components/GlossaryDefinition/GlossaryDefinition.svelte';
 	import GlossaryWordForms from '#lib/glossary/components/GlossaryWordForms/GlossaryWordForms.svelte';
@@ -62,14 +67,20 @@
 	const flags = new FormFlags('term', () => (entry ? { termId: entry.id } : undefined));
 
 	const existing = untrack(() => entry);
-	const figure = untrack(() => kind) === 'figure';
-	const tiles = glossaryCategoryTiles(figure ? 'figure' : 'term');
-	const initial = (): GlossaryDraft => (existing ? draftOf(existing) : emptyDraft());
+	const entryKind = existing?.kind ?? untrack(() => kind);
+	const figure = entryKind === 'figure';
+	const tiles = glossaryCategoryTiles(entryKind);
+	const initial = (): GlossaryDraft => (existing ? draftOf(existing) : emptyDraft(entryKind));
 
 	let form = $state<GlossaryDraft>(initial());
 
 	const formState = new FormState<GlossaryDraft>(initial());
-	const definition = new DefinitionSearch(() => form);
+	const definition = new DefinitionSearch(
+		() => form,
+		() => figure
+	);
+	const texts = glossaryFormTexts(figure);
+	let barHeight = $state(0);
 	let formsFilling = $state(false);
 	definition.follow();
 
@@ -79,7 +90,7 @@
 		draftChanged
 	);
 
-	let author = $derived(isFigure(form.category) ? authorNamed(index, form.name) : undefined);
+	let author = $derived(figure ? authorNamed(index, form.name) : undefined);
 
 	function chooseCategory(value: string | null): void {
 		form.category = isGlossaryCategory(value) ? value : null;
@@ -89,16 +100,16 @@
 		return changes.confirmLeave();
 	}
 
-	const errors = new LiveErrors<{ name?: string; category?: string }>(() => {
+	const errors = new LiveErrors<{ name?: string; life?: AuthorFieldErrors }>(() => {
 		const name = form.name.trim();
 		const conflict = name ? findNameConflict(entries, name, existing?.id) : undefined;
 		return {
 			name: !name
 				? m.valueForm.nameRequired
 				: conflict
-					? m.glossary.form.nameTaken(name, kindOf(conflict.category) === 'figure')
+					? m.glossary.form.nameTaken(name, conflict.kind === 'figure')
 					: undefined,
-			category: form.category ? undefined : m.glossary.form.categoryRequired
+			life: figure ? validateLifeYears(form.figure) : undefined
 		};
 	});
 
@@ -114,7 +125,8 @@
 					synonyms: cleanForms(snapshot.synonyms),
 					forms: cleanForms(snapshot.forms)
 				},
-				existing?.id
+				existing?.id,
+				existing
 			);
 			if (result.nameTaken) {
 				errors.add({ name: m.glossary.form.nameTaken(name, figure) }, () => form.name.trim());
@@ -133,66 +145,106 @@
 	}
 </script>
 
+{#snippet nameFields()}
+	<FixNote field="top" {flags} />
+	<div class="name">
+		<TextField
+			autocomplete="off"
+			error={errors.current.name}
+			label={m.common.name}
+			maxlength={NAME_MAX_LENGTH}
+			required
+			bind:value={form.name}
+		/>
+		{#if author}
+			<Alert tone="warning">
+				<a href={valuePath('author', author.id)}>{author.name}</a>{m.glossary.form
+					.authorWarningSuffix}
+			</Alert>
+		{/if}
+		<div class="sort">
+			<Checkbox label={m.glossary.form.sortByOther} bind:checked={form.sortByOther} />
+			{#if form.sortByOther}
+				<TextField
+					autocomplete="off"
+					hint={texts.sortNameHint}
+					label={m.glossary.form.sortName}
+					maxlength={NAME_MAX_LENGTH}
+					bind:value={form.sortName}
+				/>
+			{/if}
+		</div>
+	</div>
+{/snippet}
+
+{#snippet detailFields()}
+	<ChoiceTiles
+		clearable
+		columns={3}
+		label={m.glossary.form.category}
+		narrowColumns={2}
+		onchange={chooseCategory}
+		options={tiles}
+		value={form.category}
+	/>
+
+	{#if figure}
+		<AuthorLifeFields errors={errors.current.life ?? {}} bind:author={form.figure} />
+		<TextField
+			autocomplete="off"
+			hint={m.valueForm.authorCountryHint}
+			label={m.valueForm.authorCountry}
+			maxlength={FIGURE_COUNTRY_MAX_LENGTH}
+			bind:value={form.figure.country}
+		/>
+	{/if}
+
+	<FixNote field="definition" {flags} />
+	<GlossaryDefinition search={definition} />
+
+	<FixNote field="forms" {flags} />
+	<GlossaryWordForms
+		{existing}
+		{figure}
+		onfilling={(filling) => (formsFilling = filling)}
+		bind:form
+	/>
+{/snippet}
+
 <div class="page">
 	<Form
 		error={formState.error}
 		errorTitle={figure ? m.glossary.form.figureErrorTitle : m.glossary.form.errorTitle}
 		onsubmit={submit}
 	>
-		<FixNote field="top" {flags} />
-		<div class="fields">
-			<div class="name">
-				<TextField
-					autocomplete="off"
-					error={errors.current.name}
-					label={m.common.name}
-					maxlength={NAME_MAX_LENGTH}
-					required
-					bind:value={form.name}
-				/>
-				{#if author}
-					<Alert tone="warning">
-						<a href={valuePath('author', author.id)}>{author.name}</a>{m.glossary.form
-							.authorWarningSuffix}
-					</Alert>
-				{/if}
-				<div class="sort">
-					<Checkbox label={m.glossary.form.sortByOther} bind:checked={form.sortByOther} />
-					{#if form.sortByOther}
-						<TextField
-							autocomplete="off"
-							hint={m.glossary.form.sortNameHint}
-							label={m.glossary.form.sortName}
-							maxlength={NAME_MAX_LENGTH}
-							bind:value={form.sortName}
-						/>
-					{/if}
-				</div>
+		{#if figure}
+			<StagedFormColumns actionsHeight={barHeight}>
+				{#snippet head()}
+					{@render nameFields()}
+				{/snippet}
+				{#snippet images()}
+					<ImageField
+						alt={form.name.trim() || existing?.name || ''}
+						compactEmpty
+						query={{ kind: 'person', name: form.name }}
+						searchReady={form.name.trim() !== ''}
+						staged
+						texts={m.valueForm.portrait}
+						bind:image={form.figure.image}
+					/>
+				{/snippet}
+				{#snippet fields()}
+					{@render detailFields()}
+				{/snippet}
+			</StagedFormColumns>
+		{:else}
+			<div class="fields">
+				{@render nameFields()}
+				{@render detailFields()}
 			</div>
+		{/if}
 
-			<div class="category">
-				<ChoiceTiles
-					columns={3}
-					label={m.glossary.form.category}
-					narrowColumns={2}
-					onchange={chooseCategory}
-					options={tiles}
-					required
-					value={form.category}
-				/>
-				{#if errors.current.category}
-					<span class="error">{errors.current.category}</span>
-				{/if}
-			</div>
-
-			<FixNote field="definition" {flags} />
-			<GlossaryDefinition search={definition} />
-
-			<FixNote field="forms" {flags} />
-			<GlossaryWordForms {existing} onfilling={(filling) => (formsFilling = filling)} bind:form />
-		</div>
-
-		<FormActions>
+		<FormActions staged={figure} bind:height={barHeight}>
 			<Button href={cancelHref} onclick={oncancel}>
 				{labels?.cancel ?? m.common.cancel}
 			</Button>
@@ -209,21 +261,19 @@
 
 <DiscardDialog {changes} description={m.common.discardDescription} />
 
-{#if form.category}
-	<ArticleDialog
-		articles={definition.articles}
-		currentTitle={form.source?.title}
-		description={m.glossary.articles.description(
-			form.name.trim(),
-			glossaryCategoryName(form.category).toLocaleLowerCase('pl')
-		)}
-		failedText={m.glossary.form.definitionFailed}
-		noneText={m.glossary.form.definitionNone}
-		onuse={(article) => definition.use(article)}
-		status={definition.status === 'idle' ? 'searching' : definition.status}
-		bind:open={definition.articlesOpen}
-	/>
-{/if}
+<ArticleDialog
+	articles={definition.articles}
+	currentTitle={form.source?.title}
+	description={m.glossary.articles.description(
+		form.name.trim(),
+		form.category ? glossaryCategoryName(form.category).toLocaleLowerCase('pl') : null
+	)}
+	failedText={definition.texts.definitionFailed}
+	noneText={definition.texts.definitionNone}
+	onuse={(article) => definition.use(article)}
+	status={definition.status === 'idle' ? 'searching' : definition.status}
+	bind:open={definition.articlesOpen}
+/>
 
 <Dialog
 	description={m.glossary.replaceConfirm.description}
@@ -262,8 +312,7 @@
 	}
 
 	.name,
-	.sort,
-	.category {
+	.sort {
 		display: grid;
 		gap: var(--spacing-2);
 	}
@@ -271,12 +320,6 @@
 	.name a {
 		color: inherit;
 		text-underline-offset: 0.2em;
-	}
-
-	.error {
-		color: var(--color-danger);
-		font-size: var(--font-size-sm);
-		line-height: var(--line-height-sm);
 	}
 
 	@media (min-width: 768px) {

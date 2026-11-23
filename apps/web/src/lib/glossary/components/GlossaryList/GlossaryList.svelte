@@ -7,7 +7,8 @@
 	import {
 		categoriesOf,
 		glossaryCategoryIcon,
-		glossaryCategoryName
+		glossaryCategoryName,
+		NO_CATEGORY_ICON
 	} from '#lib/glossary/categories/categories.ts';
 	import {
 		countByCategory,
@@ -25,7 +26,7 @@
 	import GlossaryRow from '#lib/glossary/components/GlossaryRow/GlossaryRow.svelte';
 	import LetterIndex from '#lib/glossary/components/LetterIndex/LetterIndex.svelte';
 	import ListTools from '#lib/shared/lists/ListTools/ListTools.svelte';
-	import type { GlossaryCategory } from '#lib/glossary/types/glossary-category.ts';
+	import type { GlossaryFilter } from '#lib/glossary/types/glossary-filter.ts';
 	import type { GlossaryEntry } from '#lib/glossary/types/glossary-entry.ts';
 	import type { GlossaryKind } from '#lib/glossary/types/glossary-kind.ts';
 
@@ -33,7 +34,7 @@
 		kind: GlossaryKind;
 		entries: GlossaryEntry[];
 		query?: string;
-		chosen?: GlossaryCategory[];
+		chosen?: GlossaryFilter[];
 	};
 
 	let { kind, entries, query = $bindable(''), chosen = $bindable([]) }: Props = $props();
@@ -57,7 +58,7 @@
 	let newest = $derived(recent ? newestFirst(matching) : []);
 	let indexed = $derived(entries.length >= GLOSSARY_INDEX_MIN_ENTRIES && groups.length > 1);
 
-	function toggle(category: GlossaryCategory): void {
+	function toggle(category: GlossaryFilter): void {
 		chosen = chosen.includes(category)
 			? chosen.filter((item) => item !== category)
 			: [...chosen, category];
@@ -106,6 +107,18 @@
 					</ToggleTag>
 				</li>
 			{/each}
+			{#if counts.none > 0 || chosen.includes('none')}
+				<li>
+					<ToggleTag
+						count={counts.none}
+						onclick={() => toggle('none')}
+						pressed={chosen.includes('none')}
+					>
+						<Icon icon={NO_CATEGORY_ICON} size="sm" />
+						{m.glossary.noCategory}
+					</ToggleTag>
+				</li>
+			{/if}
 		</ul>
 	</div>
 
@@ -186,15 +199,13 @@
 
 	.newest {
 		display: grid;
-		gap: var(--spacing-2);
+		padding: 0;
+		border-top: var(--border-width-hairline) solid var(--color-line);
 	}
 
-	.group li + li::before {
-		content: '';
-		display: block;
-		max-width: var(--size-content-default);
-		margin: var(--spacing-1) var(--spacing-3);
-		border-top: var(--border-width-hairline) solid var(--color-tag);
+	.newest li,
+	.group li:not(:last-child) {
+		border-bottom: var(--border-width-hairline) solid var(--color-line);
 	}
 
 	@media (max-width: 767.98px) {

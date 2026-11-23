@@ -1,4 +1,3 @@
-import { isFigure } from '#lib/glossary/categories/categories.ts';
 import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 import type { ExtraCard } from '#lib/review/types/extra-card.ts';
 import type { RoundSymbol } from '#lib/review/types/round-symbol.ts';
@@ -40,7 +39,7 @@ function poolOf(symbols: readonly SymbolOption[], glossary: readonly GlossaryTer
 	return {
 		names: symbols.map((symbol) => symbol.name),
 		meanings: symbols.flatMap((symbol) => symbol.meanings.map((meaning) => meaning.text)),
-		persons: glossary.filter((term) => isFigure(term.category)).map((term) => term.name)
+		persons: glossary.filter((term) => term.kind === 'figure').map((term) => term.name)
 	};
 }
 
