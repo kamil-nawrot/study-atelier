@@ -1,6 +1,6 @@
 # 0333. Show a Kalendarium event in a side panel
 
-- Status: accepted
+- Status: accepted; the panel beside the stage with a gap is superseded by [0343](0343-stand-the-kalendarium-event-panel-at-the-window-edge.md)
 - Date: 2026-11-20
 
 ## Context and problem statement
