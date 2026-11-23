@@ -1,6 +1,6 @@
 # 0341. Let a glossary entry have no category
 
-- Status: accepted
+- Status: accepted; the Wikipedia search without the filter for people for a figure without a category is superseded by [0342](0342-search-wikipedia-for-people-for-a-figure-without-a-category.md)
 - Date: 2026-11-22
 
 ## Context and problem statement
