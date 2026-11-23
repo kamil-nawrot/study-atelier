@@ -2,6 +2,31 @@
 
 All notable changes to study-atelier are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [0.26.1] - 2026-11-23
+
+Figures in the glossary get their life years, a country and a portrait, an entry no longer needs a category, and the Kalendarium stage fills the screen.
+
+### Added
+
+- A figure has "Lata życia", "Kraj" and a portrait, shown on its page, and its form calls the description "Notka biograficzna" and the other names "Znana również jako"; the forms of an author and a figure show the image on the same stage as the artwork form.
+- A term or a figure can be saved without a category, and the glossary list filters them under "Bez kategorii".
+
+### Changed
+
+- The Kalendarium stage reaches the bottom of the screen, its lanes share the room, and the filter tags stay in one line with "+n" for those that do not fit, so the axis no longer moves.
+- The event panel of Kalendarium stands at the right edge of the window, as high as the stage, like "Informacje" in the artwork view.
+- On a wide screen the action bar of the artwork, author and figure forms spans the image and the fields.
+
+### Fixed
+
+- Choosing a period or a style in the Kalendarium filters tints its chip instead of adding a dot that pushed the next chips to another line.
+- The hover of the glossary lists fills the space between two dividers, as in Kartoteka.
+- A figure without a category finds only articles about people on Wikipedia, and deleting a figure removes its uploaded portrait at once.
+
+### Migrations run on production
+
+2 migrations run on production with this release and change existing data in one place: `20261122220000_glossary_entries_without_a_category` adds the column `kind` of `glossary_entries`, sets it to `figure` for the entries with a figure category, lets `category` be empty, and replaces `review_session`, `extra_round` and `import_atelier` with the same arguments. `20261122200000_glossary_figure_details` adds the life years, country and portrait columns of `glossary_entries` and replaces `unused_images`. The 0.26.0 app keeps reading the glossary, but cannot add a figure until it reloads.
+
 ## [0.26.0] - 2026-11-20
 
 Archiwum and Zaplecze are polished after their first use, every list and form gets a tidier layout, Kalendarium opens an event in a side panel, the glossary keeps its figures on a tab of their own, and the style question returns to the recognition of an artwork.
@@ -1159,3 +1184,4 @@ First release: the learner signs in, builds a personal database of artworks and 
 [0.24.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.24.1
 [0.25.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.25.0
 [0.26.0]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.26.0
+[0.26.1]: https://github.com/kamil-nawrot/study-atelier/releases/tag/v0.26.1
