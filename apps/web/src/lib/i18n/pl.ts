@@ -1001,7 +1001,7 @@ export const pl = {
 		personDescription: (name: string): string =>
 			`Wyniki z Wikidata dla „${name}”. Kliknij portret, który chcesz dodać.`,
 		personEmpty:
-			'Nie udało się odnaleźć w Wikidata portretu takiej osoby. Sprawdź pisownię albo dodaj własny portret.',
+			'Nie udało się odnaleźć w Wikidata portretu takiej postaci. Sprawdź pisownię albo dodaj własny portret.',
 		personNone: 'Żaden z tych'
 	},
 	imageSearchErrors: {

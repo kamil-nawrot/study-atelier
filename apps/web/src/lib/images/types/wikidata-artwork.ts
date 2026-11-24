@@ -8,4 +8,7 @@ export type WikidataArtwork = {
 	hasCreator: boolean;
 	date: SourceDate | null;
 	file: string;
+	types: string[];
+	inCollection: boolean;
+	isClass: boolean;
 };

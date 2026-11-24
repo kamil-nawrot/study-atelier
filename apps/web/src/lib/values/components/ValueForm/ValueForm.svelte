@@ -15,7 +15,7 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import { loadValuePageContent } from '#lib/card-index/card-index-data/card-index-data.ts';
 	import { planEraMove, planNameChange } from '#lib/card-index/card-index/card-index.ts';
-	import { validateAuthorForm } from '#lib/values/author-form/author-form.ts';
+	import { portraitQuery, validateAuthorForm } from '#lib/values/author-form/author-form.ts';
 	import { VALUE_NAME_MAX_LENGTH } from '#lib/card-index/category-values/category-values.ts';
 	import { eraName } from '#lib/catalogue/eras/eras.ts';
 	import { cityOfTown, ownCities } from '#lib/values/city-options/city-options.ts';
@@ -297,7 +297,7 @@
 						<ImageField
 							alt={form.name.trim() || record.name}
 							compactEmpty
-							query={{ kind: 'person', name: form.name }}
+							query={portraitQuery(form.name, form.author)}
 							searchReady={form.name.trim() !== ''}
 							staged
 							texts={m.valueForm.portrait}

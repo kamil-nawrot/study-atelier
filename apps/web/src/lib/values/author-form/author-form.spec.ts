@@ -4,6 +4,7 @@ import {
 	authorDetailsFromForm,
 	authorFormFromDetails,
 	emptyAuthorDetails,
+	portraitQuery,
 	validateAuthorForm
 } from './author-form.ts';
 
@@ -100,5 +101,35 @@ describe('authorDetailsFromForm', () => {
 			authorDetailsFromForm({ ...form, sortByOther: true, sortName: ' Vinci, Leonardo da ' })
 				.sortName
 		).toBe('Vinci, Leonardo da');
+	});
+});
+
+describe('portraitQuery', () => {
+	const life = {
+		birthYear: '1606',
+		birthBeforeCommonEra: false,
+		deathYear: '1669',
+		deathBeforeCommonEra: false,
+		yearsApproximate: false
+	};
+
+	it('passes the name and the signed life years, and marks a figure', () => {
+		expect(portraitQuery('Rembrandt', life)).toEqual({
+			kind: 'person',
+			name: 'Rembrandt',
+			figure: false,
+			born: 1606,
+			died: 1669
+		});
+		expect(
+			portraitQuery('Herkules', { ...life, birthYear: '', deathYear: '' }, true)
+		).toMatchObject({ figure: true, born: null, died: null });
+	});
+
+	it('does not filter by approximate years', () => {
+		expect(portraitQuery('Rembrandt', { ...life, yearsApproximate: true })).toMatchObject({
+			born: null,
+			died: null
+		});
 	});
 });

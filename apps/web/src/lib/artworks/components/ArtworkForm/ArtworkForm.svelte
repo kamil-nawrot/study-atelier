@@ -16,6 +16,7 @@
 	import {
 		artworkFormFromRecord,
 		artworkImageAlt,
+		artworkImageQuery,
 		artworkInputFromForm,
 		canSearchImage,
 		describedCategories,
@@ -117,7 +118,6 @@
 	let checked = $state<ArtworkInput>();
 
 	let imageSearchReady = $derived(canSearchImage(form));
-	let imageAlt = $derived(artworkImageAlt(form));
 	let pinList = $derived(pins);
 	let shownFields = $derived(
 		(ownFields ?? []).filter((field) => fieldApplies(field, form.typeCode))
@@ -253,17 +253,13 @@
 
 		{#snippet images()}
 			<ArtworkImages
-				alt={imageAlt}
+				alt={artworkImageAlt(form)}
 				autoMatch={!artwork}
 				compactEmpty
 				entries={suggestions.glossary}
 				onmatching={(matching) => (imageMatching = matching)}
 				{pinsError}
-				query={{
-					kind: 'artwork',
-					title: form.title,
-					authors: form.authorUnknown ? [] : form.values.author
-				}}
+				query={artworkImageQuery(form)}
 				searchReady={imageSearchReady}
 				symbols={suggestions.symbols}
 				texts={imageTexts}

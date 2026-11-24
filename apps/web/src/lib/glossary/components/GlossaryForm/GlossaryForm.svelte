@@ -43,7 +43,7 @@
 	import type { GlossaryTerm } from '#lib/glossary/types/glossary-term.ts';
 	import { glossaryFormTexts } from '#lib/glossary/form-texts/form-texts.ts';
 	import { FIGURE_COUNTRY_MAX_LENGTH } from '#lib/glossary/figure-form/figure-form.ts';
-	import { validateLifeYears } from '#lib/values/author-form/author-form.ts';
+	import { portraitQuery, validateLifeYears } from '#lib/values/author-form/author-form.ts';
 	import type { AuthorFieldErrors } from '#lib/values/types/author-field-errors.ts';
 	import AuthorLifeFields from '#lib/values/components/AuthorLifeFields/AuthorLifeFields.svelte';
 	import ImageField from '#lib/images/components/ImageField/ImageField.svelte';
@@ -226,7 +226,7 @@
 					<ImageField
 						alt={form.name.trim() || existing?.name || ''}
 						compactEmpty
-						query={{ kind: 'person', name: form.name }}
+						query={portraitQuery(form.name, form.figure, true)}
 						searchReady={form.name.trim() !== ''}
 						staged
 						texts={m.valueForm.portrait}

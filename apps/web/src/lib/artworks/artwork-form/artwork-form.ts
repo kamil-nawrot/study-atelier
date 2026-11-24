@@ -13,6 +13,8 @@ import type { OwnEntries } from '#lib/catalogue/types/own-entries.ts';
 import type { OwnEntry } from '#lib/catalogue/types/own-entry.ts';
 import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts';
 import type { ImageFieldTexts } from '#lib/images/types/image-field-texts.ts';
+import type { ImageSearchQuery } from '#lib/images/types/image-search-query.ts';
+import { signedYear } from '#lib/catalogue/years/years.ts';
 import { fieldApplies } from '#lib/card-index/own-fields/own-fields.ts';
 
 export const MAX_ARTWORK_IMAGES = 5;
@@ -121,6 +123,16 @@ export function parseYear(text: string): number | null {
 	const year = text.trim();
 	if (year === '') return null;
 	return /^\d+$/.test(year) ? Number(year) : Number.NaN;
+}
+
+export function artworkImageQuery(form: ArtworkFormState): ImageSearchQuery {
+	return {
+		kind: 'artwork',
+		title: form.title,
+		authors: form.authorUnknown ? [] : form.values.author,
+		typeCode: form.typeCode,
+		year: signedYear(parseYear(form.yearTo), form.toBeforeCommonEra)
+	};
 }
 
 export function artworkInputFromForm(form: ArtworkFormState): ArtworkInput {

@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
 	artworkSearchQuery,
+	classRootsQuery,
+	fetchClassGroups,
 	personSearchQuery,
 	searchWikidataArtworks,
 	searchWikidataPeople,
@@ -43,12 +45,15 @@ describe('artworkSearchQuery', () => {
 		);
 	});
 
-	it('asks only for items with an image, and no people', () => {
+	it('asks only for items with an image, with their types, collections and superclasses', () => {
 		const query = artworkSearchQuery('David');
 
 		expect(query).toContain('?item wdt:P18 ?image.');
 		expect(query).not.toContain('OPTIONAL { ?item wdt:P18');
-		expect(query).toContain('wd:Q5');
+		expect(query).toContain('OPTIONAL { ?item wdt:P31 ?type }');
+		expect(query).toContain('OPTIONAL { ?item wdt:P195 ?collection }');
+		expect(query).toContain('OPTIONAL { ?item wdt:P279 ?superclass }');
+		expect(query).not.toContain('wdt:P279*');
 	});
 });
 
@@ -85,7 +90,10 @@ describe('searchWikidataArtworks', () => {
 					date: '1658-01-01T00:00:00Z/9',
 					creators: 'Johannes Vermeer',
 					creatorNames: 'Johannes Vermeer|Jan Vermeer',
-					creatorCount: '1'
+					creatorCount: '1',
+					types: 'Q3305213',
+					collectionCount: '1',
+					superclassCount: '0'
 				},
 				{ item: 'http://www.wikidata.org/entity/Q42', creators: '', creatorCount: '0' }
 			])
@@ -101,7 +109,10 @@ describe('searchWikidataArtworks', () => {
 				creatorNames: ['Johannes Vermeer', 'Jan Vermeer'],
 				hasCreator: true,
 				date: { year: 1658, precision: 9 },
-				file: 'The Milkmaid.jpg'
+				file: 'The Milkmaid.jpg',
+				types: ['Q3305213'],
+				inCollection: true,
+				isClass: false
 			}
 		]);
 		const [url, init] = fetchMock.mock.calls[0];
@@ -125,10 +136,20 @@ describe('personSearchQuery', () => {
 		const query = personSearchQuery('Leonardo "da" Vinci');
 
 		expect(query).toContain('mwapi:search "Leonardo \\"da\\" Vinci"');
-		expect(query).toContain('?item wdt:P31 wd:Q5; wdt:P18 ?image.');
+		expect(query).toContain('?item wdt:P18 ?image.');
+		expect(query).toContain('?item wdt:P31 wd:Q5.');
 		expect(query).toContain('p:P569');
 		expect(query).toContain('p:P570');
 		expect(query).not.toContain('P279');
+	});
+
+	it('also asks for mythological, biblical and legendary characters when it looks for a figure', () => {
+		const query = personSearchQuery('Herkules', true);
+
+		expect(query).not.toContain('?item wdt:P31 wd:Q5.');
+		expect(query).toContain('?item wdt:P31 ?class.');
+		expect(query).toContain('wd:Q5 wd:Q95074 wd:Q4271324 wd:Q178885 wd:Q20643955 wd:Q15632617');
+		expect(query).toContain('?class wdt:P279?/wdt:P279?/wdt:P279? ?root');
 	});
 });
 
@@ -161,6 +182,47 @@ describe('searchWikidataPeople', () => {
 				died: { year: 1519, precision: 11 },
 				file: 'Leonardo self.jpg'
 			}
+		]);
+	});
+});
+
+describe('classRootsQuery', () => {
+	it('walks the superclasses of the given classes to the roots of artworks, buildings and excluded works', () => {
+		const query = classRootsQuery(['Q3305213', 'Q11424']);
+
+		expect(query).toContain('VALUES ?cls { wd:Q3305213 wd:Q11424 }');
+		expect(query).toContain('wd:Q4502142');
+		expect(query).toContain('wd:Q811979');
+		expect(query).toContain('wd:Q2431196');
+		expect(query).toContain('?cls wdt:P279* ?root.');
+	});
+});
+
+describe('fetchClassGroups', () => {
+	afterEach(() => {
+		vi.unstubAllGlobals();
+		fetchMock.mockReset();
+	});
+
+	it('groups each class as an artwork, a building or neither, and lets an excluded root win', async () => {
+		vi.stubGlobal('fetch', fetchMock);
+		const entity = (id: string): string => `http://www.wikidata.org/entity/${id}`;
+		fetchMock.mockResolvedValue(
+			sparqlResponse([
+				{ cls: entity('Q1'), root: entity('Q4502142') },
+				{ cls: entity('Q2'), root: entity('Q811979') },
+				{ cls: entity('Q3'), root: entity('Q4502142') },
+				{ cls: entity('Q3'), root: entity('Q2431196') }
+			])
+		);
+
+		const groups = await fetchClassGroups(['Q1', 'Q2', 'Q3', 'Q4']);
+
+		expect([...groups]).toEqual([
+			['Q1', 'artwork'],
+			['Q2', 'building'],
+			['Q3', null],
+			['Q4', null]
 		]);
 	});
 });
