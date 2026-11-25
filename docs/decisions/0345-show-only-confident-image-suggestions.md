@@ -47,7 +47,8 @@ Chosen option: 3, accepted by the owner on 2026-11-24, because it removes most o
 
 - Good: 35 cards of towns, concepts, rituals and the like leave the dialog; without the noise, a single candidate for an artwork without an author is filled in by itself more often (R-110).
 - Good: glossary figures from myth and the Bible get portraits, and saints are found by their name.
-- Bad: Stela Hammurabiego is no longer suggested, because Wikidata types it as a code of law; a few odd items with a creator stay (the Artemis Accords for "Artemida").
+- Bad: Stela Hammurabiego and Płyta wiślicka are no longer suggested, because Wikidata types them as a code of law and as flooring, without a creator or a collection; a few odd items with a creator stay (the Artemis Accords for "Artemida").
+- The built code was compared with the code on `develop` on the same 428 titles: the correct match stays in 86 of 90 in both, the dialogs hold 372 cards instead of 396, and the time to the candidates is the same (median 0.70 s, the slowest 15 s in both).
 - Bad: items that are buildings of the same name stay (Hôtel Byblos), and other artworks of the same title stay; only the author tells them apart.
 - Bad: the list of known classes reflects the measured collection; other classes cost one more query the first time they appear.
 
