@@ -5,10 +5,15 @@ import {
 	findImageCandidates,
 	formatSourceDate,
 	matchesAuthor,
+	matchesLifeYears,
+	portraitSearchName,
 	rankArtworks,
 	romanNumeral
 } from './image-search.ts';
+import { forgetClassGroups } from '#lib/images/class-groups/class-groups.ts';
+import type { ClassGroup } from '#lib/images/types/class-group.ts';
 import type { WikidataArtwork } from '#lib/images/types/wikidata-artwork.ts';
+import type { WikidataPerson } from '#lib/images/types/wikidata-person.ts';
 
 const fetchMock = vi.fn<typeof fetch>();
 
@@ -21,6 +26,9 @@ function artwork(overrides: Partial<WikidataArtwork>): WikidataArtwork {
 		hasCreator: false,
 		date: null,
 		file: 'The Milkmaid.jpg',
+		types: [],
+		inCollection: false,
+		isClass: false,
 		...overrides
 	};
 }
@@ -78,6 +86,137 @@ describe('rankArtworks', () => {
 	});
 });
 
+describe('rankArtworks with the confidence rule', () => {
+	const groups = new Map<string, ClassGroup | null>([
+		['Q3305213', 'artwork'],
+		['Q2977', 'building'],
+		['Q3957', null]
+	]);
+
+	it('leaves out a town, a concept and an unknown type, and keeps artworks and buildings', () => {
+		const town = artwork({ wikidataId: 'Q2', types: ['Q3957'] });
+		const concept = artwork({ wikidataId: 'Q3', types: ['Q2977'], isClass: true });
+		const painting = artwork({ wikidataId: 'Q4', types: ['Q3305213'] });
+		const cathedral = artwork({ wikidataId: 'Q5', types: ['Q2977'] });
+
+		expect(
+			rankArtworks([town, concept, painting, cathedral], [], groups).map(
+				({ wikidataId }) => wikidataId
+			)
+		).toEqual(['Q4', 'Q5']);
+	});
+
+	it('puts buildings first for architecture and artworks first for other types', () => {
+		const painting = artwork({ wikidataId: 'Q4', types: ['Q3305213'] });
+		const cathedral = artwork({ wikidataId: 'Q5', types: ['Q2977'] });
+		const ids = (typeCode: 'architecture' | 'painting'): string[] =>
+			rankArtworks([painting, cathedral], [], groups, { typeCode }).map(
+				({ wikidataId }) => wikidataId
+			);
+
+		expect(ids('architecture')).toEqual(['Q5', 'Q4']);
+		expect(ids('painting')).toEqual(['Q4', 'Q5']);
+	});
+
+	it('puts the artwork closest to the typed year first among equals', () => {
+		const late = artwork({
+			wikidataId: 'Q6',
+			types: ['Q3305213'],
+			date: { year: 1890, precision: 9 }
+		});
+		const early = artwork({
+			wikidataId: 'Q7',
+			types: ['Q3305213'],
+			date: { year: 1530, precision: 9 }
+		});
+		const undated = artwork({ wikidataId: 'Q8', types: ['Q3305213'] });
+
+		expect(
+			rankArtworks([undated, late, early], [], groups, { year: 1540 }).map(
+				({ wikidataId }) => wikidataId
+			)
+		).toEqual(['Q7', 'Q6', 'Q8']);
+	});
+
+	it('never lets the type or the year put another author before a matching one', () => {
+		const byAuthor = artwork({
+			wikidataId: 'Q9',
+			types: ['Q2977'],
+			creators: ['Rembrandt'],
+			hasCreator: true
+		});
+		const other = artwork({ wikidataId: 'Q10', types: ['Q3305213'], hasCreator: true });
+
+		expect(
+			rankArtworks([other, byAuthor], ['Rembrandt'], groups, { typeCode: 'painting' })
+		).toEqual([byAuthor]);
+	});
+});
+
+describe('matchesLifeYears', () => {
+	function person(born: number | null, died: number | null): WikidataPerson {
+		return {
+			wikidataId: 'Q1',
+			name: 'Rembrandt',
+			born: born === null ? null : { year: born, precision: 9 },
+			died: died === null ? null : { year: died, precision: 9 },
+			file: 'Rembrandt.jpg'
+		};
+	}
+
+	it('keeps a person whose years are within ten years of the typed ones', () => {
+		expect(
+			matchesLifeYears(person(1606, 1669), {
+				kind: 'person',
+				name: 'Rembrandt',
+				born: 1606,
+				died: 1669
+			})
+		).toBe(true);
+		expect(
+			matchesLifeYears(person(1600, 1669), { kind: 'person', name: 'Rembrandt', born: 1610 })
+		).toBe(true);
+	});
+
+	it('drops a namesake from another time', () => {
+		expect(
+			matchesLifeYears(person(1778, 1860), { kind: 'person', name: 'Rembrandt', born: 1606 })
+		).toBe(false);
+		expect(
+			matchesLifeYears(person(1606, 1860), { kind: 'person', name: 'Rembrandt', died: 1669 })
+		).toBe(false);
+	});
+
+	it('keeps everyone when the years are missing on either side or not a number', () => {
+		expect(
+			matchesLifeYears(person(null, null), { kind: 'person', name: 'Rembrandt', born: 1606 })
+		).toBe(true);
+		expect(matchesLifeYears(person(1778, 1860), { kind: 'person', name: 'Rembrandt' })).toBe(true);
+		expect(
+			matchesLifeYears(person(1778, 1860), { kind: 'person', name: 'Rembrandt', born: Number.NaN })
+		).toBe(true);
+	});
+
+	it('does not judge by a year known only to the century', () => {
+		const vague = { ...person(null, null), born: { year: 1800, precision: 7 } };
+		expect(matchesLifeYears(vague, { kind: 'person', name: 'Rembrandt', born: 1606 })).toBe(true);
+	});
+});
+
+describe('portraitSearchName', () => {
+	it('leaves out a saint prefix for a figure', () => {
+		expect(portraitSearchName(' Święty Hieronim ', true)).toBe('Hieronim');
+		expect(portraitSearchName('św. Hieronim', true)).toBe('Hieronim');
+		expect(portraitSearchName('Święta Barbara', true)).toBe('Barbara');
+		expect(portraitSearchName('Błogosławiony Fra Angelico', true)).toBe('Fra Angelico');
+	});
+
+	it('keeps the name of an author and a name that is only a prefix', () => {
+		expect(portraitSearchName('Święty Hieronim', false)).toBe('Święty Hieronim');
+		expect(portraitSearchName('Święty', true)).toBe('Święty');
+	});
+});
+
 describe('formatSourceDate', () => {
 	it('shows a year as a year', () => {
 		expect(formatSourceDate({ year: 1658, precision: 9 })).toBe('1658');
@@ -109,6 +248,7 @@ describe('romanNumeral', () => {
 
 describe('findImageCandidates', () => {
 	afterEach(() => {
+		forgetClassGroups();
 		vi.useRealTimers();
 		vi.unstubAllGlobals();
 		fetchMock.mockReset();
@@ -306,5 +446,117 @@ describe('findImageCandidates', () => {
 			date: '1632–1675',
 			image: { file: 'The Milkmaid.jpg', width: 2000, height: 2250 }
 		});
+	});
+
+	it('asks for the classes it does not know and leaves out what is neither an artwork nor a building', async () => {
+		vi.stubGlobal('fetch', fetchMock);
+		const entity = (id: string): { value: string } => ({
+			value: `http://www.wikidata.org/entity/${id}`
+		});
+		const file = (name: string): { value: string } => ({
+			value: `http://commons.wikimedia.org/wiki/Special:FilePath/${name}`
+		});
+		fetchMock.mockImplementation(async (input) => {
+			const url = new URL(String(input));
+			const query = url.searchParams.get('query') ?? '';
+			if (url.hostname === 'query.wikidata.org' && query.includes('VALUES ?cls')) {
+				return new Response(
+					JSON.stringify({
+						results: { bindings: [{ cls: entity('Q888'), root: entity('Q811979') }] }
+					})
+				);
+			}
+			if (url.hostname === 'query.wikidata.org') {
+				return new Response(
+					JSON.stringify({
+						results: {
+							bindings: [
+								{
+									item: entity('Q173532'),
+									title: { value: 'Byblos' },
+									file: file('Byblos.jpg'),
+									types: { value: 'Q888' }
+								},
+								{
+									item: entity('Q7619206'),
+									title: { value: 'Byblos' },
+									file: file('Town.jpg'),
+									types: { value: 'Q3957' }
+								}
+							]
+						}
+					})
+				);
+			}
+			return new Response(
+				JSON.stringify({
+					query: {
+						pages: ['Byblos.jpg', 'Town.jpg'].map((name) => ({
+							title: `File:${name}`,
+							imageinfo: [{ thumburl: thumb, width: 800, height: 600, extmetadata: {} }]
+						}))
+					}
+				})
+			);
+		});
+
+		const result = await findImageCandidates({ kind: 'artwork', title: 'Byblos', authors: [] });
+
+		expect(result.candidates.map(({ wikidataId }) => wikidataId)).toEqual(['Q173532']);
+		expect(fetchMock).toHaveBeenCalledTimes(3);
+	});
+
+	it('looks for a figure among characters without a saint prefix and drops namesakes by their years', async () => {
+		vi.stubGlobal('fetch', fetchMock);
+		const entity = (id: string): { value: string } => ({
+			value: `http://www.wikidata.org/entity/${id}`
+		});
+		fetchMock.mockImplementation(async (input) => {
+			const url = new URL(String(input));
+			if (url.hostname === 'query.wikidata.org') {
+				const query = url.searchParams.get('query') ?? '';
+				expect(query).toContain('mwapi:search "Hieronim"');
+				expect(query).toContain('?item wdt:P31 ?class.');
+				return new Response(
+					JSON.stringify({
+						results: {
+							bindings: [
+								{
+									item: entity('Q44248'),
+									name: { value: 'Hieronim ze Strydonu' },
+									file: { value: 'http://commons.wikimedia.org/wiki/Special:FilePath/Jerome.jpg' },
+									born: { value: '0347-01-01T00:00:00Z/9' }
+								},
+								{
+									item: entity('Q2'),
+									name: { value: 'Hieronim' },
+									file: { value: 'http://commons.wikimedia.org/wiki/Special:FilePath/Other.jpg' },
+									born: { value: '1890-01-01T00:00:00Z/9' }
+								}
+							]
+						}
+					})
+				);
+			}
+			return new Response(
+				JSON.stringify({
+					query: {
+						pages: ['Jerome.jpg', 'Other.jpg'].map((name) => ({
+							title: `File:${name}`,
+							imageinfo: [{ thumburl: thumb, width: 800, height: 600, extmetadata: {} }]
+						}))
+					}
+				})
+			);
+		});
+
+		const result = await findImageCandidates({
+			kind: 'person',
+			name: 'Święty Hieronim',
+			figure: true,
+			born: 347
+		});
+
+		expect(result.candidates.map(({ wikidataId }) => wikidataId)).toEqual(['Q44248']);
 	});
 });

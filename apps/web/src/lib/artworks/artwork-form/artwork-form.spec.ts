@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
 	artworkFormFromRecord,
 	artworkImageAlt,
+	artworkImageQuery,
 	artworkInputFromForm,
 	canSearchImage,
 	emptyArtworkForm,
@@ -398,5 +399,33 @@ describe('own fields limited to artwork types', () => {
 			seen: true,
 			gone: 'Deleted field'
 		});
+	});
+});
+
+describe('artworkImageQuery', () => {
+	it('passes the title, the authors, the type and the signed year to the image search', () => {
+		const form = emptyArtworkForm();
+		form.title = 'Kuros z Anavyssos';
+		form.values.author = ['Unknown'];
+		form.typeCode = 'sculpture';
+		form.yearTo = '530';
+		form.toBeforeCommonEra = true;
+
+		expect(artworkImageQuery(form)).toEqual({
+			kind: 'artwork',
+			title: 'Kuros z Anavyssos',
+			authors: ['Unknown'],
+			typeCode: 'sculpture',
+			year: -530
+		});
+	});
+
+	it('leaves out the authors when the author is unknown and the year when it is empty', () => {
+		const form = emptyArtworkForm();
+		form.title = 'Stonehenge';
+		form.values.author = ['Someone'];
+		form.authorUnknown = true;
+
+		expect(artworkImageQuery(form)).toMatchObject({ authors: [], typeCode: '', year: null });
 	});
 });

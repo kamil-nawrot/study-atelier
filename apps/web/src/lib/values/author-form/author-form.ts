@@ -11,6 +11,7 @@ import type { AuthorDetails } from '#lib/values/types/author-details.ts';
 import type { AuthorFieldErrors } from '#lib/values/types/author-field-errors.ts';
 import type { AuthorFormState } from '#lib/values/types/author-form-state.ts';
 import type { LifeFormState } from '#lib/values/types/life-form-state.ts';
+import type { ImageSearchQuery } from '#lib/images/types/image-search-query.ts';
 
 export const AUTHOR_COUNTRY_MAX_LENGTH = 60;
 
@@ -98,6 +99,18 @@ export function lifeYearsFromForm(form: LifeFormState): {
 		birthYear,
 		deathYear,
 		yearsApproximate: form.yearsApproximate && (birthYear !== null || deathYear !== null)
+	};
+}
+
+export function portraitQuery(name: string, life: LifeFormState, figure = false): ImageSearchQuery {
+	const years = lifeYearsFromForm(life);
+	const exact = !years.yearsApproximate;
+	return {
+		kind: 'person',
+		name,
+		figure,
+		born: exact ? years.birthYear : null,
+		died: exact ? years.deathYear : null
 	};
 }
 

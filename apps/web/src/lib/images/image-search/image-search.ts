@@ -1,6 +1,14 @@
 import { formatLifeYears, formatYear } from '#lib/catalogue/years/years.ts';
 import { normalizeForSearch } from '#lib/shared/utils/search/search.ts';
 import { m } from '#lib/i18n/i18n.ts';
+import {
+	isConfidentArtwork,
+	preferredGroup,
+	typeDistance,
+	yearDistance,
+	type ClassGroups
+} from '#lib/images/artwork-confidence/artwork-confidence.ts';
+import { resolveClassGroups } from '#lib/images/class-groups/class-groups.ts';
 import { commonsThumbnailSrcset, fetchCommonsFiles } from '#lib/images/commons/commons.ts';
 import { imageSearchErrorMessage } from '#lib/images/errors/errors.ts';
 import type { CandidateImage } from '#lib/images/types/candidate-image.ts';
@@ -21,6 +29,8 @@ const MIN_SHARED_WORD_LENGTH = 4;
 const YEAR_PRECISION = 9;
 const DECADE_PRECISION = 8;
 const CENTURY_PRECISION = 7;
+const LIFE_YEAR_TOLERANCE = 10;
+const SAINT_PREFIX = /^(święt[aeiy]j?|św\.|bł\.|błogosławion[aey]j?)\s+/iu;
 const ROMAN_NUMERALS: [number, string][] = [
 	[1000, 'M'],
 	[900, 'CM'],
@@ -57,19 +67,34 @@ export function matchesAuthor(creatorNames: string[], authors: string[]): boolea
 		.some((author) => creators.some((creator) => namesMatch(creator, author)));
 }
 
-export function rankArtworks(artworks: WikidataArtwork[], authors: string[]): WikidataArtwork[] {
-	const scored = artworks.map((artwork) => ({
-		artwork,
-		score: matchesAuthor([...artwork.creators, ...artwork.creatorNames], authors)
-			? 2
-			: artwork.hasCreator
-				? 1
-				: 0
-	}));
+type ArtworkHints = Pick<Extract<ImageSearchQuery, { kind: 'artwork' }>, 'typeCode' | 'year'>;
+
+export function rankArtworks(
+	artworks: WikidataArtwork[],
+	authors: string[],
+	groups: ClassGroups = new Map(),
+	hints: ArtworkHints = {}
+): WikidataArtwork[] {
+	const preferred = preferredGroup(hints.typeCode ?? '');
+	const scored = artworks
+		.filter((artwork) => isConfidentArtwork(artwork, groups))
+		.map((artwork) => ({
+			artwork,
+			score: matchesAuthor([...artwork.creators, ...artwork.creatorNames], authors)
+				? 2
+				: artwork.hasCreator
+					? 1
+					: 0,
+			type: typeDistance(artwork, groups, preferred),
+			years: yearDistance(artwork, hints.year ?? null)
+		}));
 	const best = Math.max(0, ...scored.map(({ score }) => score));
 	return scored
 		.filter(({ score }) => best < 2 || score === 2)
-		.sort((first, second) => second.score - first.score)
+		.sort(
+			(first, second) =>
+				second.score - first.score || first.type - second.type || first.years - second.years
+		)
 		.slice(0, CANDIDATE_LIMIT)
 		.map(({ artwork }) => artwork);
 }
@@ -129,14 +154,20 @@ function lifeYears(person: WikidataPerson): string | undefined {
 	return formatLifeYears(lifeYear(person.born), lifeYear(person.died), approximate);
 }
 
-async function findArtworkCandidates(title: string, authors: string[]): Promise<ImageSearchResult> {
-	const artworks = rankArtworks(await searchWikidataArtworks(title), authors);
+async function findArtworkCandidates(
+	query: Extract<ImageSearchQuery, { kind: 'artwork' }>
+): Promise<ImageSearchResult> {
+	const found = await searchWikidataArtworks(query.title.trim());
+	const [groups, files] = await Promise.all([
+		resolveClassGroups(found.flatMap((artwork) => artwork.types)),
+		fetchCommonsFiles(
+			found.map((artwork) => artwork.file),
+			CANDIDATE_THUMBNAIL_WIDTH
+		)
+	]);
+	const artworks = rankArtworks(found, query.authors, groups, query);
 	const authorMatch = artworks.some((artwork) =>
-		matchesAuthor([...artwork.creators, ...artwork.creatorNames], authors)
-	);
-	const files = await fetchCommonsFiles(
-		artworks.map((artwork) => artwork.file),
-		CANDIDATE_THUMBNAIL_WIDTH
+		matchesAuthor([...artwork.creators, ...artwork.creatorNames], query.authors)
 	);
 	const candidates = artworks.flatMap((artwork): ImageCandidate[] => {
 		const image = candidateImage(artwork.file, files);
@@ -155,8 +186,34 @@ async function findArtworkCandidates(title: string, authors: string[]): Promise<
 	return { candidates, authorMatch };
 }
 
-async function findPortraitCandidates(name: string): Promise<ImageCandidate[]> {
-	const people = (await searchWikidataPeople(name)).slice(0, CANDIDATE_LIMIT);
+function lifeYearMatches(found: SourceDate | null, typed: number | null | undefined): boolean {
+	if (typed === null || typed === undefined || !Number.isFinite(typed) || found === null)
+		return true;
+	if (found.precision < DECADE_PRECISION) return true;
+	return Math.abs(found.year - typed) <= LIFE_YEAR_TOLERANCE;
+}
+
+export function matchesLifeYears(
+	person: WikidataPerson,
+	query: Extract<ImageSearchQuery, { kind: 'person' }>
+): boolean {
+	return lifeYearMatches(person.born, query.born) && lifeYearMatches(person.died, query.died);
+}
+
+export function portraitSearchName(name: string, figure: boolean): string {
+	const trimmed = name.trim();
+	if (!figure) return trimmed;
+	const stripped = trimmed.replace(SAINT_PREFIX, '').trim();
+	return stripped === '' ? trimmed : stripped;
+}
+
+async function findPortraitCandidates(
+	query: Extract<ImageSearchQuery, { kind: 'person' }>
+): Promise<ImageCandidate[]> {
+	const figure = query.figure ?? false;
+	const people = (await searchWikidataPeople(portraitSearchName(query.name, figure), figure))
+		.filter((person) => matchesLifeYears(person, query))
+		.slice(0, CANDIDATE_LIMIT);
 	const files = await fetchCommonsFiles(
 		people.map((person) => person.file),
 		CANDIDATE_THUMBNAIL_WIDTH
@@ -180,8 +237,8 @@ async function findPortraitCandidates(name: string): Promise<ImageCandidate[]> {
 export async function findImageCandidates(query: ImageSearchQuery): Promise<ImageSearchResult> {
 	try {
 		if (query.kind === 'person')
-			return { candidates: await withDeadline(findPortraitCandidates(query.name.trim())) };
-		return await withDeadline(findArtworkCandidates(query.title.trim(), query.authors));
+			return { candidates: await withDeadline(findPortraitCandidates(query)) };
+		return await withDeadline(findArtworkCandidates(query));
 	} catch (error) {
 		return { candidates: [], error: imageSearchErrorMessage(error) };
 	}
