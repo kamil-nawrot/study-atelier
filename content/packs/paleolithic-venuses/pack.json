@@ -1,0 +1,413 @@
+{
+	"slug": "paleolithic-venuses",
+	"title": "Wenus paleolityczne",
+	"description": "Kobiece figurki i płaskorzeźby z górnego paleolitu, od Jury Szwabskiej po Syberię, z ok. 40–15 tys. lat temu.",
+	"era": "prehistory",
+	"periods": [
+		{
+			"key": "aurignacian",
+			"name": "kultura oryniacka",
+			"summary": "Najstarsza kultura górnego paleolitu w Europie, ok. 43–33 tys. lat temu, związana z pierwszymi ludźmi współczesnymi na kontynencie. Nazwa pochodzi od jaskini Aurignac we Francji."
+		},
+		{
+			"key": "gravettian",
+			"name": "kultura grawecka",
+			"summary": "Kultura górnego paleolitu w Europie, ok. 33–21 tys. lat temu; z niej pochodzi większość paleolitycznych Wenus. Nazwa pochodzi od stanowiska La Gravette we Francji."
+		},
+		{
+			"key": "malta-buret",
+			"name": "kultura maltańsko-burecka",
+			"summary": "Kultura górnego paleolitu na Syberii, nad Angarą koło Bajkału, ok. 24–20 tys. lat temu. Nazwa pochodzi od stanowisk Malta i Buret'."
+		},
+		{
+			"key": "magdalenian",
+			"name": "kultura magdaleńska",
+			"summary": "Ostatnia kultura górnego paleolitu w Europie Zachodniej, ok. 17–12 tys. lat temu, czas malowideł z Lascaux i Altamiry. Nazwa pochodzi od schroniska skalnego La Madeleine we Francji."
+		}
+	],
+	"materials": [
+		{ "key": "mammoth-ivory", "name": "kość słoniowa mamuta" },
+		{ "key": "serpentine", "name": "serpentyn" },
+		{ "key": "limestone", "name": "wapień" },
+		{ "key": "ceramic", "name": "ceramika" },
+		{ "key": "steatite", "name": "steatyt" },
+		{ "key": "jet", "name": "gagat" }
+	],
+	"cities": [
+		{
+			"key": "blaubeuren",
+			"name": "Blaubeuren",
+			"wikidata": "Q505955",
+			"country": "DE",
+			"latitude": 48.412,
+			"longitude": 9.785
+		},
+		{
+			"key": "vienna",
+			"name": "Wiedeń",
+			"wikidata": "Q1741",
+			"country": "AT",
+			"latitude": 48.202,
+			"longitude": 16.365
+		},
+		{
+			"key": "brno",
+			"name": "Brno",
+			"wikidata": "Q14960",
+			"country": "CZ",
+			"latitude": 49.2,
+			"longitude": 16.61
+		},
+		{
+			"key": "saint-germain-en-laye",
+			"name": "Saint-Germain-en-Laye",
+			"wikidata": "Q60847808",
+			"country": "FR",
+			"latitude": 48.896,
+			"longitude": 2.091
+		},
+		{
+			"key": "paris",
+			"name": "Paryż",
+			"wikidata": "Q90",
+			"country": "FR",
+			"latitude": 48.858,
+			"longitude": 2.353
+		},
+		{
+			"key": "bordeaux",
+			"name": "Bordeaux",
+			"wikidata": "Q1479",
+			"country": "FR",
+			"latitude": 44.852,
+			"longitude": -0.597
+		},
+		{
+			"key": "saint-petersburg",
+			"name": "Petersburg",
+			"wikidata": "Q656",
+			"country": "RU",
+			"latitude": 59.941,
+			"longitude": 30.314
+		},
+		{
+			"key": "rome",
+			"name": "Rzym",
+			"wikidata": "Q220",
+			"country": "IT",
+			"latitude": 41.898,
+			"longitude": 12.481
+		},
+		{
+			"key": "latena",
+			"name": "Laténa",
+			"wikidata": "Q123995545",
+			"country": "CH",
+			"latitude": 47.011,
+			"longitude": 7.006
+		}
+	],
+	"places": [
+		{
+			"key": "urmu",
+			"name": "Muzeum Prehistorii i Sztuki Epoki Lodowcowej w Blaubeuren",
+			"type": "museum",
+			"wikidata": "Q26836738",
+			"city": "blaubeuren"
+		},
+		{
+			"key": "nhm-vienna",
+			"name": "Muzeum Historii Naturalnej w Wiedniu",
+			"type": "museum",
+			"wikidata": "Q688704",
+			"city": "vienna"
+		},
+		{
+			"key": "moravian-museum",
+			"name": "Morawskie Muzeum Krajowe",
+			"type": "museum",
+			"wikidata": "Q1348579",
+			"city": "brno"
+		},
+		{
+			"key": "man",
+			"name": "Narodowe Muzeum Archeologiczne w Saint-Germain-en-Laye",
+			"type": "museum",
+			"wikidata": "Q2342844",
+			"catalogue": true,
+			"city": "saint-germain-en-laye"
+		},
+		{
+			"key": "musee-de-l-homme",
+			"name": "Musée de l'Homme",
+			"type": "museum",
+			"wikidata": "Q670268",
+			"city": "paris"
+		},
+		{
+			"key": "musee-d-aquitaine",
+			"name": "Muzeum Akwitanii",
+			"type": "museum",
+			"wikidata": "Q3329534",
+			"city": "bordeaux"
+		},
+		{
+			"key": "hermitage",
+			"name": "Ermitaż",
+			"type": "museum",
+			"wikidata": "Q132783",
+			"catalogue": true,
+			"city": "saint-petersburg"
+		},
+		{
+			"key": "pigorini",
+			"name": "Narodowe Muzeum Prehistoryczno-Etnograficzne im. Luigiego Pigoriniego",
+			"type": "museum",
+			"wikidata": "Q304735",
+			"city": "rome"
+		},
+		{
+			"key": "latenium",
+			"name": "Laténium",
+			"type": "museum",
+			"wikidata": "Q27481419",
+			"city": "latena"
+		}
+	],
+	"artworks": [
+		{
+			"wikidata": "Q312522",
+			"title": "Wenus z Hohle Fels",
+			"type": "sculpture",
+			"year": { "from": -38000, "to": -33000, "approximate": true },
+			"periods": ["aurignacian"],
+			"materials": ["mammoth-ivory"],
+			"place": "urmu",
+			"image": {
+				"file": "-40.000 Venusanhänger Aurignacien anagoria.JPG",
+				"width": 3168,
+				"height": 4752,
+				"licence": "CC BY 3.0",
+				"licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+				"attribution": "Anagoria"
+			},
+			"note": "Figurka z kości słoniowej mamuta, wysoka na 6 cm, znaleziona w 2008 roku w jaskini Hohle Fels koło Schelklingen w Jurze Szwabskiej. To najstarsze bezsporne przedstawienie człowieka w sztuce. Zamiast głowy ma uszko, więc mogła być noszona jako wisiorek."
+		},
+		{
+			"wikidata": "Q700728",
+			"title": "Wenus z Galgenbergu",
+			"type": "sculpture",
+			"year": { "to": -34000, "approximate": true },
+			"periods": ["aurignacian"],
+			"materials": ["serpentine"],
+			"place": "nhm-vienna",
+			"image": {
+				"file": "Venus von Galgenberg 02.JPG",
+				"width": 1505,
+				"height": 2303,
+				"licence": "CC BY-SA 3.0 at",
+				"licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0/at/deed.en",
+				"attribution": "Bengt Oberger"
+			},
+			"note": "Figurka z zielonego, połyskującego kamienia, wysoka na 7 cm, znaleziona w 1988 roku na wzgórzu Galgenberg koło Stratzing w Dolnej Austrii. Postać z uniesioną ręką wygląda, jakby tańczyła, dlatego nazwano ją „Fanny” na cześć tancerki Fanny Elßler. W muzeum stoi w jednej gablocie z Wenus z Willendorfu."
+		},
+		{
+			"wikidata": "Q131397",
+			"title": "Wenus z Willendorfu",
+			"type": "sculpture",
+			"year": { "to": -28000, "approximate": true },
+			"periods": ["gravettian"],
+			"materials": ["limestone"],
+			"place": "nhm-vienna",
+			"image": {
+				"file": "Venus von Willendorf 01.jpg",
+				"width": 1428,
+				"height": 2684,
+				"licence": "CC BY 2.5",
+				"licenceUrl": "https://creativecommons.org/licenses/by/2.5",
+				"attribution": "Matthias Kabel"
+			},
+			"note": "Wapienna figurka wysoka na 11 cm, znaleziona w 1908 roku podczas wykopalisk koło Willendorfu w Dolnej Austrii. Była pomalowana czerwoną ochrą, a jej kamień nie pochodzi z okolicy; badania z 2022 roku wskazują na północne Włochy. Zamiast twarzy głowę pokrywają rzędy splotów, może fryzura, może nakrycie głowy."
+		},
+		{
+			"wikidata": "Q552113",
+			"title": "Wenus z Dolních Věstonic",
+			"type": "sculpture",
+			"year": { "from": -29000, "to": -25000, "approximate": true },
+			"periods": ["gravettian"],
+			"materials": ["ceramic"],
+			"place": "moravian-museum",
+			"image": {
+				"file": "Vestonicka venuse edit.jpg",
+				"width": 1020,
+				"height": 1992,
+				"licence": "CC BY-SA 2.5",
+				"licenceUrl": "https://creativecommons.org/licenses/by-sa/2.5",
+				"attribution": "Petr Novák, Wikipedia"
+			},
+			"note": "Figurka z wypalonej gliny, znaleziona w 1925 roku na obozowisku łowców mamutów w Dolních Věstonicach na Morawach. Razem z figurkami zwierząt z tego miejsca to najstarsza znana ceramika na świecie. Na jej powierzchni zachował się odcisk palca dziecka."
+		},
+		{
+			"wikidata": "Q849063",
+			"title": "Wenus z Brassempouy",
+			"type": "sculpture",
+			"year": { "to": -23000, "approximate": true },
+			"periods": ["gravettian"],
+			"materials": ["mammoth-ivory"],
+			"place": "man",
+			"image": {
+				"file": "Dame de Brassempouy.jpg",
+				"width": 2688,
+				"height": 3549,
+				"licence": "CC BY-SA 3.0",
+				"licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+				"attribution": "BastienM"
+			},
+			"note": "Główka z kości słoniowej mamuta, wysoka na 3,6 cm, znaleziona w 1894 roku w Grotte du Pape koło Brassempouy w Landach. To jedno z najwcześniejszych realistycznych przedstawień ludzkiej twarzy. Siateczka na głowie przypomina kaptur lub plecione włosy, stąd druga nazwa: „Dama w kapturze”."
+		},
+		{
+			"wikidata": "Q510876",
+			"title": "Wenus z Lespugue",
+			"type": "sculpture",
+			"year": { "from": -24000, "to": -22000, "approximate": true },
+			"periods": ["gravettian"],
+			"materials": ["mammoth-ivory"],
+			"place": "musee-de-l-homme",
+			"image": {
+				"file": "Vénus de Lespugue Gravettien Musée de l'Homme 04022018 1.jpg",
+				"width": 1923,
+				"height": 3311,
+				"licence": "CC0",
+				"licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+				"attribution": "Vassil"
+			},
+			"note": "Figurka z kości słoniowej mamuta, wysoka na 15 cm, znaleziona w 1922 roku w grocie Rideaux koło Lespugue u stóp Pirenejów i uszkodzona przy wydobyciu. Ma najsilniej przesadzone kształty ze wszystkich paleolitycznych Wenus. Z tyłu wyrzeźbiono spódniczkę ze skręconych włókien, najstarsze znane przedstawienie przędzonej nici."
+		},
+		{
+			"wikidata": "Q203765",
+			"title": "Wenus z Laussel",
+			"type": "sculpture",
+			"year": { "to": -23000, "approximate": true },
+			"periods": ["gravettian"],
+			"materials": ["limestone"],
+			"place": "musee-d-aquitaine",
+			"image": {
+				"file": "Musée d’Aquitaine - La Vénus à la Corne.jpg",
+				"width": 3456,
+				"height": 4608,
+				"licence": "CC BY 4.0",
+				"licenceUrl": "https://creativecommons.org/licenses/by/4.0",
+				"attribution": "Katanga"
+			},
+			"note": "Płaskorzeźba w bloku wapienia, wysoka na 46 cm, odkryta w 1911 roku w schronisku skalnym Laussel w Dordonii. Kobieta trzyma róg z 13 nacięciami, które bywają odczytywane jako miesiące księżycowe; stąd druga nazwa: „Wenus z rogiem”. Postać pokrywała czerwona ochra."
+		},
+		{
+			"wikidata": "Q1305698",
+			"title": "Wenus z Kostionek",
+			"type": "sculpture",
+			"year": { "from": -23000, "to": -18000, "approximate": true },
+			"periods": ["gravettian"],
+			"materials": ["mammoth-ivory"],
+			"place": "hermitage",
+			"image": {
+				"file": "Venus 1 from Kostenki RU front.jpg",
+				"width": 2052,
+				"height": 3648,
+				"licence": "CC BY-SA 3.0",
+				"licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+				"attribution": "Andreas Franzkowiak"
+			},
+			"note": "Jedna z kilkunastu kobiecych figurek z kości słoniowej mamuta, znalezionych na stanowisku Kostionki nad Donem, na południe od Woroneża. Ma pochyloną głowę bez rysów twarzy i ramiona przylegające do ciała."
+		},
+		{
+			"wikidata": "Q724710",
+			"title": "Wenus z Savignano",
+			"type": "sculpture",
+			"year": { "from": -23000, "to": -18000, "approximate": true },
+			"periods": ["gravettian"],
+			"materials": ["serpentine"],
+			"place": "pigorini",
+			"image": {
+				"file": "Paleolitico superiore, statuetta femminile detta venere di savignano, da savignano sul panaro (mo), in serpentino 02.jpg",
+				"width": 2064,
+				"height": 5128,
+				"licence": "CC BY-SA 4.0",
+				"licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+				"attribution": "Francesco Bini"
+			},
+			"note": "Figurka z serpentynu, wysoka na 22 cm, jedna z największych paleolitycznych Wenus. W 1925 roku znalazł ją rolnik kopiący przy oborze w Savignano sul Panaro koło Modeny i oddał ją za 200 kilogramów winogron. Zamiast głowy ma stożek."
+		},
+		{
+			"wikidata": "Q10392686",
+			"title": "Wenus romboidalna z Grimaldi",
+			"type": "sculpture",
+			"year": { "to": -22000, "approximate": true },
+			"periods": ["gravettian"],
+			"materials": ["steatite"],
+			"place": "man",
+			"image": {
+				"file": "Venus Losange.jpg",
+				"width": 1148,
+				"height": 2273,
+				"licence": "CC BY-SA 4.0",
+				"licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+				"attribution": "Don Hitchcock, donsmaps.com"
+			},
+			"note": "Figurka ze steatytu z jaskini Barma Grande, jednej z grot Balzi Rossi koło Grimaldi na granicy Włoch i Francji, znaleziona pod koniec XIX wieku. Nazwę zawdzięcza sylwetce w kształcie rombu (fr. losange). Należy do kilkunastu figurek z tych jaskiń."
+		},
+		{
+			"wikidata": "Q1061993",
+			"title": "Wenus z Malty",
+			"type": "sculpture",
+			"year": { "from": -21000, "to": -16000, "approximate": true },
+			"periods": ["malta-buret"],
+			"materials": ["mammoth-ivory"],
+			"place": "hermitage",
+			"image": {
+				"file": "Mal’ta Collection (Hermitage, No. 370-748).jpg",
+				"width": 1632,
+				"height": 1460,
+				"licence": "CC BY-SA 4.0",
+				"licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+				"attribution": "Liudmila Lbova"
+			},
+			"note": "Figurka z kości słoniowej mamuta ze stanowiska Malta nad Angarą, koło Irkucka na Syberii, gdzie od 1928 roku znaleziono kilkadziesiąt podobnych. Były pierwszymi Wenus odkrytymi poza Europą. W przeciwieństwie do europejskich często mają zaznaczoną twarz, a z tyłu tej figurki starannie wyrzeźbiono fryzurę."
+		},
+		{
+			"wikidata": "Q24169384",
+			"title": "Wenus bezwstydna",
+			"type": "sculpture",
+			"year": { "to": -14000, "approximate": true },
+			"periods": ["magdalenian"],
+			"materials": ["mammoth-ivory"],
+			"place": "musee-de-l-homme",
+			"image": {
+				"file": "Venus impudique expo Arts et Prehistoire.jpg",
+				"width": 2648,
+				"height": 4500,
+				"licence": "CC BY-SA 4.0",
+				"licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+				"attribution": "Zunkir"
+			},
+			"note": "Pierwsza paleolityczna figurka kobieca odkryta w czasach nowożytnych: około 1864 roku znalazł ją markiz de Vibraye w Laugerie-Basse w dolinie Vézère. Nazwał ją przekornie „Wenus bezwstydną”, w opozycji do antycznej Wenus wstydliwej, i od niej wzięła się nazwa wszystkich paleolitycznych Wenus. Jest wysoka na 8 cm, bez głowy, rąk i stóp."
+		},
+		{
+			"wikidata": "Q687286",
+			"title": "Wenus z Monruz",
+			"type": "sculpture",
+			"year": { "to": -13000, "approximate": true },
+			"periods": ["magdalenian"],
+			"materials": ["jet"],
+			"place": "latenium",
+			"image": {
+				"file": "Laténium-dame-Monruz.jpg",
+				"width": 1586,
+				"height": 2362,
+				"licence": "CC BY-SA 3.0",
+				"licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+				"attribution": "Y. André"
+			},
+			"note": "Wisiorek z gagatu, wysoki na niecałe 2 cm, znaleziony w 1991 roku przy budowie autostrady w Monruz nad Jeziorem Neuchâtel. To schematyczna sylwetka kobiety z profilu, typowa dla schyłku paleolitu, z otworem do zawieszenia. Niemal identyczne figurki znaleziono w Petersfels w Niemczech, 130 km dalej."
+		}
+	]
+}
