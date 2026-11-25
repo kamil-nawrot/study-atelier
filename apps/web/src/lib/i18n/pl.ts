@@ -988,10 +988,13 @@ export const pl = {
 	imageSearch: {
 		title: 'Które to dzieło?',
 		description: (title: string, authors: string): string =>
-			`Wyniki z Wikidata dla „${title}”${authors ? `, ${authors}` : ''}. Kliknij ten, który pasuje do dodawanego przez Ciebie dzieła.`,
-		searching: 'Wyszukiwanie w Wikidata…',
+			`Obrazy pasujące do „${title}”${authors ? `, ${authors}` : ''}. Kliknij ten, który chcesz dodać.`,
+		searching: 'Wyszukiwanie obrazów…',
 		empty:
-			'Nie udało się odnaleźć w Wikidata dzieła o takim tytule. Sprawdź pisownię albo dodaj własny obraz.',
+			'Nie udało się odnaleźć dzieła o takim tytule. Sprawdź pisownię albo dodaj własny obraz.',
+		sameArtwork: 'Obrazy tego dzieła',
+		otherArtworks: 'Inne dzieła o tym tytule',
+		more: 'Pokaż więcej',
 		none: 'Żadne z tych',
 		errorTitle: 'Nie udało się przeszukać Wikidata',
 		retry: 'Wyszukaj jeszcze raz',
@@ -1001,7 +1004,7 @@ export const pl = {
 		personDescription: (name: string): string =>
 			`Wyniki z Wikidata dla „${name}”. Kliknij portret, który chcesz dodać.`,
 		personEmpty:
-			'Nie udało się odnaleźć w Wikidata portretu takiej postaci. Sprawdź pisownię albo dodaj własny portret.',
+			'Nie udało się odnaleźć portretu takiej postaci. Sprawdź pisownię albo dodaj własny portret.',
 		personNone: 'Żaden z tych'
 	},
 	imageSearchErrors: {

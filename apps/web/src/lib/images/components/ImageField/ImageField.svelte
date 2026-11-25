@@ -20,6 +20,7 @@
 	import { ImageInput, releaseImage } from '#lib/images/image-input/image-input.svelte.ts';
 	import type { ImageCandidate } from '#lib/images/types/image-candidate.ts';
 	import type { ImageSearchQuery } from '#lib/images/types/image-search-query.ts';
+	import type { SameArtworkSource } from '#lib/images/same-artwork/same-artwork.ts';
 	import { imageFromCandidate } from '#lib/images/image-candidate/image-candidate.ts';
 	import {
 		artworkImageCredit,
@@ -33,6 +34,7 @@
 		alt: string;
 		searchReady: boolean;
 		query: ImageSearchQuery;
+		sameArtwork?: SameArtworkSource | null;
 		texts: ImageFieldTexts;
 		image: ArtworkImageInput | null;
 		removable?: boolean;
@@ -52,6 +54,7 @@
 		alt,
 		searchReady,
 		query,
+		sameArtwork = null,
 		texts,
 		image = $bindable(),
 		removable = false,
@@ -187,7 +190,7 @@
 	<ImageHints hints={searchReady ? hints : [{ icon: Search, text: texts.findHint }, ...hints]} />
 </section>
 
-<ImageSearchDialog onpick={pickCandidate} {query} bind:open={input.searchOpen} />
+<ImageSearchDialog onpick={pickCandidate} {query} {sameArtwork} bind:open={input.searchOpen} />
 
 <OwnImageDialog {input} title={ownImage ? texts.changeOwnTitle : texts.ownTitle} />
 

@@ -9,7 +9,11 @@ import {
 	type ClassGroups
 } from '#lib/images/artwork-confidence/artwork-confidence.ts';
 import { resolveClassGroups } from '#lib/images/class-groups/class-groups.ts';
-import { commonsThumbnailSrcset, fetchCommonsFiles } from '#lib/images/commons/commons.ts';
+import { fetchCommonsFiles } from '#lib/images/commons/commons.ts';
+import {
+	CANDIDATE_THUMBNAIL_WIDTH,
+	toCandidateImage
+} from '#lib/images/image-candidate/image-candidate.ts';
 import { imageSearchErrorMessage } from '#lib/images/errors/errors.ts';
 import type { CandidateImage } from '#lib/images/types/candidate-image.ts';
 import type { ImageCandidate } from '#lib/images/types/image-candidate.ts';
@@ -22,9 +26,6 @@ import type { WikidataArtwork } from '#lib/images/types/wikidata-artwork.ts';
 import type { WikidataPerson } from '#lib/images/types/wikidata-person.ts';
 
 export const CANDIDATE_LIMIT = 8;
-export const CANDIDATE_THUMBNAIL_WIDTH = 330;
-
-const CANDIDATE_WIDTHS = [250, 330, 500] as const;
 const MIN_SHARED_WORD_LENGTH = 4;
 const YEAR_PRECISION = 9;
 const DECADE_PRECISION = 8;
@@ -126,21 +127,7 @@ type CommonsFiles = Awaited<ReturnType<typeof fetchCommonsFiles>>;
 
 function candidateImage(file: string, files: CommonsFiles): CandidateImage | null {
 	const details = files.get(file);
-	if (!details) return null;
-	return {
-		file,
-		src: details.thumbnailUrl,
-		srcset: commonsThumbnailSrcset(
-			details.thumbnailUrl,
-			CANDIDATE_THUMBNAIL_WIDTH,
-			CANDIDATE_WIDTHS.filter((width) => width <= details.width)
-		),
-		width: details.width,
-		height: details.height,
-		licence: details.licence,
-		licenceUrl: details.licenceUrl,
-		attribution: details.attribution
-	};
+	return details ? toCandidateImage(file, details) : null;
 }
 
 function lifeYear(date: SourceDate | null): number | null {

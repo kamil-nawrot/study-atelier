@@ -19,6 +19,7 @@ type ImageInfo = {
 	thumburl?: string;
 	width?: number;
 	height?: number;
+	mime?: string;
 	extmetadata?: ExtMetadata;
 };
 
@@ -29,7 +30,17 @@ type ImageInfoResponse = {
 	};
 };
 
-type CommonsFile = {
+type CategoryResponse = {
+	continue?: { gcmcontinue?: string };
+	query?: { pages?: { title: string; index?: number; imageinfo?: ImageInfo[] }[] };
+};
+
+export type CategoryPage = { files: (CommonsFile & { file: string })[]; next: string | null };
+
+const CATEGORY_PAGE_SIZE = 24;
+const CATEGORY_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/tiff', 'image/webp'];
+
+export type CommonsFile = {
 	thumbnailUrl: string;
 	width: number;
 	height: number;
@@ -179,6 +190,18 @@ export async function fetchCommonsThumbnails(
 	return thumbnails;
 }
 
+function commonsFileOf(info: ImageInfo): CommonsFile | null {
+	if (!info.thumburl || !info.width || !info.height) return null;
+	return {
+		thumbnailUrl: info.thumburl,
+		width: info.width,
+		height: info.height,
+		licence: metadata(info, 'LicenseShortName'),
+		licenceUrl: metadata(info, 'LicenseUrl'),
+		attribution: metadata(info, 'Artist')
+	};
+}
+
 function metadata(info: ImageInfo, key: keyof ExtMetadata): string | null {
 	const value = info.extmetadata?.[key]?.value;
 	const text = value ? plainText(value) : '';
@@ -194,15 +217,43 @@ export async function fetchCommonsFiles(
 	if (unique.length === 0) return result;
 	const batch = await fetchImageInfoBatch(unique, thumbnailWidth, true);
 	batch.forEach((info, file) => {
-		if (!info.thumburl || !info.width || !info.height) return;
-		result.set(file, {
-			thumbnailUrl: info.thumburl,
-			width: info.width,
-			height: info.height,
-			licence: metadata(info, 'LicenseShortName'),
-			licenceUrl: metadata(info, 'LicenseUrl'),
-			attribution: metadata(info, 'Artist')
-		});
+		const found = commonsFileOf(info);
+		if (found) result.set(file, found);
 	});
 	return result;
+}
+
+export async function fetchCategoryFiles(
+	category: string,
+	thumbnailWidth: number,
+	cursor: string | null = null
+): Promise<CategoryPage> {
+	const params = new URLSearchParams({
+		action: 'query',
+		format: 'json',
+		formatversion: '2',
+		origin: '*',
+		generator: 'categorymembers',
+		gcmtitle: `Category:${category}`,
+		gcmtype: 'file',
+		gcmlimit: String(CATEGORY_PAGE_SIZE),
+		prop: 'imageinfo',
+		iiprop: 'url|size|mime|extmetadata',
+		iiurlwidth: String(thumbnailWidth),
+		iiextmetadatafilter: 'LicenseShortName|LicenseUrl|Artist',
+		maxage: String(RESPONSE_CACHE_SECONDS),
+		smaxage: String(RESPONSE_CACHE_SECONDS)
+	});
+	if (cursor !== null) params.set('gcmcontinue', cursor);
+	const response = await fetchJson<CategoryResponse>(`${COMMONS_API}?${params}`);
+	const pages = [...(response.query?.pages ?? [])].sort(
+		(first, second) => (first.index ?? 0) - (second.index ?? 0)
+	);
+	const files = pages.flatMap((page) => {
+		const info = page.imageinfo?.[0];
+		if (!info || !CATEGORY_IMAGE_TYPES.includes(info.mime ?? '')) return [];
+		const found = commonsFileOf(info);
+		return found ? [{ ...found, file: page.title.replace(/^File:/, '') }] : [];
+	});
+	return { files, next: response.continue?.gcmcontinue ?? null };
 }

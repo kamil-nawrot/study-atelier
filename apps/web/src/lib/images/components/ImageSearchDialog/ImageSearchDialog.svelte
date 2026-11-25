@@ -4,32 +4,66 @@
 	import FillingStatus from '#lib/shared/forms/FillingStatus/FillingStatus.svelte';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { findImageCandidates } from '#lib/images/image-search/image-search.ts';
+	import {
+		findSameArtworkImages,
+		type SameArtworkCursor,
+		type SameArtworkSource
+	} from '#lib/images/same-artwork/same-artwork.ts';
 	import type { ImageCandidate } from '#lib/images/types/image-candidate.ts';
 	import type { ImageSearchQuery } from '#lib/images/types/image-search-query.ts';
 	import type { ImageSearchResult } from '#lib/images/types/image-search-result.ts';
 
 	type Props = {
 		query: ImageSearchQuery;
+		sameArtwork?: SameArtworkSource | null;
 		open?: boolean;
 		onpick: (candidate: ImageCandidate) => void;
 	};
 
-	let { query, open = $bindable(false), onpick }: Props = $props();
+	let { query, sameArtwork = null, open = $bindable(false), onpick }: Props = $props();
 
 	let searching = $state(true);
 	let result = $state<ImageSearchResult>({ candidates: [] });
-	let list: HTMLUListElement | undefined = $state();
+	let same = $state<ImageCandidate[]>([]);
+	let cursor = $state<SameArtworkCursor | null>(null);
+	let loadingMore = $state(false);
+	let content: HTMLDivElement | undefined = $state();
 	let search = 0;
+
+	let others = $derived(
+		result.candidates.filter((candidate) => candidate.wikidataId !== sameArtwork?.wikidataId)
+	);
+
+	async function sameFirstPage(): Promise<{
+		candidates: ImageCandidate[];
+		cursor: SameArtworkCursor | null;
+	}> {
+		if (query.kind !== 'artwork' || sameArtwork === null) return { candidates: [], cursor: null };
+		return findSameArtworkImages(sameArtwork).catch(() => ({ candidates: [], cursor: null }));
+	}
 
 	async function run(): Promise<void> {
 		const current = ++search;
 		searching = true;
-		const found = await findImageCandidates(query);
+		const [found, page] = await Promise.all([findImageCandidates(query), sameFirstPage()]);
 		if (current !== search) return;
 		result = found;
+		same = page.candidates;
+		cursor = page.cursor;
 		searching = false;
 		await tick();
-		list?.querySelector('button')?.focus();
+		content?.querySelector('button')?.focus();
+	}
+
+	async function more(): Promise<void> {
+		if (sameArtwork === null || cursor === null) return;
+		const current = search;
+		loadingMore = true;
+		const page = await findSameArtworkImages(sameArtwork, cursor).catch(() => null);
+		loadingMore = false;
+		if (current !== search || page === null) return;
+		same = [...same, ...page.candidates];
+		cursor = page.cursor;
 	}
 
 	$effect(() => {
@@ -81,7 +115,7 @@
 			</div>
 			<FillingStatus message={m.imageSearch.searching} />
 		</div>
-	{:else if result.error}
+	{:else if result.error && same.length === 0}
 		<div class="error">
 			<Alert title={m.imageSearch.errorTitle} tone="danger">
 				{result.error}
@@ -92,28 +126,63 @@
 				</Button>
 			</div>
 		</div>
-	{:else if result.candidates.length === 0}
+	{:else if others.length === 0 && same.length === 0}
 		<p class="status" role="status">
 			{query.kind === 'person' ? m.imageSearch.personEmpty : m.imageSearch.empty}
 		</p>
 	{:else}
-		<ul bind:this={list} class="candidates">
-			{#each result.candidates as candidate (candidate.wikidataId)}
-				<li>
-					<button class="candidate" onclick={() => pick(candidate)} type="button">
-						<ArtworkImage
-							alt=""
-							height={candidate.image.height}
-							sizes="(min-width: 768px) 220px, 50vw"
-							src={candidate.image.src}
-							srcset={candidate.image.srcset}
-							width={candidate.image.width}
-						/>
-						{@render caption(candidate)}
-					</button>
-				</li>
-			{/each}
-		</ul>
+		<div bind:this={content} class="sections">
+			{#if same.length > 0}
+				<section class="section" aria-labelledby="same-artwork">
+					<h3 id="same-artwork" class="heading">{m.imageSearch.sameArtwork}</h3>
+					<ul class="tiles">
+						{#each same as candidate (candidate.image.file)}
+							<li>
+								<button class="tile" onclick={() => pick(candidate)} type="button">
+									<ArtworkImage
+										alt=""
+										height={candidate.image.height}
+										sizes="(min-width: 768px) 200px, 50vw"
+										src={candidate.image.src}
+										srcset={candidate.image.srcset}
+										width={candidate.image.width}
+									/>
+								</button>
+							</li>
+						{/each}
+					</ul>
+					{#if cursor !== null}
+						<div class="more">
+							<Button disabled={loadingMore} onclick={more}>{m.imageSearch.more}</Button>
+						</div>
+					{/if}
+				</section>
+			{/if}
+			{#if others.length > 0}
+				<section class="section" aria-labelledby={same.length > 0 ? 'other-artworks' : undefined}>
+					{#if same.length > 0}
+						<h3 id="other-artworks" class="heading">{m.imageSearch.otherArtworks}</h3>
+					{/if}
+					<ul class="candidates">
+						{#each others as candidate (candidate.wikidataId)}
+							<li>
+								<button class="candidate" onclick={() => pick(candidate)} type="button">
+									<ArtworkImage
+										alt=""
+										height={candidate.image.height}
+										sizes="(min-width: 768px) 220px, 50vw"
+										src={candidate.image.src}
+										srcset={candidate.image.srcset}
+										width={candidate.image.width}
+									/>
+									{@render caption(candidate)}
+								</button>
+							</li>
+						{/each}
+					</ul>
+				</section>
+			{/if}
+		</div>
 	{/if}
 
 	{#snippet footer()}
@@ -143,6 +212,56 @@
 	.error {
 		display: grid;
 		gap: var(--spacing-4);
+	}
+
+	.sections {
+		display: grid;
+		gap: var(--spacing-8);
+	}
+
+	.section {
+		display: grid;
+		gap: var(--spacing-3);
+	}
+
+	.heading {
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-sm);
+		font-weight: normal;
+		line-height: var(--line-height-sm);
+	}
+
+	.tiles {
+		columns: 2;
+		column-gap: var(--spacing-4);
+		list-style: none;
+	}
+
+	.tiles li {
+		break-inside: avoid;
+		padding-bottom: var(--spacing-4);
+	}
+
+	.tile {
+		cursor: pointer;
+		display: block;
+		width: 100%;
+		padding: var(--spacing-2);
+		border: none;
+		border-radius: var(--border-radius-none);
+		background: var(--color-mat-bg);
+	}
+
+	.tile :global(img) {
+		display: block;
+		width: 100%;
+		height: auto;
+		background: var(--color-mat-window);
+	}
+
+	.more {
+		display: flex;
+		justify-content: center;
 	}
 
 	.candidates {
@@ -199,6 +318,11 @@
 	}
 
 	@media (min-width: 768px) {
+		.tiles {
+			columns: 4;
+			column-gap: var(--spacing-6);
+		}
+
 		.candidates {
 			grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
 			gap: var(--spacing-6);
