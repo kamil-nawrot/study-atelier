@@ -35,7 +35,8 @@ export const defaultUiMessages: UiMessages = {
 		useSimilar: 'Use this value',
 		add: (name) => `+ Add “${name}”`,
 		addAnyway: (name) => `+ Add “${name}” anyway`,
-		remove: (name) => `Remove ${name}`
+		remove: (name) => `Remove ${name}`,
+		newValue: 'new value'
 	},
 	searchSelect: {
 		empty: 'Nothing matches',

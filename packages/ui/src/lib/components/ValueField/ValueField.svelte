@@ -27,6 +27,7 @@
 		id?: string;
 		required?: boolean;
 		emptyText?: string;
+		marked?: readonly string[];
 		onpick?: (option: ValueOption) => void;
 	};
 
@@ -49,6 +50,7 @@
 		id,
 		required = false,
 		emptyText,
+		marked = [],
 		onpick
 	}: Props = $props();
 
@@ -208,6 +210,9 @@
 		{#each single ? [] : values as value, index (value)}
 			<span class="value">
 				{value}
+				{#if marked.includes(value)}
+					<span class="mark">{texts.newValue}</span>
+				{/if}
 				{#if !disabled && !filling}
 					<button
 						class="remove"
@@ -247,6 +252,9 @@
 			type="text"
 			value={shownText}
 		/>
+		{#if chosen !== undefined && marked.includes(chosen) && !typed}
+			<span class="mark single">{texts.newValue}</span>
+		{/if}
 		{#if chosen !== undefined && !disabled && !filling}
 			<button
 				class="clear"
@@ -334,6 +342,12 @@
 		line-height: var(--line-height-sm);
 	}
 
+	.mark {
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-xs);
+		line-height: var(--line-height-xs);
+	}
+
 	.control.disabled .value {
 		padding-right: var(--spacing-2);
 		color: var(--color-fg-muted);
@@ -355,8 +369,13 @@
 		color: var(--color-fg);
 	}
 
-	.clear {
+	.clear,
+	.mark.single {
 		margin-left: auto;
+	}
+
+	.mark.single + .clear {
+		margin-left: 0;
 	}
 
 	.remove:focus-visible {

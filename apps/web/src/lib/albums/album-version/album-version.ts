@@ -6,10 +6,22 @@ import type { AlbumVersion } from '#lib/albums/types/album-version.ts';
 import type { LearnerValue } from '#lib/albums/types/learner-value.ts';
 import type { MatchedValue } from '#lib/albums/types/matched-value.ts';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
+import type { CategoryValues } from '#lib/card-index/types/category-values.ts';
+import { emptyCategoryValues } from '#lib/card-index/category-values/category-values.ts';
 import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
 
 export function valueKey(category: CategoryCode, name: string): string {
 	return `${category}:${name}`;
+}
+
+export function newValueMarks(newValues: readonly string[]): CategoryValues {
+	const marks = emptyCategoryValues();
+	for (const key of newValues) {
+		const separator = key.indexOf(':');
+		const category = key.slice(0, separator) as CategoryCode;
+		if (category in marks) marks[category].push(key.slice(separator + 1));
+	}
+	return marks;
 }
 
 export function albumImageInput(image: AlbumImage, wikidataId: string | null): ArtworkImageInput {

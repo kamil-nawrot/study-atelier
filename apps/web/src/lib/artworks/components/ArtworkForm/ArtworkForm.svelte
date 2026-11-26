@@ -14,6 +14,7 @@
 	} from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import {
+		artworkFormFromInput,
 		artworkFormFromRecord,
 		artworkImageAlt,
 		artworkImageQuery,
@@ -34,7 +35,6 @@
 		takesOneValue,
 		VALUE_NAME_MAX_LENGTH
 	} from '#lib/card-index/category-values/category-values.ts';
-	import type { FormSuggestions } from '#lib/artworks/form-suggestions/form-suggestions.svelte.ts';
 	import { DuplicateCheck } from '#lib/artworks/duplicate-check/duplicate-check.svelte.ts';
 	import { EraCheck } from '#lib/artworks/era-check/era-check.svelte.ts';
 	import { datedOf } from '#lib/artworks/era-fit/era-fit.ts';
@@ -52,7 +52,6 @@
 	import ArtworkImages from '#lib/artworks/components/ArtworkImages/ArtworkImages.svelte';
 	import ArtworkRelationsField from '#lib/artwork-relations/components/ArtworkRelationsField/ArtworkRelationsField.svelte';
 	import ArtworkOwnFields from '#lib/artworks/components/ArtworkOwnFields/ArtworkOwnFields.svelte';
-	import type { Pin } from '#lib/pins/types/pin.ts';
 	import YearGroup from '#lib/shared/forms/YearGroup/YearGroup.svelte';
 	import YearInput from '#lib/shared/forms/YearInput/YearInput.svelte';
 	import DuplicateDialog from '#lib/artworks/components/DuplicateDialog/DuplicateDialog.svelte';
@@ -62,26 +61,18 @@
 	import { fieldApplies } from '#lib/card-index/own-fields/own-fields.ts';
 	import type { ArtworkFieldErrors } from '#lib/artworks/types/artwork-field-errors.ts';
 	import type { ArtworkFormState } from '#lib/artworks/types/artwork-form-state.ts';
+	import type { ArtworkFormProps } from '#lib/artworks/types/artwork-form-props.ts';
 	import type { ArtworkInput } from '#lib/artworks/types/artwork-input.ts';
-	import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
-	import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
 	import type { ValueSuggestion } from '#lib/card-index/types/value-suggestion.ts';
 	import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
 
-	type Props = {
-		artwork?: ArtworkRecord;
-		suggestions: FormSuggestions;
-		ownFields?: OwnFieldDefinition[];
-		pins?: Pin[];
-		pinsError?: string;
-		cancelHref: string;
-		oncancel?: (event: MouseEvent) => void;
-		onsaved: (number: number, next: boolean) => void | Promise<void>;
-		labels?: { save: string; cancel: string };
-	};
-
 	let {
 		artwork,
+		prefill,
+		album,
+		newValues,
+		secondary,
+		saveAndNext = true,
 		suggestions,
 		ownFields,
 		pins = [],
@@ -90,7 +81,7 @@
 		oncancel,
 		onsaved,
 		labels
-	}: Props = $props();
+	}: ArtworkFormProps = $props();
 
 	const titleId = $props.id();
 	const flags = new FormFlags('artwork', () => (artwork ? { artworkId: artwork.id } : undefined));
@@ -124,7 +115,8 @@
 	);
 
 	function initialForm(): ArtworkFormState {
-		return artwork ? artworkFormFromRecord(artwork, ownFields) : emptyArtworkForm(ownFields);
+		if (artwork) return artworkFormFromRecord(artwork, ownFields);
+		return prefill ? artworkFormFromInput(prefill, ownFields) : emptyArtworkForm(ownFields);
 	}
 
 	export function confirmLeave(): Promise<boolean> {
@@ -186,7 +178,7 @@
 			if (!(await eraCheck.ask(input, artwork))) return;
 			if (!(await confirmDuplicate(input))) return;
 			const result = await saveArtwork(
-				input,
+				album ? { ...input, album } : input,
 				artwork ? { id: artwork.id, image: artwork.image, images: artwork.images } : undefined
 			);
 			if (!result.saved) {
@@ -237,6 +229,7 @@
 					disabled={form.authorUnknown}
 					error={fieldErrors.current.authors}
 					label={m.artworkForm.authors}
+					marked={newValues?.author}
 					maxlength={VALUE_NAME_MAX_LENGTH}
 					options={options('author')}
 					required
@@ -254,7 +247,7 @@
 		{#snippet images()}
 			<ArtworkImages
 				alt={artworkImageAlt(form)}
-				autoMatch={!artwork}
+				autoMatch={!artwork && !prefill}
 				compactEmpty
 				entries={suggestions.glossary}
 				onmatching={(matching) => (imageMatching = matching)}
@@ -312,11 +305,12 @@
 			/>
 
 			<FixNote field="style" {flags} />
-			<ArtworkEraFields valueLinks={suggestions.valueLinks} bind:form />
+			<ArtworkEraFields marked={newValues} valueLinks={suggestions.valueLinks} bind:form />
 
 			{#each describedCategories as category (category.code)}
 				<ValueField
 					label={category.label}
+					marked={newValues?.[category.code]}
 					maxlength={VALUE_NAME_MAX_LENGTH}
 					options={options(category.code)}
 					single={takesOneValue(category.code)}
@@ -355,7 +349,8 @@
 		<Button href={cancelHref} onclick={oncancel}>
 			{labels?.cancel ?? m.common.cancel}
 		</Button>
-		{#if !artwork}
+		{@render secondary?.()}
+		{#if !artwork && saveAndNext}
 			<Button disabled={formState.busy || imageMatching} onclick={saveAndAddNext}>
 				{formState.busy && savingNext ? m.common.saving : m.artworkForm.saveAndNext}
 			</Button>

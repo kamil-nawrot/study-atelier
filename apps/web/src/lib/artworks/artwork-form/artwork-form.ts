@@ -88,33 +88,44 @@ export function emptyArtworkForm(fields?: readonly OwnFieldDefinition[]): Artwor
 	};
 }
 
+type ArtworkFormSource = Omit<ArtworkInput, 'relations' | 'album'>;
+
+export function artworkFormFromInput(
+	source: ArtworkFormSource,
+	fields?: readonly OwnFieldDefinition[]
+): ArtworkFormState {
+	return {
+		...emptyArtworkForm(fields),
+		...(fields ? { own: ownEntries(fields, source.own) } : {}),
+		title: source.title,
+		values: {
+			author: source.authorUnknown ? [] : [...source.authors],
+			period: source.period === null ? [] : [source.period],
+			style: [...source.styles],
+			material: [...source.materials],
+			location: source.location === null ? [] : [source.location]
+		},
+		authorUnknown: source.authorUnknown,
+		spanMode: source.yearFrom !== null,
+		yearFrom: source.yearFrom === null ? '' : String(source.yearFrom),
+		fromBeforeCommonEra: source.fromBeforeCommonEra,
+		yearTo: source.yearTo === null ? '' : String(source.yearTo),
+		toBeforeCommonEra: source.toBeforeCommonEra,
+		yearApproximate: source.yearApproximate,
+		typeCode: source.typeCode ?? '',
+		eraCode: source.eraCode,
+		notes: source.notes,
+		image: source.image,
+		images: [...source.images]
+	};
+}
+
 export function artworkFormFromRecord(
 	record: ArtworkRecord,
 	fields?: readonly OwnFieldDefinition[]
 ): ArtworkFormState {
 	return {
-		...emptyArtworkForm(fields),
-		...(fields ? { own: ownEntries(fields, record.own) } : {}),
-		title: record.title,
-		values: {
-			author: record.authorUnknown ? [] : [...record.authors],
-			period: record.period === null ? [] : [record.period],
-			style: [...record.styles],
-			material: [...record.materials],
-			location: record.location === null ? [] : [record.location]
-		},
-		authorUnknown: record.authorUnknown,
-		spanMode: record.yearFrom !== null,
-		yearFrom: record.yearFrom === null ? '' : String(record.yearFrom),
-		fromBeforeCommonEra: record.fromBeforeCommonEra,
-		yearTo: record.yearTo === null ? '' : String(record.yearTo),
-		toBeforeCommonEra: record.toBeforeCommonEra,
-		yearApproximate: record.yearApproximate,
-		typeCode: record.typeCode ?? '',
-		eraCode: record.eraCode,
-		notes: record.notes,
-		image: record.image,
-		images: [...record.images],
+		...artworkFormFromInput(record, fields),
 		relations: relationRowsOf(record.relations ?? [])
 	};
 }

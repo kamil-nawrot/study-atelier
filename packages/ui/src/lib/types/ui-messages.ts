@@ -32,6 +32,7 @@ export type UiMessages = {
 		add: (name: string) => string;
 		addAnyway: (name: string) => string;
 		remove: (name: string) => string;
+		newValue: string;
 	};
 	searchSelect: {
 		empty: string;

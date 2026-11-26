@@ -56,6 +56,19 @@ describe('AlbumGallery', () => {
 		expect(onadd).toHaveBeenCalledWith(['horse']);
 	});
 
+	it('shows the message of the last walk through the album', async () => {
+		render(AlbumGallery, {
+			album: testAlbum(),
+			matches: [],
+			message: 'Gotowe, z albumu „Paleolithic Venuses” dodano 2 dzieła.',
+			onadd: vi.fn()
+		});
+
+		await expect
+			.element(page.getByText('Gotowe, z albumu „Paleolithic Venuses” dodano 2 dzieła.'))
+			.toBeVisible();
+	});
+
 	it('unticks and ticks again all the artworks it shows', async () => {
 		render(AlbumGallery, { album: testAlbum(), matches: [], onadd: vi.fn() });
 

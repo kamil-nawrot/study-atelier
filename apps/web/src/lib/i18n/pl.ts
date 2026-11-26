@@ -40,7 +40,8 @@ export const pl = {
 			useSimilar: 'Użyj tej wartości',
 			add: (name: string): string => `+ Dodaj „${name}”`,
 			addAnyway: (name: string): string => `+ Dodaj „${name}” mimo to`,
-			remove: (name: string): string => `Usuń ${name}`
+			remove: (name: string): string => `Usuń ${name}`,
+			newValue: 'nowa wartość'
 		},
 		searchSelect: {
 			empty: 'Brak pasujących wartości',
@@ -3322,7 +3323,20 @@ export const pl = {
 			link: 'Albumów',
 			after: ': to gotowe zestawy dzieł, które mogą pomóc w rozwoju Twojej kolekcji.'
 		},
-		smallWallHint: { before: 'Szukasz kolejnych dzieł? Zajrzyj do ', link: 'Albumów', after: '.' }
+		smallWallHint: { before: 'Szukasz kolejnych dzieł? Zajrzyj do ', link: 'Albumów', after: '.' },
+		walk: {
+			listLabel: 'Dzieła do dodania',
+			progress: (position: number, total: number): string => `${position} z ${total}`,
+			saved: 'dodane',
+			skipped: 'pominięte',
+			finish: 'Zakończ',
+			skip: 'Pomiń',
+			saveAndNext: 'Zapisz i przejdź dalej',
+			saveAndFinish: 'Zapisz i zakończ',
+			loading: 'Wczytywanie dzieła…',
+			done: (album: string, artworks: number): string =>
+				`Gotowe, z albumu „${album}” dodano ${workCount(artworks)}.`
+		}
 	},
 	trash: {
 		title: 'Archiwum',
