@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { loadAlbum, loadAlbumListings } from '#lib/albums/album-files/album-files.ts';
 import { loadAtelierMatches } from '#lib/albums/album-matches-data/album-matches-data.ts';
-import { albumsListed, loadAlbumGallery, loadAlbumList } from './album-pages.ts';
+import { albumsListed, loadAlbumGallery, loadAlbumList, loadAlbumWalk } from './album-pages.ts';
 import type { Album } from '#lib/albums/types/album.ts';
 
 vi.mock('#lib/albums/album-files/album-files.ts', () => ({
@@ -102,6 +102,36 @@ describe('album pages', () => {
 
 		await expect(loadAlbumGallery('sample', fetcher, true)).resolves.toEqual({
 			matches: [],
+			error: m.albums.loadError
+		});
+	});
+
+	it('opens the ticked artworks of a listed album for the walk', async () => {
+		const walk = await loadAlbumWalk('sample', ['venus', 'missing'], fetcher, true);
+
+		expect(walk.album).toBe(album);
+		expect(walk.artworks.map((artwork) => artwork.id)).toEqual(['venus']);
+	});
+
+	it('does not walk through an album that is not listed', async () => {
+		vi.mocked(loadAlbumListings).mockResolvedValue([]);
+
+		await expect(loadAlbumWalk('other', ['venus'], fetcher, true)).resolves.toEqual({
+			artworks: [],
+			notFound: true
+		});
+	});
+
+	it('says so when the album of the walk cannot be read', async () => {
+		vi.mocked(loadAlbum).mockResolvedValue(undefined);
+		await expect(loadAlbumWalk('sample', ['venus'], fetcher, true)).resolves.toEqual({
+			artworks: [],
+			error: m.albums.loadError
+		});
+
+		vi.mocked(loadAlbumListings).mockResolvedValue(undefined);
+		await expect(loadAlbumWalk('sample', ['venus'], fetcher, true)).resolves.toEqual({
+			artworks: [],
 			error: m.albums.loadError
 		});
 	});

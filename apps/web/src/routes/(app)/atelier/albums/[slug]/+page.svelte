@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { LoadFailure } from '@study-atelier/ui';
+	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
+	import { albumAddHref } from '#lib/albums/album-add-address/album-add-address.ts';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
 	import AlbumGallery from '#lib/albums/components/AlbumGallery/AlbumGallery.svelte';
@@ -10,6 +13,10 @@
 	let { data }: PageProps = $props();
 
 	const albumsPath = resolve('/(app)/atelier/albums');
+
+	async function add(entryIds: string[]): Promise<void> {
+		await goto(albumAddHref(data.album?.slug ?? '', entryIds));
+	}
 </script>
 
 <AtelierLayout
@@ -22,7 +29,13 @@
 	{/snippet}
 
 	{#if data.album}
-		<AlbumGallery album={data.album} error={data.error} matches={data.matches} />
+		<AlbumGallery
+			album={data.album}
+			error={data.error}
+			matches={data.matches}
+			message={page.state.albumMessage}
+			onadd={add}
+		/>
 	{:else}
 		<LoadFailure
 			backHref={albumsPath}

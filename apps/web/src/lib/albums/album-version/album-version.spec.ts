@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Album } from '#lib/albums/types/album.ts';
 import type { AlbumValue } from '#lib/albums/types/album-value.ts';
-import { albumVersion } from './album-version.ts';
+import { albumVersion, newValueMarks } from './album-version.ts';
 
 function value(id: string, category: AlbumValue['category'], name: string): AlbumValue {
 	return {
@@ -106,5 +106,27 @@ describe('albumVersion', () => {
 			width: 600,
 			height: 800
 		});
+	});
+});
+
+describe('newValueMarks', () => {
+	it('sorts the new values of a version into their categories', () => {
+		const marks = newValueMarks([
+			'material:wapień oolitowy',
+			'location:Muzeum: Wiedeń',
+			'author:Ktoś'
+		]);
+
+		expect(marks).toEqual({
+			author: ['Ktoś'],
+			period: [],
+			style: [],
+			material: ['wapień oolitowy'],
+			location: ['Muzeum: Wiedeń']
+		});
+	});
+
+	it('marks nothing when no value is new', () => {
+		expect(newValueMarks([]).material).toEqual([]);
 	});
 });

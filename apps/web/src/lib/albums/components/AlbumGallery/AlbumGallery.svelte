@@ -22,10 +22,11 @@
 		album: Album;
 		matches: AtelierMatch[];
 		error?: string;
+		message?: string;
 		onadd?: (entryIds: string[]) => void;
 	};
 
-	let { album, matches, error, onadd }: Props = $props();
+	let { album, matches, error, message, onadd }: Props = $props();
 
 	const PHONE_COLUMNS = 2;
 
@@ -88,6 +89,10 @@
 			<span class="caption">{m.albums.counts(counts.artworks, counts.terms, counts.events)}</span>
 		{/snippet}
 	</PageHeader>
+
+	{#if message}
+		<Alert tone="success">{message}</Alert>
+	{/if}
 
 	{#if error}
 		<Alert title={m.albums.albumLoadErrorTitle} tone="danger">

@@ -25,6 +25,11 @@
 <Story name="With values" args={{ values: ['baroque', 'tenebrism'], options: styles.slice(2) }} />
 
 <Story
+	name="Marked as new"
+	args={{ values: ['baroque', 'caravaggism'], marked: ['caravaggism'] }}
+/>
+
+<Story
 	name="New value"
 	args={{
 		query: 'caravaggism',

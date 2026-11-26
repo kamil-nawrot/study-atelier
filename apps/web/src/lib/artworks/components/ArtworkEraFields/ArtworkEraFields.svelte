@@ -5,16 +5,18 @@
 	import { suggestValues, valueKey } from '#lib/card-index/value-suggestions/value-suggestions.ts';
 	import { eraTiles, isEraCode } from '#lib/catalogue/eras/eras.ts';
 	import type { ArtworkFormState } from '#lib/artworks/types/artwork-form-state.ts';
+	import type { CategoryValues } from '#lib/card-index/types/category-values.ts';
 	import type { ValueLinks } from '#lib/card-index/types/value-links.ts';
 	import type { ValueSuggestion } from '#lib/card-index/types/value-suggestion.ts';
 	import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 
 	type Props = {
 		form: ArtworkFormState;
+		marked?: CategoryValues;
 		valueLinks: ValueLinks;
 	};
 
-	let { form = $bindable(), valueLinks }: Props = $props();
+	let { form = $bindable(), marked, valueLinks }: Props = $props();
 
 	const eraOptions = eraTiles();
 
@@ -69,6 +71,7 @@
 <ValueField
 	label={m.artworkForm.period}
 	locked={periodLocked}
+	marked={marked?.period}
 	maxlength={VALUE_NAME_MAX_LENGTH}
 	options={periodOptions()}
 	placeholder={periodLocked ? m.artworkForm.periodLocked : undefined}
@@ -80,6 +83,7 @@
 <ValueField
 	label={m.artworkForm.style}
 	locked={styleLocked}
+	marked={marked?.style}
 	maxlength={VALUE_NAME_MAX_LENGTH}
 	options={styleOptions()}
 	placeholder={styleLocked ? m.artworkForm.styleLocked : undefined}

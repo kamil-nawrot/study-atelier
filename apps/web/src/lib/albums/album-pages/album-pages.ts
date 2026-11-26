@@ -1,9 +1,11 @@
 import { dev } from '$app/env';
+import { artworksToAdd } from '#lib/albums/album-add-address/album-add-address.ts';
 import { loadAlbum, loadAlbumListings } from '#lib/albums/album-files/album-files.ts';
 import { loadAtelierMatches } from '#lib/albums/album-matches-data/album-matches-data.ts';
 import { galleryQuery, listQuery, ownedCount } from '#lib/albums/album-matching/album-matching.ts';
 import { locale, m } from '#lib/i18n/i18n.ts';
 import type { Album } from '#lib/albums/types/album.ts';
+import type { AlbumArtwork } from '#lib/albums/types/album-artwork.ts';
 import type { AtelierMatch } from '#lib/albums/types/atelier-match.ts';
 import type { ListedAlbum } from '#lib/albums/types/listed-album.ts';
 
@@ -44,4 +46,18 @@ export async function loadAlbumGallery(
 	if (!album) return { matches: [], error: m.albums.loadError };
 	const { matches, error } = await loadAtelierMatches(galleryQuery(album));
 	return { album, matches, error };
+}
+
+export async function loadAlbumWalk(
+	slug: string,
+	entryIds: readonly string[],
+	fetcher: Fetch,
+	withSamples: boolean = dev
+): Promise<{ album?: Album; artworks: AlbumArtwork[]; notFound?: boolean; error?: string }> {
+	const listings = await loadAlbumListings(locale, withSamples, fetcher);
+	if (!listings) return { artworks: [], error: m.albums.loadError };
+	if (!listings.some((listing) => listing.slug === slug)) return { artworks: [], notFound: true };
+	const album = await loadAlbum(slug, locale, fetcher);
+	if (!album) return { artworks: [], error: m.albums.loadError };
+	return { album, artworks: artworksToAdd(album, entryIds) };
 }
