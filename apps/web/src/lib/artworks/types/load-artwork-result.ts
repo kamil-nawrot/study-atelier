@@ -9,10 +9,12 @@ import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definit
 import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
 import type { ExhibitionSummary } from '#lib/exhibitions/types/exhibition-summary.ts';
 import type { Visit } from '#lib/chronicle/types/visit.ts';
+import type { ArtworkOrigin } from './artwork-origin.ts';
 import type { ArtworkRecord } from './artwork-record.ts';
 
 export type LoadArtworkResult = {
 	artwork?: ArtworkRecord;
+	origin?: ArtworkOrigin;
 	pins?: Pin[];
 	pinsError?: string;
 	noteLinks?: NoteLinks;

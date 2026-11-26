@@ -11,6 +11,7 @@ import { moveToTrash } from '#lib/artworks/trash-data/trash-data.ts';
 import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
 import type { LoadArtworkResult } from '#lib/artworks/types/load-artwork-result.ts';
 import { labelledNoteLinks } from '#lib/notes/note-links/note-links.ts';
+import type { ResolvedPathname } from '$app/types';
 import { m } from '#lib/i18n/i18n.ts';
 import { defaultPreferences } from '#lib/profile/preferences/preferences.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
@@ -263,6 +264,29 @@ describe('artwork page', () => {
 		await expect.element(page.getByText(m.ownFields.ticked, { exact: true })).toBeVisible();
 		expect(page.getByText('For the exam').elements()).toHaveLength(0);
 		expect(page.getByText('Note', { exact: true }).elements()).toHaveLength(0);
+	});
+
+	it('names the album the artwork came from and points to its newer version', async () => {
+		renderPage({
+			artwork: artwork(),
+			origin: {
+				albumTitle: 'Wenus paleolityczne',
+				albumHref: '/atelier/albums/venus' as ResolvedPathname,
+				newerHref: '/atelier/compare?left=42&album=venus%2Fwillendorf' as ResolvedPathname
+			}
+		});
+
+		await expect
+			.element(page.getByRole('link', { name: m.artworkView.fromAlbum('Wenus paleolityczne') }))
+			.toHaveAttribute('href', '/atelier/albums/venus');
+		await expect.element(page.getByText(m.artworkView.newerInAlbum)).toBeVisible();
+		await expect
+			.element(
+				page
+					.getByRole('complementary', { name: m.artworkView.information })
+					.getByRole('link', { name: m.artworkView.compareWithAlbum, exact: true })
+			)
+			.toHaveAttribute('href', '/atelier/compare?left=42&album=venus%2Fwillendorf');
 	});
 
 	it('marks the fields the learner has not filled in', async () => {
