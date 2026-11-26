@@ -101,6 +101,10 @@ export const pl = {
 		photoCredit: (photographer: string, license: string): string =>
 			`Wikimedia Commons, zdjęcie: ${photographer}, ${license}`,
 		licenceCredit: (license: string): string => `Wikimedia Commons, ${license}`,
+		albumCredit: 'Z albumu, domena publiczna',
+		albumPhotoCredit: (photographer: string, license: string): string =>
+			`Z albumu, zdjęcie: ${photographer}, ${license}`,
+		albumLicenceCredit: (license: string): string => `Z albumu, ${license}`,
 		unknownArtist: 'autor nieznany',
 		yearBce: (year: number): string => `${year} p.n.e.`
 	},

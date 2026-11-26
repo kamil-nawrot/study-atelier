@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
-import { commonsCredit } from './credit.ts';
+import { albumCredit, commonsCredit } from './credit.ts';
 
 describe('commonsCredit', () => {
 	it('names only Wikimedia Commons for a public domain or CC0 image', () => {
@@ -17,5 +17,15 @@ describe('commonsCredit', () => {
 
 	it('names the licence when the photographer is unknown', () => {
 		expect(commonsCredit('CC BY 3.0', null)).toBe(m.artwork.licenceCredit('CC BY 3.0'));
+	});
+});
+
+describe('albumCredit', () => {
+	it('names the album as the source, with the photographer and the licence', () => {
+		expect(albumCredit('Public domain', 'Some Museum')).toBe(m.artwork.albumCredit);
+		expect(albumCredit('CC BY-SA 4.0', 'Jane Doe')).toBe(
+			m.artwork.albumPhotoCredit('Jane Doe', 'CC BY-SA 4.0')
+		);
+		expect(albumCredit('CC BY 3.0', null)).toBe(m.artwork.albumLicenceCredit('CC BY 3.0'));
 	});
 });

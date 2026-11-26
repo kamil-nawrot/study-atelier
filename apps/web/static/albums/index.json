@@ -1,0 +1,4 @@
+{
+	"format": 1,
+	"albums": [{ "slug": "sample-album", "languages": ["pl"], "sample": true }]
+}

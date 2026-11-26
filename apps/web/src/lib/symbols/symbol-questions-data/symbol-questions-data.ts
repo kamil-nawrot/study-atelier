@@ -1,5 +1,5 @@
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
-import { IMAGE_COLUMNS, imageOf } from '#lib/images/image-record/image-record.ts';
+import { ARTWORK_IMAGE_COLUMNS, imageOf } from '#lib/images/image-record/image-record.ts';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 import type { ImageRow } from '#lib/images/types/image-row.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
@@ -30,7 +30,7 @@ type ImagePinRow = { id: string; artwork_images: ImageRow & { id: string } };
 
 const COLUMNS = `id, x, y, text, view_width, crop_path, symbols!inner(id, name), symbol_meanings(id, text, symbol_meaning_contexts(position, glossary_entries(name, kind))), artwork_images!inner(id, artwork_id, artworks!inner(deleted_at))`;
 
-const IMAGE_SELECT = `id, artwork_images!inner(id, ${IMAGE_COLUMNS.join(', ')})`;
+const IMAGE_SELECT = `id, artwork_images!inner(id, ${ARTWORK_IMAGE_COLUMNS.join(', ')})`;
 
 function personsOf(
 	contexts: NonNullable<PinRow['symbol_meanings']>['symbol_meaning_contexts']

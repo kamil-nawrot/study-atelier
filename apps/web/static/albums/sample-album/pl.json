@@ -1,0 +1,35 @@
+{
+	"format": 1,
+	"title": "Sample album",
+	"description": "A made-up album for development and tests, listed only outside production.",
+	"artworks": {
+		"spiral-study": {
+			"title": "Spiral Study",
+			"alternativeTitles": ["Study of a Spiral"],
+			"description": "A made-up painting of a dark spiral."
+		},
+		"blue-square": { "title": "Blue Square" },
+		"red-circle": { "title": "Red Circle", "description": "A made-up drawing of a red circle." }
+	},
+	"values": {
+		"sample-painter": {
+			"name": "Sample Painter",
+			"alternativeNames": ["S. Painter"],
+			"summary": "A made-up painter.",
+			"country": "Sampleland"
+		},
+		"sample-style": { "name": "Sample style" },
+		"sample-oil": { "name": "oil paint", "alternativeNames": ["oil"] },
+		"sample-gallery": { "name": "Sample Gallery", "summary": "A made-up gallery." }
+	},
+	"terms": {
+		"sample-spiral": {
+			"name": "spiral",
+			"definition": "A made-up definition of a curve that winds around a centre."
+		},
+		"sample-patron": { "name": "Sample Patron", "country": "Sampleland" }
+	},
+	"events": {
+		"sample-show": { "name": "Sample show", "description": "A made-up exhibition." }
+	}
+}

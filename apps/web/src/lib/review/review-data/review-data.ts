@@ -1,7 +1,11 @@
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
 import { artworkImageCredit } from '#lib/images/artwork-image/artwork-image.ts';
 import { collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
-import { IMAGE_COLUMNS, imageOf, withPreviews } from '#lib/images/image-record/image-record.ts';
+import {
+	ARTWORK_IMAGE_COLUMNS,
+	imageOf,
+	withPreviews
+} from '#lib/images/image-record/image-record.ts';
 import type { ImageRow } from '#lib/images/types/image-row.ts';
 import { m } from '#lib/i18n/i18n.ts';
 import { rowLimitMessage } from '#lib/shared/data/errors/errors.ts';
@@ -85,7 +89,7 @@ type DetailsRow = {
 	artwork_images: ImageRow[];
 };
 
-const DETAILS_COLUMNS = `id, notes, artwork_images(${IMAGE_COLUMNS.join(', ')})`;
+const DETAILS_COLUMNS = `id, notes, artwork_images(${ARTWORK_IMAGE_COLUMNS.join(', ')})`;
 
 export const REVIEW_COUNTS_DEPENDENCY = 'review:counts';
 

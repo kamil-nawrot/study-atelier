@@ -1,6 +1,6 @@
 import { m } from '#lib/i18n/i18n.ts';
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
-import { IMAGE_COLUMNS, imageOf } from '#lib/images/image-record/image-record.ts';
+import { ARTWORK_IMAGE_COLUMNS, imageOf } from '#lib/images/image-record/image-record.ts';
 import type { ImageRow } from '#lib/images/types/image-row.ts';
 import { fragmentLenses } from '#lib/pins/fragment-lenses/fragment-lenses.ts';
 import type { PinFragment } from '#lib/pins/types/pin-fragment.ts';
@@ -68,7 +68,7 @@ const CONTEXT_COLUMNS =
 
 const SYMBOL_COLUMNS = `id, name, description, cover_pin_id, symbol_meanings(id, position, text, symbol_meaning_contexts(${CONTEXT_COLUMNS}))`;
 
-const PIN_COLUMNS = `id, x, y, text, view_width, crop_path, symbol_meaning_id, artwork_images!inner(id, artwork_id, ${IMAGE_COLUMNS.join(', ')})`;
+const PIN_COLUMNS = `id, x, y, text, view_width, crop_path, symbol_meaning_id, artwork_images!inner(id, artwork_id, ${ARTWORK_IMAGE_COLUMNS.join(', ')})`;
 
 function coverOf(cover: Json | null): PinFragment | undefined {
 	if (!cover || typeof cover !== 'object' || Array.isArray(cover)) return undefined;

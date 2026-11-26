@@ -22,7 +22,18 @@ export const IMAGE_COLUMNS = [
 	'image_height'
 ] as const;
 
-function commonsColumns(image: StoredImage | null): Partial<ImageRow> {
+export const ARTWORK_IMAGE_COLUMNS = [...IMAGE_COLUMNS, 'album_image_path'] as const;
+
+function sourceColumns(image: StoredImage | null): Partial<ImageRow> {
+	if (image?.kind === 'album') {
+		return {
+			source_wikidata_id: image.wikidataId,
+			source_image_licence: image.licence,
+			source_image_licence_url: image.licenceUrl,
+			source_image_attribution: image.attribution,
+			album_image_path: image.path
+		};
+	}
 	if (image?.kind !== 'commons') return {};
 	return {
 		source_wikidata_id: image.wikidataId,
@@ -40,7 +51,7 @@ export function imageColumns(image: StoredImage | null): ImageRow {
 		source_image_licence: null,
 		source_image_licence_url: null,
 		source_image_attribution: null,
-		...commonsColumns(image),
+		...sourceColumns(image),
 		own_image_path: image?.kind === 'upload' ? image.path : null,
 		own_image_url: image?.kind === 'url' ? image.url : null,
 		image_width: image?.width ?? null,
@@ -62,6 +73,19 @@ export function imageOf(
 	if (row.own_image_path)
 		return { kind: 'upload', path: row.own_image_path, ...size, ...id, ...palette };
 	if (row.own_image_url) return { kind: 'url', url: row.own_image_url, ...size, ...id, ...palette };
+	if (row.album_image_path && row.source_image_licence) {
+		return {
+			kind: 'album',
+			path: row.album_image_path,
+			wikidataId: row.source_wikidata_id,
+			licence: row.source_image_licence,
+			licenceUrl: row.source_image_licence_url,
+			attribution: row.source_image_attribution,
+			...size,
+			...id,
+			...palette
+		};
+	}
 	if (row.source_wikidata_id && row.source_image_file) {
 		return {
 			kind: 'commons',

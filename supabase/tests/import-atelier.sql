@@ -43,7 +43,11 @@ begin
     set notes = '[Vermeer](/atelier/values/author/' || vermeer || ') and [#0001](/atelier/1)'
     where id = first_artwork;
 
-  select id into second_artwork from public.save_artwork('{"title": "Milkmaid", "author_unknown": true}', '{}', null, null);
+  select id into second_artwork from public.save_artwork(
+    '{"title": "Milkmaid", "author_unknown": true, "album_entry": "dutch-masters/milkmaid", "album_revision": 2}',
+    '{}', null,
+    '[{"album_image_path": "dutch-masters/images/milkmaid.webp", "source_image_licence": "public domain"}]'
+  );
   select id into third_artwork from public.save_artwork('{"title": "Trashed", "author_unknown": true}', '{}', null, null);
   update public.artworks set deleted_at = now() where id = third_artwork;
   insert into public.artwork_relations (from_id, to_id, kind) values (first_artwork, second_artwork, 'study');
@@ -180,6 +184,13 @@ begin
   assert (select array_agg(exhibit) from public.exhibit_tiers) = '{collection}',
     'the import does not skip the tiers of an exhibit missing from the catalogue';
 
+  assert (select album_entry || '@' || album_revision from public.artworks where title = 'Milkmaid')
+      = 'dutch-masters/milkmaid@2',
+    'the import drops the album entry or the revision of an artwork';
+  assert (select image.album_image_path from public.artwork_images as image
+      join public.artworks as artwork on artwork.id = image.artwork_id
+      where artwork.title = 'Milkmaid') = 'dutch-masters/images/milkmaid.webp',
+    'the import drops the path of an album image';
   assert (select array_agg(record_number order by record_number) from public.artworks) = '{1,2,3}',
     'the record numbers do not survive the import';
   assert (select count(*) from public.artworks where deleted_at is not null) = 1,
@@ -197,7 +208,7 @@ begin
   assert (select count(*) from public.style_periods) = 1
     and (select count(*) from public.author_details) = 1
     and (select count(*) from public.artwork_values) = 3
-    and (select count(*) from public.artwork_images) = 1
+    and (select count(*) from public.artwork_images) = 2
     and (select count(*) from public.artwork_pins) = 2
     and (select count(*) from public.glossary_entries) = 1
     and (select count(*) from public.timeline_events) = 1

@@ -19,6 +19,17 @@ const commons: ArtworkImageInput = {
 	height: 1200
 };
 
+const album: ArtworkImageInput = {
+	kind: 'album',
+	path: 'sample-album/images/spiral.webp',
+	wikidataId: null,
+	licence: 'CC BY-SA 4.0',
+	licenceUrl: null,
+	attribution: 'Jane Doe',
+	width: 600,
+	height: 900
+};
+
 describe('artworkImageSource', () => {
 	it('has no source without an image', () => {
 		expect(artworkImageSource(null, 500)).toBeUndefined();
@@ -60,6 +71,24 @@ describe('artworkImageSource', () => {
 			width: 4,
 			height: 3
 		});
+	});
+});
+
+describe('an album image', () => {
+	it('is served from the albums folder in its stored size, also for the loupe', () => {
+		expect(artworkImageSource(album, 500)).toEqual({
+			src: expect.stringMatching(/\/albums\/sample-album\/images\/spiral\.webp$/),
+			width: 600,
+			height: 900
+		});
+		expect(artworkLargeSource(album)).toEqual({
+			src: expect.stringMatching(/\/albums\/sample-album\/images\/spiral\.webp$/),
+			width: 600
+		});
+	});
+
+	it('is credited to the album with its photographer and licence', () => {
+		expect(artworkImageCredit(album)).toBe(m.artwork.albumPhotoCredit('Jane Doe', 'CC BY-SA 4.0'));
 	});
 });
 
