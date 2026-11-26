@@ -1,0 +1,409 @@
+{
+	"format": 1,
+	"era": "prehistory",
+	"artworks": [
+		{
+			"id": "venus-of-hohle-fels",
+			"revision": 1,
+			"wikidata": "Q312522",
+			"type": "sculpture",
+			"era": "prehistory",
+			"yearFrom": -38000,
+			"yearTo": -33000,
+			"yearApproximate": true,
+			"values": ["aurignacian-culture", "mammoth-ivory", "urmu"],
+			"images": [
+				{
+					"file": "images/venus-of-hohle-fels.webp",
+					"width": 1280,
+					"height": 1920,
+					"licence": "CC BY 3.0",
+					"licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+					"attribution": "Anagoria",
+					"source": "https://commons.wikimedia.org/wiki/File:-40.000_Venusanhänger_Aurignacien_anagoria.JPG"
+				}
+			]
+		},
+		{
+			"id": "venus-of-galgenberg",
+			"revision": 1,
+			"wikidata": "Q700728",
+			"type": "sculpture",
+			"era": "prehistory",
+			"yearTo": -34000,
+			"yearApproximate": true,
+			"values": ["aurignacian-culture", "serpentine", "nhm-vienna"],
+			"images": [
+				{
+					"file": "images/venus-of-galgenberg.webp",
+					"width": 1280,
+					"height": 1959,
+					"licence": "CC BY-SA 3.0 at",
+					"licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0/at/deed.en",
+					"attribution": "Bengt Oberger",
+					"source": "https://commons.wikimedia.org/wiki/File:Venus_von_Galgenberg_02.JPG"
+				}
+			]
+		},
+		{
+			"id": "venus-of-willendorf",
+			"revision": 1,
+			"wikidata": "Q131397",
+			"type": "sculpture",
+			"era": "prehistory",
+			"yearTo": -28000,
+			"yearApproximate": true,
+			"values": ["gravettian-culture", "limestone", "nhm-vienna"],
+			"images": [
+				{
+					"file": "images/venus-of-willendorf.webp",
+					"width": 960,
+					"height": 1804,
+					"licence": "CC BY 2.5",
+					"licenceUrl": "https://creativecommons.org/licenses/by/2.5",
+					"attribution": "Matthias Kabel",
+					"source": "https://commons.wikimedia.org/wiki/File:Venus_von_Willendorf_01.jpg"
+				}
+			]
+		},
+		{
+			"id": "venus-of-dolni-vestonice",
+			"revision": 1,
+			"wikidata": "Q552113",
+			"type": "sculpture",
+			"era": "prehistory",
+			"yearFrom": -29000,
+			"yearTo": -25000,
+			"yearApproximate": true,
+			"values": ["gravettian-culture", "ceramic", "moravian-museum"],
+			"images": [
+				{
+					"file": "images/venus-of-dolni-vestonice.webp",
+					"width": 960,
+					"height": 1875,
+					"licence": "CC BY-SA 2.5",
+					"licenceUrl": "https://creativecommons.org/licenses/by-sa/2.5",
+					"attribution": "Petr Novák, Wikipedia",
+					"source": "https://commons.wikimedia.org/wiki/File:Vestonicka_venuse_edit.jpg"
+				}
+			]
+		},
+		{
+			"id": "venus-of-brassempouy",
+			"revision": 1,
+			"wikidata": "Q849063",
+			"type": "sculpture",
+			"era": "prehistory",
+			"yearTo": -23000,
+			"yearApproximate": true,
+			"values": ["gravettian-culture", "mammoth-ivory", "man"],
+			"images": [
+				{
+					"file": "images/venus-of-brassempouy.webp",
+					"width": 1280,
+					"height": 1690,
+					"licence": "CC BY-SA 3.0",
+					"licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+					"attribution": "BastienM",
+					"source": "https://commons.wikimedia.org/wiki/File:Dame_de_Brassempouy.jpg"
+				}
+			]
+		},
+		{
+			"id": "venus-of-lespugue",
+			"revision": 1,
+			"wikidata": "Q510876",
+			"type": "sculpture",
+			"era": "prehistory",
+			"yearFrom": -24000,
+			"yearTo": -22000,
+			"yearApproximate": true,
+			"values": ["gravettian-culture", "mammoth-ivory", "musee-de-l-homme"],
+			"images": [
+				{
+					"file": "images/venus-of-lespugue.webp",
+					"width": 960,
+					"height": 1653,
+					"licence": "CC0",
+					"licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+					"attribution": "Vassil",
+					"source": "https://commons.wikimedia.org/wiki/File:Vénus_de_Lespugue_Gravettien_Musée_de_l'Homme_04022018_1.jpg"
+				}
+			]
+		},
+		{
+			"id": "venus-of-laussel",
+			"revision": 1,
+			"wikidata": "Q203765",
+			"type": "sculpture",
+			"era": "prehistory",
+			"yearTo": -23000,
+			"yearApproximate": true,
+			"values": ["gravettian-culture", "limestone", "musee-d-aquitaine"],
+			"images": [
+				{
+					"file": "images/venus-of-laussel.webp",
+					"width": 1280,
+					"height": 1707,
+					"licence": "CC BY 4.0",
+					"licenceUrl": "https://creativecommons.org/licenses/by/4.0",
+					"attribution": "Katanga",
+					"source": "https://commons.wikimedia.org/wiki/File:Musée_d’Aquitaine_-_La_Vénus_à_la_Corne.jpg"
+				}
+			]
+		},
+		{
+			"id": "venus-of-kostenki",
+			"revision": 1,
+			"wikidata": "Q1305698",
+			"type": "sculpture",
+			"era": "prehistory",
+			"yearFrom": -23000,
+			"yearTo": -18000,
+			"yearApproximate": true,
+			"values": ["gravettian-culture", "mammoth-ivory", "hermitage"],
+			"images": [
+				{
+					"file": "images/venus-of-kostenki.webp",
+					"width": 960,
+					"height": 1707,
+					"licence": "CC BY-SA 3.0",
+					"licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+					"attribution": "Andreas Franzkowiak",
+					"source": "https://commons.wikimedia.org/wiki/File:Venus_1_from_Kostenki_RU_front.jpg"
+				}
+			]
+		},
+		{
+			"id": "venus-of-savignano",
+			"revision": 1,
+			"wikidata": "Q724710",
+			"type": "sculpture",
+			"era": "prehistory",
+			"yearFrom": -23000,
+			"yearTo": -18000,
+			"yearApproximate": true,
+			"values": ["gravettian-culture", "serpentine", "pigorini"],
+			"images": [
+				{
+					"file": "images/venus-of-savignano.webp",
+					"width": 960,
+					"height": 2385,
+					"licence": "CC BY-SA 4.0",
+					"licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+					"attribution": "Francesco Bini",
+					"source": "https://commons.wikimedia.org/wiki/File:Paleolitico_superiore,_statuetta_femminile_detta_venere_di_savignano,_da_savignano_sul_panaro_(mo),_in_serpentino_02.jpg"
+				}
+			]
+		},
+		{
+			"id": "rhomboid-venus-of-grimaldi",
+			"revision": 1,
+			"wikidata": "Q10392686",
+			"type": "sculpture",
+			"era": "prehistory",
+			"yearTo": -22000,
+			"yearApproximate": true,
+			"values": ["gravettian-culture", "steatite", "man"],
+			"images": [
+				{
+					"file": "images/rhomboid-venus-of-grimaldi.webp",
+					"width": 960,
+					"height": 1901,
+					"licence": "CC BY-SA 4.0",
+					"licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+					"attribution": "Don Hitchcock, donsmaps.com",
+					"source": "https://commons.wikimedia.org/wiki/File:Venus_Losange.jpg"
+				}
+			]
+		},
+		{
+			"id": "venus-of-malta",
+			"revision": 1,
+			"wikidata": "Q1061993",
+			"type": "sculpture",
+			"era": "prehistory",
+			"yearFrom": -21000,
+			"yearTo": -16000,
+			"yearApproximate": true,
+			"values": ["malta-buret-culture", "mammoth-ivory", "hermitage"],
+			"images": [
+				{
+					"file": "images/venus-of-malta.webp",
+					"width": 1280,
+					"height": 1145,
+					"licence": "CC BY-SA 4.0",
+					"licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+					"attribution": "Liudmila Lbova",
+					"source": "https://commons.wikimedia.org/wiki/File:Mal’ta_Collection_(Hermitage,_No._370-748).jpg"
+				}
+			]
+		},
+		{
+			"id": "venus-impudique",
+			"revision": 1,
+			"wikidata": "Q24169384",
+			"type": "sculpture",
+			"era": "prehistory",
+			"yearTo": -14000,
+			"yearApproximate": true,
+			"values": ["magdalenian-culture", "mammoth-ivory", "musee-de-l-homme"],
+			"images": [
+				{
+					"file": "images/venus-impudique.webp",
+					"width": 960,
+					"height": 1631,
+					"licence": "CC BY-SA 4.0",
+					"licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+					"attribution": "Zunkir",
+					"source": "https://commons.wikimedia.org/wiki/File:Venus_impudique_expo_Arts_et_Prehistoire.jpg"
+				}
+			]
+		},
+		{
+			"id": "venus-of-monruz",
+			"revision": 1,
+			"wikidata": "Q687286",
+			"type": "sculpture",
+			"era": "prehistory",
+			"yearTo": -13000,
+			"yearApproximate": true,
+			"values": ["magdalenian-culture", "jet", "latenium"],
+			"images": [
+				{
+					"file": "images/venus-of-monruz.webp",
+					"width": 1280,
+					"height": 1906,
+					"licence": "CC BY-SA 3.0",
+					"licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+					"attribution": "Y. André",
+					"source": "https://commons.wikimedia.org/wiki/File:Laténium-dame-Monruz.jpg"
+				}
+			]
+		}
+	],
+	"values": [
+		{
+			"id": "aurignacian-culture",
+			"revision": 1,
+			"category": "period"
+		},
+		{
+			"id": "gravettian-culture",
+			"revision": 1,
+			"category": "period"
+		},
+		{
+			"id": "malta-buret-culture",
+			"revision": 1,
+			"category": "period"
+		},
+		{
+			"id": "magdalenian-culture",
+			"revision": 1,
+			"category": "period"
+		},
+		{
+			"id": "mammoth-ivory",
+			"revision": 1,
+			"category": "material"
+		},
+		{
+			"id": "serpentine",
+			"revision": 1,
+			"category": "material"
+		},
+		{
+			"id": "limestone",
+			"revision": 1,
+			"category": "material"
+		},
+		{
+			"id": "ceramic",
+			"revision": 1,
+			"category": "material"
+		},
+		{
+			"id": "steatite",
+			"revision": 1,
+			"category": "material"
+		},
+		{
+			"id": "jet",
+			"revision": 1,
+			"category": "material"
+		},
+		{
+			"id": "urmu",
+			"revision": 1,
+			"category": "location",
+			"wikidata": "Q26836738",
+			"countryCode": "DE",
+			"placeType": "museum"
+		},
+		{
+			"id": "nhm-vienna",
+			"revision": 1,
+			"category": "location",
+			"wikidata": "Q688704",
+			"countryCode": "AT",
+			"placeType": "museum"
+		},
+		{
+			"id": "moravian-museum",
+			"revision": 1,
+			"category": "location",
+			"wikidata": "Q1348579",
+			"countryCode": "CZ",
+			"placeType": "museum"
+		},
+		{
+			"id": "man",
+			"revision": 1,
+			"category": "location",
+			"wikidata": "Q2342844",
+			"countryCode": "FR",
+			"placeType": "museum"
+		},
+		{
+			"id": "musee-de-l-homme",
+			"revision": 1,
+			"category": "location",
+			"wikidata": "Q670268",
+			"countryCode": "FR",
+			"placeType": "museum"
+		},
+		{
+			"id": "musee-d-aquitaine",
+			"revision": 1,
+			"category": "location",
+			"wikidata": "Q3329534",
+			"countryCode": "FR",
+			"placeType": "museum"
+		},
+		{
+			"id": "hermitage",
+			"revision": 1,
+			"category": "location",
+			"wikidata": "Q132783",
+			"countryCode": "RU",
+			"placeType": "museum"
+		},
+		{
+			"id": "pigorini",
+			"revision": 1,
+			"category": "location",
+			"wikidata": "Q304735",
+			"countryCode": "IT",
+			"placeType": "museum"
+		},
+		{
+			"id": "latenium",
+			"revision": 1,
+			"category": "location",
+			"wikidata": "Q27481419",
+			"countryCode": "CH",
+			"placeType": "museum"
+		}
+	]
+}
