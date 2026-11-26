@@ -13,14 +13,20 @@ import { m } from '#lib/i18n/i18n.ts';
 import { defaultPreferences } from '#lib/profile/preferences/preferences.ts';
 import { loadSymbolOptions } from '#lib/symbols/symbols-data/symbols-data.ts';
 import { loadArtworkPins } from '#lib/pins/pin-data/pin-data.ts';
+import { loadAlbumOrigin } from '#lib/compare/album-origin/album-origin.ts';
 import type { LoadArtworkResult } from '#lib/artworks/types/load-artwork-result.ts';
 import type { PageLoad } from './$types';
 
-export const load: PageLoad = async ({ params, parent, untrack }): Promise<LoadArtworkResult> => {
+export const load: PageLoad = async ({
+	params,
+	parent,
+	untrack,
+	fetch
+}): Promise<LoadArtworkResult> => {
 	const number = parseRecordNumber(params.number);
 	if (number === null) return { error: m.artworkErrors.notFound, notFound: true };
 	const [
-		{ result, noteLinks, shown },
+		{ result, noteLinks, shown, origin },
 		mentions,
 		summaries,
 		own,
@@ -32,15 +38,16 @@ export const load: PageLoad = async ({ params, parent, untrack }): Promise<LoadA
 		atelierCount
 	] = await Promise.all([
 		artworkCore(number).then(async (result) => {
-			const [shown, noteLinks] = await Promise.all([
+			const [shown, noteLinks, origin] = await Promise.all([
 				result.artwork
 					? loadArtworkExhibitions(result.artwork.id)
 					: { exhibitions: [], covers: [] },
 				mentionsLinks(result.artwork?.notes)
 					? loadNoteLinkLabels({ artworkNumber: number })
-					: undefined
+					: undefined,
+				loadAlbumOrigin(result.artwork?.album, number, fetch)
 			]);
-			return { result, shown, noteLinks };
+			return { result, shown, noteLinks, origin };
 		}),
 		loadMentions(
 			{ artworkNumber: number },
@@ -75,6 +82,7 @@ export const load: PageLoad = async ({ params, parent, untrack }): Promise<LoadA
 		ownFields,
 		preferences,
 		atelierCount,
-		...(noteLinks ? { noteLinks } : {})
+		...(noteLinks ? { noteLinks } : {}),
+		...(origin ? { origin } : {})
 	};
 };

@@ -692,7 +692,10 @@ export const pl = {
 		closeImage: 'Zamknij powiększenie',
 		empty: 'Nie wpisano',
 		previous: 'Poprzednie dzieło',
-		next: 'Następne dzieło'
+		next: 'Następne dzieło',
+		fromAlbum: (title: string): string => `Z albumu „${title}”`,
+		newerInAlbum: 'Album ma nowszą wersję tego dzieła.',
+		compareWithAlbum: 'Porównaj'
 	},
 	loupe: {
 		label: 'Lupa',
@@ -712,7 +715,20 @@ export const pl = {
 		swap: 'Zamień strony',
 		loupeBoth: 'Lupa pokazuje to samo miejsce na obu obrazach',
 		loadFailedTitle: 'Nie udało się wczytać porównania',
-		loadingAtelier: 'Wczytywanie atelier…'
+		loadingAtelier: 'Wczytywanie atelier…',
+		wikidata: 'Wikidata',
+		newValue: 'nowa wartość',
+		mine: 'Twoja wersja',
+		album: 'Wersja z albumu',
+		move: 'Przenieś',
+		add: 'Uzupełnij',
+		replace: 'Zamień',
+		withdraw: 'Wycofaj',
+		attachImage: 'Dołącz do obrazów dzieła',
+		appendNote: 'Dopisz na końcu notatki',
+		changes: (count: number): string => `Zmiany: ${count}`,
+		saveChanges: 'Zapisz zmiany',
+		albumEntryMissing: 'Tego dzieła nie ma w albumie.'
 	},
 	palette: {
 		label: 'Paleta barw',

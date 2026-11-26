@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { compareHref, sidesOf, swapped } from './compare-address.ts';
+import {
+	albumEntryOf,
+	compareAlbumHref,
+	compareHref,
+	sidesOf,
+	swapped
+} from './compare-address.ts';
 
 describe('sidesOf', () => {
 	it('reads both record numbers', () => {
@@ -27,5 +33,22 @@ describe('compareHref', () => {
 describe('swapped', () => {
 	it('exchanges the halves', () => {
 		expect(swapped({ left: 42, right: null })).toEqual({ left: null, right: 42 });
+	});
+});
+
+describe('the album version of an artwork', () => {
+	it('writes the artwork and the album entry and reads the entry back', () => {
+		const href = compareAlbumHref(3, { slug: 'sample-album', entryId: 'spiral-study' });
+
+		expect(href).toBe('/atelier/compare?left=3&album=sample-album%2Fspiral-study');
+		expect(albumEntryOf(new URL(href, 'https://app.test').searchParams)).toEqual({
+			slug: 'sample-album',
+			entryId: 'spiral-study'
+		});
+	});
+
+	it('reads no entry from a missing or malformed parameter', () => {
+		expect(albumEntryOf(new URLSearchParams('left=3'))).toBeNull();
+		expect(albumEntryOf(new URLSearchParams('album=../x'))).toBeNull();
 	});
 });

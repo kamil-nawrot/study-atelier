@@ -5,6 +5,7 @@
 	import { resolve } from '$app/paths';
 	import type { ResolvedPathname } from '$app/types';
 	import { compareHref, swapped } from '#lib/compare/compare-address/compare-address.ts';
+	import AlbumComparison from '#lib/compare/components/AlbumComparison/AlbumComparison.svelte';
 	import ComparisonView from '#lib/compare/components/ComparisonView/ComparisonView.svelte';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
@@ -29,18 +30,31 @@
 <AtelierLayout email={data.session.user.email ?? ''} fill title={m.compare.title}>
 	{#snippet bar()}
 		<BackLink fallbackHref={backHref} fallbackName={m.artworkView.back} />
-		{#if both}
+		{#if both && !data.album}
 			<Button aria-label={m.compare.swap} compact icon={ArrowLeftRight} onclick={swap}>
 				{m.compare.swap}
 			</Button>
 		{/if}
 	{/snippet}
 
-	{#if data.error}
+	{#if data.error || data.album?.error}
 		<Alert title={m.compare.loadFailedTitle} tone="danger">
-			{data.error}
+			{data.error ?? data.album?.error}
 		</Alert>
+	{:else if data.album?.mine && data.album.version}
+		{#key data.album.version}
+			<AlbumComparison
+				mine={data.album.mine}
+				ownFields={data.ownFields}
+				version={data.album.version}
+			/>
+		{/key}
 	{:else}
-		<ComparisonView left={data.left} right={data.right} sides={data.sides} />
+		<ComparisonView
+			left={data.left}
+			ownFields={data.ownFields}
+			right={data.right}
+			sides={data.sides}
+		/>
 	{/if}
 </AtelierLayout>

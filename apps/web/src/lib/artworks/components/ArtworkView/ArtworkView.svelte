@@ -8,6 +8,7 @@
 		artworkPanelOpen,
 		rememberArtworkPanel
 	} from '#lib/artworks/artwork-panel/artwork-panel.ts';
+	import type { ArtworkOrigin } from '#lib/artworks/types/artwork-origin.ts';
 	import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
 	import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
 	import type { ValueSummaries } from '#lib/card-index/types/value-summaries.ts';
@@ -36,6 +37,7 @@
 		exhibitionCovers?: WallArtwork[];
 		summaries?: ValueSummaries;
 		ownFields?: OwnFieldDefinition[];
+		origin?: ArtworkOrigin;
 		showPinsOnOpen?: boolean;
 		loupeOnOpen?: boolean;
 		flipLinks?: Record<FlipDirection, ResolvedPathname | null>;
@@ -58,6 +60,7 @@
 		exhibitionCovers = [],
 		summaries = emptyValueSummaries(),
 		ownFields = [],
+		origin,
 		showPinsOnOpen = false,
 		loupeOnOpen = false,
 		onflip,
@@ -97,6 +100,7 @@
 			{mentions}
 			{noteLinks}
 			onhide={() => setPanel(false)}
+			{origin}
 			{ownFields}
 			{summaries}
 			{visits}
