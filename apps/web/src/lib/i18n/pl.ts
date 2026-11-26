@@ -220,6 +220,7 @@ export const pl = {
 		review: 'Powtórki',
 		displayCase: 'Ekspozycja',
 		reviewWaiting: (count: number): string => `${workCount(count)} na dziś`,
+		albums: 'Albumy',
 		trash: 'Archiwum',
 		settings: 'Ustawienia',
 		settingsLink: (name: string, email: string): string =>
@@ -3265,6 +3266,47 @@ export const pl = {
 			invalid: 'Tej wystawy nie da się zapisać w obecnym kształcie.',
 			tooBig: 'Ta wystawa jest za duża, żeby ją zapisać. Może warto podzielić ją na dwie?'
 		}
+	},
+	albums: {
+		title: 'Albumy',
+		lead: 'Gotowe zestawy dzieł wraz z podstawowymi danymi, skupione wokół konkretnego punktu w czasie lub motywu. Możesz je dodać do swojej kolekcji w całości lub wybrać tylko te pozycje, którymi chcesz zasilić atelier.',
+		empty: 'Nie ma tu jeszcze żadnego albumu. Pojawią się w kolejnych wersjach aplikacji.',
+		loadErrorTitle: 'Nie udało się wczytać albumów',
+		albumLoadErrorTitle: 'Nie udało się wczytać albumu',
+		loadError: 'Nie udało się wczytać plików albumu. Odśwież stronę i spróbuj jeszcze raz.',
+		notFound: 'Nie ma takiego albumu.',
+		backToList: 'Wróć do albumów',
+		counts: (artworks: number, terms: number, events: number): string =>
+			[
+				workCount(artworks),
+				terms > 0
+					? `${terms} ${plural(terms, { one: 'pojęcie', few: 'pojęcia', many: 'pojęć' })}`
+					: '',
+				events > 0
+					? `${events} ${plural(events, { one: 'wydarzenie', few: 'wydarzenia', many: 'wydarzeń' })}`
+					: ''
+			]
+				.filter(Boolean)
+				.join(' · '),
+		owned: (owned: number, total: number): string =>
+			`${owned} z ${total} ${plural(owned, { one: 'jest', few: 'są', many: 'jest' })} w Twoim atelier`,
+		search: 'Szukaj w albumie',
+		selectAll: 'Zaznacz wszystkie',
+		deselectAll: 'Odznacz wszystkie',
+		inAtelier: (number: string): string => `W atelier · ${number}`,
+		compare: 'Porównaj z wersją z albumu',
+		similar: (number: string): string => `Wygląda podobnie do ${number}.`,
+		selected: (selected: number, total: number): string => `Zaznaczone: ${selected} z ${total}`,
+		add: (count: number): string =>
+			`Dodaj ${count} ${plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' })}`,
+		noResults: (query: string): string =>
+			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment tytułu.`,
+		emptyWallHint: {
+			before: 'Nie wiesz, od czego zacząć? Zajrzyj do ',
+			link: 'Albumów',
+			after: ': to gotowe zestawy dzieł, które mogą pomóc w rozwoju Twojej kolekcji.'
+		},
+		smallWallHint: { before: 'Szukasz kolejnych dzieł? Zajrzyj do ', link: 'Albumów', after: '.' }
 	},
 	trash: {
 		title: 'Archiwum',

@@ -43,6 +43,12 @@ An id is a lowercase slug (`venus-of-willendorf`), unique among the entries of i
 
 The alternative names are kept with the texts, not in `album.json` as the ADR says, because they are words of one language, like the names they stand for.
 
+## Albums in the app
+
+"Albumy", the first of the smaller items of the menu, opens `/atelier/albums`: every album listed in the app's language, grouped under the era of `album.json` with the era rows of Kartoteka (`CardIndexEra` on `CardIndexEraAxis`, folded per device under `study-atelier:albums-folded-eras`). An album opens at `/atelier/albums/<slug>` as a wall of `TickTile`s laid out like the Atelier wall (`distribute` and `columnCount`, two columns on a phone). An album that is not listed, such as the sample album in production, is not found.
+
+Both views ask the database only for the learner's artworks that can match (`album-matches-data.ts`): the artworks outside Archiwum whose `album_entry` starts with the album's slug or, in the gallery, whose title is one of the album's titles (`ilike`, then compared exactly ignoring letter case in the app), and the images whose `source_wikidata_id` is the Wikidata id of an album artwork. An album artwork is in the atelier when an artwork was taken from its entry or has its Wikidata id, and only looks similar when the titles are equal (`album-matching.ts`). "Dodaj N dzieł" hands the ticked entry ids to `onadd` of `AlbumGallery`, the start of the form flow.
+
 ## Images
 
 The images are resized copies from Commons and other freely licensed sources, stored once for all learners, and each carries its licence and attribution. An artwork image taken from an album is a row of `artwork_images` with `album_image_path` (`<slug>/images/<name>`), the licence columns and the Wikidata id of the artwork in `source_wikidata_id`, and no other source. It does not count towards the storage of an account and is never removed by the cleanup of unused images, which reads only `own_image_path`. The app shows it with "Z albumu" and its licence and attribution where a Commons image shows "Wikimedia Commons".

@@ -36,4 +36,11 @@ describe('TickTile', () => {
 		render(TickTile, { checked: true, framed: false, ontoggle: vi.fn(), picture, children });
 		expect(document.querySelector('.window.framed')).toBeNull();
 	});
+
+	it('gives the window the proportions of the picture when a ratio is set', async () => {
+		render(TickTile, { checked: true, ratio: 0.75, ontoggle: vi.fn(), picture, children });
+
+		const window = document.querySelector('.window') as HTMLElement;
+		expect(window.style.aspectRatio).toBe('0.75 / 1');
+	});
 });

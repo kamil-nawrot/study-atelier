@@ -10,6 +10,7 @@
 	import WallCount from '#lib/wall/components/WallCount/WallCount.svelte';
 	import WallSections from '#lib/wall/components/WallSections/WallSections.svelte';
 	import WallWelcome from '#lib/wall/components/WallWelcome/WallWelcome.svelte';
+	import AlbumsHint from '#lib/wall/components/AlbumsHint/AlbumsHint.svelte';
 	import { onlyFavourites } from '#lib/wall/filter/filter.ts';
 	import { removeTag } from '#lib/wall/filter-tags/filter-tags.ts';
 	import { favouriteToast } from '#lib/wall/favourite/favourite.ts';
@@ -32,6 +33,7 @@
 	const addPath = resolve('/(app)/atelier/new');
 	const atelierPath = resolve('/(app)/atelier');
 	const HIGHLIGHT_MS = 2000;
+	const SMALL_WALL = 5;
 
 	let highlight = $state(page.state.highlight);
 	let toast: Toast;
@@ -125,6 +127,9 @@
 		() => (query = '')
 	)}
 {:else}
+	{#if view.total < SMALL_WALL}
+		<AlbumsHint text={m.albums.smallWallHint} />
+	{/if}
 	{@render tags()}
 	{#if view.favouriteError}
 		<Alert tone="danger">

@@ -17,6 +17,14 @@ describe('WallWelcome', () => {
 			.toHaveAttribute('href', '/atelier/new');
 	});
 
+	it('points to the albums under the greeting', async () => {
+		render(WallWelcome, { addPath: '/atelier/new' });
+
+		await expect
+			.element(page.getByRole('link', { name: m.albums.emptyWallHint.link }))
+			.toHaveAttribute('href', '/atelier/albums');
+	});
+
 	it('explains the three steps of learning in order', async () => {
 		render(WallWelcome, { addPath: '/atelier/new' });
 

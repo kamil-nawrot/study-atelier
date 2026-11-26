@@ -1,5 +1,6 @@
 <script lang="ts">
 	import BookA from '@lucide/svelte/icons/book-a';
+	import BookImage from '@lucide/svelte/icons/book-image';
 	import CalendarRange from '@lucide/svelte/icons/calendar-range';
 	import Flag from '@lucide/svelte/icons/flag';
 	import Footprints from '@lucide/svelte/icons/footprints';
@@ -59,6 +60,7 @@
 	const timelinePath = resolve('/(app)/atelier/timeline');
 	const chroniclePath = resolve('/(app)/atelier/chronicle');
 	const exhibitionsPath = resolve('/(app)/atelier/exhibitions');
+	const albumsPath = resolve('/(app)/atelier/albums');
 	const trashPath = resolve('/(app)/atelier/trash');
 	const backroomPath = resolve('/(app)/atelier/backroom');
 	const settingsPath = resolve('/(app)/atelier/settings');
@@ -251,6 +253,16 @@
 	{/if}
 </div>
 <div class="group" class:dense>
+	<a
+		class="item muted"
+		aria-current={page.url.pathname.startsWith(albumsPath) ? 'page' : undefined}
+		href={albumsPath}
+	>
+		<span class="small-icon"><Icon icon={BookImage} size="xs" /></span>
+		<span class="label" class:visually-hidden={compact}>
+			{m.menu.albums}
+		</span>
+	</a>
 	<a
 		class="item muted"
 		aria-current={page.url.pathname === trashPath ? 'page' : undefined}

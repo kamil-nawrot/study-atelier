@@ -585,6 +585,40 @@ reads:
         note: 'new in 0.25 (ATL-467): the flags, the rest from the wall and glossary caches; 0.26 adds the broken images (ADR-0325)'
       }
 
+  - id: R37
+    name: Albums
+    route: /atelier/albums
+    shows: 'the albums of the app language grouped by the era the curator set, each with a mosaic, its counts and how many of its artworks the atelier holds (ADR-0347)'
+    needs:
+      - 'album files: index.json and the album.json and text file of every listed album, static files of the app'
+      - 'artworks: few, outside Archiwum, whose album_entry starts with a listed album'
+      - 'artwork_images: few, with the Wikidata id of an artwork of a listed album, with their artwork'
+    scope: few
+    frequency: view
+    today:
+      {
+        requests: 2,
+        whole: [],
+        note: 'new in 0.27 (ATL-865); the Wikidata request is left out when no album artwork has an id'
+      }
+
+  - id: R38
+    name: Album gallery
+    route: /atelier/albums/[slug]
+    shows: 'the artworks of one album as a wall of tiles to tick, each marked when the atelier holds it or an artwork of the same title (ADR-0347)'
+    needs:
+      - 'album files: index.json, album.json and the text file of the album'
+      - 'artworks: few, outside Archiwum, taken from the album or with a title of one of its artworks (ilike, compared exactly in the app)'
+      - 'artwork_images: few, with the Wikidata id of an album artwork, with their artwork'
+    scope: few
+    frequency: view
+    today:
+      {
+        requests: 2,
+        whole: [],
+        note: 'new in 0.27 (ATL-865); the Wikidata request is left out when no album artwork has an id'
+      }
+
 writes:
   - id: W01
     name: Save artwork

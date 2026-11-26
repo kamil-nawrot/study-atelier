@@ -223,7 +223,8 @@ describe('AtelierLayout', () => {
 			.element()
 			.querySelectorAll('a, button');
 		const names = [...items].map((item) => item.textContent?.trim());
-		expect(names.slice(-5)).toEqual([
+		expect(names.slice(-6)).toEqual([
+			m.menu.albums,
 			m.menu.trash,
 			m.backroom.title,
 			m.menu.feedback,
@@ -501,6 +502,9 @@ describe('AtelierLayout menu', () => {
 			await expect
 				.element(page.getByRole('link', { name: m.menu.trash }))
 				.toHaveAttribute('href', '/atelier/trash');
+			await expect
+				.element(page.getByRole('link', { name: m.menu.albums }))
+				.toHaveAttribute('href', '/atelier/albums');
 			await expect.element(page.getByText('learner@example.com')).toBeInTheDocument();
 			await expect.element(page.getByRole('button', { name: m.menu.open })).not.toBeInTheDocument();
 		});

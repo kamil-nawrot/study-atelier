@@ -202,6 +202,23 @@ describe('atelier page', () => {
 		await expect.element(page.getByText(m.atelier.count(0))).not.toBeInTheDocument();
 	});
 
+	it('points a small atelier to the albums', async () => {
+		renderAtelier();
+
+		await expect
+			.element(page.getByRole('link', { name: m.albums.smallWallHint.link }))
+			.toHaveAttribute('href', '/atelier/albums');
+	});
+
+	it('does not point a fuller atelier to the albums', async () => {
+		renderAtelier([...artworks, testArtwork(4, 'Mona Lisa'), testArtwork(5, 'The Kiss')]);
+
+		await expect.element(page.getByText('The Kiss')).toBeVisible();
+		await expect
+			.element(page.getByRole('link', { name: m.albums.smallWallHint.link }))
+			.not.toBeInTheDocument();
+	});
+
 	it('says when some images are unavailable and loads them again on request', async () => {
 		renderAtelier([
 			testArtwork(1, 'Night Watch', { image: undefined, imageUnavailable: true }),

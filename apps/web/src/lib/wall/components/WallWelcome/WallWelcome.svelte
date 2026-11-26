@@ -3,6 +3,7 @@
 	import Plus from '@lucide/svelte/icons/plus';
 	import { Button, EmptyState, Icon } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
+	import AlbumsHint from '#lib/wall/components/AlbumsHint/AlbumsHint.svelte';
 
 	type Props = {
 		addPath: string;
@@ -17,6 +18,9 @@
 			<Icon icon={Plus} />
 			{m.atelier.addFirst}
 		</Button>
+		<div class="albums">
+			<AlbumsHint text={m.albums.emptyWallHint} />
+		</div>
 	</EmptyState>
 
 	<section class="how" aria-labelledby="welcome-how">
@@ -38,6 +42,12 @@
 		display: grid;
 		gap: var(--spacing-8);
 		padding-block-end: var(--spacing-12);
+	}
+
+	.albums {
+		max-width: var(--size-content-narrow);
+		margin-inline: auto;
+		padding-block-start: var(--spacing-6);
 	}
 
 	.how {
