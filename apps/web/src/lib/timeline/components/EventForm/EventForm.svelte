@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { untrack } from 'svelte';
+	import { untrack, type Snippet } from 'svelte';
 	import {
 		Button,
 		Checkbox,
@@ -27,7 +27,6 @@
 	import {
 		datesKey,
 		draftOfEventForm,
-		emptyEventForm,
 		EVENT_DESCRIPTION_MAX_LENGTH,
 		EVENT_NAME_MAX_LENGTH,
 		eventFormChanged,
@@ -50,6 +49,8 @@
 
 	type Props = {
 		event?: TimelineEvent;
+		prefill?: TimelineEvent;
+		secondary?: Snippet;
 		labels?: { save: string; cancel: string };
 		flags?: FormFlags;
 		cancelHref: string;
@@ -57,15 +58,14 @@
 		onsaved: (draft: TimelineEventDraft) => void | Promise<void>;
 	};
 
-	let { event, cancelHref, oncancel, onsaved, labels, flags }: Props = $props();
+	let { event, prefill, secondary, cancelHref, oncancel, onsaved, labels, flags }: Props = $props();
 
 	const SEARCH_DELAY_MS = 600;
 	const formId = $props.id();
 	const yearToId = `${formId}-year-to`;
 	const existing = untrack(() => event);
-	const initial = (): EventFormState => (existing ? eventFormOf(existing) : emptyEventForm());
 
-	let form = $state<EventFormState>(initial());
+	let form = $state<EventFormState>(untrack(() => eventFormOf(prefill ?? existing)));
 	const errors = new LiveErrors<EventFormErrors>(() => validateEventForm(form));
 	let status = $state<SearchStatus>('idle');
 	let articles = $state<EventArticle[]>([]);
@@ -78,7 +78,7 @@
 	let filling = $state<{ dates: boolean; description: boolean } | null>(null);
 	let stoppedName = '';
 	let request = 0;
-	const formState = new FormState<EventFormState>(initial());
+	const formState = new FormState<EventFormState>(untrack(() => $state.snapshot(form)));
 
 	let query = $derived(form.name.trim());
 
@@ -329,6 +329,7 @@
 			<Button href={cancelHref} onclick={oncancel}>
 				{labels?.cancel ?? m.common.cancel}
 			</Button>
+			{@render secondary?.()}
 			<Button disabled={formState.busy || filling !== null} type="submit" variant="primary">
 				{formState.busy ? m.common.saving : (labels?.save ?? m.common.save)}
 			</Button>

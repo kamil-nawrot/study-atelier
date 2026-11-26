@@ -6,6 +6,7 @@ import { locale } from '#lib/i18n/i18n.ts';
 import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
 import type { Town } from '#lib/map/types/town.ts';
 import type { PlaceCity } from '#lib/values/types/place-city.ts';
+import type { ValueFormFields } from '#lib/values/types/value-form-fields.ts';
 
 const OWN_LIMIT = 8;
 const TOWN_MIN_QUERY = 2;
@@ -75,4 +76,12 @@ export function cityOptions(
 		options.push({ kind: 'new', id: 'new', name });
 	}
 	return { options, choices };
+}
+
+export function withTown(
+	location: NonNullable<ValueFormFields['location']>,
+	town: Town
+): NonNullable<ValueFormFields['location']> {
+	const city = cityOfTown(town);
+	return { ...location, city, point: null, countryCode: city.countryCode ?? null };
 }

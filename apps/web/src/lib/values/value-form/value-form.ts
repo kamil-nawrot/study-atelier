@@ -54,6 +54,10 @@ export function valueFormDetails(state: ValueFormFields): ValueDetails {
 	};
 }
 
+export function appendedNotes(notes: string, text: string): string {
+	return notes.trim() === '' ? text : `${notes.trimEnd()}\n\n${text}`;
+}
+
 export function sameItems(a: readonly string[], b: readonly string[]): boolean {
 	return a.length === b.length && a.every((item) => b.includes(item));
 }

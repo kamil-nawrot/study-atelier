@@ -28,8 +28,14 @@ export class AlbumWalk {
 		return this.index === this.artworks.length - 1;
 	}
 
+	get savedIds(): string[] {
+		return this.artworks
+			.filter((artwork) => this.#outcomes[artwork.id] === 'saved')
+			.map((artwork) => artwork.id);
+	}
+
 	get added(): number {
-		return Object.values(this.#outcomes).filter((outcome) => outcome === 'saved').length;
+		return this.savedIds.length;
 	}
 
 	statusOf(artwork: AlbumArtwork): AlbumWalkStatus {

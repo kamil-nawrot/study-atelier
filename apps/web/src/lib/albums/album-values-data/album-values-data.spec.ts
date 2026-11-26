@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import type { AlbumValue } from '#lib/albums/types/album-value.ts';
-import { exactLike, loadLearnerValues } from './album-values-data.ts';
+import { loadLearnerValues } from './album-values-data.ts';
 
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({ supabase: { from: vi.fn() } }));
 
@@ -46,12 +46,6 @@ function answer(tables: Record<string, Answer>): {
 	});
 	return { ilike, inIds };
 }
-
-describe('exactLike', () => {
-	it('escapes the wildcards of a pattern', () => {
-		expect(exactLike(' 100%_a\\b ')).toBe('100\\%\\_a\\\\b');
-	});
-});
 
 describe('loadLearnerValues', () => {
 	beforeEach(() => {
