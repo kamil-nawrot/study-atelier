@@ -1,0 +1,131 @@
+{
+	"format": 1,
+	"title": "Wenus paleolityczne",
+	"description": "Kobiece figurki i płaskorzeźby z górnego paleolitu, od Jury Szwabskiej po Syberię, z ok. 40–15 tys. lat temu.",
+	"artworks": {
+		"venus-of-hohle-fels": {
+			"title": "Wenus z Hohle Fels",
+			"description": "Figurka z kości słoniowej mamuta, wysoka na 6 cm, znaleziona w 2008 roku w jaskini Hohle Fels koło Schelklingen w Jurze Szwabskiej. To najstarsze bezsporne przedstawienie człowieka w sztuce. Zamiast głowy ma uszko, więc mogła być noszona jako wisiorek."
+		},
+		"venus-of-galgenberg": {
+			"title": "Wenus z Galgenbergu",
+			"description": "Figurka z zielonego, połyskującego kamienia, wysoka na 7 cm, znaleziona w 1988 roku na wzgórzu Galgenberg koło Stratzing w Dolnej Austrii. Postać z uniesioną ręką wygląda, jakby tańczyła, dlatego nazwano ją „Fanny” na cześć tancerki Fanny Elßler. W muzeum stoi w jednej gablocie z Wenus z Willendorfu."
+		},
+		"venus-of-willendorf": {
+			"title": "Wenus z Willendorfu",
+			"description": "Wapienna figurka wysoka na 11 cm, znaleziona w 1908 roku podczas wykopalisk koło Willendorfu w Dolnej Austrii. Była pomalowana czerwoną ochrą, a jej kamień nie pochodzi z okolicy; badania z 2022 roku wskazują na północne Włochy. Zamiast twarzy głowę pokrywają rzędy splotów, może fryzura, może nakrycie głowy."
+		},
+		"venus-of-dolni-vestonice": {
+			"title": "Wenus z Dolních Věstonic",
+			"description": "Figurka z wypalonej gliny, znaleziona w 1925 roku na obozowisku łowców mamutów w Dolních Věstonicach na Morawach. Razem z figurkami zwierząt z tego miejsca to najstarsza znana ceramika na świecie. Na jej powierzchni zachował się odcisk palca dziecka."
+		},
+		"venus-of-brassempouy": {
+			"title": "Wenus z Brassempouy",
+			"description": "Główka z kości słoniowej mamuta, wysoka na 3,6 cm, znaleziona w 1894 roku w Grotte du Pape koło Brassempouy w Landach. To jedno z najwcześniejszych realistycznych przedstawień ludzkiej twarzy. Siateczka na głowie przypomina kaptur lub plecione włosy, stąd druga nazwa: „Dama w kapturze”."
+		},
+		"venus-of-lespugue": {
+			"title": "Wenus z Lespugue",
+			"description": "Figurka z kości słoniowej mamuta, wysoka na 15 cm, znaleziona w 1922 roku w grocie Rideaux koło Lespugue u stóp Pirenejów i uszkodzona przy wydobyciu. Ma najsilniej przesadzone kształty ze wszystkich paleolitycznych Wenus. Z tyłu wyrzeźbiono spódniczkę ze skręconych włókien, najstarsze znane przedstawienie przędzonej nici."
+		},
+		"venus-of-laussel": {
+			"title": "Wenus z Laussel",
+			"description": "Płaskorzeźba w bloku wapienia, wysoka na 46 cm, odkryta w 1911 roku w schronisku skalnym Laussel w Dordonii. Kobieta trzyma róg z 13 nacięciami, które bywają odczytywane jako miesiące księżycowe; stąd druga nazwa: „Wenus z rogiem”. Postać pokrywała czerwona ochra."
+		},
+		"venus-of-kostenki": {
+			"title": "Wenus z Kostionek",
+			"description": "Jedna z kilkunastu kobiecych figurek z kości słoniowej mamuta, znalezionych na stanowisku Kostionki nad Donem, na południe od Woroneża. Ma pochyloną głowę bez rysów twarzy i ramiona przylegające do ciała."
+		},
+		"venus-of-savignano": {
+			"title": "Wenus z Savignano",
+			"description": "Figurka z serpentynu, wysoka na 22 cm, jedna z największych paleolitycznych Wenus. W 1925 roku znalazł ją rolnik kopiący przy oborze w Savignano sul Panaro koło Modeny i oddał ją za 200 kilogramów winogron. Zamiast głowy ma stożek."
+		},
+		"rhomboid-venus-of-grimaldi": {
+			"title": "Wenus romboidalna z Grimaldi",
+			"description": "Figurka ze steatytu z jaskini Barma Grande, jednej z grot Balzi Rossi koło Grimaldi na granicy Włoch i Francji, znaleziona pod koniec XIX wieku. Nazwę zawdzięcza sylwetce w kształcie rombu (fr. losange). Należy do kilkunastu figurek z tych jaskiń."
+		},
+		"venus-of-malta": {
+			"title": "Wenus z Malty",
+			"description": "Figurka z kości słoniowej mamuta ze stanowiska Malta nad Angarą, koło Irkucka na Syberii, gdzie od 1928 roku znaleziono kilkadziesiąt podobnych. Były pierwszymi Wenus odkrytymi poza Europą. W przeciwieństwie do europejskich często mają zaznaczoną twarz, a z tyłu tej figurki starannie wyrzeźbiono fryzurę."
+		},
+		"venus-impudique": {
+			"title": "Wenus bezwstydna",
+			"description": "Pierwsza paleolityczna figurka kobieca odkryta w czasach nowożytnych: około 1864 roku znalazł ją markiz de Vibraye w Laugerie-Basse w dolinie Vézère. Nazwał ją przekornie „Wenus bezwstydną”, w opozycji do antycznej Wenus wstydliwej, i od niej wzięła się nazwa wszystkich paleolitycznych Wenus. Jest wysoka na 8 cm, bez głowy, rąk i stóp."
+		},
+		"venus-of-monruz": {
+			"title": "Wenus z Monruz",
+			"description": "Wisiorek z gagatu, wysoki na niecałe 2 cm, znaleziony w 1991 roku przy budowie autostrady w Monruz nad Jeziorem Neuchâtel. To schematyczna sylwetka kobiety z profilu, typowa dla schyłku paleolitu, z otworem do zawieszenia. Niemal identyczne figurki znaleziono w Petersfels w Niemczech, 130 km dalej."
+		}
+	},
+	"values": {
+		"aurignacian-culture": {
+			"name": "kultura oryniacka",
+			"summary": "Najstarsza kultura górnego paleolitu w Europie, ok. 43–33 tys. lat temu, związana z pierwszymi ludźmi współczesnymi na kontynencie. Nazwa pochodzi od jaskini Aurignac we Francji."
+		},
+		"gravettian-culture": {
+			"name": "kultura grawecka",
+			"summary": "Kultura górnego paleolitu w Europie, ok. 33–21 tys. lat temu; z niej pochodzi większość paleolitycznych Wenus. Nazwa pochodzi od stanowiska La Gravette we Francji."
+		},
+		"malta-buret-culture": {
+			"name": "kultura maltańsko-burecka",
+			"summary": "Kultura górnego paleolitu na Syberii, nad Angarą koło Bajkału, ok. 24–20 tys. lat temu. Nazwa pochodzi od stanowisk Malta i Buret'."
+		},
+		"magdalenian-culture": {
+			"name": "kultura magdaleńska",
+			"summary": "Ostatnia kultura górnego paleolitu w Europie Zachodniej, ok. 17–12 tys. lat temu, czas malowideł z Lascaux i Altamiry. Nazwa pochodzi od schroniska skalnego La Madeleine we Francji."
+		},
+		"mammoth-ivory": {
+			"name": "kość słoniowa mamuta"
+		},
+		"serpentine": {
+			"name": "serpentyn"
+		},
+		"limestone": {
+			"name": "wapień"
+		},
+		"ceramic": {
+			"name": "ceramika"
+		},
+		"steatite": {
+			"name": "steatyt"
+		},
+		"jet": {
+			"name": "gagat"
+		},
+		"urmu": {
+			"name": "Muzeum Prehistorii i Sztuki Epoki Lodowcowej w Blaubeuren",
+			"summary": "Miasto: Blaubeuren."
+		},
+		"nhm-vienna": {
+			"name": "Muzeum Historii Naturalnej w Wiedniu",
+			"summary": "Miasto: Wiedeń."
+		},
+		"moravian-museum": {
+			"name": "Morawskie Muzeum Krajowe",
+			"summary": "Miasto: Brno."
+		},
+		"man": {
+			"name": "Narodowe Muzeum Archeologiczne w Saint-Germain-en-Laye",
+			"summary": "Miasto: Saint-Germain-en-Laye."
+		},
+		"musee-de-l-homme": {
+			"name": "Musée de l'Homme",
+			"summary": "Miasto: Paryż."
+		},
+		"musee-d-aquitaine": {
+			"name": "Muzeum Akwitanii",
+			"summary": "Miasto: Bordeaux."
+		},
+		"hermitage": {
+			"name": "Ermitaż",
+			"summary": "Miasto: Petersburg."
+		},
+		"pigorini": {
+			"name": "Narodowe Muzeum Prehistoryczno-Etnograficzne im. Luigiego Pigoriniego",
+			"summary": "Miasto: Rzym."
+		},
+		"latenium": {
+			"name": "Laténium",
+			"summary": "Miasto: Laténa."
+		}
+	}
+}

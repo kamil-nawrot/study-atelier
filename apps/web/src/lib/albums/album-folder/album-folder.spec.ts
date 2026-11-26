@@ -67,6 +67,7 @@ describe('checkAlbums', () => {
 			format: 1,
 			albums: [
 				{ slug: 'sample-album', languages: ['pl'] },
+				{ slug: 'paleolithic-venuses', languages: ['pl'] },
 				{ slug: 'gone', languages: ['pl'] }
 			]
 		};
