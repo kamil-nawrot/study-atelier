@@ -110,7 +110,9 @@
 		{error}
 	</Alert>
 {:else if view.total === 0}
-	<WallWelcome {addPath} />
+	{#await page.data.albumsListed then albums}
+		<WallWelcome {addPath} albums={albums === true} />
+	{/await}
 {:else if view.shown.length === 0 && view.filtering}
 	{@render tags()}
 	{@render emptyState(
@@ -128,7 +130,11 @@
 	)}
 {:else}
 	{#if view.total < SMALL_WALL}
-		<AlbumsHint text={m.albums.smallWallHint} />
+		{#await page.data.albumsListed then albums}
+			{#if albums}
+				<AlbumsHint text={m.albums.smallWallHint} />
+			{/if}
+		{/await}
 	{/if}
 	{@render tags()}
 	{#if view.favouriteError}

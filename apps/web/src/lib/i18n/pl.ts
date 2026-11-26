@@ -3286,7 +3286,7 @@ export const pl = {
 	albums: {
 		title: 'Albumy',
 		lead: 'Gotowe zestawy dzieł wraz z podstawowymi danymi, skupione wokół konkretnego punktu w czasie lub motywu. Możesz je dodać do swojej kolekcji w całości lub wybrać tylko te pozycje, którymi chcesz zasilić atelier.',
-		empty: 'Nie ma tu jeszcze żadnego albumu. Pojawią się w kolejnych wersjach aplikacji.',
+		empty: 'Nie ma tu jeszcze żadnego albumu.',
 		loadErrorTitle: 'Nie udało się wczytać albumów',
 		albumLoadErrorTitle: 'Nie udało się wczytać albumu',
 		loadError: 'Nie udało się wczytać plików albumu. Odśwież stronę i spróbuj jeszcze raz.',

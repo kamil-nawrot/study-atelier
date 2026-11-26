@@ -20,6 +20,7 @@ const pageState = vi.hoisted(() => ({
 	url: new URL('http://localhost/atelier'),
 	data: {} as {
 		reviewWaiting?: Promise<number>;
+		albumsListed?: Promise<boolean>;
 		menuProfile?: Promise<{ displayName: string | null; avatarPath: string | null } | undefined>;
 	}
 }));
@@ -216,7 +217,9 @@ describe('AtelierLayout', () => {
 	it('switches between the dark and the light theme from the menu, between the feedback item and signing out', async () => {
 		await page.viewport(1280, 800);
 		flagCount.value = 0;
+		pageState.data = { albumsListed: Promise.resolve(true) };
 		renderLayout(views.empty);
+		await expect.element(page.getByRole('link', { name: m.menu.albums })).toBeInTheDocument();
 
 		const items = page
 			.getByRole('navigation', { name: m.menu.label })
@@ -497,6 +500,7 @@ describe('AtelierLayout menu', () => {
 		});
 
 		it('links to the trash and has no menu icon in the top bar', async () => {
+			pageState.data = { albumsListed: Promise.resolve(true) };
 			renderLayout(views.empty);
 
 			await expect
@@ -507,6 +511,14 @@ describe('AtelierLayout menu', () => {
 				.toHaveAttribute('href', '/atelier/albums');
 			await expect.element(page.getByText('learner@example.com')).toBeInTheDocument();
 			await expect.element(page.getByRole('button', { name: m.menu.open })).not.toBeInTheDocument();
+		});
+
+		it('leaves Albumy out of the menu when no album is listed', async () => {
+			pageState.data = { albumsListed: Promise.resolve(false) };
+			renderLayout(views.empty);
+
+			await expect.element(page.getByRole('link', { name: m.menu.trash })).toBeInTheDocument();
+			await expect.element(page.getByRole('link', { name: m.menu.albums })).not.toBeInTheDocument();
 		});
 
 		it('signs out and returns to sign-in', async () => {

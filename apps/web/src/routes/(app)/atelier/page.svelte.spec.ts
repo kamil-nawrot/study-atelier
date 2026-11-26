@@ -30,7 +30,7 @@ import '@study-atelier/ui/styles.css';
 
 const navigation = vi.hoisted(() => ({
 	state: {} as App.PageState,
-	data: {},
+	data: { albumsListed: Promise.resolve(true) } as { albumsListed?: Promise<boolean> },
 	url: new URL('http://localhost/atelier')
 }));
 
@@ -208,6 +208,17 @@ describe('atelier page', () => {
 		await expect
 			.element(page.getByRole('link', { name: m.albums.smallWallHint.link }))
 			.toHaveAttribute('href', '/atelier/albums');
+	});
+
+	it('does not point to the albums when none is listed', async () => {
+		navigation.data = { albumsListed: Promise.resolve(false) };
+		renderAtelier();
+
+		await expect.element(page.getByText('Starry Night')).toBeVisible();
+		await expect
+			.element(page.getByRole('link', { name: m.albums.smallWallHint.link }))
+			.not.toBeInTheDocument();
+		navigation.data = { albumsListed: Promise.resolve(true) };
 	});
 
 	it('does not point a fuller atelier to the albums', async () => {

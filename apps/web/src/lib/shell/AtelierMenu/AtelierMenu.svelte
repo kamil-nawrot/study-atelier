@@ -253,16 +253,18 @@
 	{/if}
 </div>
 <div class="group" class:dense>
-	<a
-		class="item muted"
-		aria-current={page.url.pathname.startsWith(albumsPath) ? 'page' : undefined}
-		href={albumsPath}
-	>
-		<span class="small-icon"><Icon icon={BookImage} size="xs" /></span>
-		<span class="label" class:visually-hidden={compact}>
-			{m.menu.albums}
-		</span>
-	</a>
+	{#await page.data.albumsListed then listed}
+		{#if listed}
+			<a
+				class="item muted"
+				aria-current={page.url.pathname.startsWith(albumsPath) ? 'page' : undefined}
+				href={albumsPath}
+			>
+				<span class="small-icon"><Icon icon={BookImage} size="xs" /></span>
+				<span class="label" class:visually-hidden={compact}>{m.menu.albums}</span>
+			</a>
+		{/if}
+	{/await}
 	<a
 		class="item muted"
 		aria-current={page.url.pathname === trashPath ? 'page' : undefined}

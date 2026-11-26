@@ -7,9 +7,10 @@
 
 	type Props = {
 		addPath: string;
+		albums?: boolean;
 	};
 
-	let { addPath }: Props = $props();
+	let { addPath, albums = false }: Props = $props();
 </script>
 
 <div class="welcome">
@@ -18,9 +19,11 @@
 			<Icon icon={Plus} />
 			{m.atelier.addFirst}
 		</Button>
-		<div class="albums">
-			<AlbumsHint text={m.albums.emptyWallHint} />
-		</div>
+		{#if albums}
+			<div class="albums">
+				<AlbumsHint text={m.albums.emptyWallHint} />
+			</div>
+		{/if}
 	</EmptyState>
 
 	<section class="how" aria-labelledby="welcome-how">

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { m } from '#lib/i18n/i18n.ts';
 import { loadAlbum, loadAlbumListings } from '#lib/albums/album-files/album-files.ts';
 import { loadAtelierMatches } from '#lib/albums/album-matches-data/album-matches-data.ts';
-import { loadAlbumGallery, loadAlbumList } from './album-pages.ts';
+import { albumsListed, loadAlbumGallery, loadAlbumList } from './album-pages.ts';
 import type { Album } from '#lib/albums/types/album.ts';
 
 vi.mock('#lib/albums/album-files/album-files.ts', () => ({
@@ -55,6 +55,17 @@ describe('album pages', () => {
 
 		await expect(loadAlbumList(fetcher, false)).resolves.toEqual({ albums: [] });
 		expect(loadAtelierMatches).not.toHaveBeenCalled();
+	});
+
+	it('tells whether any album is listed for the language', async () => {
+		await expect(albumsListed(fetcher, true)).resolves.toBe(true);
+		expect(loadAlbumListings).toHaveBeenCalledWith('pl', true, fetcher);
+
+		vi.mocked(loadAlbumListings).mockResolvedValue([]);
+		await expect(albumsListed(fetcher, false)).resolves.toBe(false);
+
+		vi.mocked(loadAlbumListings).mockResolvedValue(undefined);
+		await expect(albumsListed(fetcher, false)).resolves.toBe(false);
 	});
 
 	it('says so when the list of albums cannot be read', async () => {

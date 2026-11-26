@@ -1,14 +1,11 @@
 import { resolve } from '$app/paths';
 import type { ResolvedPathname } from '$app/types';
+import { albumEntryKey } from '#lib/albums/album-entry/album-entry.ts';
 import type { Album } from '#lib/albums/types/album.ts';
 import type { AlbumArtwork } from '#lib/albums/types/album-artwork.ts';
 import type { AlbumArtworkState } from '#lib/albums/types/album-artwork-state.ts';
 import type { AtelierMatch } from '#lib/albums/types/atelier-match.ts';
 import type { AtelierMatchQuery } from '#lib/albums/types/atelier-match-query.ts';
-
-export function albumEntry(slug: string, entryId: string): string {
-	return `${slug}/${entryId}`;
-}
 
 function wikidataIdsOf(albums: Album[]): string[] {
 	const ids = albums.flatMap((album) =>
@@ -42,7 +39,7 @@ function takenMatch(
 	artwork: AlbumArtwork,
 	matches: AtelierMatch[]
 ): AtelierMatch | undefined {
-	const entry = albumEntry(slug, artwork.id);
+	const entry = albumEntryKey({ slug, entryId: artwork.id });
 	return (
 		matches.find((match) => match.albumEntry === entry) ??
 		(artwork.wikidataId
@@ -71,6 +68,9 @@ export function compareWithAlbumHref(
 	slug: string,
 	entryId: string
 ): ResolvedPathname {
-	const params = new URLSearchParams({ left: String(number), album: albumEntry(slug, entryId) });
+	const params = new URLSearchParams({
+		left: String(number),
+		album: albumEntryKey({ slug, entryId })
+	});
 	return `${resolve('/(app)/atelier/compare')}?${params}` as ResolvedPathname;
 }

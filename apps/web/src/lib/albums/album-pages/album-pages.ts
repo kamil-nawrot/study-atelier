@@ -9,6 +9,11 @@ import type { ListedAlbum } from '#lib/albums/types/listed-album.ts';
 
 type Fetch = typeof fetch;
 
+export async function albumsListed(fetcher: Fetch, withSamples: boolean = dev): Promise<boolean> {
+	const listings = await loadAlbumListings(locale, withSamples, fetcher);
+	return (listings?.length ?? 0) > 0;
+}
+
 export async function loadAlbumList(
 	fetcher: Fetch,
 	withSamples: boolean = dev
