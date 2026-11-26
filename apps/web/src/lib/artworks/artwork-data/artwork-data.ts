@@ -9,7 +9,7 @@ import { ownEntriesOf, valuesOf } from '#lib/card-index/artwork-values/artwork-v
 import { signedYear } from '#lib/catalogue/years/years.ts';
 import { artworkErrorMessage } from '#lib/catalogue/errors/errors.ts';
 import {
-	IMAGE_COLUMNS,
+	ARTWORK_IMAGE_COLUMNS,
 	imageOf,
 	imageRecord,
 	storedImage,
@@ -85,7 +85,7 @@ const RECORD_COLUMNS = [
 	'favourite',
 	'want_to_see',
 	'artwork_values(position, category_values(category_code, name))',
-	`artwork_images(id, position, palette, broken_at, ${IMAGE_COLUMNS.join(', ')})`,
+	`artwork_images(id, position, palette, broken_at, ${ARTWORK_IMAGE_COLUMNS.join(', ')})`,
 	'artwork_field_entries(field_id, text_value)',
 	...RELATION_COLUMNS
 ].join(', ');

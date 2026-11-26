@@ -22,7 +22,7 @@ function memoryKey(image: ArtworkImageInput): string {
 			? image.file
 			: image.kind === 'url'
 				? image.url
-				: image.kind === 'upload'
+				: image.kind === 'upload' || image.kind === 'album'
 					? image.path
 					: image.previewUrl;
 	return `${image.id ?? ''}:${image.kind}:${origin}`;

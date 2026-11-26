@@ -29,6 +29,7 @@ import {
 	DEFAULT_IMAGE_SIZE,
 	TILE_WIDTH,
 	commonsImage,
+	albumImage,
 	linkedImage,
 	ownImage,
 	pendingImageOf,
@@ -73,7 +74,7 @@ export const ARTWORK_COLUMNS = [
 	'year_approximate',
 	'era_code',
 	'type_code',
-	'artwork_images(id, source_image_file, own_image_path, own_image_url, image_width, image_height, broken_at)',
+	'artwork_images(id, source_image_file, own_image_path, own_image_url, album_image_path, image_width, image_height, broken_at)',
 	'favourite',
 	'want_to_see',
 	'deleted_at',
@@ -95,7 +96,9 @@ export function wallArtwork(row: ArtworkRow): WallArtwork {
 	const pendingImage = pendingImageOf(main, size);
 	const image = pendingImage
 		? { ...(size ?? DEFAULT_IMAGE_SIZE) }
-		: linkedImage(main?.own_image_url ?? undefined, size);
+		: main?.album_image_path
+			? albumImage(main.album_image_path, size)
+			: linkedImage(main?.own_image_url ?? undefined, size);
 	return {
 		id: row.id,
 		number: row.record_number,

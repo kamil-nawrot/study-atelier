@@ -10,7 +10,8 @@ import {
 	commonsUploadThumbnailUrl,
 	commonsUploadThumbnailWidth
 } from '#lib/images/commons/commons.ts';
-import { commonsCredit } from '#lib/images/credit/credit.ts';
+import { albumFileUrl } from '#lib/images/album/album.ts';
+import { albumCredit, commonsCredit } from '#lib/images/credit/credit.ts';
 import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 
 export const LOUPE_MAX_LINKED_MEGAPIXELS = 40;
@@ -50,6 +51,12 @@ export function artworkImageSource(
 						height: image.height ?? undefined
 					}
 				: undefined;
+		case 'album':
+			return {
+				src: albumFileUrl(image.path),
+				width: image.width ?? undefined,
+				height: image.height ?? undefined
+			};
 	}
 }
 
@@ -108,12 +115,15 @@ export function artworkLargeSource(
 			return linkedLargeSource(image, image.width);
 		case 'upload':
 			return image.previewUrl ? { src: image.previewUrl, width: image.width } : undefined;
+		case 'album':
+			return { src: albumFileUrl(image.path), width: image.width };
 	}
 }
 
 export function artworkImageCredit(image: ArtworkImageInput | null): string | undefined {
 	if (image === null) return undefined;
 	if (image.kind === 'commons') return commonsCredit(image.licence, image.attribution);
+	if (image.kind === 'album') return albumCredit(image.licence, image.attribution);
 	if (image.kind === 'url') return m.artworkForm.ownImageUrlCredit(new URL(image.url).hostname);
 	return m.artworkForm.ownImageCredit;
 }

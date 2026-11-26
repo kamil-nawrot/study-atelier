@@ -3,7 +3,7 @@ import type { PaletteColour } from '#lib/catalogue/types/palette-colour.ts';
 import type { Json } from '#lib/shared/data/database.types.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 
-type SourceColumn = 'source_image_file' | 'own_image_path' | 'own_image_url';
+type SourceColumn = 'source_image_file' | 'own_image_path' | 'own_image_url' | 'album_image_path';
 
 function sourceOf(image: ArtworkImageInput): [SourceColumn, string] | undefined {
 	switch (image.kind) {
@@ -13,6 +13,8 @@ function sourceOf(image: ArtworkImageInput): [SourceColumn, string] | undefined 
 			return ['own_image_path', image.path];
 		case 'url':
 			return ['own_image_url', image.url];
+		case 'album':
+			return ['album_image_path', image.path];
 		case 'file':
 			return undefined;
 	}

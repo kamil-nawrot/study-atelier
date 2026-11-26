@@ -5,6 +5,7 @@ import {
 	isOwnersUntracked,
 	splitNul,
 	summary,
+	touchesAlbums,
 	touchesRootConfig
 } from './verify.mjs';
 
@@ -42,4 +43,11 @@ test('checks the app when the library it consumes changes', () => {
 	assert.ok(consumesChange(app, ['packages/ui/src/a.ts']));
 	assert.ok(!consumesChange(app, ['docs/a.md']));
 	assert.ok(!consumesChange({ dir: 'packages/ui' }, ['packages/ui/src/a.ts']));
+});
+
+test('checks the albums when an album or the album schema changes', () => {
+	assert.ok(touchesAlbums(['apps/web/static/albums/index.json']));
+	assert.ok(touchesAlbums(['apps/web/static/albums/sample-album/images/a.webp']));
+	assert.ok(touchesAlbums(['apps/web/src/lib/albums/album-format/album-format.ts']));
+	assert.ok(!touchesAlbums(['apps/web/static/exhibits/a.webp', 'docs/a.md']));
 });

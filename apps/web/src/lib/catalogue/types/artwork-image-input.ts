@@ -19,7 +19,17 @@ type ImageSource =
 			width: number | null;
 			height: number | null;
 	  }
-	| { kind: 'url'; url: string; width: number | null; height: number | null };
+	| { kind: 'url'; url: string; width: number | null; height: number | null }
+	| {
+			kind: 'album';
+			path: string;
+			wikidataId: string | null;
+			licence: string;
+			licenceUrl: string | null;
+			attribution: string | null;
+			width: number | null;
+			height: number | null;
+	  };
 
 export type ArtworkImageInput = ImageSource & {
 	id?: string;

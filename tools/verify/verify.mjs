@@ -24,6 +24,7 @@ const OWNERS_UNTRACKED = /^(design|supabase\/snippets)\//;
 const ROOT_CONFIG =
 	/^(package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|\.nvmrc|eslint\.config\.[cm]?js|stylelint\.config\.[cm]?js|tsconfig[^/]*\.json|lint\/.*)$/;
 const ISSUE_BRANCH = /^(feature|bugfix)\/atl-(\d+)-/;
+const ALBUM_FILES = /^apps\/web\/(static\/albums|src\/lib\/albums)\//;
 
 export function splitNul(text) {
 	return text.split('\0').filter(Boolean);
@@ -39,6 +40,10 @@ export function consumesChange(pkg, files) {
 
 export function touchesRootConfig(files) {
 	return files.some((file) => ROOT_CONFIG.test(file));
+}
+
+export function touchesAlbums(files) {
+	return files.some((file) => ALBUM_FILES.test(file));
 }
 
 export function summary(results, files, all) {
@@ -229,6 +234,14 @@ function repositorySteps(files, branch) {
 			name: 'Docs links and ADR index',
 			cmd: 'node',
 			args: ['.github/scripts/check-docs.mjs']
+		});
+	}
+	if (!all && touchesAlbums(files)) {
+		steps.push({
+			name: 'Albums and their schema',
+			cwd: 'apps/web',
+			cmd: 'pnpm',
+			args: ['exec', 'vitest', 'run', '--project', 'server', '--maxWorkers=2', 'src/lib/albums']
 		});
 	}
 	if (all || files.some((file) => file.startsWith('supabase/migrations/'))) {
