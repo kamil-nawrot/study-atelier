@@ -1,5 +1,4 @@
 import { resolve } from '$app/paths';
-import type { ResolvedPathname } from '$app/types';
 import { parseAlbumEntry } from '#lib/albums/album-entry/album-entry.ts';
 import { loadAlbum } from '#lib/albums/album-files/album-files.ts';
 import type { AlbumLink } from '#lib/artworks/types/album-link.ts';
@@ -19,7 +18,7 @@ export async function loadAlbumOrigin(
 	const artwork = album.artworks.find((candidate) => candidate.id === entry.entryId);
 	return {
 		albumTitle: album.title,
-		albumHref: `${resolve('/(app)/atelier')}/albums/${entry.slug}` as ResolvedPathname,
+		albumHref: resolve('/(app)/atelier/albums/[slug]', { slug: entry.slug }),
 		...(artwork && artwork.revision > link.revision
 			? { newerHref: compareAlbumHref(number, entry) }
 			: {})

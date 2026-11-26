@@ -8,16 +8,17 @@
 		checked: boolean;
 		ontoggle: () => void;
 		framed?: boolean;
+		ratio?: number;
 		picture: Snippet;
 		children: Snippet;
 	};
 
-	let { checked, ontoggle, framed = true, picture, children, ...rest }: Props = $props();
+	let { checked, ontoggle, framed = true, ratio, picture, children, ...rest }: Props = $props();
 </script>
 
 <label {...rest} class="tick" class:off={!checked}>
 	<input class="visually-hidden" {checked} onchange={ontoggle} type="checkbox" />
-	<span class="window" class:framed>
+	<span style:aspect-ratio={ratio} class="window" class:framed>
 		<span class="picture">{@render picture()}</span>
 		<span class="mark" aria-hidden="true">
 			{#if checked}

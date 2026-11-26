@@ -30,7 +30,7 @@ import '@study-atelier/ui/styles.css';
 
 const navigation = vi.hoisted(() => ({
 	state: {} as App.PageState,
-	data: {},
+	data: { albumsListed: Promise.resolve(true) } as { albumsListed?: Promise<boolean> },
 	url: new URL('http://localhost/atelier')
 }));
 
@@ -200,6 +200,34 @@ describe('atelier page', () => {
 			.toHaveAttribute('href', '/atelier/new');
 		await expect.element(searchField()).toBeDisabled();
 		await expect.element(page.getByText(m.atelier.count(0))).not.toBeInTheDocument();
+	});
+
+	it('points a small atelier to the albums', async () => {
+		renderAtelier();
+
+		await expect
+			.element(page.getByRole('link', { name: m.albums.smallWallHint.link }))
+			.toHaveAttribute('href', '/atelier/albums');
+	});
+
+	it('does not point to the albums when none is listed', async () => {
+		navigation.data = { albumsListed: Promise.resolve(false) };
+		renderAtelier();
+
+		await expect.element(page.getByText('Starry Night')).toBeVisible();
+		await expect
+			.element(page.getByRole('link', { name: m.albums.smallWallHint.link }))
+			.not.toBeInTheDocument();
+		navigation.data = { albumsListed: Promise.resolve(true) };
+	});
+
+	it('does not point a fuller atelier to the albums', async () => {
+		renderAtelier([...artworks, testArtwork(4, 'Mona Lisa'), testArtwork(5, 'The Kiss')]);
+
+		await expect.element(page.getByText('The Kiss')).toBeVisible();
+		await expect
+			.element(page.getByRole('link', { name: m.albums.smallWallHint.link }))
+			.not.toBeInTheDocument();
 	});
 
 	it('says when some images are unavailable and loads them again on request', async () => {

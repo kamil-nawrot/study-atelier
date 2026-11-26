@@ -202,6 +202,15 @@ export const ARTWORKS = [
 	artwork(10, 'Untitled study', ['Learner Example'], null, null, {})
 ];
 
+export const ALBUM_MATCHES = [
+	{ ...albumMatch(ARTWORKS[3]), album_entry: 'sample-album/blue-square' },
+	{ ...albumMatch(ARTWORKS[1]), title: 'Red Circle' }
+];
+
+function albumMatch(row) {
+	return { id: row.id, record_number: row.record_number, title: row.title, album_entry: null };
+}
+
 export const BROKEN_IMAGES = [
 	{ number: 3, position: 0 },
 	{ number: 6, position: 2 }

@@ -4,6 +4,7 @@
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { Snippet } from 'svelte';
 	import CardIndexEra from '#lib/card-index/components/CardIndexEra/CardIndexEra.svelte';
+	import CardIndexEraAxis from '#lib/card-index/components/CardIndexEraAxis/CardIndexEraAxis.svelte';
 	import CardIndexPeriods from '#lib/card-index/components/CardIndexPeriods/CardIndexPeriods.svelte';
 	import CardIndexStyles from '#lib/card-index/components/CardIndexStyles/CardIndexStyles.svelte';
 	import CardIndexTools from '#lib/card-index/components/CardIndexTools/CardIndexTools.svelte';
@@ -72,7 +73,7 @@
 			<p class="lead">{m.cardIndex.noResults(query.trim())}</p>
 		{/if}
 		{#if hasEras}
-			<ol class="eras">
+			<CardIndexEraAxis>
 				{#each timeline.eras as era (era.code)}
 					<CardIndexEra
 						code={era.code}
@@ -83,7 +84,7 @@
 						<CardIndexPeriods {folding} periods={era.periods} />
 					</CardIndexEra>
 				{/each}
-			</ol>
+			</CardIndexEraAxis>
 		{/if}
 		{#if hasOutside}
 			<div class={['outside', { divided: hasEras }]}>
@@ -115,24 +116,6 @@
 	.timeline {
 		display: grid;
 		gap: var(--spacing-6);
-	}
-
-	.eras {
-		position: relative;
-		display: grid;
-		gap: var(--spacing-8);
-		margin: 0;
-		padding: 0;
-		list-style: none;
-	}
-
-	.eras::before {
-		content: '';
-		position: absolute;
-		top: var(--spacing-6);
-		bottom: var(--spacing-6);
-		left: var(--spacing-6);
-		border-left: var(--border-width-hairline) solid var(--color-line);
 	}
 
 	.outside {

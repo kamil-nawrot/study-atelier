@@ -4,6 +4,7 @@
 	import { EmptyState, Icon } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import CardIndexEra from '#lib/card-index/components/CardIndexEra/CardIndexEra.svelte';
+	import CardIndexEraAxis from '#lib/card-index/components/CardIndexEraAxis/CardIndexEraAxis.svelte';
 	import CardIndexTools from '#lib/card-index/components/CardIndexTools/CardIndexTools.svelte';
 	import { TimelineFolding } from '#lib/card-index/timeline-folding/timeline-folding.svelte.ts';
 	import {
@@ -114,13 +115,13 @@
 			<p class="lead">{m.cardIndex.noResults(query.trim())}</p>
 		{/if}
 		{#if hasEras}
-			<ol class="eras">
+			<CardIndexEraAxis>
 				{#each shownEras as era (era.code)}
 					<CardIndexEra code={era.code} empty={eraEmpty} filled={era.records.length > 0} {folding}>
 						{@render rows(era.records)}
 					</CardIndexEra>
 				{/each}
-			</ol>
+			</CardIndexEraAxis>
 		{/if}
 		{#if outside && shownOutside.length > 0}
 			<section class={['outside', { divided: hasEras }]}>
@@ -142,24 +143,6 @@
 	.grouped {
 		display: grid;
 		gap: var(--spacing-6);
-	}
-
-	.eras {
-		position: relative;
-		display: grid;
-		gap: var(--spacing-8);
-		margin: 0;
-		padding: 0;
-		list-style: none;
-	}
-
-	.eras::before {
-		content: '';
-		position: absolute;
-		top: var(--spacing-6);
-		bottom: var(--spacing-6);
-		left: var(--spacing-6);
-		border-left: var(--border-width-hairline) solid var(--color-line);
 	}
 
 	.outside {
