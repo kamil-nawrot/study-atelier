@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { ArtworkImage, MetaLine, NoImage, StageBackdrop, TextButton } from '@study-atelier/ui';
 	import { MediaQuery } from 'svelte/reactivity';
-	import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
 	import { formatDate, signedYear } from '#lib/catalogue/years/years.ts';
 	import CompareLoupe from '#lib/compare/components/CompareLoupe/CompareLoupe.svelte';
 	import type { SharedLoupe } from '#lib/compare/shared-loupe/shared-loupe.svelte.ts';
+	import type { ComparedSide } from '#lib/compare/types/compared-side.ts';
 	import {
 		artworkImageSource,
 		artworkLargeSource
@@ -14,7 +14,9 @@
 	import { m } from '#lib/i18n/i18n.ts';
 
 	type Props = {
-		artwork: ArtworkRecord;
+		artwork: ComparedSide;
+		heading?: string;
+		paired?: boolean;
 		loupe: SharedLoupe;
 		palette: PaletteLoader;
 		paletteOn: boolean;
@@ -25,7 +27,17 @@
 
 	const STAGE_WIDTH = 960;
 
-	let { artwork, loupe, palette, paletteOn, onready, changeable, onchange }: Props = $props();
+	let {
+		artwork,
+		heading,
+		paired = false,
+		loupe,
+		palette,
+		paletteOn,
+		onready,
+		changeable,
+		onchange
+	}: Props = $props();
 
 	const mouse = new MediaQuery('(hover: hover) and (pointer: fine)');
 
@@ -50,7 +62,10 @@
 	});
 </script>
 
-<figure class="stage">
+<figure class="stage" class:paired>
+	{#if heading}
+		<p class="heading">{heading}</p>
+	{/if}
 	{#if image}
 		<StageBackdrop src={image.src} />
 		<div class="mat">
@@ -110,6 +125,13 @@
 	.stage > * {
 		position: relative;
 		z-index: 1;
+	}
+
+	.heading {
+		margin: 0;
+		font-size: var(--font-size-sm);
+		line-height: var(--line-height-sm);
+		text-align: center;
 	}
 
 	.mat {
@@ -172,9 +194,29 @@
 		color: var(--color-stage-fg);
 	}
 
+	@media (max-width: 767.98px) {
+		.paired {
+			align-content: start;
+			padding-inline: var(--spacing-2);
+		}
+
+		.paired .artwork-title {
+			font-size: var(--font-size-md);
+			line-height: var(--line-height-md);
+		}
+
+		.paired .mat :global(img) {
+			max-height: 40dvh;
+		}
+	}
+
 	@media (min-width: 768px) {
 		.mat {
 			padding: var(--spacing-4) var(--spacing-4) var(--spacing-6);
+		}
+
+		.paired .mat :global(img) {
+			max-height: 45dvh;
 		}
 	}
 </style>

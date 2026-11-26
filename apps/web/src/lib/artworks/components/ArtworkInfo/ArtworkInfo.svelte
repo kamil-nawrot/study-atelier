@@ -10,6 +10,7 @@
 		overlayScrollbar
 	} from '@study-atelier/ui';
 	import type { ResolvedPathname } from '$app/types';
+	import type { ArtworkOrigin } from '#lib/artworks/types/artwork-origin.ts';
 	import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
 	import ValueSummaryCard from '#lib/card-index/components/ValueSummaryCard/ValueSummaryCard.svelte';
 	import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
@@ -45,6 +46,7 @@
 		exhibitionCovers: WallArtwork[];
 		summaries: ValueSummaries;
 		ownFields: OwnFieldDefinition[];
+		origin?: ArtworkOrigin;
 		closed: boolean;
 		onhide: () => void;
 	};
@@ -59,6 +61,7 @@
 		exhibitionCovers,
 		summaries,
 		ownFields,
+		origin,
 		closed,
 		onhide
 	}: Props = $props();
@@ -219,6 +222,17 @@
 		<p>
 			<MetaLine parts={[authorNames, date]} />
 		</p>
+		{#if origin}
+			<p class="origin">
+				<a href={origin.albumHref}>{m.artworkView.fromAlbum(origin.albumTitle)}</a>
+			</p>
+			{#if origin.newerHref}
+				<p class="origin">
+					{m.artworkView.newerInAlbum}
+					<a href={origin.newerHref}>{m.artworkView.compareWithAlbum}</a>
+				</p>
+			{/if}
+		{/if}
 	</header>
 
 	<dl>
@@ -279,6 +293,16 @@
 	.heading {
 		display: grid;
 		gap: var(--spacing-2);
+	}
+
+	.origin {
+		color: var(--color-fg-muted);
+		font-size: var(--font-size-sm);
+		line-height: var(--line-height-sm);
+	}
+
+	.origin a {
+		color: var(--color-fg);
 	}
 
 	.number {
