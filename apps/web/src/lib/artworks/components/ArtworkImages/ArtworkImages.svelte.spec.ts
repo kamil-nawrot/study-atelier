@@ -135,7 +135,7 @@ describe('ArtworkImages automatic match', () => {
 });
 
 describe('ArtworkImages hints', () => {
-	it('lists the hints together under the image actions', async () => {
+	it('puts the hints on one line under the image actions', async () => {
 		render(ArtworkImages, {
 			alt: 'Artwork',
 			searchReady: false,
@@ -145,17 +145,15 @@ describe('ArtworkImages hints', () => {
 			images: []
 		});
 
-		await expect
-			.element(page.getByRole('listitem').filter({ hasText: m.artworkForm.findImageHint }))
-			.toBeInTheDocument();
-		await expect
-			.element(page.getByRole('listitem').filter({ hasText: m.artworkForm.pasteHintForm }))
-			.toBeInTheDocument();
+		const line = page.getByRole('paragraph').filter({ hasText: m.artworkForm.findImageHint });
+		await expect.element(line).toBeInTheDocument();
+		await expect.element(line).toHaveTextContent(m.artworkForm.pasteHintForm);
 	});
 });
 
 describe('ArtworkImages main image', () => {
 	it('marks the first slot as the main one and offers to make another image main', async () => {
+		await page.viewport(390, 844);
 		render(ArtworkImages, {
 			alt: 'Artwork',
 			searchReady: true,

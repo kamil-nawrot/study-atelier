@@ -1,62 +1,40 @@
 <script lang="ts">
-	import Clipboard from '@lucide/svelte/icons/clipboard';
-	import { Icon } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import PasteKeys from '#lib/images/components/PasteKeys/PasteKeys.svelte';
-	import type { ImageHint } from '#lib/images/types/image-hint.ts';
 
 	type Props = {
-		hints: ImageHint[];
+		hints: string[];
 	};
 
 	let { hints }: Props = $props();
 </script>
 
-<ul class="hints">
-	{#each hints as hint (hint.text)}
-		<li class="caption">
-			<Icon icon={hint.icon} size="xs" />
-			<span>{hint.text}</span>
-		</li>
+<p class="hints caption">
+	{#each hints as hint (hint)}
+		<span class="hint">{hint}</span>
 	{/each}
-	<li class="caption paste-hint">
-		<Icon icon={Clipboard} size="xs" />
-		<span>
-			{m.artworkForm.pasteHintForm}
-			<PasteKeys />
-		</span>
-	</li>
-</ul>
+	<span class="hint paste-hint"><PasteKeys period={false} /> {m.artworkForm.pasteHintForm}</span>
+</p>
 
 <style>
 	.hints {
-		display: grid;
-		gap: var(--spacing-2);
 		margin: 0;
-		list-style: none;
+		text-align: center;
 		font-size: var(--font-size-xs);
 		line-height: var(--line-height-xs);
 	}
 
-	.hints li {
-		display: flex;
-		align-items: center;
-		gap: var(--spacing-2);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
+	.hint + .hint::before {
+		content: ' · ';
 	}
 
-	.hints li > :global(svg) {
-		flex: none;
-	}
-
-	.hints li.paste-hint {
+	.paste-hint {
 		display: none;
 	}
 
 	@media (pointer: fine) {
-		.hints li.paste-hint {
-			display: flex;
+		.paste-hint {
+			display: inline;
 		}
 	}
 </style>
