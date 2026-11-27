@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { untrack } from 'svelte';
+	import { untrack, type Snippet } from 'svelte';
 	import {
 		Alert,
 		Button,
@@ -54,6 +54,8 @@
 
 	type Props = {
 		entry?: GlossaryEntry;
+		prefill?: GlossaryDraft;
+		secondary?: Snippet;
 		kind: GlossaryKind;
 		entries: GlossaryTerm[];
 		index: CardIndexData;
@@ -63,7 +65,18 @@
 		labels?: { save: string; cancel: string };
 	};
 
-	let { entry, kind, entries, index, cancelHref, oncancel, onsaved, labels }: Props = $props();
+	let {
+		entry,
+		prefill,
+		secondary,
+		kind,
+		entries,
+		index,
+		cancelHref,
+		oncancel,
+		onsaved,
+		labels
+	}: Props = $props();
 	const flags = new FormFlags('term', () => (entry ? { termId: entry.id } : undefined));
 
 	const existing = untrack(() => entry);
@@ -72,9 +85,9 @@
 	const tiles = glossaryCategoryTiles(entryKind);
 	const initial = (): GlossaryDraft => (existing ? draftOf(existing) : emptyDraft(entryKind));
 
-	let form = $state<GlossaryDraft>(initial());
+	let form = $state<GlossaryDraft>(untrack(() => structuredClone(prefill)) ?? initial());
 
-	const formState = new FormState<GlossaryDraft>(initial());
+	const formState = new FormState<GlossaryDraft>(untrack(() => $state.snapshot(form)));
 	const definition = new DefinitionSearch(
 		() => form,
 		() => figure
@@ -248,6 +261,7 @@
 			<Button href={cancelHref} onclick={oncancel}>
 				{labels?.cancel ?? m.common.cancel}
 			</Button>
+			{@render secondary?.()}
 			<Button
 				disabled={formState.busy || definition.filling || formsFilling}
 				type="submit"

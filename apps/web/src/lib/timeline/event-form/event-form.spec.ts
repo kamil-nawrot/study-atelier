@@ -56,6 +56,10 @@ describe('draftOfEventForm and eventFormOf', () => {
 		).toEqual({ ...form, name: 'Pax Romana', description: 'Pokój w cesarstwie.' });
 	});
 
+	it('starts from an empty form when there is no event', () => {
+		expect(eventFormOf()).toEqual(emptyEventForm());
+	});
+
 	it('ignores the start year when the span is switched off', () => {
 		const form = { ...emptyEventForm(), name: 'Chrzest Polski', yearFrom: '900', yearTo: '966' };
 		expect(draftOfEventForm(form).yearFrom).toBeNull();

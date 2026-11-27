@@ -1,4 +1,5 @@
 import { collectionErrorMessage } from '#lib/catalogue/errors/errors.ts';
+import { exactLike } from '#lib/shared/data/exact-like/exact-like.ts';
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { albumValueNames } from '#lib/albums/album-values/album-values.ts';
 import type { AlbumValue } from '#lib/albums/types/album-value.ts';
@@ -12,12 +13,6 @@ type NameRow = { category_code: string; name: string };
 type DetailsRow = { wikidata: string | null; category_values: { name: string } | null };
 
 type Answer<T> = { data: T[] | null; error: { message: string; code?: string } | null };
-
-const LIKE_SPECIAL = /[\\%_]/g;
-
-export function exactLike(name: string): string {
-	return name.trim().replace(LIKE_SPECIAL, (character) => `\\${character}`);
-}
 
 function byName(category: CategoryCode, name: string): PromiseLike<Answer<NameRow>> {
 	return supabase

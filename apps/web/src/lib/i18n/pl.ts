@@ -3336,6 +3336,34 @@ export const pl = {
 			loading: 'Wczytywanie dzieła…',
 			done: (album: string, artworks: number): string =>
 				`Gotowe, z albumu „${album}” dodano ${workCount(artworks)}.`
+		},
+		closing: {
+			title: 'Co jeszcze zabrać z albumu?',
+			intro:
+				'Album opisuje też pojęcia, postacie, wydarzenia i hasła kartoteki związane z dodanymi dziełami. Zaznacz, co chcesz dodać do atelier; każdy zaznaczony element przejdziesz w osobnym formularzu, w którym możesz go poprawić.',
+			loadError:
+				'Nie udało się sprawdzić, co masz już w atelier. Odśwież stronę i spróbuj jeszcze raz.',
+			parts: {
+				terms: 'Pojęcia',
+				figures: 'Postacie',
+				events: 'Wydarzenia',
+				values: 'Kartoteka'
+			},
+			states: {
+				new: 'nowe',
+				present: 'już w Atelier',
+				fill: 'uzupełnienie',
+				description: 'nowy opis'
+			},
+			selected: (selected: number, total: number): string => `Zaznaczone: ${selected} z ${total}`,
+			skipAll: 'Pomiń wszystkie',
+			add: (count: number): string =>
+				`Dodaj ${count} ${plural(count, { one: 'element', few: 'elementy', many: 'elementów' })}`,
+			progress: (position: number, total: number): string => `${position} z ${total}`,
+			listLabel: 'Elementy do dodania',
+			appendNote: 'Dopisz na końcu notatki',
+			done: (album: string, artworks: number, others: number): string =>
+				`Gotowe, z albumu „${album}” dodano ${workCount(artworks)} oraz ${others} ${plural(others, { one: 'inny element', few: 'inne elementy', many: 'innych elementów' })}.`
 		}
 	},
 	trash: {

@@ -1,37 +1,35 @@
 <script lang="ts">
-	import { untrack } from 'svelte';
+	import { untrack, type Snippet } from 'svelte';
 	import {
 		Button,
-		Dialog,
 		Form,
 		FormActions,
 		NotesEditor,
 		type NoteLinks,
-		Select,
 		TextArea,
+		TextButton,
 		TextField
 	} from '@study-atelier/ui';
 	import type { ResolvedPathname } from '$app/types';
 	import { m } from '#lib/i18n/i18n.ts';
 	import { loadValuePageContent } from '#lib/card-index/card-index-data/card-index-data.ts';
 	import { planEraMove, planNameChange } from '#lib/card-index/card-index/card-index.ts';
-	import { portraitQuery, validateAuthorForm } from '#lib/values/author-form/author-form.ts';
+	import { portraitQuery } from '#lib/values/author-form/author-form.ts';
 	import { VALUE_NAME_MAX_LENGTH } from '#lib/card-index/category-values/category-values.ts';
-	import { eraName } from '#lib/catalogue/eras/eras.ts';
-	import { cityOfTown, ownCities } from '#lib/values/city-options/city-options.ts';
+	import { ownCities, withTown } from '#lib/values/city-options/city-options.ts';
 	import { FormState } from '#lib/shared/forms/form-state/form-state.svelte.ts';
 	import { LiveErrors } from '#lib/shared/forms/live-errors/live-errors.svelte.ts';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
 	import { saveValueForm } from '#lib/values/value-form-save/value-form-save.ts';
 	import {
 		initialValueForm,
+		appendedNotes,
 		mergeDescription,
 		moveDescription,
 		sameItems,
 		valueFormChanged
 	} from '#lib/values/value-form/value-form.ts';
 	import { SUMMARY_MAX_LENGTH } from '#lib/card-index/value-pages/value-pages.ts';
-	import type { AuthorFieldErrors } from '#lib/values/types/author-field-errors.ts';
 	import type { ValueDetails } from '#lib/values/types/value-details.ts';
 	import type { ValueFormFields } from '#lib/values/types/value-form-fields.ts';
 	import type { ValueSubject } from '#lib/card-index/types/value-subject.ts';
@@ -41,12 +39,14 @@
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import PlaceField from '#lib/map/components/PlaceField/PlaceField.svelte';
 	import PlaceFields from '#lib/values/components/PlaceFields/PlaceFields.svelte';
+	import ValueFormDialogs from '#lib/values/components/ValueFormDialogs/ValueFormDialogs.svelte';
 	import StagedFormColumns from '#lib/shared/forms/StagedFormColumns/StagedFormColumns.svelte';
 	import ImageField from '#lib/images/components/ImageField/ImageField.svelte';
 	import EraBoundsField from '#lib/values/components/EraBoundsField/EraBoundsField.svelte';
-	import { validateEraBounds } from '#lib/values/era-bounds-form/era-bounds-form.ts';
-	import { eraJunctions } from '#lib/catalogue/era-bounds/era-bounds.svelte.ts';
-	import type { EraBoundsErrors } from '#lib/values/types/era-bounds-errors.ts';
+	import {
+		valueFormErrors,
+		type ValueFormErrors
+	} from '#lib/values/value-form-errors/value-form-errors.ts';
 	import AuthorSortField from '#lib/values/components/AuthorSortField/AuthorSortField.svelte';
 	import AuthorFields from '#lib/values/components/AuthorFields/AuthorFields.svelte';
 	import PeriodErasField from '#lib/values/components/PeriodErasField/PeriodErasField.svelte';
@@ -56,32 +56,51 @@
 		subject: ValueSubject;
 		index: CardIndexData;
 		details: ValueDetails;
+		prefill?: ValueDetails;
+		appendNote?: string;
+		secondary?: Snippet;
+		labels?: { save: string; cancel: string };
 		noteLinks?: NoteLinks;
 		cancelHref: string;
 		oncancel?: (event: MouseEvent) => void;
 		onsaved: (path: ResolvedPathname, message: string) => void | Promise<void>;
 	};
 
-	let { subject, index, details, noteLinks, cancelHref, oncancel, onsaved }: Props = $props();
+	let {
+		subject,
+		index,
+		details,
+		prefill,
+		appendNote,
+		secondary,
+		labels,
+		noteLinks,
+		cancelHref,
+		oncancel,
+		onsaved
+	}: Props = $props();
 
 	const record = untrack(() => (subject.kind === 'era' ? undefined : subject.record));
 	const era = untrack(() => (subject.kind === 'era' ? subject.code : undefined));
-	const initialForm = (): ValueFormFields =>
-		untrack(() => initialValueForm(record, index, details, era));
 	let eraField = $state<EraBoundsField>();
 	let barHeight = $state(0);
 
-	let form = $state<ValueFormFields>(initialForm());
+	let form = $state<ValueFormFields>(
+		untrack(() => initialValueForm(record, index, prefill ?? details, era))
+	);
 	let created = $state<ValueSubject>();
 	let moveTo = $state('');
 	let moveOpen = $state(false);
 	let moveError = $state<string>();
 	let mergeOpen = $state(false);
 	let mergedHasContent = $state(false);
-	const formState = new FormState<ValueFormFields>(initialForm());
+	const formState = new FormState<ValueFormFields>(
+		untrack(() => initialValueForm(record, index, details, era)),
+		untrack(() => $state.snapshot(form))
+	);
 	const changes = new UnsavedChanges(
 		() => $state.snapshot(form),
-		() => formState.saved,
+		() => formState.reference,
 		valueFormChanged
 	);
 
@@ -93,24 +112,9 @@
 	let hasPlaces = $derived(
 		record?.category === 'location' && index.values.some((value) => value.cityId === record.id)
 	);
-	const errors = new LiveErrors<{
-		placeType?: string;
-		name?: string;
-		author?: AuthorFieldErrors;
-		eraBounds?: EraBoundsErrors;
-	}>(() => ({
-		placeType:
-			hasPlaces && form.location?.placeType !== 'city' ? m.cardIndex.errors.cityType : undefined,
-		name:
-			change?.kind === 'empty'
-				? m.valueForm.nameRequired
-				: creating && existing && kind
-					? m.valueForm.exists(kind.accusative, existing.name)
-					: undefined,
-		author: form.author ? validateAuthorForm(form.author) : undefined,
-		eraBounds:
-			era && form.eraBounds ? validateEraBounds(era, form.eraBounds, eraJunctions()) : undefined
-	}));
+	const errors = new LiveErrors<ValueFormErrors>(() =>
+		valueFormErrors({ form, hasPlaces, era, change, creating, existing, kind: kind?.accusative })
+	);
 	let mergeTarget = $derived(creating ? undefined : existing);
 	let eraMove = $derived(
 		record?.category === 'period'
@@ -130,9 +134,7 @@
 	);
 
 	function chooseTown(town: Town): void {
-		if (!form.location) return;
-		const city = cityOfTown(town);
-		form.location = { ...form.location, city, point: null, countryCode: city.countryCode ?? null };
+		if (form.location) form.location = withTown(form.location, town);
 	}
 
 	export function confirmLeave(): Promise<boolean> {
@@ -274,6 +276,14 @@
 		placeholder={m.valueForm.notesPlaceholder}
 		bind:value={form.details.notes}
 	/>
+	{#if appendNote}
+		<TextButton
+			disabled={form.details.notes.includes(appendNote)}
+			onclick={() => (form.details.notes = appendedNotes(form.details.notes, appendNote))}
+		>
+			{m.albums.closing.appendNote}
+		</TextButton>
+	{/if}
 
 	{#if era && form.eraBounds}
 		<EraBoundsField
@@ -336,10 +346,11 @@
 
 		<FormActions staged={!!form.author && !!record} bind:height={barHeight}>
 			<Button href={cancelHref} onclick={oncancel}>
-				{m.common.cancel}
+				{labels?.cancel ?? m.common.cancel}
 			</Button>
+			{@render secondary?.()}
 			<Button disabled={formState.busy} type="submit" variant="primary">
-				{formState.busy ? m.common.saving : m.common.save}
+				{formState.busy ? m.common.saving : (labels?.save ?? m.common.save)}
 			</Button>
 		</FormActions>
 	</Form>
@@ -347,47 +358,21 @@
 
 <DiscardDialog {changes} description={m.common.discardDescription} />
 
-<Dialog
-	description={moveText}
-	size="small"
-	title={m.cardIndex.moveConfirm.title}
-	bind:open={moveOpen}
->
-	{#if eraMove.remaining.length > 1}
-		<Select
-			error={moveError}
-			label={m.cardIndex.moveConfirm.pick}
-			options={eraMove.remaining.map((code) => ({ value: code, label: eraName(code) }))}
-			placeholder={m.valueForm.chooseEra}
-			required
-			bind:value={moveTo}
-		/>
-	{/if}
-	{#snippet footer()}
-		<Button onclick={() => (moveOpen = false)}>
-			{m.common.back}
-		</Button>
-		<Button disabled={formState.busy} onclick={confirmMove} variant="primary">
-			{m.cardIndex.moveConfirm.confirm}
-		</Button>
-	{/snippet}
-</Dialog>
-
-<Dialog
-	description={mergeText}
-	size="small"
-	title={record && mergeTarget ? m.cardIndex.mergeConfirm.title(record.name, mergeTarget.name) : ''}
-	bind:open={mergeOpen}
->
-	{#snippet footer()}
-		<Button onclick={() => (mergeOpen = false)}>
-			{m.common.back}
-		</Button>
-		<Button disabled={formState.busy} onclick={save} variant="primary">
-			{formState.busy ? m.cardIndex.mergeConfirm.merging : m.common.merge}
-		</Button>
-	{/snippet}
-</Dialog>
+<ValueFormDialogs
+	busy={formState.busy}
+	{mergeText}
+	mergeTitle={record && mergeTarget
+		? m.cardIndex.mergeConfirm.title(record.name, mergeTarget.name)
+		: ''}
+	{moveError}
+	{moveText}
+	onmerge={save}
+	onmove={confirmMove}
+	remaining={eraMove.remaining}
+	bind:mergeOpen
+	bind:moveOpen
+	bind:moveTo
+/>
 
 <style>
 	.page {

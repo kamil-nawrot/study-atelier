@@ -28,7 +28,8 @@ export function emptyEventForm(): EventFormState {
 	};
 }
 
-export function eventFormOf(event: TimelineEvent): EventFormState {
+export function eventFormOf(event?: TimelineEvent): EventFormState {
+	if (!event) return emptyEventForm();
 	return {
 		name: event.name,
 		spanMode: event.yearFrom !== null,

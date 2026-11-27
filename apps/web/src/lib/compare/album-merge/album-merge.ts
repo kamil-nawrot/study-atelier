@@ -1,3 +1,4 @@
+import { appendedNotes } from '#lib/values/value-form/value-form.ts';
 import { sameName } from '#lib/albums/album-values/album-values.ts';
 import { MAX_ARTWORK_IMAGES } from '#lib/artworks/artwork-form/artwork-form.ts';
 import { signedYear } from '#lib/catalogue/years/years.ts';
@@ -61,10 +62,6 @@ function singleOf(field: MergeField, side: ComparedSide): string | null {
 	}
 }
 
-function appendedNote(mine: string, description: string): string {
-	return mine.trim() === '' ? description : `${mine.trimEnd()}\n\n${description}`;
-}
-
 export function offeredAction(
 	field: MergeField,
 	mine: ComparedSide,
@@ -115,7 +112,7 @@ function withField(field: MergeField, mine: ComparedSide, album: ComparedSide): 
 		case 'location':
 			return { ...mine, location: album.location };
 		case 'notes':
-			return { ...mine, notes: appendedNote(mine.notes, album.notes.trim()) };
+			return { ...mine, notes: appendedNotes(mine.notes, album.notes.trim()) };
 	}
 }
 

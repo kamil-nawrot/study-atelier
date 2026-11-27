@@ -2,6 +2,7 @@ import { failureMessage } from '#lib/auth/expired-session-data/expired-session-d
 import { supabase } from '#lib/shared/data/supabase/supabase.ts';
 import { noteWrite } from '#lib/shared/data/writes/writes.ts';
 import type { Database } from '#lib/shared/data/database.types.ts';
+import { exactLike } from '#lib/shared/data/exact-like/exact-like.ts';
 import { fetchAll } from '#lib/shared/data/fetch-all/fetch-all.ts';
 import {
 	sourceColumns,
@@ -70,6 +71,18 @@ export async function loadTimelineEventsById(ids: readonly string[]): Promise<Ti
 		.select('*')
 		.in('id', [...ids]);
 	return error || !data ? [] : data.map(eventOf);
+}
+
+export async function loadTimelineEventsByName(names: readonly string[]): Promise<{
+	events: TimelineEvent[];
+	error?: string;
+}> {
+	const answers = await Promise.all(
+		names.map((name) => supabase.from('timeline_events').select('*').ilike('name', exactLike(name)))
+	);
+	const error = answers.find((answer) => answer.error)?.error;
+	if (error) return { events: [], error: timelineErrorMessage(error) };
+	return { events: answers.flatMap((answer) => (answer.data ?? []).map(eventOf)) };
 }
 
 export async function loadTimelineEvent(id: string): Promise<TimelineEventResult> {

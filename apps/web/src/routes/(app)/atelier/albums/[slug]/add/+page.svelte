@@ -5,9 +5,12 @@
 	import { resolve } from '$app/paths';
 	import AtelierLayout from '#lib/shell/AtelierLayout/AtelierLayout.svelte';
 	import BackLink from '#lib/shared/navigation/BackLink/BackLink.svelte';
+	import AlbumClosingStep from '#lib/albums/components/AlbumClosingStep/AlbumClosingStep.svelte';
+	import AlbumItemBar from '#lib/albums/components/AlbumItemBar/AlbumItemBar.svelte';
+	import AlbumItemForm from '#lib/albums/components/AlbumItemForm/AlbumItemForm.svelte';
 	import AlbumWalkBar from '#lib/albums/components/AlbumWalkBar/AlbumWalkBar.svelte';
 	import AlbumWalkForm from '#lib/albums/components/AlbumWalkForm/AlbumWalkForm.svelte';
-	import { AlbumWalk } from '#lib/albums/album-walk/album-walk.svelte.ts';
+	import { AlbumAdd } from '#lib/albums/album-add/album-add.svelte.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import type { PageProps } from './$types';
 
@@ -15,68 +18,74 @@
 
 	const albumsPath = resolve('/(app)/atelier/albums');
 	const albumPath = untrack(() =>
-		resolve('/(app)/atelier/albums/[slug]', { slug: data.album?.slug ?? '' })
+		data.album ? resolve('/(app)/atelier/albums/[slug]', { slug: data.album.slug }) : albumsPath
 	);
-	const walk = untrack(() => (data.album ? new AlbumWalk(data.album, data.artworks) : undefined));
+	const add = untrack(() => (data.album ? new AlbumAdd(data.album, data.artworks) : undefined));
 
-	let view = $state<AlbumWalkForm>();
+	let view = $state<{ confirmLeave: () => Promise<boolean> }>();
 
-	void walk?.open();
+	void add?.start();
 
-	async function proceed(): Promise<void> {
-		if (!walk?.finished) {
+	async function proceed(step: Promise<void>): Promise<void> {
+		await step;
+		if (add?.phase === 'done') {
+			await goto(albumPath, { refreshAll: true, state: { albumMessage: add.message } });
+		} else {
 			await invalidateAll();
-			return;
 		}
-		const message = m.albums.walk.done(walk.album.title, walk.added);
-		await goto(albumPath, { refreshAll: true, state: { albumMessage: message } });
-	}
-
-	async function saved(): Promise<void> {
-		await walk?.saved();
-		await proceed();
-	}
-
-	async function skip(): Promise<void> {
-		await walk?.skip();
-		await proceed();
-	}
-
-	async function finish(): Promise<void> {
-		walk?.finish();
-		await proceed();
 	}
 </script>
 
 <AtelierLayout
 	confirmLeave={async () => (await view?.confirmLeave()) ?? true}
 	email={data.session.user.email ?? ''}
-	heading={Boolean(walk)}
+	heading={Boolean(add)}
 	title={data.album?.title ?? m.albums.title}
 >
 	{#snippet back()}
-		<BackLink
-			arrowOnly
-			fallbackHref={walk ? albumPath : albumsPath}
-			fallbackName={m.albums.title}
-		/>
+		<BackLink arrowOnly fallbackHref={add ? albumPath : albumsPath} fallbackName={m.albums.title} />
 	{/snippet}
 
 	{#snippet bar()}
-		{#if walk}
-			<AlbumWalkBar {walk} />
+		{#if add?.phase === 'artworks'}
+			<AlbumWalkBar walk={add.walk} />
+		{:else if add?.phase === 'items'}
+			<AlbumItemBar position={add.position + 1} total={add.queue.length} />
 		{/if}
 	{/snippet}
 
-	{#if walk}
+	{#if add?.phase === 'artworks'}
 		<AlbumWalkForm
 			bind:this={view}
 			cancelHref={albumPath}
-			onfinish={finish}
-			onsaved={saved}
-			onskip={skip}
+			onfinish={() => proceed(add.artworksFinished())}
+			onsaved={() => proceed(add.artworkSaved())}
+			onskip={() => proceed(add.artworkSkipped())}
 			ownFields={data.ownFields}
-			{walk}
+			walk={add.walk}
+		/>
+	{:else if add?.phase === 'loading'}
+		<p class="lead">{m.albums.walk.loading}</p>
+	{:else if add?.phase === 'choose'}
+		<AlbumClosingStep
+			error={add.error}
+			items={add.items}
+			onadd={() => proceed(Promise.resolve(add.addSelected()))}
+			onskipall={() => proceed(Promise.resolve(add.skipAll()))}
+			ontoggle={(item) => add.toggle(item)}
+			selected={add.selected}
+		/>
+	{:else if add?.phase === 'items' && add.current && add.index}
+		<AlbumItemForm
+			bind:this={view}
+			cancelHref={albumPath}
+			index={add.index}
+			item={add.current}
+			last={add.lastItem}
+			onfinish={() => proceed(Promise.resolve(add.itemsFinished()))}
+			onsaved={() => proceed(Promise.resolve(add.itemSaved()))}
+			onskip={() => proceed(Promise.resolve(add.itemSkipped()))}
+			terms={add.terms}
 		/>
 	{:else}
 		<LoadFailure
