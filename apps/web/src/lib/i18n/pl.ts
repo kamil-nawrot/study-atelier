@@ -3286,6 +3286,8 @@ export const pl = {
 	},
 	albums: {
 		title: 'Albumy',
+		count: (count: number): string =>
+			`${count} ${plural(count, { one: 'album', few: 'albumy', many: 'albumów' })}`,
 		lead: 'Gotowe zestawy dzieł wraz z podstawowymi danymi, skupione wokół konkretnego punktu w czasie lub motywu. Możesz je dodać do swojej kolekcji w całości lub wybrać tylko te pozycje, którymi chcesz zasilić atelier.',
 		empty: 'Nie ma tu jeszcze żadnego albumu.',
 		loadErrorTitle: 'Nie udało się wczytać albumów',
@@ -3312,8 +3314,8 @@ export const pl = {
 		deselectAll: 'Odznacz wszystkie',
 		inAtelier: (number: string): string => `W atelier · ${number}`,
 		compare: 'Porównaj z wersją z albumu',
-		similar: (number: string): string => `Wygląda podobnie do ${number}.`,
-		selected: (selected: number, total: number): string => `Zaznaczone: ${selected} z ${total}`,
+		similar: (number: string): string => `Podobne do ${number}`,
+		selected: { before: 'Zaznaczono ', after: (total: number): string => ` z ${total}` },
 		add: (count: number): string =>
 			`Dodaj ${count} ${plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' })}`,
 		noResults: (query: string): string =>
@@ -3359,7 +3361,6 @@ export const pl = {
 				fill: 'uzupełnienie',
 				description: 'nowy opis'
 			},
-			selected: (selected: number, total: number): string => `Zaznaczone: ${selected} z ${total}`,
 			skipAll: 'Pomiń wszystkie',
 			add: (count: number): string =>
 				`Dodaj ${count} ${plural(count, { one: 'element', few: 'elementy', many: 'elementów' })}`,

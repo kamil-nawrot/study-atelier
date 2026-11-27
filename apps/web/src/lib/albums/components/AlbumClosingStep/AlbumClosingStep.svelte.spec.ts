@@ -21,6 +21,10 @@ function renderStep(
 	return handlers;
 }
 
+function selectedText(selected: number, total: number): string {
+	return `${m.albums.selected.before}${selected}${m.albums.selected.after(total)}`;
+}
+
 describe('AlbumClosingStep', () => {
 	it('lists the items by part with their state and excerpt', async () => {
 		renderStep();
@@ -37,7 +41,7 @@ describe('AlbumClosingStep', () => {
 	it('counts the ticked items and adds them', async () => {
 		const handlers = renderStep({ selected: ['term:carving', 'event:discovery'] });
 
-		await expect.element(page.getByText(m.albums.closing.selected(2, 6))).toBeVisible();
+		await expect.element(page.getByText(selectedText(2, 6))).toBeVisible();
 		await page.getByRole('button', { name: m.albums.closing.add(2) }).click();
 		expect(handlers.onadd).toHaveBeenCalled();
 	});
