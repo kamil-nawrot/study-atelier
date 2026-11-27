@@ -85,6 +85,16 @@
 	let pinFailure = $state<string>();
 	let currentPins = $derived(pins === undefined ? 0 : pinsOfImage(pins, current()?.id).length);
 	let full = $derived(slots.length >= MAX_ARTWORK_IMAGES);
+	let sameArtwork = $derived(
+		image?.kind === 'commons' && image.wikidataId && query.kind === 'artwork'
+			? {
+					wikidataId: image.wikidataId,
+					file: image.file,
+					title: query.title.trim(),
+					authors: query.authors
+				}
+			: null
+	);
 	let matchShown = $derived(
 		selected === 0 && matchStatus === 'matched' && isCandidateImage(image, pool[0])
 	);
@@ -317,6 +327,7 @@
 	{query}
 	removable={selected > 0}
 	removeWarning={currentPins > 0 ? m.pins.imagePins(currentPins) : undefined}
+	{sameArtwork}
 	{searchReady}
 	slots={slotRow}
 	source={matchStatusLine}

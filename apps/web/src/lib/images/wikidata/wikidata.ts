@@ -10,6 +10,8 @@ import type { WikidataArtwork } from '#lib/images/types/wikidata-artwork.ts';
 import type { WikidataPerson } from '#lib/images/types/wikidata-person.ts';
 
 const SPARQL_ENDPOINT = 'https://query.wikidata.org/sparql';
+const WIKIDATA_API = 'https://www.wikidata.org/w/api.php';
+const COMMONS_CATEGORY = 'P373';
 const SEARCH_LIMIT = 30;
 const LABEL_LANGUAGES = ['pl', 'en'];
 const HUMAN = 'Q5';
@@ -245,4 +247,21 @@ export async function fetchClassGroups(
 		if (cls && root) roots.get(cls)?.add(root);
 	}
 	return new Map([...roots].map(([id, found]) => [id, groupOf(found)]));
+}
+
+type ClaimsResponse = {
+	claims?: Record<string, { mainsnak?: { datavalue?: { value?: unknown } } }[]>;
+};
+
+export async function fetchCommonsCategory(wikidataId: string): Promise<string | null> {
+	const params = new URLSearchParams({
+		action: 'wbgetclaims',
+		entity: wikidataId,
+		property: COMMONS_CATEGORY,
+		format: 'json',
+		origin: '*'
+	});
+	const response = await fetchJson<ClaimsResponse>(`${WIKIDATA_API}?${params}`);
+	const value = response.claims?.[COMMONS_CATEGORY]?.[0]?.mainsnak?.datavalue?.value;
+	return typeof value === 'string' && value.trim() !== '' ? value : null;
 }

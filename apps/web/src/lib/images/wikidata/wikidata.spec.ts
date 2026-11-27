@@ -3,6 +3,7 @@ import {
 	artworkSearchQuery,
 	classRootsQuery,
 	fetchClassGroups,
+	fetchCommonsCategory,
 	personSearchQuery,
 	searchWikidataArtworks,
 	searchWikidataPeople,
@@ -224,5 +225,34 @@ describe('fetchClassGroups', () => {
 			['Q3', null],
 			['Q4', null]
 		]);
+	});
+});
+
+describe('fetchCommonsCategory', () => {
+	afterEach(() => {
+		vi.unstubAllGlobals();
+		fetchMock.mockReset();
+	});
+
+	it('reads the Commons category of an item', async () => {
+		vi.stubGlobal('fetch', fetchMock);
+		fetchMock.mockResolvedValue(
+			new Response(
+				JSON.stringify({ claims: { P373: [{ mainsnak: { datavalue: { value: 'Mona Lisa' } } }] } })
+			)
+		);
+
+		await expect(fetchCommonsCategory('Q12418')).resolves.toBe('Mona Lisa');
+		const url = new URL(String(fetchMock.mock.calls[0][0]));
+		expect(url.searchParams.get('action')).toBe('wbgetclaims');
+		expect(url.searchParams.get('entity')).toBe('Q12418');
+		expect(url.searchParams.get('property')).toBe('P373');
+	});
+
+	it('has no category when the item has none', async () => {
+		vi.stubGlobal('fetch', fetchMock);
+		fetchMock.mockResolvedValue(new Response(JSON.stringify({ claims: {} })));
+
+		await expect(fetchCommonsCategory('Q1')).resolves.toBeNull();
 	});
 });

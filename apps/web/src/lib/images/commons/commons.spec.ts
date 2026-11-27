@@ -4,6 +4,7 @@ import {
 	commonsFileUrl,
 	commonsSrcset,
 	commonsThumbnailSrcset,
+	fetchCategoryFiles,
 	fetchCommonsFiles,
 	fetchCommonsThumbnails,
 	plainText
@@ -271,6 +272,86 @@ describe('commons file page', () => {
 	it('links to the description page of a file', () => {
 		expect(commonsFilePage('Albrecht Dürer, Melencolia I, 1514.jpg')).toBe(
 			'https://commons.wikimedia.org/wiki/File:Albrecht_D%C3%BCrer%2C_Melencolia_I%2C_1514.jpg'
+		);
+	});
+});
+
+describe('fetchCategoryFiles', () => {
+	afterEach(() => {
+		vi.unstubAllGlobals();
+		fetchMock.mockReset();
+	});
+
+	const info = (mime: string, thumb: string): Record<string, unknown> => ({
+		thumburl: thumb,
+		width: 2000,
+		height: 1500,
+		mime,
+		extmetadata: { LicenseShortName: { value: 'CC BY-SA 4.0' }, Artist: { value: '<b>Jan</b>' } }
+	});
+
+	it('reads one page of the files of a category, in its order, with their licences', async () => {
+		vi.stubGlobal('fetch', fetchMock);
+		fetchMock.mockResolvedValue(
+			jsonResponse({
+				continue: { gcmcontinue: 'file|next' },
+				query: {
+					pages: [
+						{ title: 'File:B.jpg', index: 2, imageinfo: [info('image/jpeg', 'https://t/b.jpg')] },
+						{ title: 'File:A.jpg', index: 1, imageinfo: [info('image/png', 'https://t/a.png')] }
+					]
+				}
+			})
+		);
+
+		const page = await fetchCategoryFiles('Mona Lisa', 330);
+
+		expect(page.next).toBe('file|next');
+		expect(page.files.map(({ file }) => file)).toEqual(['A.jpg', 'B.jpg']);
+		expect(page.files[0]).toMatchObject({
+			thumbnailUrl: 'https://t/a.png',
+			width: 2000,
+			height: 1500,
+			licence: 'CC BY-SA 4.0',
+			attribution: 'Jan'
+		});
+		const url = new URL(String(fetchMock.mock.calls[0][0]));
+		expect(url.searchParams.get('gcmtitle')).toBe('Category:Mona Lisa');
+		expect(url.searchParams.get('gcmtype')).toBe('file');
+		expect(url.searchParams.get('gcmlimit')).toBe('24');
+		expect(url.searchParams.get('iiurlwidth')).toBe('330');
+		expect(url.searchParams.has('gcmcontinue')).toBe(false);
+	});
+
+	it('leaves out videos, documents and drawings in vector form, and asks for the next page with the cursor', async () => {
+		vi.stubGlobal('fetch', fetchMock);
+		fetchMock.mockResolvedValue(
+			jsonResponse({
+				query: {
+					pages: [
+						{ title: 'File:A.webm', index: 1, imageinfo: [info('video/webm', 'https://t/a.jpg')] },
+						{
+							title: 'File:B.pdf',
+							index: 2,
+							imageinfo: [info('application/pdf', 'https://t/b.jpg')]
+						},
+						{
+							title: 'File:C.svg',
+							index: 3,
+							imageinfo: [info('image/svg+xml', 'https://t/c.png')]
+						},
+						{ title: 'File:D.tif', index: 4, imageinfo: [info('image/tiff', 'https://t/d.jpg')] }
+					]
+				}
+			})
+		);
+
+		const page = await fetchCategoryFiles('Mona Lisa', 330, 'file|next');
+
+		expect(page.files.map(({ file }) => file)).toEqual(['D.tif']);
+		expect(page.next).toBeNull();
+		expect(new URL(String(fetchMock.mock.calls[0][0])).searchParams.get('gcmcontinue')).toBe(
+			'file|next'
 		);
 	});
 });
