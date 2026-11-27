@@ -1,4 +1,10 @@
-import { changeCount, mergedArtwork } from '#lib/compare/album-merge/album-merge.ts';
+import {
+	changeCount,
+	initialChanges,
+	itemKey,
+	mergedArtwork,
+	type ListField
+} from '#lib/compare/album-merge/album-merge.ts';
 import type { ComparedSide } from '#lib/compare/types/compared-side.ts';
 import type { MergeChanges } from '#lib/compare/types/merge-changes.ts';
 import type { MergeField } from '#lib/compare/types/merge-field.ts';
@@ -8,8 +14,13 @@ function toggled<T>(items: readonly T[], item: T): T[] {
 }
 
 export class AlbumMerge {
-	fields = $state.raw<MergeField[]>([]);
-	images = $state.raw<string[]>([]);
+	changes = $state.raw<MergeChanges>({
+		fields: [],
+		added: [],
+		dropped: [],
+		images: [],
+		droppedImages: []
+	});
 
 	#mine: () => ComparedSide;
 	#album: () => ComparedSide;
@@ -17,10 +28,7 @@ export class AlbumMerge {
 	constructor(mine: () => ComparedSide, album: () => ComparedSide) {
 		this.#mine = mine;
 		this.#album = album;
-	}
-
-	get changes(): MergeChanges {
-		return { fields: this.fields, images: this.images };
+		this.changes = initialChanges(mine(), album());
 	}
 
 	get count(): number {
@@ -31,11 +39,27 @@ export class AlbumMerge {
 		return mergedArtwork(this.#mine(), this.#album(), this.changes);
 	}
 
-	toggleField(field: MergeField): void {
-		this.fields = toggled(this.fields, field);
+	pickField(field: MergeField, fromAlbum: boolean): void {
+		if (this.changes.fields.includes(field) === fromAlbum) return;
+		this.changes = { ...this.changes, fields: toggled(this.changes.fields, field) };
+	}
+
+	toggleAdded(field: ListField, name: string): void {
+		this.changes = { ...this.changes, added: toggled(this.changes.added, itemKey(field, name)) };
+	}
+
+	toggleDropped(field: ListField, name: string): void {
+		this.changes = {
+			...this.changes,
+			dropped: toggled(this.changes.dropped, itemKey(field, name))
+		};
 	}
 
 	toggleImage(path: string): void {
-		this.images = toggled(this.images, path);
+		this.changes = { ...this.changes, images: toggled(this.changes.images, path) };
+	}
+
+	toggleOwnImage(key: string): void {
+		this.changes = { ...this.changes, droppedImages: toggled(this.changes.droppedImages, key) };
 	}
 }

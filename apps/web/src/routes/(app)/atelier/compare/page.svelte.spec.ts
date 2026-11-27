@@ -163,8 +163,8 @@ describe('comparison page', () => {
 			}
 		});
 
-		await expect.element(page.getByText(m.compare.album)).toBeVisible();
-		await expect.element(page.getByRole('button', { name: m.compare.move })).toBeVisible();
+		await expect.element(page.getByText(m.compare.album).first()).toBeVisible();
+		await expect.element(page.getByText(m.compare.hint)).toBeVisible();
 		await expect
 			.element(page.getByRole('banner').getByRole('button', { name: m.compare.swap }))
 			.not.toBeInTheDocument();

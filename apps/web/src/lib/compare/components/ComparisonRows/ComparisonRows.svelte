@@ -1,9 +1,6 @@
 <script lang="ts">
-	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
-	import { Icon, Notes, TextButton } from '@study-atelier/ui';
-	import type { Snippet } from 'svelte';
+	import { Notes } from '@study-atelier/ui';
 	import type { DisplayRow } from '#lib/compare/types/display-row.ts';
-	import type { RowAction } from '#lib/compare/types/row-action.ts';
 	import type { RowCellItem } from '#lib/compare/types/row-cell-item.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 
@@ -16,10 +13,8 @@
 	const id = $props.id();
 </script>
 
-{#snippet cell(content: RowCellItem[] | Snippet, text: boolean)}
-	{#if typeof content === 'function'}
-		{@render content()}
-	{:else if content.length === 0}
+{#snippet cell(content: RowCellItem[], text: boolean)}
+	{#if content.length === 0}
 		<span class="empty">
 			<span aria-hidden="true">—</span>
 			<span class="visually-hidden">{m.artworkView.empty}</span>
@@ -30,8 +25,6 @@
 				<div class="item">
 					{#if text}
 						<Notes value={item.text} />
-					{:else if item.struck}
-						<s class="struck">{item.text}</s>
 					{:else}
 						{item.text}
 					{/if}
@@ -42,17 +35,6 @@
 			{/each}
 		</div>
 	{/if}
-{/snippet}
-
-{#snippet action(item: RowAction)}
-	<span class="action {item.side}">
-		<TextButton inline onclick={item.onclick}>
-			{#if item.toward}
-				<Icon icon={ArrowLeft} size="sm" />
-			{/if}
-			{item.label}
-		</TextButton>
-	</span>
 {/snippet}
 
 <div class="rows">
@@ -66,9 +48,6 @@
 			<div class="value right">
 				{@render cell(row.right, row.text ?? false)}
 			</div>
-			{#each row.actions ?? [] as item (item.label)}
-				{@render action(item)}
-			{/each}
 		</div>
 	{/each}
 </div>
@@ -122,10 +101,6 @@
 		display: grid;
 	}
 
-	.struck {
-		color: var(--color-fg-muted);
-	}
-
 	.new,
 	.empty {
 		color: var(--color-fg-muted);
@@ -143,19 +118,6 @@
 		line-height: var(--line-height-xs);
 	}
 
-	.action {
-		grid-column: 1 / -1;
-		justify-self: start;
-	}
-
-	.action :global(.text-button) {
-		white-space: normal;
-		text-align: start;
-		display: inline-flex;
-		align-items: center;
-		gap: var(--spacing-1);
-	}
-
 	@media (min-width: 768px) {
 		.row {
 			column-gap: var(--spacing-12);
@@ -168,14 +130,6 @@
 
 		.twin {
 			display: block;
-			grid-column: 2;
-		}
-
-		.action.left {
-			grid-column: 1;
-		}
-
-		.action.right {
 			grid-column: 2;
 		}
 	}

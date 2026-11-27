@@ -167,7 +167,7 @@ describe('AlbumWalkForm', () => {
 		renderForm(walk);
 
 		await expect.element(page.getByText(m.albums.walk.similar('#0007'))).toBeVisible();
-		await expect.element(page.getByText(m.compare.album)).toBeVisible();
+		await expect.element(page.getByText(m.compare.album).first()).toBeVisible();
 		await expect
 			.element(page.getByRole('button', { name: m.albums.walk.saveAndNext }))
 			.toBeEnabled();

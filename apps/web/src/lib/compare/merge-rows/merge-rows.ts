@@ -1,23 +1,35 @@
 import { valueKey } from '#lib/albums/album-version/album-version.ts';
+import { sameName } from '#lib/albums/album-values/album-values.ts';
 import type { CategoryCode } from '#lib/catalogue/types/category-code.ts';
-import { MERGE_FIELDS, offeredAction } from '#lib/compare/album-merge/album-merge.ts';
+import {
+	MERGE_FIELDS,
+	isListField,
+	itemKey,
+	listOf,
+	missingFrom,
+	pickable,
+	type ListField
+} from '#lib/compare/album-merge/album-merge.ts';
 import { fieldLabel, fieldValues } from '#lib/compare/comparison-rows/comparison-rows.ts';
 import type { ComparedSide } from '#lib/compare/types/compared-side.ts';
 import type { DisplayRow } from '#lib/compare/types/display-row.ts';
-import type { MergeAction } from '#lib/compare/types/merge-action.ts';
 import type { MergeChanges } from '#lib/compare/types/merge-changes.ts';
 import type { MergeField } from '#lib/compare/types/merge-field.ts';
-import type { RowAction } from '#lib/compare/types/row-action.ts';
+import type { MergeRow, TickItem } from '#lib/compare/types/merge-row.ts';
 import type { RowCellItem } from '#lib/compare/types/row-cell-item.ts';
-import { m } from '#lib/i18n/i18n.ts';
 
-type MergeSides = {
+export type MergeHandlers = {
+	pick: (field: MergeField, fromAlbum: boolean) => void;
+	toggleAdded: (field: ListField, name: string) => void;
+	toggleDropped: (field: ListField, name: string) => void;
+};
+
+export type MergeSides = {
 	mine: ComparedSide;
 	album: ComparedSide;
-	merged: ComparedSide;
 	newValues: readonly string[];
 	changes: MergeChanges;
-	ontoggle: (field: MergeField) => void;
+	handlers: MergeHandlers;
 };
 
 const CATEGORIES: Partial<Record<MergeField, CategoryCode>> = {
@@ -28,52 +40,100 @@ const CATEGORIES: Partial<Record<MergeField, CategoryCode>> = {
 	location: 'location'
 };
 
-const ACTION_LABELS: Record<MergeAction, string> = {
-	move: m.compare.move,
-	add: m.compare.add,
-	replace: m.compare.replace,
-	append: m.compare.appendNote
-};
+function isNew(field: MergeField, text: string, newValues: readonly string[]): boolean {
+	const category = CATEGORIES[field];
+	return category !== undefined && newValues.includes(valueKey(category, text));
+}
 
 function items(field: MergeField, side: ComparedSide, newValues: readonly string[]): RowCellItem[] {
-	const category = CATEGORIES[field];
 	return fieldValues(field, side).map((text) => ({
 		text,
-		...(category && newValues.includes(valueKey(category, text)) ? { isNew: true } : {})
+		...(isNew(field, text, newValues) ? { isNew: true } : {})
 	}));
 }
 
-function leftItems(field: MergeField, sides: MergeSides, action: MergeAction): RowCellItem[] {
-	if (action !== 'replace') return items(field, sides.merged, sides.newValues);
-	return [
-		...fieldValues(field, sides.mine).map((text) => ({ text, struck: true })),
-		...items(field, sides.album, sides.newValues)
-	];
+function sameValues(left: readonly RowCellItem[], right: readonly RowCellItem[]): boolean {
+	return (
+		left.length === right.length &&
+		left.every((item, index) => sameName(item.text, right[index].text))
+	);
 }
 
-function actionOf(field: MergeField, action: MergeAction, sides: MergeSides): RowAction {
-	const applied = sides.changes.fields.includes(field);
+export function fixedRow(row: DisplayRow): MergeRow {
+	const mine = row.left;
+	const album = row.right;
+	const base = { key: row.key, label: row.label, ...(row.text ? { text: true } : {}) };
+	return sameValues(mine, album)
+		? { ...base, kind: 'same', value: mine }
+		: { ...base, kind: 'plain', mine, album };
+}
+
+function listRow(field: ListField, sides: MergeSides): MergeRow {
+	const { mine, album, changes, handlers, newValues } = sides;
+	const missing = missingFrom(field, mine, album);
+	const own: TickItem[] = listOf(field, mine).map((text) => ({
+		text,
+		ticked: !changes.dropped.includes(itemKey(field, text)),
+		ontoggle: () => handlers.toggleDropped(field, text)
+	}));
+	const theirs: TickItem[] = listOf(field, album).map((text) =>
+		missing.includes(text)
+			? {
+					text,
+					...(isNew(field, text, newValues) ? { isNew: true } : {}),
+					ticked: changes.added.includes(itemKey(field, text)),
+					ontoggle: () => handlers.toggleAdded(field, text)
+				}
+			: { text }
+	);
+	return { key: field, label: fieldLabel(field), kind: 'tick', mine: own, album: theirs };
+}
+
+function notesRow(sides: MergeSides): MergeRow {
+	const { mine, album, changes, handlers } = sides;
+	const own = mine.notes.trim();
 	return {
-		label: applied ? m.compare.withdraw : ACTION_LABELS[action],
-		toward: !applied,
-		side: applied ? 'left' : 'right',
-		onclick: () => sides.ontoggle(field)
+		key: 'notes',
+		label: fieldLabel('notes'),
+		text: true,
+		kind: 'tick',
+		mine: own === '' ? [] : [{ text: own }],
+		album: [
+			{
+				text: album.notes.trim(),
+				ticked: changes.fields.includes('notes'),
+				ontoggle: () => handlers.pick('notes', !changes.fields.includes('notes'))
+			}
+		]
 	};
 }
 
-export function mergeRow(field: MergeField, sides: MergeSides): DisplayRow {
-	const action = offeredAction(field, sides.mine, sides.album);
-	const applied = action !== null && sides.changes.fields.includes(field);
+export function mergeRow(field: MergeField, sides: MergeSides): MergeRow {
+	const { mine, album, changes, handlers, newValues } = sides;
+	if (!pickable(field, mine, album)) {
+		return fixedRow({
+			key: field,
+			label: fieldLabel(field),
+			left: items(field, mine, []),
+			right: items(field, album, newValues),
+			...(field === 'notes' ? { text: true } : {})
+		});
+	}
+	if (field === 'notes') return notesRow(sides);
+	if (isListField(field)) return listRow(field, sides);
 	return {
 		key: field,
 		label: fieldLabel(field),
-		left: applied ? leftItems(field, sides, action) : items(field, sides.mine, []),
-		right: items(field, sides.album, sides.newValues),
-		...(field === 'notes' ? { text: true } : {}),
-		...(action ? { actions: [actionOf(field, action, sides)] } : {})
+		kind: 'pick',
+		mine: items(field, mine, []),
+		album: items(field, album, newValues),
+		fromAlbum: changes.fields.includes(field),
+		onpick: (fromAlbum) => handlers.pick(field, fromAlbum)
 	};
 }
 
-export function mergeRows(sides: MergeSides): DisplayRow[] {
-	return MERGE_FIELDS.map((field) => mergeRow(field, sides));
+export function mergeRows(sides: MergeSides): MergeRow[] {
+	return MERGE_FIELDS.map((field) => mergeRow(field, sides)).filter(
+		(row) => row.kind !== 'same' || row.value.length > 0
+	);
 }
