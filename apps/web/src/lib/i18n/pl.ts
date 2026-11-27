@@ -726,6 +726,7 @@ export const pl = {
 		same: 'takie samo w obu wersjach',
 		empty: 'brak',
 		images: 'Obrazy',
+		imageNumber: (number: number): string => `Obraz ${number}`,
 		appendNote: 'Dopisz na końcu notatki',
 		keep: (value: string): string => `Zachowaj: ${value}`,
 		unchanged: 'Nic się nie zmieni',

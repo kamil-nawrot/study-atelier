@@ -159,10 +159,16 @@
 
 	.summary {
 		display: grid;
-		flex: 1 1 16rem;
+		flex: 1 1 100%;
 		align-self: center;
 		margin: 0;
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-sm);
+	}
+
+	@media (min-width: 768px) {
+		.summary {
+			flex-basis: 16rem;
+		}
 	}
 </style>

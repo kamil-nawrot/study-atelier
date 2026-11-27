@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Checkbox, Notes } from '@study-atelier/ui';
+	import TickTile from '#lib/shared/forms/TickTile/TickTile.svelte';
 	import MergeChoice from '#lib/compare/components/MergeChoice/MergeChoice.svelte';
 	import type { MergeRow } from '#lib/compare/types/merge-row.ts';
 	import type { TickItem } from '#lib/compare/types/tick-item.ts';
@@ -56,7 +57,29 @@
 	{:else}
 		<span class="items" class:text>
 			{#each items as item, index (index)}
-				{#if item.ontoggle}
+				{#if item.ontoggle && item.image}
+					{@const image = item.image}
+					{@const source = artworkImageSource(image, THUMB_WIDTH)}
+					<span class="image-tick">
+						<TickTile
+							checked={item.ticked ?? false}
+							disabled={item.disabled && !item.ticked}
+							ontoggle={item.ontoggle}
+							ratio={source ? source.width / source.height : 1}
+						>
+							{#snippet picture()}
+								{#if source}
+									<img alt="" height={source.height} src={source.src} width={source.width} />
+								{/if}
+							{/snippet}
+							{#if item.credit}
+								<span class="credit">{item.credit}</span>
+							{:else}
+								<span class="visually-hidden">{item.text}</span>
+							{/if}
+						</TickTile>
+					</span>
+				{:else if item.ontoggle}
 					<span class="tick" class:on={item.ticked}>
 						<Checkbox
 							checked={item.ticked}
@@ -199,6 +222,10 @@
 		padding-bottom: var(--spacing-1);
 		color: var(--color-fg);
 		font-size: var(--font-size-sm);
+	}
+
+	.image-tick {
+		width: 8rem;
 	}
 
 	.thumb {

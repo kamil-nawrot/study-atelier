@@ -57,7 +57,7 @@ export function imageRow({
 	const ownItems: TickItem[] = own.map((image, index) => {
 		const key = ownImageKey(image, index);
 		return {
-			text: '',
+			text: m.compare.imageNumber(index + 1),
 			image,
 			ticked: !changes.droppedImages.includes(key),
 			disabled: !ownImageSelectable(mine, changes, key),
