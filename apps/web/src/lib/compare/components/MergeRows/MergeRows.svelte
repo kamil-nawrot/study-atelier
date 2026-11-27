@@ -1,7 +1,8 @@
 <script lang="ts">
-	import Check from '@lucide/svelte/icons/check';
-	import { Checkbox, Icon, Notes } from '@study-atelier/ui';
-	import type { MergeRow, TickItem } from '#lib/compare/types/merge-row.ts';
+	import { Checkbox, Notes } from '@study-atelier/ui';
+	import MergeChoice from '#lib/compare/components/MergeChoice/MergeChoice.svelte';
+	import type { MergeRow } from '#lib/compare/types/merge-row.ts';
+	import type { TickItem } from '#lib/compare/types/tick-item.ts';
 	import type { RowCellItem } from '#lib/compare/types/row-cell-item.ts';
 	import { artworkImageSource } from '#lib/images/artwork-image/artwork-image.ts';
 	import { m } from '#lib/i18n/i18n.ts';
@@ -77,21 +78,13 @@
 {/snippet}
 
 {#snippet choice(items: RowCellItem[], picked: boolean, onpick: () => void, text: boolean)}
-	<button
-		class="cell"
-		class:picked
-		aria-label={m.compare.keep(items.map((item) => item.text).join(', ') || m.compare.empty)}
-		aria-pressed={picked}
-		onclick={onpick}
-		type="button"
+	<MergeChoice
+		label={m.compare.keep(items.map((item) => item.text).join(', ') || m.compare.empty)}
+		{onpick}
+		{picked}
 	>
 		{@render values(items, text)}
-		<span class="mark" aria-hidden="true">
-			{#if picked}
-				<Icon icon={Check} size="xs" />
-			{/if}
-		</span>
-	</button>
+	</MergeChoice>
 {/snippet}
 
 <div class="rows">
@@ -164,55 +157,6 @@
 		flex-wrap: wrap;
 		gap: var(--spacing-1) var(--spacing-2);
 		margin: 0;
-	}
-
-	.cell {
-		position: relative;
-		display: flex;
-		align-items: center;
-		min-width: 0;
-		min-height: var(--size-control);
-		padding: var(--spacing-3) var(--spacing-12) var(--spacing-3) var(--spacing-4);
-		border: var(--border-width-hairline) solid var(--color-line);
-		background: transparent;
-		color: var(--color-fg-muted);
-		font: inherit;
-		text-align: start;
-		overflow-wrap: break-word;
-		cursor: pointer;
-	}
-
-	.cell:hover:not(.picked) {
-		background: var(--color-surface);
-	}
-
-	.cell.picked {
-		border: var(--border-width-base) solid var(--color-highlight);
-		background: color-mix(in srgb, var(--color-highlight) 10%, transparent);
-		color: var(--color-fg);
-	}
-
-	.cell:focus-visible {
-		outline: var(--border-width-base) dashed var(--color-fg);
-		outline-offset: var(--border-width-base);
-	}
-
-	.mark {
-		position: absolute;
-		top: 50%;
-		right: var(--spacing-3);
-		display: grid;
-		place-items: center;
-		width: calc(var(--spacing-4) + var(--spacing-1));
-		height: calc(var(--spacing-4) + var(--spacing-1));
-		border: var(--border-width-base) solid var(--color-line);
-		translate: 0 -50%;
-	}
-
-	.picked .mark {
-		border-color: var(--color-highlight);
-		background: var(--color-highlight);
-		color: var(--color-bg);
 	}
 
 	.items {

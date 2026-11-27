@@ -15,7 +15,8 @@ import type { ComparedSide } from '#lib/compare/types/compared-side.ts';
 import type { DisplayRow } from '#lib/compare/types/display-row.ts';
 import type { MergeChanges } from '#lib/compare/types/merge-changes.ts';
 import type { MergeField } from '#lib/compare/types/merge-field.ts';
-import type { MergeRow, TickItem } from '#lib/compare/types/merge-row.ts';
+import type { MergeRow } from '#lib/compare/types/merge-row.ts';
+import type { TickItem } from '#lib/compare/types/tick-item.ts';
 import type { RowCellItem } from '#lib/compare/types/row-cell-item.ts';
 
 export type MergeHandlers = {

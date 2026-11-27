@@ -7,7 +7,8 @@ import {
 } from '#lib/compare/album-merge-images/album-merge-images.ts';
 import type { ComparedSide } from '#lib/compare/types/compared-side.ts';
 import type { MergeChanges } from '#lib/compare/types/merge-changes.ts';
-import type { MergeRow, TickItem } from '#lib/compare/types/merge-row.ts';
+import type { MergeRow } from '#lib/compare/types/merge-row.ts';
+import type { TickItem } from '#lib/compare/types/tick-item.ts';
 import { albumCredit } from '#lib/images/credit/credit.ts';
 import { m } from '#lib/i18n/i18n.ts';
 
