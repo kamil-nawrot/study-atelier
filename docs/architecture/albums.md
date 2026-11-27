@@ -21,7 +21,7 @@ The app reads them with `#lib/albums/album-files/album-files.ts` and serves the 
 { "format": 1, "albums": [{ "slug": "sample-album", "languages": ["pl"], "sample": true }] }
 ```
 
-Every folder is listed once, with exactly the languages of its text files. An album with `"sample": true` is listed only in development and tests; `sample-album` is the made-up album the tests use. `paleolithic-venuses` ("Wenus paleolityczne") is the first real album, 13 sculptures of the Upper Palaeolithic; it is listed as a sample until the owner decides to publish it, by removing the flag. A museum of an album has no city in the format, so its text names the city in its summary.
+Every folder is listed once, with exactly the languages of its text files. An album with `"sample": true` is listed only in development and tests; `sample-album` is the made-up album the tests use. `paleolithic-venuses` ("Wenus paleolityczne") is the first real album, 13 sculptures of the Upper Palaeolithic; it is listed in production. A museum of an album has no city in the format, so its text names the city in its summary.
 
 ### album.json
 
