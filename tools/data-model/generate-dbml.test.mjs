@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
-import { listedValues, quoteText, renderDbml, typeName } from './generate-dbml.mjs';
+import { listedValues, parseArgs, quoteText, renderDbml, typeName } from './generate-dbml.mjs';
 
 test('quotes a note and escapes what would end it', () => {
 	assert.equal(quoteText("where (kind = 'a')"), "'where (kind = \\'a\\')'");
@@ -87,4 +87,25 @@ test('renders tables, keys and references in a fixed order', () => {
 	assert.match(dbml, /at "timestamp with time zone" \[not null\]/);
 	assert.match(dbml, /b_id \[name: 'a_b_id_idx', note: 'where \(b_id IS NOT NULL\)'\]/);
 	assert.match(dbml, /Ref a_b_id_fkey: a\.b_id > b\.id \[delete: cascade\]/);
+});
+
+test('reads the database url from the arguments or the environment', () => {
+	assert.deepEqual(parseArgs(['--check', '--url', 'postgresql://x']), {
+		url: 'postgresql://x',
+		check: true
+	});
+	assert.deepEqual(parseArgs([], { DATABASE_URL: 'postgresql://y' }), {
+		url: 'postgresql://y',
+		check: false
+	});
+	assert.equal(parseArgs(['--url']), null);
+	assert.equal(parseArgs(['--url', '--check']), null);
+});
+
+test('keeps a public table named users', () => {
+	const dbml = renderDbml({
+		tables: [{ name: 'users', rls: false, columns: [], indexes: [], checks: [] }],
+		refs: []
+	});
+	assert.match(dbml, /^Table users \{$/m);
 });

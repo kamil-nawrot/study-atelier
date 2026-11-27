@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -167,9 +167,7 @@ function byText(a, b) {
 }
 
 export function renderDbml(catalog) {
-	const tables = catalog.tables
-		.filter((table) => table.name !== 'users')
-		.sort((a, b) => byText(a.name, b.name));
+	const tables = [...catalog.tables].sort((a, b) => byText(a.name, b.name));
 	catalog.refs.sort((a, b) => byText(a.table, b.table) || byText(a.name, b.name));
 	return `${HEADER}
 Table auth.users {
@@ -194,15 +192,31 @@ function readCatalog(url) {
 	return JSON.parse(result.stdout);
 }
 
+export function parseArgs(args, env = {}) {
+	const urlIndex = args.indexOf('--url');
+	const url = urlIndex >= 0 ? args[urlIndex + 1] : (env.DATABASE_URL ?? LOCAL_DATABASE);
+	if (url === undefined || url.startsWith('--')) return null;
+	return { url, check: args.includes('--check') };
+}
+
 function main(args) {
 	if (args.includes('--help')) {
 		console.log(USAGE);
 		return 0;
 	}
-	const urlIndex = args.indexOf('--url');
-	const url = urlIndex >= 0 ? args[urlIndex + 1] : (process.env.DATABASE_URL ?? LOCAL_DATABASE);
-	const dbml = renderDbml(readCatalog(url));
-	if (args.includes('--check')) {
+	const options = parseArgs(args, process.env);
+	if (options === null) {
+		console.error(`--url needs a value.\n${USAGE}`);
+		return 2;
+	}
+	if (options.check && !existsSync(OUTPUT)) {
+		console.error(
+			'docs/data-model/current.dbml is missing. Run pnpm data-model and commit the result.'
+		);
+		return 1;
+	}
+	const dbml = renderDbml(readCatalog(options.url));
+	if (options.check) {
 		if (readFileSync(OUTPUT, 'utf8') === dbml) return 0;
 		console.error(
 			'docs/data-model/current.dbml is stale. Run pnpm data-model and commit the result.'
