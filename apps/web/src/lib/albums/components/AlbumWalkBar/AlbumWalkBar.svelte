@@ -21,7 +21,7 @@
 			<li
 				class="thumb"
 				class:current={status === 'current'}
-				class:done={status === 'saved' || status === 'skipped'}
+				class:done={status !== 'current' && status !== 'todo'}
 				aria-current={status === 'current' ? 'step' : undefined}
 			>
 				<AlbumPicture image={artwork.images[0]} />
@@ -29,11 +29,13 @@
 					{artwork.title}
 					{#if status === 'saved'}
 						{m.albums.walk.saved}
+					{:else if status === 'merged'}
+						{m.albums.walk.merged}
 					{:else if status === 'skipped'}
 						{m.albums.walk.skipped}
 					{/if}
 				</span>
-				{#if status === 'saved'}
+				{#if status === 'saved' || status === 'merged'}
 					<span class="check" aria-hidden="true"><Icon icon={Check} size="sm" /></span>
 				{/if}
 			</li>

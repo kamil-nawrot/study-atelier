@@ -1,6 +1,7 @@
 <script lang="ts">
 	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
 	import { Alert, Button, FormActions, Icon, TextButton } from '@study-atelier/ui';
+	import type { Snippet } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { albumEntryKey } from '#lib/albums/album-entry/album-entry.ts';
@@ -30,9 +31,13 @@
 		mine: ArtworkRecord;
 		version: AlbumVersion;
 		ownFields?: OwnFieldDefinition[];
+		saveLabel?: string;
+		actions?: Snippet;
+		notice?: Snippet;
+		onsaved?: () => void | Promise<void>;
 	};
 
-	let { mine, version, ownFields = [] }: Props = $props();
+	let { mine, version, ownFields = [], saveLabel, actions, notice, onsaved }: Props = $props();
 
 	const THUMB_WIDTH = 160;
 
@@ -54,7 +59,10 @@
 	let entry = $derived(albumEntryKey(version));
 	let artworkPath = $derived(resolve('/(app)/atelier/[number]', { number: String(mine.number) }));
 	let savable = $derived(
-		merge.count > 0 || (mine.album?.entry === entry && mine.album.revision < version.revision)
+		merge.count > 0 ||
+			(mine.album?.entry === entry
+				? mine.album.revision < version.revision
+				: onsaved !== undefined)
 	);
 	let rows = $derived<DisplayRow[]>([
 		{ key: 'images', label: m.artworkForm.image, left: mineImages, right: theirImages },
@@ -83,6 +91,10 @@
 			return;
 		}
 		savedCount = merge.count;
+		if (onsaved) {
+			await onsaved();
+			return;
+		}
 		await goto(artworkPath, { replace: true, refreshAll: true, state: { saved: result.number } });
 	}
 </script>
@@ -129,6 +141,7 @@
 {/snippet}
 
 <ComparisonPair headings={[m.compare.mine, m.compare.album]} left={mine} right={version.artwork}>
+	{@render notice?.()}
 	<ComparisonRows {rows} />
 	{#if error}
 		<Alert title={m.artworkForm.errorTitle} tone="danger">
@@ -137,11 +150,15 @@
 	{/if}
 	<FormActions>
 		<p class="count">{m.compare.changes(merge.count)}</p>
-		<Button href={artworkPath}>
-			{m.common.cancel}
-		</Button>
+		{#if actions}
+			{@render actions()}
+		{:else}
+			<Button href={artworkPath}>
+				{m.common.cancel}
+			</Button>
+		{/if}
 		<Button disabled={busy || !savable} onclick={save} variant="primary">
-			{busy ? m.common.saving : m.compare.saveChanges}
+			{busy ? m.common.saving : (saveLabel ?? m.compare.saveChanges)}
 		</Button>
 	</FormActions>
 </ComparisonPair>

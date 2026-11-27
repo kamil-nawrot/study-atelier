@@ -3328,14 +3328,18 @@ export const pl = {
 			listLabel: 'Dzieła do dodania',
 			progress: (position: number, total: number): string => `${position} z ${total}`,
 			saved: 'dodane',
+			merged: 'uzupełnione',
 			skipped: 'pominięte',
 			finish: 'Zakończ',
 			skip: 'Pomiń',
 			saveAndNext: 'Zapisz i przejdź dalej',
 			saveAndFinish: 'Zapisz i zakończ',
+			similar: (number: string): string =>
+				`W Twoim atelier jest już podobne dzieło ${number}. Przenieś do niego, co chcesz, z wersji z albumu albo, jeśli to inne dzieło, dodaj je jako nowe.`,
+			addAsNew: 'To inne dzieło, dodaj jako nowe',
 			loading: 'Wczytywanie dzieła…',
-			done: (album: string, artworks: number): string =>
-				`Gotowe, z albumu „${album}” dodano ${workCount(artworks)}.`
+			done: (album: string, artworks: number, completed: number): string =>
+				`Gotowe, z albumu „${album}” ${albumOutcome(artworks, completed)}.`
 		},
 		closing: {
 			title: 'Co jeszcze zabrać z albumu?',
@@ -3362,8 +3366,8 @@ export const pl = {
 			progress: (position: number, total: number): string => `${position} z ${total}`,
 			listLabel: 'Elementy do dodania',
 			appendNote: 'Dopisz na końcu notatki',
-			done: (album: string, artworks: number, others: number): string =>
-				`Gotowe, z albumu „${album}” dodano ${workCount(artworks)} oraz ${others} ${plural(others, { one: 'inny element', few: 'inne elementy', many: 'innych elementów' })}.`
+			done: (album: string, artworks: number, completed: number, others: number): string =>
+				`Gotowe, z albumu „${album}” ${albumOutcome(artworks, completed)} oraz dodano ${others} ${plural(others, { one: 'inny element', few: 'inne elementy', many: 'innych elementów' })}.`
 		}
 	},
 	trash: {
@@ -3453,6 +3457,13 @@ function placeCount(count: number): string {
 
 function archivedExhibitionCount(count: number): string {
 	return `${count} ${plural(count, { one: 'wystawa', few: 'wystawy', many: 'wystaw' })}`;
+}
+
+function albumOutcome(added: number, completed: number): string {
+	const addedText = `dodano ${workCount(added)}`;
+	if (completed === 0) return addedText;
+	const completedText = `uzupełniono ${workCount(completed)} w atelier`;
+	return added === 0 ? completedText : `${addedText} i ${completedText}`;
 }
 
 function workCount(count: number): string {

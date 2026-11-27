@@ -26,9 +26,10 @@ export class AlbumAdd {
 
 	constructor(
 		private readonly album: Album,
-		artworks: AlbumArtwork[]
+		artworks: AlbumArtwork[],
+		similar: Record<string, number> = {}
 	) {
-		this.walk = new AlbumWalk(album, artworks);
+		this.walk = new AlbumWalk(album, artworks, similar);
 	}
 
 	get current(): AlbumItem | undefined {
@@ -42,8 +43,8 @@ export class AlbumAdd {
 	get message(): string {
 		const title = this.album.title;
 		return this.itemsAdded > 0
-			? m.albums.closing.done(title, this.walk.added, this.itemsAdded)
-			: m.albums.walk.done(title, this.walk.added);
+			? m.albums.closing.done(title, this.walk.added, this.walk.merged, this.itemsAdded)
+			: m.albums.walk.done(title, this.walk.added, this.walk.merged);
 	}
 
 	start(): Promise<void> {
@@ -52,6 +53,11 @@ export class AlbumAdd {
 
 	async artworkSaved(): Promise<void> {
 		await this.walk.saved();
+		await this.#afterArtwork();
+	}
+
+	async artworkCompleted(): Promise<void> {
+		await this.walk.completed();
 		await this.#afterArtwork();
 	}
 

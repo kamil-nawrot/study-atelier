@@ -2,6 +2,8 @@
 	import { Alert, Button } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import ArtworkForm from '#lib/artworks/components/ArtworkForm/ArtworkForm.svelte';
+	import AlbumComparison from '#lib/compare/components/AlbumComparison/AlbumComparison.svelte';
+	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 	import { FormSuggestions } from '#lib/artworks/form-suggestions/form-suggestions.svelte.ts';
 	import { albumEntryKey } from '#lib/albums/album-entry/album-entry.ts';
 	import { newValueMarks } from '#lib/albums/album-version/album-version.ts';
@@ -14,10 +16,13 @@
 		cancelHref: string;
 		onfinish: () => void | Promise<void>;
 		onsaved: () => void | Promise<void>;
+		oncompleted: () => void | Promise<void>;
 		onskip: () => void | Promise<void>;
 	};
 
-	let { walk, ownFields, cancelHref, onfinish, onsaved, onskip }: Props = $props();
+	let { walk, ownFields, cancelHref, onfinish, onsaved, oncompleted, onskip }: Props = $props();
+
+	let saveLabel = $derived(walk.last ? m.albums.walk.saveAndFinish : m.albums.walk.saveAndNext);
 
 	let form = $state<ArtworkForm>();
 
@@ -35,6 +40,23 @@
 	<Alert title={m.albums.albumLoadErrorTitle} tone="danger">
 		{walk.error}
 	</Alert>
+{:else if walk.version && walk.mine && walk.comparing}
+	{@const version = walk.version}
+	{@const mine = walk.mine}
+	{#key version.entryId}
+		<AlbumComparison {mine} onsaved={oncompleted} {ownFields} {saveLabel} {version}>
+			{#snippet notice()}
+				<Alert tone="warning">
+					{m.albums.walk.similar(formatRecordNumber(mine.number))}
+				</Alert>
+			{/snippet}
+			{#snippet actions()}
+				<Button onclick={onfinish}>{m.albums.walk.finish}</Button>
+				<Button onclick={onskip}>{m.albums.walk.skip}</Button>
+				<Button onclick={() => walk.addAsNew()}>{m.albums.walk.addAsNew}</Button>
+			{/snippet}
+		</AlbumComparison>
+	{/key}
 {:else if walk.version}
 	{@const version = walk.version}
 	{#key version.entryId}
@@ -44,7 +66,7 @@
 			{cancelHref}
 			labels={{
 				cancel: m.albums.walk.finish,
-				save: walk.last ? m.albums.walk.saveAndFinish : m.albums.walk.saveAndNext
+				save: saveLabel
 			}}
 			newValues={newValueMarks(version.newValues)}
 			oncancel={finish}

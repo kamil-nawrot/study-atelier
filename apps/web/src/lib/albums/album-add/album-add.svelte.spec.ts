@@ -77,7 +77,7 @@ describe('AlbumAdd', () => {
 
 		expect(add.phase).toBe('done');
 		expect(loadItemData).not.toHaveBeenCalled();
-		expect(add.message).toBe(m.albums.walk.done('Paleolithic Venuses', 0));
+		expect(add.message).toBe(m.albums.walk.done('Paleolithic Venuses', 0, 0));
 	});
 
 	it('shows the loading error and offers nothing to add', async () => {
@@ -103,7 +103,7 @@ describe('AlbumAdd', () => {
 		add.skipAll();
 
 		expect(add.phase).toBe('done');
-		expect(add.message).toBe(m.albums.walk.done('Paleolithic Venuses', 1));
+		expect(add.message).toBe(m.albums.walk.done('Paleolithic Venuses', 1, 0));
 	});
 
 	it('ticks and unticks an item and ignores one already in the atelier', async () => {
@@ -141,7 +141,7 @@ describe('AlbumAdd', () => {
 
 		expect(add.phase).toBe('done');
 		expect(add.itemsAdded).toBe(2);
-		expect(add.message).toBe(m.albums.closing.done('Paleolithic Venuses', 1, 2));
+		expect(add.message).toBe(m.albums.closing.done('Paleolithic Venuses', 1, 0, 2));
 	});
 
 	it('finishes early when the learner ends the items', async () => {
@@ -153,7 +153,7 @@ describe('AlbumAdd', () => {
 		add.itemsFinished();
 
 		expect(add.phase).toBe('done');
-		expect(add.message).toBe(m.albums.closing.done('Paleolithic Venuses', 1, 1));
+		expect(add.message).toBe(m.albums.closing.done('Paleolithic Venuses', 1, 0, 1));
 	});
 
 	it('finishes when nothing is ticked', async () => {

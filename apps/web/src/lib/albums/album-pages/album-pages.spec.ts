@@ -113,6 +113,16 @@ describe('album pages', () => {
 		expect(walk.artworks.map((artwork) => artwork.id)).toEqual(['venus']);
 	});
 
+	it('hands the walk the record numbers of the artworks with a similar title', async () => {
+		vi.mocked(loadAtelierMatches).mockResolvedValue({
+			matches: [{ id: 'a7', number: 7, title: 'venus', albumEntry: null, wikidataIds: [] }]
+		});
+
+		const walk = await loadAlbumWalk('sample', ['venus'], fetcher, true);
+
+		expect(walk.similar).toEqual({ venus: 7 });
+	});
+
 	it('does not walk through an album that is not listed', async () => {
 		vi.mocked(loadAlbumListings).mockResolvedValue([]);
 
