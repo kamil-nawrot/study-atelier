@@ -301,11 +301,12 @@
 
 {#snippet imageLine()}
 	<div class="image-line">
-		{#if selected > 0 && current() !== null}
+		<span style:visibility={selected > 0 && current() !== null ? undefined : 'hidden'}>
 			<TextButton inline onclick={makeMain}>
 				<span class="star"><Icon icon={Star} size="sm" /></span>{m.artworkForm.setMainImage}
 			</TextButton>
-		{:else}
+		</span>
+		{#if selected === 0 || current() === null}
 			{@render matchStatusLine()}
 		{/if}
 	</div>
@@ -346,9 +347,11 @@
 <style>
 	.image-line {
 		display: grid;
-		justify-items: center;
-		min-height: calc(var(--font-size-sm) * var(--line-height-sm));
-		text-align: center;
+		place-items: center;
+	}
+
+	.image-line > :global(*) {
+		grid-area: 1 / 1;
 	}
 
 	.slots {
