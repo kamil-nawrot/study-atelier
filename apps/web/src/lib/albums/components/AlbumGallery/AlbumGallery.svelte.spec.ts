@@ -21,6 +21,10 @@ const similar: AtelierMatch = {
 	wikidataIds: []
 };
 
+function selectedText(selected: number, total: number): string {
+	return `${m.albums.selected.before}${selected}${m.albums.selected.after(total)}`;
+}
+
 describe('AlbumGallery', () => {
 	beforeEach(async () => {
 		await page.viewport(1280, 800);
@@ -36,12 +40,13 @@ describe('AlbumGallery', () => {
 			.not.toBeInTheDocument();
 		await expect.element(page.getByText(m.albums.inAtelier('#0003'))).toBeInTheDocument();
 		await expect
-			.element(page.getByRole('link', { name: m.albums.compare }))
+			.element(page.getByRole('link', { name: m.albums.compare }).first())
 			.toHaveAttribute('href', '/atelier/compare?left=3&album=sample-album%2Fvenus');
 		await expect
-			.element(page.getByRole('link', { name: m.albums.similar('#0007') }))
+			.element(page.getByRole('link', { name: m.albums.compare }).last())
 			.toHaveAttribute('href', '/atelier/compare?left=7&album=sample-album%2Flion');
-		await expect.element(page.getByText(m.albums.selected(2, 3))).toBeInTheDocument();
+		await expect.element(page.getByText(m.albums.similar('#0007'))).toBeVisible();
+		await expect.element(page.getByText(selectedText(2, 3))).toBeInTheDocument();
 		await expect.element(page.getByRole('button', { name: m.albums.add(2) })).toBeEnabled();
 	});
 
@@ -50,7 +55,7 @@ describe('AlbumGallery', () => {
 		render(AlbumGallery, { album: testAlbum(), matches: [owned], onadd });
 
 		await page.getByText('Lion Man').click();
-		await expect.element(page.getByText(m.albums.selected(1, 3))).toBeInTheDocument();
+		await expect.element(page.getByText(selectedText(1, 3))).toBeInTheDocument();
 		await page.getByRole('button', { name: m.albums.add(1) }).click();
 
 		expect(onadd).toHaveBeenCalledWith(['horse']);
@@ -73,11 +78,11 @@ describe('AlbumGallery', () => {
 		render(AlbumGallery, { album: testAlbum(), matches: [], onadd: vi.fn() });
 
 		await page.getByRole('button', { name: m.albums.deselectAll }).click();
-		await expect.element(page.getByText(m.albums.selected(0, 3))).toBeInTheDocument();
+		await expect.element(page.getByText(selectedText(0, 3))).toBeInTheDocument();
 		await expect.element(page.getByRole('button', { name: m.albums.add(0) })).toBeDisabled();
 
 		await page.getByRole('button', { name: m.albums.selectAll }).click();
-		await expect.element(page.getByText(m.albums.selected(3, 3))).toBeInTheDocument();
+		await expect.element(page.getByText(selectedText(3, 3))).toBeInTheDocument();
 	});
 
 	it('searches the titles, alternative titles and authors', async () => {

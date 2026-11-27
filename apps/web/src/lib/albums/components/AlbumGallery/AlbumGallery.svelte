@@ -100,15 +100,7 @@
 		</Alert>
 	{/if}
 
-	<ListTools narrow searchLabel={m.albums.search} bind:query>
-		{#snippet actions()}
-			{#if selectable.length > 0}
-				<TextButton onclick={toggleAll}>
-					{allSelected ? m.albums.deselectAll : m.albums.selectAll}
-				</TextButton>
-			{/if}
-		{/snippet}
-	</ListTools>
+	<ListTools narrow searchLabel={m.albums.search} bind:query />
 
 	{#if shown.length === 0}
 		<p class="lead">{m.albums.noResults(query.trim())}</p>
@@ -136,7 +128,18 @@
 	{/if}
 
 	<FormActions>
-		<span class="caption count">{m.albums.selected(chosen.length, counts.artworks)}</span>
+		<div class="selection">
+			<span class="caption">
+				{m.albums.selected.before}<strong>{chosen.length}</strong>{m.albums.selected.after(
+					counts.artworks
+				)}
+			</span>
+			{#if selectable.length > 0}
+				<TextButton onclick={toggleAll}>
+					{allSelected ? m.albums.deselectAll : m.albums.selectAll}
+				</TextButton>
+			{/if}
+		</div>
 		<Button
 			disabled={!onadd || chosen.length === 0}
 			onclick={() => onadd?.(chosen.map((artwork) => artwork.id))}
@@ -176,7 +179,16 @@
 		gap: var(--spacing-3);
 	}
 
-	.count {
+	.selection {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
 		align-self: center;
+		gap: var(--spacing-1) var(--spacing-4);
+	}
+
+	.selection strong {
+		color: var(--color-fg);
+		font-weight: var(--font-weight-bold);
 	}
 </style>

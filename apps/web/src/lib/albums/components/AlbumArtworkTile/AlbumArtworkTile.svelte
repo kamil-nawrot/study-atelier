@@ -56,12 +56,17 @@
 		<TickTile {checked} {ontoggle} {ratio}>
 			{#snippet picture()}
 				<AlbumPicture {image} />
+				{#if state.kind === 'similar'}
+					<span class="badge similar" class:low={compact}
+						>{m.albums.similar(formatRecordNumber(state.number))}</span
+					>
+				{/if}
 			{/snippet}
 			{@render caption()}
 		</TickTile>
 		{#if state.kind === 'similar'}
-			<a class="action similar" href={compareWithAlbumHref(state.number, slug, artwork.id)}>
-				{m.albums.similar(formatRecordNumber(state.number))}
+			<a class="action compare" href={compareWithAlbumHref(state.number, slug, artwork.id)}>
+				{m.albums.compare}
 			</a>
 		{/if}
 	</div>
@@ -148,7 +153,25 @@
 		line-height: var(--line-height-xs);
 	}
 
-	.similar {
+	.tile .badge.similar {
+		right: auto;
+		left: var(--spacing-1);
+		width: auto;
+		height: auto;
+		max-width: calc(100% - 2 * var(--spacing-1));
+		overflow: hidden;
+		background: var(--color-highlight);
+		color: var(--color-bg);
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+
+	.tile .badge.low {
+		top: auto;
+		bottom: var(--spacing-1);
+	}
+
+	.compare {
 		padding: 0 var(--spacing-2) var(--spacing-3);
 	}
 </style>
