@@ -1,12 +1,18 @@
 <script lang="ts">
 	import { pasteShortcut } from '#lib/images/clipboard/clipboard.ts';
 
+	type Props = {
+		period?: boolean;
+	};
+
+	let { period = true }: Props = $props();
+
 	const shortcut = pasteShortcut();
 </script>
 
 {#each shortcut.keys as key, index (key)}{#if index > 0 && shortcut.keys[0] !== '⌘'}+{/if}<kbd
 		>{key}</kbd
-	>{/each}.
+	>{/each}{#if period}.{/if}
 
 <style>
 	kbd {

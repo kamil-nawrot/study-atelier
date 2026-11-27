@@ -1,6 +1,5 @@
 <script lang="ts">
 	import ImageIcon from '@lucide/svelte/icons/image';
-	import PinIcon from '@lucide/svelte/icons/pin';
 	import Plus from '@lucide/svelte/icons/plus';
 	import Star from '@lucide/svelte/icons/star';
 	import { onDestroy, untrack } from 'svelte';
@@ -271,11 +270,6 @@
 				<Icon icon={Plus} />
 			</button>
 		{/if}
-		{#if selected > 0 && current() !== null}
-			<TextButton inline onclick={makeMain}>
-				<span class="star"><Icon icon={Star} size="sm" /></span>{m.artworkForm.setMainImage}
-			</TextButton>
-		{/if}
 	</div>
 {/snippet}
 
@@ -305,6 +299,18 @@
 	{/if}
 {/snippet}
 
+{#snippet imageLine()}
+	<div class="image-line">
+		{#if selected > 0 && current() !== null}
+			<TextButton inline onclick={makeMain}>
+				<span class="star"><Icon icon={Star} size="sm" /></span>{m.artworkForm.setMainImage}
+			</TextButton>
+		{:else}
+			{@render matchStatusLine()}
+		{/if}
+	</div>
+{/snippet}
+
 {#snippet matchStatusLine()}
 	{#if matchStatus === 'searching'}
 		<FillingStatus message={m.artworkForm.matchSearching} onstop={stopMatch} />
@@ -321,7 +327,7 @@
 	{alt}
 	{compactEmpty}
 	filling={selected === 0 && matchStatus === 'searching'}
-	hints={pinImageId === undefined ? [] : [{ icon: PinIcon, text: m.pins.editHint }]}
+	hints={pinImageId === undefined ? [] : [m.pins.editHint]}
 	onsearch={stopMatch}
 	overlay={pinLayer}
 	{query}
@@ -330,7 +336,7 @@
 	{sameArtwork}
 	{searchReady}
 	slots={slotRow}
-	source={matchStatusLine}
+	source={imageLine}
 	staged
 	status={pinStatus}
 	{texts}
@@ -338,6 +344,13 @@
 />
 
 <style>
+	.image-line {
+		display: grid;
+		justify-items: center;
+		min-height: calc(var(--font-size-sm) * var(--line-height-sm));
+		text-align: center;
+	}
+
 	.slots {
 		display: flex;
 		flex-wrap: wrap;

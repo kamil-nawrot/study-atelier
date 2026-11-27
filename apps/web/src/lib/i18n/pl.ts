@@ -597,7 +597,7 @@ export const pl = {
 			`Akceptowalne formaty zdjęć to: ${formats}. Pliki większe niż ${maxMegabytes} MB zostaną automatycznie zmniejszone.`,
 		pasteFromClipboard: 'Wklej ze schowka',
 		pasteHintLead: 'Masz obraz w schowku? Po prostu naciśnij',
-		pasteHintForm: 'Obraz ze schowka możesz też wkleić tutaj:',
+		pasteHintForm: 'wkleja obraz ze schowka',
 		replaceImageTitle: 'Zastąpić obecny obraz?',
 		replaceImageDescription: 'Wklejony obraz zajmie jego miejsce.',
 		keepImage: 'Zostaw obecny',
@@ -609,7 +609,7 @@ export const pl = {
 		ownImageCredit: 'Twój obraz, widoczny tylko dla Ciebie.',
 		ownImageUrlCredit: (host: string): string =>
 			`Twój obraz z adresu ${host}, widoczny tylko dla Ciebie.`,
-		findImageHint: 'Wpisz tytuł i autora, żeby znaleźć obraz.',
+		findImageHint: 'Wpisz tytuł i autora, żeby znaleźć obraz',
 		chooseOtherImage: 'Wybierz inny',
 		matchSearching: 'Wyszukiwanie obrazu w Wikidata…',
 		matchFound: (details: string): string => `Z Wikidata: ${details}`,
@@ -1568,8 +1568,7 @@ export const pl = {
 	},
 	pins: {
 		switchLabel: (count: number): string => `Pinezki (${count})`,
-		editHint:
-			'Wskaż miejsce na obrazie, żeby dodać pinezkę. Przeciągnij pinezkę, żeby zmienić jej miejsce. Pinezki zapisują się od razu, niezależnie od dzieła.',
+		editHint: 'Wskaż miejsce na obrazie, żeby dodać pinezkę',
 		imagePins: (count: number): string => `Jego pinezki (${count}) usuną się po zapisaniu.`,
 		placeHere: 'Dodaj pinezkę w tym miejscu',
 		marker: (number: number, name?: string, view = false): string =>
@@ -3080,7 +3079,7 @@ export const pl = {
 			label: 'Portret',
 			find: 'Znajdź portret',
 			findOther: 'Wybierz inny',
-			findHint: 'Wpisz nazwę, żeby znaleźć portret.',
+			findHint: 'Wpisz nazwę, żeby znaleźć portret',
 			own: 'Własny portret',
 			changeOwn: 'Zmień własny',
 			ownTitle: 'Dodaj własny portret',

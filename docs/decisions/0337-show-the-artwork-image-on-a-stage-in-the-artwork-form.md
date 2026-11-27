@@ -1,6 +1,6 @@
 # 0337. Show the artwork image on a stage in the artwork form
 
-- Status: accepted
+- Status: accepted; the link to make an image main and the hints at the bottom of the stage are superseded by [0350](0350-move-set-as-main-under-the-image-and-the-hints-into-one-line.md)
 - Date: 2026-11-20
 
 ## Context and problem statement

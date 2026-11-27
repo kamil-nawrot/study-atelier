@@ -27,7 +27,6 @@
 		artworkImageSource
 	} from '#lib/images/artwork-image/artwork-image.ts';
 	import type { ImageFieldTexts } from '#lib/images/types/image-field-texts.ts';
-	import type { ImageHint } from '#lib/images/types/image-hint.ts';
 	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 
 	type Props = {
@@ -42,7 +41,7 @@
 		slots?: Snippet;
 		source?: Snippet;
 		status?: Snippet;
-		hints?: ImageHint[];
+		hints?: string[];
 		overlay?: Snippet;
 		removeWarning?: string;
 		filling?: boolean;
@@ -187,7 +186,7 @@
 	{#if input.pasteError}
 		<p class="paste-error" role="alert">{input.pasteError}</p>
 	{/if}
-	<ImageHints hints={searchReady ? hints : [{ icon: Search, text: texts.findHint }, ...hints]} />
+	<ImageHints hints={searchReady ? hints : [texts.findHint, ...hints]} />
 </section>
 
 <ImageSearchDialog onpick={pickCandidate} {query} {sameArtwork} bind:open={input.searchOpen} />
@@ -399,7 +398,7 @@
 
 		.staged > :global(.hints) {
 			justify-self: center;
-			min-height: calc(3 * var(--font-size-xs) * var(--line-height-xs) + 2 * var(--spacing-2));
+			min-height: calc(var(--font-size-xs) * var(--line-height-xs));
 			max-width: var(--size-content-default);
 		}
 	}
