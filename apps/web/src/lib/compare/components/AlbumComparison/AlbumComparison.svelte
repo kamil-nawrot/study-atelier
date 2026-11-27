@@ -139,7 +139,9 @@
 {/snippet}
 
 <ComparisonPair headings={[m.compare.mine, m.compare.album]} left={mine} right={version.artwork}>
-	{@render notice?.()}
+	{#if notice}
+		<div class="notice">{@render notice()}</div>
+	{/if}
 	<ComparisonRows {rows} />
 	{#if error}
 		<Alert title={m.artworkForm.errorTitle} tone="danger">
@@ -164,6 +166,10 @@
 <DiscardDialog {changes} description={m.common.discardDescription} />
 
 <style>
+	.notice {
+		padding-top: var(--spacing-6);
+	}
+
 	.thumbs {
 		display: flex;
 		flex-wrap: wrap;
