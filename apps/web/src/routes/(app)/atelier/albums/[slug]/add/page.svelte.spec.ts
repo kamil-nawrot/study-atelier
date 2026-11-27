@@ -80,7 +80,7 @@ describe('album add page', () => {
 		await vi.waitFor(() =>
 			expect(goto).toHaveBeenCalledWith(ALBUM_PATH, {
 				refreshAll: true,
-				state: { albumMessage: m.albums.walk.done('Paleolithic Venuses', 0) }
+				state: { albumMessage: m.albums.walk.done('Paleolithic Venuses', 0, 0) }
 			})
 		);
 		expect(loadItemData).not.toHaveBeenCalled();
@@ -95,7 +95,7 @@ describe('album add page', () => {
 		await vi.waitFor(() =>
 			expect(goto).toHaveBeenCalledWith(ALBUM_PATH, {
 				refreshAll: true,
-				state: { albumMessage: m.albums.walk.done('Paleolithic Venuses', 0) }
+				state: { albumMessage: m.albums.walk.done('Paleolithic Venuses', 0, 0) }
 			})
 		);
 	});
@@ -113,7 +113,7 @@ describe('album add page', () => {
 		await vi.waitFor(() =>
 			expect(goto).toHaveBeenCalledWith(ALBUM_PATH, {
 				refreshAll: true,
-				state: { albumMessage: m.albums.closing.done('Paleolithic Venuses', 0, 1) }
+				state: { albumMessage: m.albums.closing.done('Paleolithic Venuses', 0, 0, 1) }
 			})
 		);
 	});

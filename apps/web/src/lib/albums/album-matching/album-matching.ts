@@ -59,6 +59,19 @@ export function artworkState(
 	return similar ? { kind: 'similar', number: similar.number } : { kind: 'new' };
 }
 
+export function similarNumbers(
+	slug: string,
+	artworks: AlbumArtwork[],
+	matches: AtelierMatch[]
+): Record<string, number> {
+	const similar: Record<string, number> = {};
+	for (const artwork of artworks) {
+		const state = artworkState(slug, artwork, matches);
+		if (state.kind === 'similar') similar[artwork.id] = state.number;
+	}
+	return similar;
+}
+
 export function ownedCount(album: Album, matches: AtelierMatch[]): number {
 	return album.artworks.filter((artwork) => takenMatch(album.slug, artwork, matches)).length;
 }

@@ -1,6 +1,6 @@
 # 0347. Offer curated albums of artworks to take into the atelier
 
-- Status: accepted
+- Status: accepted; a similar title deciding nothing is superseded by [0348](0348-open-a-similar-album-artwork-as-a-comparison-while-adding.md)
 - Date: 2026-11-26
 
 ## Context and problem statement

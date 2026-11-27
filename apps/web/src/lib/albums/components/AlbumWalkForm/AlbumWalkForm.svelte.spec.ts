@@ -9,6 +9,8 @@ import { testAlbum } from '#lib/testing/albums/albums.ts';
 import { testSession } from '#lib/testing/auth/auth.ts';
 import { answerRpc, saveArtworkCalls, waitForSave } from '#lib/testing/duplicates/duplicates.ts';
 import { answerNothingFromWikidata } from '#lib/testing/add-artwork/add-artwork.ts';
+import { emptyArtworkInput } from '#lib/testing/artwork-input/artwork-input.ts';
+import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
 import AlbumWalkForm from './AlbumWalkForm.svelte';
 
 vi.mock('#lib/artworks/form-suggestions/form-suggestions.svelte.ts', async () => ({
@@ -47,6 +49,7 @@ function renderForm(walk: AlbumWalk, handlers: Record<string, () => void> = {}):
 		cancelHref: '/atelier/albums/sample-album',
 		onfinish: vi.fn(),
 		onsaved: vi.fn(),
+		oncompleted: vi.fn(),
 		onskip: vi.fn(),
 		...handlers
 	});
@@ -149,5 +152,31 @@ describe('AlbumWalkForm', () => {
 		renderForm(walk);
 
 		await expect.element(page.getByText(m.albums.walk.loading)).toBeVisible();
+	});
+
+	it('compares a similar artwork with the album version and switches to the form for another artwork', async () => {
+		const walk = openedWalk(['venus', 'lion']);
+		walk.mine = {
+			...emptyArtworkInput(),
+			id: 'artwork-7',
+			number: 7,
+			favourite: false,
+			title: 'Venus of Willendorf',
+			relations: []
+		} as ArtworkRecord;
+		renderForm(walk);
+
+		await expect.element(page.getByText(m.albums.walk.similar('#0007'))).toBeVisible();
+		await expect.element(page.getByText(m.compare.album)).toBeVisible();
+		await expect
+			.element(page.getByRole('button', { name: m.albums.walk.saveAndNext }))
+			.toBeEnabled();
+
+		await page.getByRole('button', { name: m.albums.walk.addAsNew }).click();
+
+		await expect
+			.element(page.getByRole('textbox', { name: m.artworkForm.title }))
+			.toHaveValue('Venus of Willendorf');
+		await expect.element(page.getByText(m.albums.walk.similar('#0007'))).not.toBeInTheDocument();
 	});
 });

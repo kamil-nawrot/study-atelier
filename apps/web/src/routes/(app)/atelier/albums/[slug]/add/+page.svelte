@@ -20,7 +20,9 @@
 	const albumPath = untrack(() =>
 		data.album ? resolve('/(app)/atelier/albums/[slug]', { slug: data.album.slug }) : albumsPath
 	);
-	const add = untrack(() => (data.album ? new AlbumAdd(data.album, data.artworks) : undefined));
+	const add = untrack(() =>
+		data.album ? new AlbumAdd(data.album, data.artworks, data.similar) : undefined
+	);
 
 	let view = $state<{ confirmLeave: () => Promise<boolean> }>();
 
@@ -39,6 +41,7 @@
 <AtelierLayout
 	confirmLeave={async () => (await view?.confirmLeave()) ?? true}
 	email={data.session.user.email ?? ''}
+	fill={add?.phase === 'artworks' && add.walk.comparing}
 	heading={Boolean(add)}
 	title={data.album?.title ?? m.albums.title}
 >
@@ -58,6 +61,7 @@
 		<AlbumWalkForm
 			bind:this={view}
 			cancelHref={albumPath}
+			oncompleted={() => proceed(add.artworkCompleted())}
 			onfinish={() => proceed(add.artworksFinished())}
 			onsaved={() => proceed(add.artworkSaved())}
 			onskip={() => proceed(add.artworkSkipped())}

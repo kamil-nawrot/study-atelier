@@ -176,4 +176,24 @@ describe('AlbumComparison', () => {
 			.element(page.getByRole('group', { name: m.artworkForm.period }))
 			.toHaveTextContent(m.compare.newValue);
 	});
+
+	it('links an artwork to the entry without changes and hands the save over inside a walk', async () => {
+		vi.mocked(saveArtwork).mockResolvedValue({ saved: true, id: 'artwork-3', number: 3 });
+		const onsaved = vi.fn();
+		await render(AlbumComparison, {
+			mine: MINE,
+			version: VERSION,
+			ownFields: [],
+			saveLabel: m.albums.walk.saveAndNext,
+			onsaved
+		});
+
+		await page.getByRole('button', { name: m.albums.walk.saveAndNext }).click();
+
+		await expect.poll(() => onsaved.mock.calls.length).toBe(1);
+		expect(vi.mocked(saveArtwork).mock.calls[0][0]).toMatchObject({
+			album: { entry: 'venus/willendorf', revision: 2 }
+		});
+		expect(goto).not.toHaveBeenCalled();
+	});
 });
