@@ -47,12 +47,14 @@ describe('readAlbumIndex', () => {
 });
 
 describe('loadAlbumListings', () => {
-	it('lists the sample albums only when samples are wanted, and only in its languages', async () => {
+	it('lists a sample album only when samples are wanted, and only in its languages', async () => {
 		expect(await loadAlbumListings('pl', true, staticFetch())).toEqual([
 			{ slug: 'sample-album', languages: ['pl'], sample: true },
-			{ slug: 'paleolithic-venuses', languages: ['pl'], sample: true }
+			{ slug: 'paleolithic-venuses', languages: ['pl'], sample: false }
 		]);
-		expect(await loadAlbumListings('pl', false, staticFetch())).toEqual([]);
+		expect(await loadAlbumListings('pl', false, staticFetch())).toEqual([
+			{ slug: 'paleolithic-venuses', languages: ['pl'], sample: false }
+		]);
 		expect(await loadAlbumListings('en', true, staticFetch())).toEqual([]);
 	});
 
