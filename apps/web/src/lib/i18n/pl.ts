@@ -722,7 +722,7 @@ export const pl = {
 		newValue: 'nowa wartość',
 		mine: 'Twoja wersja',
 		album: 'Wersja z albumu',
-		hint: 'Kliknij wartość, którą chcesz zachować. Zapisze się tylko to, co zaznaczone.',
+		hint: 'Zaznacz, co ma trafić do Twojego dzieła.',
 		same: 'takie samo w obu wersjach',
 		empty: 'brak',
 		images: 'Obrazy',
@@ -3364,7 +3364,7 @@ export const pl = {
 			saveAndNext: 'Zapisz i przejdź dalej',
 			saveAndFinish: 'Zapisz i zakończ',
 			similar: (number: string): string =>
-				`W Twoim atelier jest już podobne dzieło ${number}. Przenieś do niego, co chcesz, z wersji z albumu albo, jeśli to inne dzieło, dodaj je jako nowe.`,
+				`W Twoim atelier jest już podobne dzieło ${number}. Zaznacz, co z wersji z albumu ma do niego trafić, albo, jeśli to inne dzieło, dodaj je jako nowe.`,
 			addAsNew: 'To inne dzieło, dodaj jako nowe',
 			loading: 'Wczytywanie dzieła…',
 			done: (album: string, artworks: number, completed: number): string =>
