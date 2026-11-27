@@ -49,7 +49,7 @@ The owner chose each part on 2026-11-27 from mockups on the real view.
 - Good: the controls are large and stay in place, the same on a phone.
 - Good: a wrong own author or style can be replaced in the same view.
 - Bad: an own item or image can be removed by unticking it by mistake; the bar names it before saving.
-- Bad: the view opens with changes when the learner has empty fields, so leaving it asks first.
+- Bad: the view can open with changes when the learner has empty fields; leaving asks first only once the learner changes a pick, so the album values of the empty fields are dropped without a question.
 
 This replaces the actions and the struck-through values of the comparison with an album version in [ADR-0347](0347-offer-curated-albums-of-artworks-to-take-into-the-atelier.md); the rest of it stands.
 

@@ -41,13 +41,13 @@
 		() => version.artwork
 	);
 
-	let savedCount = $state(0);
+	let savedChanges = $state(JSON.stringify(merge.changes));
 	let busy = $state(false);
 	let error = $state('');
 
 	const changes = new UnsavedChanges(
-		() => merge.count,
-		() => savedCount,
+		() => JSON.stringify(merge.changes),
+		() => savedChanges,
 		(current, saved) => current !== saved
 	);
 
@@ -98,7 +98,7 @@
 			error = result.error || (Object.values(result.fieldErrors)[0] ?? m.common.unexpectedError);
 			return;
 		}
-		savedCount = merge.count;
+		savedChanges = JSON.stringify(merge.changes);
 		if (onsaved) {
 			await onsaved();
 			return;
