@@ -65,7 +65,7 @@
 							checked={item.ticked ?? false}
 							disabled={item.disabled && !item.ticked}
 							ontoggle={item.ontoggle}
-							ratio={source ? source.width / source.height : 1}
+							ratio={image.width && image.height ? image.width / image.height : 1}
 						>
 							{#snippet picture()}
 								{#if source}
