@@ -122,6 +122,7 @@ export type Database = {
       };
       artwork_images: {
         Row: {
+          album_image_path: string | null;
           artwork_id: string;
           broken_at: string | null;
           id: string;
@@ -140,6 +141,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          album_image_path?: string | null;
           artwork_id: string;
           broken_at?: string | null;
           id?: string;
@@ -157,6 +159,7 @@ export type Database = {
           source_wikidata_id?: string | null;
         };
         Update: {
+          album_image_path?: string | null;
           artwork_id?: string;
           broken_at?: string | null;
           id?: string;
@@ -353,6 +356,8 @@ export type Database = {
       };
       artworks: {
         Row: {
+          album_entry: string | null;
+          album_revision: number | null;
           author_unknown: boolean;
           created_at: string;
           deleted_at: string | null;
@@ -372,6 +377,8 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          album_entry?: string | null;
+          album_revision?: number | null;
           author_unknown?: boolean;
           created_at?: string;
           deleted_at?: string | null;
@@ -390,6 +397,8 @@ export type Database = {
           year_to?: number | null;
         };
         Update: {
+          album_entry?: string | null;
+          album_revision?: number | null;
           author_unknown?: boolean;
           created_at?: string;
           deleted_at?: string | null;

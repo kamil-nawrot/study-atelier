@@ -188,6 +188,7 @@
 			noteLinks={data.noteLinks}
 			onflip={(direction) => flip.flip(direction)}
 			onstage={(id) => (flag.image = id)}
+			origin={data.origin}
 			ownFields={data.ownFields}
 			pins={data.pins}
 			showPinsOnOpen={data.preferences?.viewShowPins}

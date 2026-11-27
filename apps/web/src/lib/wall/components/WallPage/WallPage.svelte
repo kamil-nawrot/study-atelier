@@ -10,6 +10,7 @@
 	import WallCount from '#lib/wall/components/WallCount/WallCount.svelte';
 	import WallSections from '#lib/wall/components/WallSections/WallSections.svelte';
 	import WallWelcome from '#lib/wall/components/WallWelcome/WallWelcome.svelte';
+	import AlbumsHint from '#lib/wall/components/AlbumsHint/AlbumsHint.svelte';
 	import { onlyFavourites } from '#lib/wall/filter/filter.ts';
 	import { removeTag } from '#lib/wall/filter-tags/filter-tags.ts';
 	import { favouriteToast } from '#lib/wall/favourite/favourite.ts';
@@ -32,6 +33,7 @@
 	const addPath = resolve('/(app)/atelier/new');
 	const atelierPath = resolve('/(app)/atelier');
 	const HIGHLIGHT_MS = 2000;
+	const SMALL_WALL = 5;
 
 	let highlight = $state(page.state.highlight);
 	let toast: Toast;
@@ -108,7 +110,9 @@
 		{error}
 	</Alert>
 {:else if view.total === 0}
-	<WallWelcome {addPath} />
+	{#await page.data.albumsListed then albums}
+		<WallWelcome {addPath} albums={albums === true} />
+	{/await}
 {:else if view.shown.length === 0 && view.filtering}
 	{@render tags()}
 	{@render emptyState(
@@ -125,6 +129,13 @@
 		() => (query = '')
 	)}
 {:else}
+	{#if view.total < SMALL_WALL}
+		{#await page.data.albumsListed then albums}
+			{#if albums}
+				<AlbumsHint text={m.albums.smallWallHint} />
+			{/if}
+		{/await}
+	{/if}
 	{@render tags()}
 	{#if view.favouriteError}
 		<Alert tone="danger">

@@ -40,7 +40,8 @@ export const pl = {
 			useSimilar: 'Użyj tej wartości',
 			add: (name: string): string => `+ Dodaj „${name}”`,
 			addAnyway: (name: string): string => `+ Dodaj „${name}” mimo to`,
-			remove: (name: string): string => `Usuń ${name}`
+			remove: (name: string): string => `Usuń ${name}`,
+			newValue: 'nowa wartość'
 		},
 		searchSelect: {
 			empty: 'Brak pasujących wartości',
@@ -101,6 +102,10 @@ export const pl = {
 		photoCredit: (photographer: string, license: string): string =>
 			`Wikimedia Commons, zdjęcie: ${photographer}, ${license}`,
 		licenceCredit: (license: string): string => `Wikimedia Commons, ${license}`,
+		albumCredit: 'Z albumu, domena publiczna',
+		albumPhotoCredit: (photographer: string, license: string): string =>
+			`Z albumu, zdjęcie: ${photographer}, ${license}`,
+		albumLicenceCredit: (license: string): string => `Z albumu, ${license}`,
 		unknownArtist: 'autor nieznany',
 		yearBce: (year: number): string => `${year} p.n.e.`
 	},
@@ -216,6 +221,7 @@ export const pl = {
 		review: 'Powtórki',
 		displayCase: 'Ekspozycja',
 		reviewWaiting: (count: number): string => `${workCount(count)} na dziś`,
+		albums: 'Albumy',
 		trash: 'Archiwum',
 		settings: 'Ustawienia',
 		settingsLink: (name: string, email: string): string =>
@@ -688,7 +694,10 @@ export const pl = {
 		closeImage: 'Zamknij powiększenie',
 		empty: 'Nie wpisano',
 		previous: 'Poprzednie dzieło',
-		next: 'Następne dzieło'
+		next: 'Następne dzieło',
+		fromAlbum: (title: string): string => `Z albumu „${title}”`,
+		newerInAlbum: 'Album ma nowszą wersję tego dzieła.',
+		compareWithAlbum: 'Porównaj'
 	},
 	loupe: {
 		label: 'Lupa',
@@ -708,7 +717,48 @@ export const pl = {
 		swap: 'Zamień strony',
 		loupeBoth: 'Lupa pokazuje to samo miejsce na obu obrazach',
 		loadFailedTitle: 'Nie udało się wczytać porównania',
-		loadingAtelier: 'Wczytywanie atelier…'
+		loadingAtelier: 'Wczytywanie atelier…',
+		wikidata: 'Wikidata',
+		newValue: 'nowa wartość',
+		mine: 'Twoja wersja',
+		album: 'Wersja z albumu',
+		hint: 'Zaznacz, co ma trafić do Twojego dzieła.',
+		same: 'takie samo w obu wersjach',
+		empty: 'brak',
+		images: 'Obrazy',
+		imageNumber: (number: number): string => `Obraz ${number}`,
+		appendNote: 'Dopisz na końcu notatki',
+		keep: (value: string): string => `Zachowaj: ${value}`,
+		unchanged: 'Nic się nie zmieni',
+		taken: (items: string): string => `Z albumu weźmiesz: ${items}`,
+		removed: (items: string): string => `Usuniesz: ${items}`,
+		takenFields: {
+			title: 'tytuł',
+			date: 'rok powstania',
+			era: 'epokę',
+			type: 'typ',
+			period: 'okres',
+			location: 'miejsce',
+			notes: 'opis do notatki'
+		},
+		takenItems: {
+			authors: (count: number): string =>
+				count === 1
+					? 'autora'
+					: `${count} ${plural(count, { one: 'autora', few: 'autorów', many: 'autorów' })}`,
+			styles: (count: number): string =>
+				count === 1
+					? 'styl'
+					: `${count} ${plural(count, { one: 'styl', few: 'style', many: 'stylów' })}`,
+			materials: (count: number): string =>
+				count === 1
+					? 'materiał'
+					: `${count} ${plural(count, { one: 'materiał', few: 'materiały', many: 'materiałów' })}`,
+			images: (count: number): string =>
+				`${count} ${plural(count, { one: 'obraz', few: 'obrazy', many: 'obrazów' })}`
+		},
+		saveChanges: 'Zapisz zmiany',
+		albumEntryMissing: 'Tego dzieła nie ma w albumie.'
 	},
 	palette: {
 		label: 'Paleta barw',
@@ -3265,6 +3315,93 @@ export const pl = {
 			tooBig: 'Ta wystawa jest za duża, żeby ją zapisać. Może warto podzielić ją na dwie?'
 		}
 	},
+	albums: {
+		title: 'Albumy',
+		count: (count: number): string =>
+			`${count} ${plural(count, { one: 'album', few: 'albumy', many: 'albumów' })}`,
+		lead: 'Gotowe zestawy dzieł wraz z podstawowymi danymi, skupione wokół konkretnego punktu w czasie lub motywu. Możesz je dodać do swojej kolekcji w całości lub wybrać tylko te pozycje, którymi chcesz zasilić atelier.',
+		empty: 'Nie ma tu jeszcze żadnego albumu.',
+		loadErrorTitle: 'Nie udało się wczytać albumów',
+		albumLoadErrorTitle: 'Nie udało się wczytać albumu',
+		loadError: 'Nie udało się wczytać plików albumu. Odśwież stronę i spróbuj jeszcze raz.',
+		notFound: 'Nie ma takiego albumu.',
+		backToList: 'Wróć do albumów',
+		counts: (artworks: number, terms: number, events: number): string =>
+			[
+				workCount(artworks),
+				terms > 0
+					? `${terms} ${plural(terms, { one: 'pojęcie', few: 'pojęcia', many: 'pojęć' })}`
+					: '',
+				events > 0
+					? `${events} ${plural(events, { one: 'wydarzenie', few: 'wydarzenia', many: 'wydarzeń' })}`
+					: ''
+			]
+				.filter(Boolean)
+				.join(' · '),
+		owned: (owned: number, total: number): string =>
+			`${owned} z ${total} ${plural(owned, { one: 'jest', few: 'są', many: 'jest' })} w Twoim atelier`,
+		search: 'Szukaj w albumie',
+		selectAll: 'Zaznacz wszystkie',
+		deselectAll: 'Odznacz wszystkie',
+		inAtelier: (number: string): string => `W atelier · ${number}`,
+		compare: 'Porównaj z wersją z albumu',
+		similar: (number: string): string => `Podobne do ${number}`,
+		selected: { before: 'Zaznaczono ', after: (total: number): string => ` z ${total}` },
+		add: (count: number): string =>
+			`Dodaj ${count} ${plural(count, { one: 'dzieło', few: 'dzieła', many: 'dzieł' })}`,
+		noResults: (query: string): string =>
+			`Nic nie pasuje do „${query}”. Sprawdź pisownię albo wpisz krótszy fragment tytułu.`,
+		emptyWallHint: {
+			before: 'Nie wiesz, od czego zacząć? Zajrzyj do ',
+			link: 'Albumów',
+			after: ': to gotowe zestawy dzieł, które mogą pomóc w rozwoju Twojej kolekcji.'
+		},
+		smallWallHint: { before: 'Szukasz kolejnych dzieł? Zajrzyj do ', link: 'Albumów', after: '.' },
+		walk: {
+			listLabel: 'Dzieła do dodania',
+			progress: (position: number, total: number): string => `${position} z ${total}`,
+			saved: 'dodane',
+			merged: 'uzupełnione',
+			skipped: 'pominięte',
+			finish: 'Zakończ',
+			skip: 'Pomiń',
+			saveAndNext: 'Zapisz i przejdź dalej',
+			saveAndFinish: 'Zapisz i zakończ',
+			similar: (number: string): string =>
+				`W Twoim atelier jest już podobne dzieło ${number}. Zaznacz, co z wersji z albumu ma do niego trafić, albo, jeśli to inne dzieło, dodaj je jako nowe.`,
+			addAsNew: 'To inne dzieło, dodaj jako nowe',
+			loading: 'Wczytywanie dzieła…',
+			done: (album: string, artworks: number, completed: number): string =>
+				`Gotowe, z albumu „${album}” ${albumOutcome(artworks, completed)}.`
+		},
+		closing: {
+			title: 'Co jeszcze zabrać z albumu?',
+			intro:
+				'Album opisuje też pojęcia, postacie, wydarzenia i hasła kartoteki związane z dodanymi dziełami. Zaznacz, co chcesz dodać do atelier; każdy zaznaczony element przejdziesz w osobnym formularzu, w którym możesz go poprawić.',
+			loadError:
+				'Nie udało się sprawdzić, co masz już w atelier. Odśwież stronę i spróbuj jeszcze raz.',
+			parts: {
+				terms: 'Pojęcia',
+				figures: 'Postacie',
+				events: 'Wydarzenia',
+				values: 'Kartoteka'
+			},
+			states: {
+				new: 'nowe',
+				present: 'już w Atelier',
+				fill: 'uzupełnienie',
+				description: 'nowy opis'
+			},
+			skipAll: 'Pomiń wszystkie',
+			add: (count: number): string =>
+				`Dodaj ${count} ${plural(count, { one: 'element', few: 'elementy', many: 'elementów' })}`,
+			progress: (position: number, total: number): string => `${position} z ${total}`,
+			listLabel: 'Elementy do dodania',
+			appendNote: 'Dopisz na końcu notatki',
+			done: (album: string, artworks: number, completed: number, others: number): string =>
+				`Gotowe, z albumu „${album}” ${albumOutcome(artworks, completed)} oraz dodano ${others} ${plural(others, { one: 'inny element', few: 'inne elementy', many: 'innych elementów' })}.`
+		}
+	},
 	trash: {
 		title: 'Archiwum',
 		lead: 'Trafiają tu dzieła i wystawy, które usuniesz z atelier. Możesz je stąd przywrócić albo usunąć na zawsze.',
@@ -3352,6 +3489,13 @@ function placeCount(count: number): string {
 
 function archivedExhibitionCount(count: number): string {
 	return `${count} ${plural(count, { one: 'wystawa', few: 'wystawy', many: 'wystaw' })}`;
+}
+
+function albumOutcome(added: number, completed: number): string {
+	const addedText = `dodano ${workCount(added)}`;
+	if (completed === 0) return addedText;
+	const completedText = `uzupełniono ${workCount(completed)} w atelier`;
+	return added === 0 ? completedText : `${addedText} i ${completedText}`;
 }
 
 function workCount(count: number): string {

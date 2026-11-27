@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { CardIndexRecord } from '#lib/catalogue/types/card-index-record.ts';
 import type { Town } from '#lib/map/types/town.ts';
-import { cityOfTown, cityOptions, ownCities } from './city-options.ts';
+import { cityOfTown, cityOptions, ownCities, withTown } from './city-options.ts';
 
 function town(name: string, countryCode: string, extra: Partial<Town> = {}): Town {
 	return { name, countryCode, longitude: 2, latitude: 48, ...extra };
@@ -82,5 +82,23 @@ describe('cityOptions', () => {
 describe('cityOfTown', () => {
 	it('drops a country code the app does not know', () => {
 		expect(cityOfTown(town('Prisztina', 'KOS')).countryCode).toBeNull();
+	});
+});
+
+describe('withTown', () => {
+	it('puts the town in as the city of a place and drops its own point', () => {
+		const location = {
+			countryCode: 'PL',
+			placeType: 'church',
+			city: null,
+			point: { latitude: 1, longitude: 2 },
+			wikidataId: null
+		} as unknown as Parameters<typeof withTown>[0];
+
+		expect(withTown(location, town('Kraków', 'PL'))).toMatchObject({
+			city: { name: 'Kraków', countryCode: 'PL' },
+			point: null,
+			countryCode: 'PL'
+		});
 	});
 });

@@ -3,6 +3,7 @@ declare global {
 
 	namespace App {
 		interface PageState {
+			albumMessage?: string;
 			backroomMessage?: string;
 			chronicleMessage?: string;
 			exhibitionMessage?: string;

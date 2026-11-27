@@ -1,6 +1,6 @@
 import type { ServiceErrorLike } from '#lib/auth/types/service-error-like.ts';
 import { failureMessage } from '#lib/auth/expired-session-data/expired-session-data.ts';
-import { IMAGE_COLUMNS, imageOf } from '#lib/images/image-record/image-record.ts';
+import { ARTWORK_IMAGE_COLUMNS, imageOf } from '#lib/images/image-record/image-record.ts';
 import type { ImageRow } from '#lib/images/types/image-row.ts';
 import { fragmentLenses } from '#lib/pins/fragment-lenses/fragment-lenses.ts';
 import type { FragmentLens } from '#lib/pins/types/fragment-lens.ts';
@@ -17,7 +17,7 @@ type CoverRow = {
 	artwork_images: ImageRow & { id: string; artwork_id: string };
 };
 
-const COLUMNS = `id, x, y, view_width, crop_path, artwork_images!inner(id, artwork_id, ${IMAGE_COLUMNS.join(', ')}, artworks!inner(deleted_at))`;
+const COLUMNS = `id, x, y, view_width, crop_path, artwork_images!inner(id, artwork_id, ${ARTWORK_IMAGE_COLUMNS.join(', ')}, artworks!inner(deleted_at))`;
 
 function fragmentOf(row: CoverRow): PinFragment {
 	return {

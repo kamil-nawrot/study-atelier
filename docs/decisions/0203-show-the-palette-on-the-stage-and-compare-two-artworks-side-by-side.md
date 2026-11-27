@@ -1,6 +1,6 @@
 # 0203. Show the palette on the stage and compare two artworks side by side
 
-- Status: accepted; "Porównaj" in the top bar on a phone is superseded by [0252](0252-overhaul-the-app-on-a-phone.md)
+- Status: accepted; "Porównaj" in the top bar on a phone is superseded by [0252](0252-overhaul-the-app-on-a-phone.md); the comparison as a viewing tool only is superseded by [0347](0347-offer-curated-albums-of-artworks-to-take-into-the-atelier.md), which adds rows of information and merging an album version
 - Date: 2026-11-06
 
 ## Context and problem statement

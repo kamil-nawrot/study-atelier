@@ -72,6 +72,30 @@ describe('savePalette', () => {
 		]);
 	});
 
+	it('matches an album image by its path in the albums folder', async () => {
+		const { eq } = table(null);
+
+		await savePalette(
+			{
+				id: 'image-4',
+				kind: 'album',
+				path: 'sample-album/images/spiral.webp',
+				wikidataId: null,
+				licence: 'CC0',
+				licenceUrl: null,
+				attribution: null,
+				width: null,
+				height: null
+			},
+			PALETTE
+		);
+
+		expect(eq.mock.calls).toEqual([
+			['id', 'image-4'],
+			['album_image_path', 'sample-album/images/spiral.webp']
+		]);
+	});
+
 	it('stores nothing for an image without an id or not uploaded yet', async () => {
 		table(null);
 

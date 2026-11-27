@@ -25,6 +25,7 @@ To be described with C4 container and component diagrams.
 
 - `apps/web`: the SvelteKit app.
 - `packages/ui`: shared Svelte components, token CSS, fonts and base styles, documented in Storybook ([ADR-0013](../decisions/0013-component-library-with-storybook.md)); interface icons come from Lucide through its `Icon` component ([ADR-0017](../decisions/0017-ui-icons-from-lucide.md)).
+- `apps/web/static/albums`: the curated albums, static files checked against their schema ([albums.md](albums.md)).
 
 ### Data model
 

@@ -20,7 +20,11 @@ vi.mock('$app/state', () => ({
 	navigating: { to: null },
 	updated: { current: false }
 }));
-vi.mock('$app/navigation', () => ({ afterNavigate: vi.fn(), goto: vi.fn() }));
+vi.mock('$app/navigation', () => ({
+	afterNavigate: vi.fn(),
+	beforeNavigate: vi.fn(),
+	goto: vi.fn()
+}));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: { auth: { signOut: vi.fn() } }
 }));
@@ -32,7 +36,11 @@ vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({
 
 const IMAGE = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="50"/>')}`;
 
-function artwork(number: number, title: string): ArtworkRecord {
+function artwork(
+	number: number,
+	title: string,
+	overrides: Partial<ArtworkRecord> = {}
+): ArtworkRecord {
 	return {
 		id: `artwork-${number}`,
 		number,
@@ -53,7 +61,8 @@ function artwork(number: number, title: string): ArtworkRecord {
 		materials: [],
 		location: null,
 		notes: '',
-		image: { kind: 'url', url: IMAGE, width: 40, height: 50, id: `image-${number}` }
+		image: { kind: 'url', url: IMAGE, width: 40, height: 50, id: `image-${number}` },
+		...overrides
 	};
 }
 
@@ -123,5 +132,47 @@ describe('comparison page', () => {
 
 		await expect.element(page.getByText('Network down')).toBeVisible();
 		await expect.element(page.getByText(m.compare.loadFailedTitle)).toBeVisible();
+	});
+
+	it('shows the fields of both artworks in rows', async () => {
+		renderPage({
+			left: artwork(1, 'Girl with a Pearl Earring'),
+			right: artwork(2, 'The Milkmaid', { styles: ['barok'] })
+		});
+
+		await expect
+			.element(page.getByRole('group', { name: m.artworkForm.style }))
+			.toHaveTextContent('barok');
+	});
+
+	it('merges an artwork with its album version without a swap', async () => {
+		const mine = artwork(1, 'Girl with a Pearl Earring');
+		renderPage({
+			sides: { left: 1, right: null },
+			album: {
+				mine,
+				version: {
+					slug: 'sample-album',
+					entryId: 'girl',
+					albumTitle: 'Sample album',
+					revision: 1,
+					wikidataId: null,
+					newValues: [],
+					artwork: { ...mine, period: 'barok', relations: undefined }
+				}
+			}
+		});
+
+		await expect.element(page.getByText(m.compare.album).first()).toBeVisible();
+		await expect.element(page.getByText(m.compare.hint)).toBeVisible();
+		await expect
+			.element(page.getByRole('banner').getByRole('button', { name: m.compare.swap }))
+			.not.toBeInTheDocument();
+	});
+
+	it('says when the album has no such artwork', async () => {
+		renderPage({ album: { error: m.compare.albumEntryMissing } });
+
+		await expect.element(page.getByText(m.compare.albumEntryMissing)).toBeVisible();
 	});
 });

@@ -7,3 +7,9 @@ export function commonsCredit(licence: string | null, attribution: string | null
 	if (!attribution) return m.artwork.licenceCredit(licence);
 	return m.artwork.photoCredit(attribution, licence);
 }
+
+export function albumCredit(licence: string, attribution: string | null): string {
+	if (PUBLIC_DOMAIN.test(licence)) return m.artwork.albumCredit;
+	if (!attribution) return m.artwork.albumLicenceCredit(licence);
+	return m.artwork.albumPhotoCredit(attribution, licence);
+}

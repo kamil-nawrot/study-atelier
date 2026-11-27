@@ -69,6 +69,7 @@ Table artwork_images {
   id uuid [pk, default: `gen_random_uuid()`]
   palette jsonb
   broken_at "timestamp with time zone"
+  album_image_path text
 
   indexes {
     (artwork_id, position) [unique]
@@ -160,10 +161,13 @@ Table artworks {
   year_from integer
   favourite boolean [not null, default: `false`]
   want_to_see boolean [not null, default: `false`]
+  album_entry text
+  album_revision integer
 
   indexes {
     (id, owner_id) [unique]
     (owner_id, record_number) [unique]
+    (owner_id, album_entry) [name: 'artworks_album_entry_idx', note: 'where (album_entry IS NOT NULL)']
     era_code [name: 'artworks_era_code_idx']
     (owner_id, `search_key(title)`) [name: 'artworks_title_key_idx', note: 'where (deleted_at IS NULL)']
   }

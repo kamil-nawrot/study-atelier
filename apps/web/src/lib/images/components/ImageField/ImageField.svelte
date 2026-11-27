@@ -86,7 +86,7 @@
 	let ratio = $derived(
 		preview?.width && preview.height ? preview.width / preview.height : undefined
 	);
-	let ownImage = $derived(image !== null && image.kind !== 'commons');
+	let ownImage = $derived(image !== null && image.kind !== 'commons' && image.kind !== 'album');
 
 	function openSearch(): void {
 		onsearch?.();

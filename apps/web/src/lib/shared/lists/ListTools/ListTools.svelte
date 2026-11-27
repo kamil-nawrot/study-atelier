@@ -8,7 +8,7 @@
 	type Props = {
 		searchLabel?: string;
 		query?: string;
-		sortLabel: string;
+		sortLabel?: string;
 		options?: Option[];
 		sort?: string;
 		actions?: Snippet;
@@ -18,7 +18,7 @@
 	let {
 		searchLabel,
 		query = $bindable(''),
-		sortLabel,
+		sortLabel = '',
 		options = [],
 		sort = $bindable(''),
 		actions,

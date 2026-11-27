@@ -465,4 +465,23 @@ describe('ValueField', () => {
 
 		expect(picked).toEqual([{ kind: 'found', id: 'b', name: 'The Kiss', note: 'Auguste Rodin' }]);
 	});
+
+	it('marks the chosen values listed as new', async () => {
+		render(ValueField, { label: 'Style', values: ['baroque', 'rococo'], marked: ['rococo'] });
+
+		await expect.element(page.getByText(texts.newValue)).toBeVisible();
+		await expect.element(page.getByText(texts.newValue)).toHaveLength(1);
+	});
+
+	it('marks the chosen value of a single field listed as new', async () => {
+		render(ValueField, { label: 'Period', single: true, values: ['Gothic'], marked: ['Gothic'] });
+
+		await expect.element(page.getByText(texts.newValue)).toBeVisible();
+	});
+
+	it('marks nothing when no value is listed as new', async () => {
+		render(ValueField, { label: 'Style', values: ['baroque'] });
+
+		await expect.element(page.getByText(texts.newValue)).not.toBeInTheDocument();
+	});
 });

@@ -3,8 +3,17 @@ export class FormState<T> {
 	error = $state('');
 	saved: T;
 
-	constructor(saved: T) {
+	readonly #start: T;
+	readonly #opened: T;
+
+	constructor(saved: T, opened: T = saved) {
 		this.saved = $state.raw(saved);
+		this.#start = saved;
+		this.#opened = opened;
+	}
+
+	get reference(): T {
+		return this.saved === this.#start ? this.#opened : this.saved;
 	}
 
 	async run(save: () => Promise<void>): Promise<void> {

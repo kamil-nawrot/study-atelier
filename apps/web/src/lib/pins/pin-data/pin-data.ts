@@ -8,7 +8,7 @@ import { MAX_PIN_TEXT } from '#lib/pins/pin-limits/pin-limits.ts';
 import type { Pin } from '#lib/pins/types/pin.ts';
 import type { EntryPin } from '#lib/pins/types/entry-pin.ts';
 import type { PinFragment } from '#lib/pins/types/pin-fragment.ts';
-import { IMAGE_COLUMNS, imageOf } from '#lib/images/image-record/image-record.ts';
+import { ARTWORK_IMAGE_COLUMNS, imageOf } from '#lib/images/image-record/image-record.ts';
 import type { ImageRow } from '#lib/images/types/image-row.ts';
 
 type PinDraft = {
@@ -45,7 +45,7 @@ type EntryPinRow = Pick<Row, 'id' | 'x' | 'y' | 'text' | 'view_width' | 'crop_pa
 	artwork_images: ImageRow & { id: string; artwork_id: string };
 };
 
-const ENTRY_PIN_COLUMNS = `id, x, y, text, view_width, crop_path, artwork_images!inner(id, artwork_id, ${IMAGE_COLUMNS.join(', ')})`;
+const ENTRY_PIN_COLUMNS = `id, x, y, text, view_width, crop_path, artwork_images!inner(id, artwork_id, ${ARTWORK_IMAGE_COLUMNS.join(', ')})`;
 
 type Row = Database['public']['Tables']['artwork_pins']['Row'];
 

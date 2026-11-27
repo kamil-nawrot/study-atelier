@@ -7,6 +7,7 @@ import { chromium } from 'playwright';
 import {
 	ARTWORK_PINS,
 	LEARNER_FLAGS,
+	ALBUM_MATCHES,
 	ARTWORKS,
 	BROKEN_IMAGES,
 	ARTWORK_RELATIONS,
@@ -1026,6 +1027,9 @@ async function mockSupabase(context) {
 		if (url.pathname === '/rest/v1/visits') return visitsRoute(route, request, url);
 		if (url.pathname === '/rest/v1/exhibitions') return exhibitionsRoute(route, request, url);
 		if (url.pathname === '/rest/v1/exhibition_artworks') return exhibitionArtworksRoute(route, url);
+		if (url.pathname === '/rest/v1/artwork_images' && url.searchParams.has('source_wikidata_id')) {
+			return json(route, []);
+		}
 		if (url.pathname === '/rest/v1/artwork_images') return artworkImagesRoute(route, url);
 		if (url.pathname === '/rest/v1/rpc/save_exhibition') return json(route, 4);
 		if (url.pathname === '/rest/v1/rpc/set_exhibition_cover') return json(route, null);
@@ -1125,6 +1129,12 @@ async function mockSupabase(context) {
 				route,
 				VALUE_DETAILS[detailsTable].filter((row) => `eq.${row[column]}` === filter)
 			);
+		}
+		if (
+			url.pathname === '/rest/v1/artworks' &&
+			url.searchParams.get('or')?.includes('album_entry.like')
+		) {
+			return json(route, ALBUM_MATCHES);
 		}
 		if (url.pathname === '/rest/v1/artworks') {
 			const imagePosition = url.searchParams.get('artwork_images.position');

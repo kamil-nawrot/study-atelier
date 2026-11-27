@@ -13,11 +13,13 @@ import { PREFERENCES_DEPENDENCY } from '#lib/profile/preferences-data/preference
 import { PROFILE_DEPENDENCY } from '#lib/profile/profile-data/profile-data.ts';
 import type { Preferences } from '#lib/profile/types/preferences.ts';
 import type { Profile } from '#lib/profile/types/profile.ts';
+import { albumsListed } from '#lib/albums/album-pages/album-pages.ts';
 import type { LayoutLoad } from './$types';
 
 type AppLayoutData = {
 	session: Session;
 	reviewWaiting?: Promise<number>;
+	albumsListed?: Promise<boolean>;
 	menuProfile?: Promise<Profile | undefined>;
 	acceptedLegalVersion?: Promise<string | null | undefined>;
 	careerShown?: boolean;
@@ -33,7 +35,7 @@ async function reviewWaiting(): Promise<number> {
 	return counts?.waiting ?? 0;
 }
 
-export const load: LayoutLoad = async ({ parent, depends }): Promise<AppLayoutData> => {
+export const load: LayoutLoad = async ({ parent, depends, fetch }): Promise<AppLayoutData> => {
 	depends(REVIEW_COUNTS_DEPENDENCY, PROFILE_DEPENDENCY, PREFERENCES_DEPENDENCY);
 	const { session } = await parent();
 	if (!session) redirect(307, resolve('/(auth)/sign-in'));
@@ -44,6 +46,7 @@ export const load: LayoutLoad = async ({ parent, depends }): Promise<AppLayoutDa
 	return {
 		session,
 		reviewWaiting: reviewWaiting(),
+		albumsListed: albumsListed(fetch),
 		menuProfile: Promise.resolve(own.error ? undefined : own.profile),
 		acceptedLegalVersion: Promise.resolve(own.legalVersion),
 		careerShown: own.profile.careerShown,

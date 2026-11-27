@@ -3,6 +3,7 @@ import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input
 import type { ArtworkTypeCode } from '#lib/catalogue/types/artwork-type-code.ts';
 import type { EraCode } from '#lib/catalogue/types/era-code.ts';
 import type { OwnEntries } from '#lib/catalogue/types/own-entries.ts';
+import type { AlbumLink } from './album-link.ts';
 
 export type ArtworkInput = {
 	title: string;
@@ -24,4 +25,5 @@ export type ArtworkInput = {
 	images: ArtworkImageInput[];
 	own?: OwnEntries;
 	relations?: ArtworkRelationEntry[];
+	album?: AlbumLink;
 };

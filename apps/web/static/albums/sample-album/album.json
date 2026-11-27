@@ -1,0 +1,93 @@
+{
+	"format": 1,
+	"era": "contemporary",
+	"artworks": [
+		{
+			"id": "spiral-study",
+			"revision": 1,
+			"type": "painting",
+			"era": "contemporary",
+			"yearFrom": 2024,
+			"yearTo": 2025,
+			"yearApproximate": true,
+			"values": ["sample-painter", "sample-style", "sample-oil", "sample-gallery"],
+			"terms": ["sample-spiral"],
+			"events": ["sample-show"],
+			"images": [
+				{
+					"file": "images/spiral-study.webp",
+					"width": 600,
+					"height": 800,
+					"licence": "CC0",
+					"attribution": "Sample image"
+				}
+			]
+		},
+		{
+			"id": "blue-square",
+			"revision": 2,
+			"type": "painting",
+			"era": "contemporary",
+			"yearTo": 2025,
+			"values": ["sample-painter", "sample-style"],
+			"images": [
+				{
+					"file": "images/blue-square.webp",
+					"width": 800,
+					"height": 600,
+					"licence": "CC0"
+				}
+			]
+		},
+		{
+			"id": "red-circle",
+			"revision": 1,
+			"type": "drawing",
+			"values": ["sample-gallery"],
+			"terms": ["sample-patron"],
+			"images": [
+				{
+					"file": "images/red-circle.webp",
+					"width": 600,
+					"height": 600,
+					"licence": "CC0"
+				},
+				{
+					"file": "images/red-circle-detail.webp",
+					"width": 600,
+					"height": 400,
+					"licence": "CC0"
+				}
+			]
+		}
+	],
+	"values": [
+		{
+			"id": "sample-painter",
+			"revision": 1,
+			"category": "author",
+			"birthYear": 1980,
+			"yearsApproximate": true
+		},
+		{ "id": "sample-style", "revision": 1, "category": "style" },
+		{ "id": "sample-oil", "revision": 1, "category": "material" },
+		{
+			"id": "sample-gallery",
+			"revision": 1,
+			"category": "location",
+			"countryCode": "PL",
+			"placeType": "gallery"
+		}
+	],
+	"terms": [
+		{ "id": "sample-spiral", "revision": 1, "kind": "term", "category": "painting" },
+		{
+			"id": "sample-patron",
+			"revision": 1,
+			"kind": "figure",
+			"category": "patron",
+			"birthYear": 1950
+		}
+	],
+	"events": [{ "id": "sample-show", "revision": 1, "yearFrom": 2025, "yearTo": 2026 }]
+}

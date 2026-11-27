@@ -17,6 +17,17 @@ describe('FormState', () => {
 		expect(state.saved).toEqual({ title: 'Mona Lisa' });
 	});
 
+	it('compares with the state the form opened in until something is saved', () => {
+		const state = new FormState({ title: '' }, { title: 'Mona Lisa' });
+
+		expect(state.saved).toEqual({ title: '' });
+		expect(state.reference).toEqual({ title: 'Mona Lisa' });
+
+		state.saved = { title: 'The Night Watch' };
+
+		expect(state.reference).toEqual({ title: 'The Night Watch' });
+	});
+
 	it('tells readers when a new snapshot is saved', () => {
 		const state = new FormState({ title: 'Mona Lisa' });
 		let seen = '';

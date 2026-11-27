@@ -9,7 +9,7 @@ import { ownEntriesOf, valuesOf } from '#lib/card-index/artwork-values/artwork-v
 import { signedYear } from '#lib/catalogue/years/years.ts';
 import { artworkErrorMessage } from '#lib/catalogue/errors/errors.ts';
 import {
-	IMAGE_COLUMNS,
+	ARTWORK_IMAGE_COLUMNS,
 	imageOf,
 	imageRecord,
 	storedImage,
@@ -59,6 +59,8 @@ type ArtworkRecordRow = {
 	notes: string | null;
 	favourite: boolean;
 	want_to_see?: boolean;
+	album_entry: string | null;
+	album_revision: number | null;
 	artwork_values: ArtworkValueRow[];
 	artwork_images: (ImageRow & {
 		id: string;
@@ -84,8 +86,10 @@ const RECORD_COLUMNS = [
 	'notes',
 	'favourite',
 	'want_to_see',
+	'album_entry',
+	'album_revision',
 	'artwork_values(position, category_values(category_code, name))',
-	`artwork_images(id, position, palette, broken_at, ${IMAGE_COLUMNS.join(', ')})`,
+	`artwork_images(id, position, palette, broken_at, ${ARTWORK_IMAGE_COLUMNS.join(', ')})`,
 	'artwork_field_entries(field_id, text_value)',
 	...RELATION_COLUMNS
 ].join(', ');
@@ -104,7 +108,8 @@ function artworkColumns(input: ArtworkInput): Record<string, Json> {
 		year_approximate: input.yearTo !== null && input.yearApproximate,
 		type_code: input.typeCode,
 		era_code: input.eraCode,
-		notes: input.notes.trim() || null
+		notes: input.notes.trim() || null,
+		...(input.album ? { album_entry: input.album.entry, album_revision: input.album.revision } : {})
 	};
 }
 
@@ -218,7 +223,10 @@ function artworkRecordFromRow(row: ArtworkRecordRow): ArtworkRecord {
 		image,
 		images,
 		own: ownEntriesOf(row.artwork_values, row.artwork_field_entries),
-		relations: relationsFromRows(row.outgoing_relations, row.incoming_relations)
+		relations: relationsFromRows(row.outgoing_relations, row.incoming_relations),
+		...(row.album_entry && row.album_revision
+			? { album: { entry: row.album_entry, revision: row.album_revision } }
+			: {})
 	};
 }
 

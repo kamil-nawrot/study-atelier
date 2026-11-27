@@ -44,6 +44,32 @@ describe('imageColumns', () => {
 		).toMatchObject({ own_image_path: null, own_image_url: 'https://example.org/a.jpg' });
 	});
 
+	it('fills the licence columns and the album path for an album image', () => {
+		expect(
+			imageColumns({
+				kind: 'album',
+				path: 'sample-album/images/spiral.webp',
+				wikidataId: 'Q131397',
+				licence: 'CC0',
+				licenceUrl: null,
+				attribution: 'Jane Doe',
+				width: 600,
+				height: 900
+			})
+		).toEqual({
+			source_wikidata_id: 'Q131397',
+			source_image_file: null,
+			source_image_licence: 'CC0',
+			source_image_licence_url: null,
+			source_image_attribution: 'Jane Doe',
+			own_image_path: null,
+			own_image_url: null,
+			album_image_path: 'sample-album/images/spiral.webp',
+			image_width: 600,
+			image_height: 900
+		});
+	});
+
 	it('clears every column without an image', () => {
 		expect(Object.values(imageColumns(null)).every((value) => value === null)).toBe(true);
 	});
@@ -53,5 +79,19 @@ describe('imageColumns', () => {
 			...commons,
 			id: 'image-1'
 		});
+	});
+
+	it('reads back an album image it stored', () => {
+		const album = {
+			kind: 'album' as const,
+			path: 'sample-album/images/spiral.webp',
+			wikidataId: null,
+			licence: 'CC BY-SA 4.0',
+			licenceUrl: 'https://creativecommons.org/licenses/by-sa/4.0/',
+			attribution: 'Jane Doe',
+			width: 600,
+			height: 900
+		};
+		expect(imageOf(imageRecord({ ...album, id: 'image-2' }))).toEqual({ ...album, id: 'image-2' });
 	});
 });

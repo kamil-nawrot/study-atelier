@@ -5,6 +5,7 @@ import {
 	commonsSrcset,
 	commonsThumbnailSrcset
 } from '#lib/images/commons/commons.ts';
+import { albumFileUrl } from '#lib/images/album/album.ts';
 import { artworkImageSource } from '#lib/images/artwork-image/artwork-image.ts';
 import { tileSizes } from '#lib/wall/masonry/masonry.ts';
 import type { ImageSize } from '#lib/catalogue/types/image-size.ts';
@@ -50,6 +51,10 @@ export function ownImage(
 	size: ImageSize | undefined
 ): ArtworkTileImage | undefined {
 	return src ? { src, ...(size ?? DEFAULT_IMAGE_SIZE) } : undefined;
+}
+
+export function albumImage(path: string, size: ImageSize | undefined): ArtworkTileImage {
+	return { src: albumFileUrl(path), ...(size ?? DEFAULT_IMAGE_SIZE) };
 }
 
 export function linkedImage(

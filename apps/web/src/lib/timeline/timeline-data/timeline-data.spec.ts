@@ -5,6 +5,7 @@ import { timelineErrorMessage } from '#lib/timeline/errors/errors.ts';
 import {
 	deleteTimelineEvent,
 	loadTimelineEvent,
+	loadTimelineEventsByName,
 	loadTimelineEvents,
 	saveTimelineEvent
 } from './timeline-data.ts';
@@ -39,7 +40,7 @@ function row(overrides: Record<string, unknown> = {}): Record<string, unknown> {
 
 function chain(result: unknown): Record<string, ReturnType<typeof vi.fn>> {
 	const query: Record<string, ReturnType<typeof vi.fn>> = {};
-	for (const name of ['select', 'order', 'eq', 'insert', 'update', 'delete']) {
+	for (const name of ['select', 'order', 'eq', 'ilike', 'insert', 'update', 'delete']) {
 		query[name] = vi.fn().mockReturnValue(query);
 	}
 	for (const name of ['range', 'maybeSingle', 'single']) {
@@ -244,6 +245,40 @@ describe('saveTimelineEvent', () => {
 
 		expect((await saveTimelineEvent(draft)).error).toBe(m.authErrors.sessionEnded);
 		expect(supabase.auth.signOut).toHaveBeenCalled();
+	});
+});
+
+describe('loadTimelineEventsByName', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	it('asks for each name on its own, ignoring letter case, and joins the answers', async () => {
+		const query = chain({ data: [row()], error: null });
+
+		const result = await loadTimelineEventsByName(['Wojna_trzydziestoletnia', 'Pokój']);
+
+		expect(query.ilike).toHaveBeenCalledWith('name', 'Wojna\\_trzydziestoletnia');
+		expect(query.ilike).toHaveBeenCalledWith('name', 'Pokój');
+		expect(result.events.map((event) => event.name)).toEqual([
+			'Wojna trzydziestoletnia',
+			'Wojna trzydziestoletnia'
+		]);
+	});
+
+	it('gives a message when a query fails', async () => {
+		chain({ data: null, error: { code: '500' } });
+
+		expect(await loadTimelineEventsByName(['A'])).toEqual({
+			events: [],
+			error: m.common.unexpectedError
+		});
+	});
+
+	it('treats a missing answer as no events', async () => {
+		chain({ data: null, error: null });
+
+		expect(await loadTimelineEventsByName(['A'])).toEqual({ events: [] });
 	});
 });
 
