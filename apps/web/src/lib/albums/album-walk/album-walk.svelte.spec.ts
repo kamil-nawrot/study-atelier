@@ -115,7 +115,7 @@ describe('AlbumWalk', () => {
 		expect(walk.version?.entryId).toBe('lion');
 	});
 
-	it('opens a similar artwork as a comparison with the learner\'s artwork', async () => {
+	it("opens a similar artwork as a comparison with the learner's artwork", async () => {
 		const mine = { id: 'artwork-7', number: 7 } as ArtworkRecord;
 		vi.mocked(loadArtwork).mockResolvedValue({ artwork: mine });
 		const album = testAlbum();

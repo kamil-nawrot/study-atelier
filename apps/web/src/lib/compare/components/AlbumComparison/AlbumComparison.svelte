@@ -60,9 +60,7 @@
 	let artworkPath = $derived(resolve('/(app)/atelier/[number]', { number: String(mine.number) }));
 	let savable = $derived(
 		merge.count > 0 ||
-			(mine.album?.entry === entry
-				? mine.album.revision < version.revision
-				: onsaved !== undefined)
+			(mine.album?.entry === entry ? mine.album.revision < version.revision : onsaved !== undefined)
 	);
 	let rows = $derived<DisplayRow[]>([
 		{ key: 'images', label: m.artworkForm.image, left: mineImages, right: theirImages },
