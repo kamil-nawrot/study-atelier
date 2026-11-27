@@ -58,10 +58,11 @@ describe('AlbumArtworkTile', () => {
 		});
 
 		await expect.element(page.getByRole('checkbox', { name: /Lion Man/ })).toBeChecked();
+		await expect.element(page.getByText(m.albums.similar('#0007'))).toBeVisible();
 		await expect.element(page.getByText('Carver')).toBeInTheDocument();
 		await expect.element(page.getByText('1900')).toBeInTheDocument();
 		await expect
-			.element(page.getByRole('link', { name: m.albums.similar('#0007') }))
+			.element(page.getByRole('link', { name: m.albums.compare }))
 			.toHaveAttribute('href', '/atelier/compare?left=7&album=sample-album%2Flion');
 	});
 });

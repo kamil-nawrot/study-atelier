@@ -10,7 +10,13 @@
 
 <AtelierLayout email={data.session.user.email ?? ''} heading title={m.albums.title}>
 	<div class="albums">
-		<PageHeader lead={m.albums.lead} />
+		<PageHeader lead={m.albums.lead}>
+			{#snippet aside()}
+				{#if !data.error && data.albums.length > 0}
+					<span class="caption">{m.albums.count(data.albums.length)}</span>
+				{/if}
+			{/snippet}
+		</PageHeader>
 		{#if data.error}
 			<Alert title={m.albums.loadErrorTitle} tone="danger">
 				{data.error}

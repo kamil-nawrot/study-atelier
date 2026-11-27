@@ -56,7 +56,11 @@
 	{/each}
 
 	<FormActions>
-		<span class="caption count">{m.albums.closing.selected(chosen.length, selectable.length)}</span>
+		<span class="caption count">
+			{m.albums.selected.before}<strong>{chosen.length}</strong>{m.albums.selected.after(
+				selectable.length
+			)}
+		</span>
 		<TextButton onclick={onskipall}>{m.albums.closing.skipAll}</TextButton>
 		<Button disabled={chosen.length === 0} onclick={onadd} variant="primary">
 			{m.albums.closing.add(chosen.length)}
@@ -113,5 +117,10 @@
 
 	.count {
 		align-self: center;
+	}
+
+	.count strong {
+		color: var(--color-fg);
+		font-weight: var(--font-weight-bold);
 	}
 </style>
