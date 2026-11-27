@@ -8,16 +8,26 @@
 		checked: boolean;
 		ontoggle: () => void;
 		framed?: boolean;
+		disabled?: boolean;
 		ratio?: number;
 		picture: Snippet;
 		children: Snippet;
 	};
 
-	let { checked, ontoggle, framed = true, ratio, picture, children, ...rest }: Props = $props();
+	let {
+		checked,
+		ontoggle,
+		framed = true,
+		disabled = false,
+		ratio,
+		picture,
+		children,
+		...rest
+	}: Props = $props();
 </script>
 
-<label {...rest} class="tick" class:off={!checked}>
-	<input class="visually-hidden" {checked} onchange={ontoggle} type="checkbox" />
+<label {...rest} class="tick" class:disabled class:off={!checked}>
+	<input class="visually-hidden" {checked} {disabled} onchange={ontoggle} type="checkbox" />
 	<span style:aspect-ratio={ratio} class="window" class:framed>
 		<span class="picture">{@render picture()}</span>
 		<span class="mark" aria-hidden="true">
@@ -39,6 +49,10 @@
 		background: var(--color-mat-bg);
 		color: var(--color-mat-fg);
 		cursor: pointer;
+	}
+
+	.tick.disabled {
+		cursor: not-allowed;
 	}
 
 	.tick:has(input:focus-visible) {

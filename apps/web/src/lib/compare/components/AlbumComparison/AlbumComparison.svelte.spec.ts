@@ -76,53 +76,52 @@ describe('AlbumComparison', () => {
 		vi.mocked(saveArtwork).mockReset();
 	});
 
-	it('names both versions and offers an action only where the album adds something', async () => {
+	it('starts with the own values and the album values of the empty fields picked', async () => {
 		await render(AlbumComparison, { mine: MINE, version: VERSION, ownFields: [] });
 
-		await expect.element(page.getByText(m.compare.mine)).toBeVisible();
-		await expect.element(page.getByText(m.compare.album)).toBeVisible();
+		await expect.element(page.getByText(m.compare.hint)).toBeVisible();
 		await expect
-			.element(page.getByRole('group', { name: m.artworkForm.period }))
-			.toHaveTextContent(m.compare.move);
+			.element(page.getByRole('button', { name: m.compare.keep('kultura grawecka') }))
+			.toHaveAttribute('aria-pressed', 'true');
 		await expect
-			.element(page.getByRole('group', { name: m.artworkForm.material }))
-			.toHaveTextContent(m.compare.add);
+			.element(page.getByRole('button', { name: m.compare.keep('Wiedeń') }))
+			.toHaveAttribute('aria-pressed', 'true');
+		await expect.element(page.getByRole('checkbox', { name: 'ochra' })).not.toBeChecked();
 		await expect
-			.element(page.getByRole('group', { name: m.artworkForm.location }))
-			.toHaveTextContent(m.compare.replace);
-		await expect
-			.element(page.getByRole('group', { name: m.common.notes }))
-			.toHaveTextContent(m.compare.appendNote);
-		await expect
-			.element(page.getByRole('group', { name: m.artworkForm.year }))
-			.toHaveTextContent(m.compare.replace);
-		await expect
-			.element(page.getByRole('group', { name: m.artworkForm.title }).getByRole('button'))
-			.not.toBeInTheDocument();
-		await expect.element(page.getByText(m.compare.changes(0))).toBeVisible();
-		await expect.element(page.getByRole('button', { name: m.compare.saveChanges })).toBeDisabled();
+			.element(page.getByRole('group', { name: m.artworkForm.title }))
+			.toHaveTextContent(m.compare.same);
+		await expect.element(page.getByText(m.compare.taken('okres, 1 obraz'))).toBeVisible();
+		await expect.element(page.getByRole('button', { name: m.compare.saveChanges })).toBeEnabled();
 	});
 
-	it('shows a replaced value struck through until the change is withdrawn', async () => {
+	it('moves the pick between the two values without moving them', async () => {
 		await render(AlbumComparison, { mine: MINE, version: VERSION, ownFields: [] });
-		const location = page.getByRole('group', { name: m.artworkForm.location });
+		const mine = page.getByRole('button', { name: m.compare.keep('Wiedeń') });
+		const album = page.getByRole('button', { name: m.compare.keep('Naturhistorisches Museum') });
 
-		await location.getByRole('button', { name: m.compare.replace }).click();
+		await album.click();
 
-		await expect.element(location.getByText('Wiedeń')).toHaveProperty('tagName', 'S');
-		await expect.element(page.getByText(m.compare.changes(1))).toBeVisible();
-		await location.getByRole('button', { name: m.compare.withdraw }).click();
-		await expect.element(location.getByText('Wiedeń')).not.toHaveProperty('tagName', 'S');
-		await expect.element(page.getByText(m.compare.changes(0))).toBeVisible();
+		await expect.element(album).toHaveAttribute('aria-pressed', 'true');
+		await expect.element(mine).toHaveAttribute('aria-pressed', 'false');
+		await expect.element(page.getByText(m.compare.taken('okres, miejsce, 1 obraz'))).toBeVisible();
+		await mine.click();
+		await expect.element(album).toHaveAttribute('aria-pressed', 'false');
 	});
 
-	it('saves the chosen changes with the album entry and its revision', async () => {
+	it('says what an unticked own item removes', async () => {
+		await render(AlbumComparison, { mine: MINE, version: VERSION, ownFields: [] });
+
+		await page.getByRole('checkbox', { name: 'wapień', exact: true }).click();
+
+		await expect.element(page.getByText(m.compare.removed('wapień'))).toBeVisible();
+	});
+
+	it('saves the picked values with the album entry and its revision', async () => {
 		vi.mocked(saveArtwork).mockResolvedValue({ saved: true, id: 'artwork-3', number: 3 });
 		await render(AlbumComparison, { mine: MINE, version: VERSION, ownFields: [] });
 
-		await page.getByRole('group', { name: m.artworkForm.material }).getByRole('button').click();
-		await page.getByRole('group', { name: m.common.notes }).getByRole('button').click();
-		await page.getByRole('button', { name: m.compare.attachImage }).click();
+		await page.getByRole('checkbox', { name: 'ochra' }).click();
+		await page.getByRole('checkbox', { name: new RegExp(m.compare.appendNote) }).click();
 		await page.getByRole('button', { name: m.compare.saveChanges }).click();
 
 		await expect.poll(() => vi.mocked(goto).mock.calls.length).toBe(1);
@@ -130,7 +129,7 @@ describe('AlbumComparison', () => {
 		expect(input).toMatchObject({
 			materials: ['wapień', 'ochra'],
 			location: 'Wiedeń',
-			period: null,
+			period: 'kultura grawecka',
 			notes: 'Moja notatka.\n\nOpis z albumu.',
 			image: albumImage('front'),
 			relations: undefined,
@@ -152,7 +151,6 @@ describe('AlbumComparison', () => {
 		});
 		await render(AlbumComparison, { mine: MINE, version: VERSION, ownFields: [] });
 
-		await page.getByRole('group', { name: m.artworkForm.period }).getByRole('button').click();
 		await page.getByRole('button', { name: m.compare.saveChanges }).click();
 
 		await expect.element(page.getByText('Brak sieci')).toBeVisible();

@@ -722,13 +722,41 @@ export const pl = {
 		newValue: 'nowa wartość',
 		mine: 'Twoja wersja',
 		album: 'Wersja z albumu',
-		move: 'Przenieś',
-		add: 'Uzupełnij',
-		replace: 'Zamień',
-		withdraw: 'Wycofaj',
-		attachImage: 'Dołącz do obrazów dzieła',
+		hint: 'Zaznacz, co ma trafić do Twojego dzieła.',
+		same: 'takie samo w obu wersjach',
+		empty: 'brak',
+		images: 'Obrazy',
+		imageNumber: (number: number): string => `Obraz ${number}`,
 		appendNote: 'Dopisz na końcu notatki',
-		changes: (count: number): string => `Zmiany: ${count}`,
+		keep: (value: string): string => `Zachowaj: ${value}`,
+		unchanged: 'Nic się nie zmieni',
+		taken: (items: string): string => `Z albumu weźmiesz: ${items}`,
+		removed: (items: string): string => `Usuniesz: ${items}`,
+		takenFields: {
+			title: 'tytuł',
+			date: 'rok powstania',
+			era: 'epokę',
+			type: 'typ',
+			period: 'okres',
+			location: 'miejsce',
+			notes: 'opis do notatki'
+		},
+		takenItems: {
+			authors: (count: number): string =>
+				count === 1
+					? 'autora'
+					: `${count} ${plural(count, { one: 'autora', few: 'autorów', many: 'autorów' })}`,
+			styles: (count: number): string =>
+				count === 1
+					? 'styl'
+					: `${count} ${plural(count, { one: 'styl', few: 'style', many: 'stylów' })}`,
+			materials: (count: number): string =>
+				count === 1
+					? 'materiał'
+					: `${count} ${plural(count, { one: 'materiał', few: 'materiały', many: 'materiałów' })}`,
+			images: (count: number): string =>
+				`${count} ${plural(count, { one: 'obraz', few: 'obrazy', many: 'obrazów' })}`
+		},
 		saveChanges: 'Zapisz zmiany',
 		albumEntryMissing: 'Tego dzieła nie ma w albumie.'
 	},
@@ -3337,7 +3365,7 @@ export const pl = {
 			saveAndNext: 'Zapisz i przejdź dalej',
 			saveAndFinish: 'Zapisz i zakończ',
 			similar: (number: string): string =>
-				`W Twoim atelier jest już podobne dzieło ${number}. Przenieś do niego, co chcesz, z wersji z albumu albo, jeśli to inne dzieło, dodaj je jako nowe.`,
+				`W Twoim atelier jest już podobne dzieło ${number}. Zaznacz, co z wersji z albumu ma do niego trafić, albo, jeśli to inne dzieło, dodaj je jako nowe.`,
 			addAsNew: 'To inne dzieło, dodaj jako nowe',
 			loading: 'Wczytywanie dzieła…',
 			done: (album: string, artworks: number, completed: number): string =>

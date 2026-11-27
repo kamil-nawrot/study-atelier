@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import '@study-atelier/ui/styles.css';
@@ -13,10 +13,7 @@ describe('ComparisonRows', () => {
 				{
 					key: 'location',
 					label: 'Miejsce',
-					left: [
-						{ text: 'Wiedeń', struck: true },
-						{ text: 'NHM', isNew: true }
-					],
+					left: [{ text: 'NHM', isNew: true }],
 					right: [{ text: 'NHM', isNew: true }]
 				}
 			]
@@ -26,26 +23,6 @@ describe('ComparisonRows', () => {
 		await expect
 			.element(page.getByRole('group', { name: 'Styl' }))
 			.toHaveTextContent(m.artworkView.empty);
-		await expect.element(page.getByText('Wiedeń')).toHaveProperty('tagName', 'S');
 		expect(page.getByText(m.compare.newValue).elements()).toHaveLength(2);
-	});
-
-	it('runs the action of a row', async () => {
-		const onclick = vi.fn();
-		await render(ComparisonRows, {
-			rows: [
-				{
-					key: 'period',
-					label: 'Okres',
-					left: [],
-					right: [{ text: 'kultura grawecka' }],
-					actions: [{ label: m.compare.move, toward: true, side: 'right', onclick }]
-				}
-			]
-		});
-
-		await page.getByRole('button', { name: m.compare.move }).click();
-
-		expect(onclick).toHaveBeenCalledOnce();
 	});
 });

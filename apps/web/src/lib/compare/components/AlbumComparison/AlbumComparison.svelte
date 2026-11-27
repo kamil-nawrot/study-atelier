@@ -1,6 +1,5 @@
 <script lang="ts">
-	import ArrowLeft from '@lucide/svelte/icons/arrow-left';
-	import { Alert, Button, FormActions, Icon, TextButton } from '@study-atelier/ui';
+	import { Alert, Button, FormActions } from '@study-atelier/ui';
 	import type { Snippet } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
@@ -8,9 +7,7 @@
 	import type { AlbumVersion } from '#lib/albums/types/album-version.ts';
 	import { saveArtwork } from '#lib/artworks/artwork-data/artwork-data.ts';
 	import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
-	import type { ArtworkImageInput } from '#lib/catalogue/types/artwork-image-input.ts';
 	import type { OwnFieldDefinition } from '#lib/card-index/types/own-field-definition.ts';
-	import { albumImages, imageAttachable } from '#lib/compare/album-merge/album-merge.ts';
 	import { AlbumMerge } from '#lib/compare/album-merge-state/album-merge-state.svelte.ts';
 	import {
 		ownFieldRows,
@@ -18,11 +15,11 @@
 		wikidataRow
 	} from '#lib/compare/comparison-rows/comparison-rows.ts';
 	import ComparisonPair from '#lib/compare/components/ComparisonPair/ComparisonPair.svelte';
-	import ComparisonRows from '#lib/compare/components/ComparisonRows/ComparisonRows.svelte';
-	import { mergeRows } from '#lib/compare/merge-rows/merge-rows.ts';
-	import type { DisplayRow } from '#lib/compare/types/display-row.ts';
-	import { artworkImageSource } from '#lib/images/artwork-image/artwork-image.ts';
-	import { albumCredit } from '#lib/images/credit/credit.ts';
+	import MergeRows from '#lib/compare/components/MergeRows/MergeRows.svelte';
+	import { imageRow } from '#lib/compare/merge-image-row/merge-image-row.ts';
+	import { fixedRow, mergeRows } from '#lib/compare/merge-rows/merge-rows.ts';
+	import { removedParts, takenParts } from '#lib/compare/merge-summary/merge-summary.ts';
+	import type { MergeRow } from '#lib/compare/types/merge-row.ts';
 	import { m } from '#lib/i18n/i18n.ts';
 	import DiscardDialog from '#lib/shared/forms/DiscardDialog/DiscardDialog.svelte';
 	import { UnsavedChanges } from '#lib/shared/forms/unsaved-changes/unsaved-changes.svelte.ts';
@@ -39,20 +36,18 @@
 
 	let { mine, version, ownFields = [], saveLabel, actions, notice, onsaved }: Props = $props();
 
-	const THUMB_WIDTH = 160;
-
 	const merge = new AlbumMerge(
 		() => mine,
 		() => version.artwork
 	);
 
-	let savedCount = $state(0);
+	let savedChanges = $state(JSON.stringify(merge.changes));
 	let busy = $state(false);
 	let error = $state('');
 
 	const changes = new UnsavedChanges(
-		() => merge.count,
-		() => savedCount,
+		() => JSON.stringify(merge.changes),
+		() => savedChanges,
 		(current, saved) => current !== saved
 	);
 
@@ -62,19 +57,34 @@
 		merge.count > 0 ||
 			(mine.album?.entry === entry ? mine.album.revision < version.revision : onsaved !== undefined)
 	);
-	let rows = $derived<DisplayRow[]>([
-		{ key: 'images', label: m.artworkForm.image, left: mineImages, right: theirImages },
+	let rows = $derived<MergeRow[]>([
+		imageRow({
+			mine,
+			album: version.artwork,
+			changes: merge.changes,
+			toggleImage: (path) => merge.toggleImage(path),
+			toggleOwnImage: (key) => merge.toggleOwnImage(key)
+		}),
 		...mergeRows({
 			mine,
 			album: version.artwork,
-			merged: merge.merged,
 			newValues: version.newValues,
 			changes: merge.changes,
-			ontoggle: (field) => merge.toggleField(field)
+			handlers: {
+				pick: (field, fromAlbum) => merge.pickField(field, fromAlbum),
+				toggleAdded: (field, name) => merge.toggleAdded(field, name),
+				toggleDropped: (field, name) => merge.toggleDropped(field, name)
+			}
 		}),
-		...ownFieldRows(mine, version.artwork, ownFields),
-		wikidataRow(wikidataOf(mine), version.wikidataId)
+		...[
+			...ownFieldRows(mine, version.artwork, ownFields),
+			wikidataRow(wikidataOf(mine), version.wikidataId)
+		]
+			.map(fixedRow)
+			.filter((row) => row.kind !== 'same' || row.value.length > 0)
 	]);
+	let taken = $derived(takenParts(mine, version.artwork, merge.changes));
+	let removed = $derived(removedParts(mine, merge.changes));
 
 	async function save(): Promise<void> {
 		busy = true;
@@ -88,7 +98,7 @@
 			error = result.error || (Object.values(result.fieldErrors)[0] ?? m.common.unexpectedError);
 			return;
 		}
-		savedCount = merge.count;
+		savedChanges = JSON.stringify(merge.changes);
 		if (onsaved) {
 			await onsaved();
 			return;
@@ -97,59 +107,30 @@
 	}
 </script>
 
-{#snippet thumb(image: ArtworkImageInput)}
-	{@const source = artworkImageSource(image, THUMB_WIDTH)}
-	<span class="thumb">
-		{#if source}
-			<img alt="" height={source.height} src={source.src} width={source.width} />
-		{/if}
-	</span>
-{/snippet}
-
-{#snippet mineImages()}
-	<span class="thumbs">
-		{#each [merge.merged.image, ...merge.merged.images] as image, index (index)}
-			{#if image}
-				{@render thumb(image)}
-			{/if}
-		{/each}
-	</span>
-{/snippet}
-
-{#snippet theirImages()}
-	<span class="thumbs">
-		{#each albumImages(version.artwork) as image (image.kind === 'album' ? image.path : image)}
-			{#if image.kind === 'album'}
-				{@const attached = merge.images.includes(image.path)}
-				<span class="album-image">
-					{@render thumb(image)}
-					<span class="credit">{albumCredit(image.licence, image.attribution)}</span>
-					{#if imageAttachable(mine, merge.changes, image.path)}
-						<TextButton inline onclick={() => merge.toggleImage(image.path)}>
-							{#if !attached}
-								<Icon icon={ArrowLeft} size="sm" />
-							{/if}
-							{attached ? m.compare.withdraw : m.compare.attachImage}
-						</TextButton>
-					{/if}
-				</span>
-			{/if}
-		{/each}
-	</span>
-{/snippet}
-
 <ComparisonPair headings={[m.compare.mine, m.compare.album]} left={mine} right={version.artwork}>
 	{#if notice}
 		<div class="notice">{@render notice()}</div>
 	{/if}
-	<ComparisonRows {rows} />
+	<p class="hint">{m.compare.hint}</p>
+	<MergeRows {rows} />
 	{#if error}
 		<Alert title={m.artworkForm.errorTitle} tone="danger">
 			{error}
 		</Alert>
 	{/if}
 	<FormActions>
-		<p class="count">{m.compare.changes(merge.count)}</p>
+		<p class="summary" aria-live="polite">
+			{#if taken.length === 0 && removed.length === 0}
+				{m.compare.unchanged}
+			{:else}
+				{#if taken.length > 0}
+					<span>{m.compare.taken(taken.join(', '))}</span>
+				{/if}
+				{#if removed.length > 0}
+					<span>{m.compare.removed(removed.join(', '))}</span>
+				{/if}
+			{/if}
+		</p>
 		{#if actions}
 			{@render actions()}
 		{:else}
@@ -170,45 +151,24 @@
 		padding-top: var(--spacing-6);
 	}
 
-	.thumbs {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: start;
-		gap: var(--spacing-3);
-	}
-
-	.album-image {
-		display: grid;
-		justify-items: start;
-		gap: var(--spacing-1);
-	}
-
-	.album-image :global(.text-button) {
-		display: inline-flex;
-		align-items: center;
-		gap: var(--spacing-1);
-		white-space: normal;
-		text-align: start;
-	}
-
-	.thumb img {
-		display: block;
-		width: auto;
-		max-width: 100%;
-		height: auto;
-		max-height: 96px;
-	}
-
-	.credit {
+	.hint {
+		margin: 0;
+		padding-top: var(--spacing-6);
 		color: var(--color-fg-muted);
-		font-size: var(--font-size-xs);
-		line-height: var(--line-height-xs);
 	}
 
-	.count {
+	.summary {
+		display: grid;
+		flex: 1 1 100%;
 		align-self: center;
 		margin: 0;
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-sm);
+	}
+
+	@media (min-width: 768px) {
+		.summary {
+			flex-basis: 16rem;
+		}
 	}
 </style>
