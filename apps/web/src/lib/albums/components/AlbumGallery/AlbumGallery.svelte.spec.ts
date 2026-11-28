@@ -40,11 +40,8 @@ describe('AlbumGallery', () => {
 			.not.toBeInTheDocument();
 		await expect.element(page.getByText(m.albums.inAtelier('#0003'))).toBeInTheDocument();
 		await expect
-			.element(page.getByRole('link', { name: m.albums.compare }).first())
+			.element(page.getByRole('link', { name: m.albums.compare }))
 			.toHaveAttribute('href', '/atelier/compare?left=3&album=sample-album%2Fvenus');
-		await expect
-			.element(page.getByRole('link', { name: m.albums.compare }).last())
-			.toHaveAttribute('href', '/atelier/compare?left=7&album=sample-album%2Flion');
 		await expect.element(page.getByText(m.albums.similar('#0007'))).toBeVisible();
 		await expect.element(page.getByText(selectedText(2, 3))).toBeInTheDocument();
 		await expect.element(page.getByRole('button', { name: m.albums.add(2) })).toBeEnabled();

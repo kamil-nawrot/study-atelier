@@ -29,11 +29,19 @@ Chosen by the owner on 2026-11-28 from mockups on the real views: option 2, beca
 - "To inne dzieło, dodaj jako nowe" goes back to the add form, where "Mam je już w atelier" can pick another artwork. This also covers a similar artwork matched to the wrong one.
 - The tile of the picker still links to the artwork's page, so it can be opened in a new tab; a plain click picks it.
 
+### The comparison of a similar artwork only in the walk
+
+The owner then asked how the comparison opened from the gallery fits the walk: saving it links the artwork to the entry and its tile turns into "W atelier · #0007", but with nothing picked it cannot be saved, so the artwork stays similar and ticked. Chosen by the owner on the same day, from three options (keep the link only on artworks in the atelier, remove it from both tiles, keep both links and let the gallery save without changes): the tile "Podobne do #0007" loses its link "Porównaj z wersją z albumu", so a similar artwork is compared only in the walk. The tile "W atelier · #0003" keeps its link, to compare a linked artwork again, for example after a newer revision of the album.
+
+This replaces the comparison link of a similar tile in [ADR-0347](0347-offer-curated-albums-of-artworks-to-take-into-the-atelier.md) and the part of [ADR-0348](0348-open-a-similar-album-artwork-as-a-comparison-while-adding.md) that keeps it in the gallery.
+
 ### Consequences
 
 - Good: an artwork the matching misses can be completed instead of added again, in the same walk.
 - Good: a wrong similar match can be corrected without leaving the walk.
+- Good: a similar artwork is decided in one place, and saving there links it even without changes.
 - Bad: the picker loads the whole atelier, as the comparison does.
+- Bad: a similar artwork can no longer be looked at side by side from the gallery before the walk.
 
 ## More information
 
