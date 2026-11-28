@@ -42,7 +42,7 @@
 		color: var(--color-fg-muted);
 		font: inherit;
 		text-align: start;
-		overflow-wrap: break-word;
+		overflow-wrap: anywhere;
 		cursor: pointer;
 	}
 
