@@ -1,6 +1,6 @@
 # 0352. Search Polish Wikipedia and spelling variants when Wikidata finds nothing
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-11-28
 
 ## Context and problem statement
@@ -35,7 +35,7 @@ Each source was measured on its own on the 200 empty titles without a known matc
 
 ## Decision outcome
 
-Chosen options: 1 with 3 pages, and 4, because together they fill more than half of the empty dialogs with little noise; the simplified title (2 and 3) is left out.
+Chosen options: 1 with 3 pages, and 4, accepted by the owner on 2026-11-28, because together they fill more than half of the empty dialogs with little noise; the simplified title (2 and 3) is left out.
 
 - When the first search leaves no confident candidate, the app sends one more SPARQL query to the Wikidata Query Service. It runs the Polish Wikipedia search through the query service (`wikibase:mwapi` with the `pl.wikipedia.org` endpoint), reads the Wikidata item of the first three pages, and adds the Wikidata full-text search with the fuzzy operator. Wikipedia pages come first. The items go through the same confidence rule, author match and ordering as the first search.
 - The fourth and fifth Wikipedia pages were almost always noise (another cathedral, a museum of the town); only "King's College Chapel" and "Zwiastowanie" were right among them.
