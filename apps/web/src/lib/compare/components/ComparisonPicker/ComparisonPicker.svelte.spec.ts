@@ -127,4 +127,25 @@ describe('ComparisonPicker', () => {
 
 		await expect.element(page.getByText('Network down')).toBeVisible();
 	});
+
+	it('hands the picked artwork over instead of opening a comparison', async () => {
+		const onpick = vi.fn();
+		await render(ComparisonPicker, {
+			sides: { left: null, right: null },
+			empty: 'left',
+			other: { title: 'Venus of Willendorf' },
+			lead: 'Które dzieło z atelier to',
+			onpick
+		});
+
+		await expect
+			.element(page.getByRole('heading', { name: 'Które dzieło z atelier to Venus of Willendorf?' }))
+			.toBeVisible();
+		await page.getByRole('link', { name: /The Night Watch/ }).click();
+
+		expect(onpick).toHaveBeenCalledWith(3);
+		await expect
+			.element(page.getByRole('link', { name: /The Night Watch/ }))
+			.toHaveAttribute('href', '/atelier/3');
+	});
 });

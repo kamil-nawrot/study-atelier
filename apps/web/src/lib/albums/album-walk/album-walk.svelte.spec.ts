@@ -147,4 +147,71 @@ describe('AlbumWalk', () => {
 		expect(walk.comparing).toBe(false);
 		expect(loadArtwork).toHaveBeenCalledOnce();
 	});
+
+	it('compares with an artwork the learner picks by hand and keeps it for the artwork', async () => {
+		const mine = { id: 'artwork-9', number: 9 } as ArtworkRecord;
+		vi.mocked(loadArtwork).mockResolvedValue({ artwork: mine });
+		const walk = walkOf();
+		await walk.open();
+
+		walk.pick();
+		expect(walk.picking).toBe(true);
+		expect(walk.comparing).toBe(false);
+
+		await walk.compareWith(9);
+
+		expect(loadArtwork).toHaveBeenCalledWith(9);
+		expect(walk.picking).toBe(false);
+		expect(walk.mine).toBe(mine);
+		expect(walk.comparing).toBe(true);
+		expect(walk.chosen).toBe(true);
+
+		await walk.completed();
+
+		expect(walk.merged).toBe(1);
+		expect(walk.chosen).toBe(false);
+		expect(walk.mine).toBeUndefined();
+	});
+
+	it('picks another artwork in place of a similar one after "dodaj jako nowe"', async () => {
+		const similar = { id: 'artwork-7', number: 7 } as ArtworkRecord;
+		const picked = { id: 'artwork-9', number: 9 } as ArtworkRecord;
+		vi.mocked(loadArtwork).mockResolvedValueOnce({ artwork: similar });
+		vi.mocked(loadArtwork).mockResolvedValueOnce({ artwork: picked });
+		const album = testAlbum();
+		const walk = new AlbumWalk(album, album.artworks, { venus: 7 });
+		await walk.open();
+		walk.addAsNew();
+
+		walk.pick();
+		await walk.compareWith(9);
+
+		expect(walk.mine).toBe(picked);
+		expect(walk.comparing).toBe(true);
+	});
+
+	it('stays on the picker with the error when the picked artwork cannot be loaded', async () => {
+		vi.mocked(loadArtwork).mockResolvedValue({ error: 'Network down' });
+		const walk = walkOf();
+		await walk.open();
+		walk.pick();
+
+		await walk.compareWith(9);
+
+		expect(walk.picking).toBe(true);
+		expect(walk.pickError).toBe('Network down');
+		expect(walk.error).toBe('');
+		expect(walk.comparing).toBe(false);
+	});
+
+	it('goes back to the form from the picker', async () => {
+		const walk = walkOf();
+		await walk.open();
+		walk.pick();
+
+		walk.cancelPick();
+
+		expect(walk.picking).toBe(false);
+		expect(walk.version?.entryId).toBe('venus');
+	});
 });

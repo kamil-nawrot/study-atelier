@@ -11,6 +11,7 @@ import { answerRpc, saveArtworkCalls, waitForSave } from '#lib/testing/duplicate
 import { answerNothingFromWikidata } from '#lib/testing/add-artwork/add-artwork.ts';
 import { emptyArtworkInput } from '#lib/testing/artwork-input/artwork-input.ts';
 import type { ArtworkRecord } from '#lib/artworks/types/artwork-record.ts';
+import { loadAtelier } from '#lib/wall/wall-data/wall-data.ts';
 import AlbumWalkForm from './AlbumWalkForm.svelte';
 
 vi.mock('#lib/artworks/form-suggestions/form-suggestions.svelte.ts', async () => ({
@@ -22,6 +23,11 @@ vi.mock('$app/navigation', () => ({
 	beforeNavigate: vi.fn(),
 	goto: vi.fn(),
 	invalidateAll: vi.fn()
+}));
+vi.mock('#lib/wall/wall-data/wall-data.ts', () => ({
+	loadAtelier: vi.fn(),
+	resolveImages: vi.fn(),
+	refreshExpiredImages: vi.fn()
 }));
 vi.mock('#lib/shared/data/supabase/supabase.ts', () => ({
 	supabase: {
@@ -178,5 +184,39 @@ describe('AlbumWalkForm', () => {
 			.element(page.getByRole('textbox', { name: m.artworkForm.title }))
 			.toHaveValue('Venus of Willendorf');
 		await expect.element(page.getByText(m.albums.walk.similar('#0007'))).not.toBeInTheDocument();
+	});
+
+	it('opens the picker of the atelier from "Mam je już w atelier" and goes back to the form', async () => {
+		vi.mocked(loadAtelier).mockResolvedValue({ artworks: [] });
+		const walk = openedWalk(['venus', 'lion']);
+		renderForm(walk);
+
+		await page.getByRole('button', { name: m.albums.walk.inAtelier }).click();
+
+		await expect
+			.element(page.getByRole('heading', { name: new RegExp(m.albums.walk.pickLead) }))
+			.toBeVisible();
+		expect(walk.picking).toBe(true);
+
+		await page.getByRole('button', { name: m.albums.walk.backToForm }).click();
+
+		await expect.element(page.getByRole('textbox', { name: m.artworkForm.title })).toBeVisible();
+	});
+
+	it('names the picked artwork in the comparison', async () => {
+		const walk = openedWalk(['venus', 'lion']);
+		vi.spyOn(walk, 'chosen', 'get').mockReturnValue(true);
+		walk.mine = {
+			...emptyArtworkInput(),
+			id: 'artwork-9',
+			number: 9,
+			favourite: false,
+			title: 'Venus',
+			relations: []
+		} as ArtworkRecord;
+		renderForm(walk);
+
+		await expect.element(page.getByText(m.albums.walk.chosen('#0009'))).toBeVisible();
+		await expect.element(page.getByText(m.albums.walk.similar('#0009'))).not.toBeInTheDocument();
 	});
 });

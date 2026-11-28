@@ -17,8 +17,11 @@ export class AlbumWalk {
 	version = $state.raw<AlbumVersion>();
 	mine = $state.raw<ArtworkRecord>();
 	error = $state('');
+	picking = $state(false);
+	pickError = $state('');
 
 	readonly #similar: Record<string, number>;
+	readonly #chosen: Record<string, number> = {};
 	readonly #asNew = new SvelteSet<string>();
 	#outcomes = $state<Record<string, Outcome>>({});
 	#opening = 0;
@@ -31,7 +34,12 @@ export class AlbumWalk {
 
 	get comparing(): boolean {
 		const artwork = this.current;
-		return Boolean(artwork && this.mine && !this.#asNew.has(artwork.id));
+		return Boolean(artwork && this.mine && !this.picking && !this.#asNew.has(artwork.id));
+	}
+
+	get chosen(): boolean {
+		const artwork = this.current;
+		return Boolean(artwork && this.#chosen[artwork.id] !== undefined);
 	}
 
 	get current(): AlbumArtwork | undefined {
@@ -70,8 +78,9 @@ export class AlbumWalk {
 		this.version = undefined;
 		this.mine = undefined;
 		this.error = '';
+		this.picking = false;
 		if (!artwork) return;
-		const number = this.#similar[artwork.id];
+		const number = this.#chosen[artwork.id] ?? this.#similar[artwork.id];
 		const [result, mine] = await Promise.all([
 			loadArtworkVersion(this.album, artwork),
 			number === undefined ? undefined : loadArtwork(number)
@@ -85,6 +94,32 @@ export class AlbumWalk {
 	addAsNew(): void {
 		const artwork = this.current;
 		if (artwork) this.#asNew.add(artwork.id);
+	}
+
+	pick(): void {
+		this.pickError = '';
+		this.picking = true;
+	}
+
+	cancelPick(): void {
+		this.picking = false;
+	}
+
+	async compareWith(number: number): Promise<void> {
+		const artwork = this.current;
+		if (!artwork) return;
+		const ticket = ++this.#opening;
+		this.pickError = '';
+		const result = await loadArtwork(number);
+		if (ticket !== this.#opening) return;
+		if (!result.artwork) {
+			this.pickError = result.error ?? '';
+			return;
+		}
+		this.#chosen[artwork.id] = number;
+		this.#asNew.delete(artwork.id);
+		this.mine = result.artwork;
+		this.picking = false;
 	}
 
 	saved(): Promise<void> {

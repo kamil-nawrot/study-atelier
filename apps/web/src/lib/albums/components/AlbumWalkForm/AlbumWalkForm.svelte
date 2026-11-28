@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { Alert, Button } from '@study-atelier/ui';
+	import { Alert, Button, FormActions } from '@study-atelier/ui';
 	import { m } from '#lib/i18n/i18n.ts';
 	import ArtworkForm from '#lib/artworks/components/ArtworkForm/ArtworkForm.svelte';
 	import AlbumComparison from '#lib/compare/components/AlbumComparison/AlbumComparison.svelte';
+	import ComparisonPicker from '#lib/compare/components/ComparisonPicker/ComparisonPicker.svelte';
 	import { formatRecordNumber } from '#lib/catalogue/record-number/record-number.ts';
 	import { FormSuggestions } from '#lib/artworks/form-suggestions/form-suggestions.svelte.ts';
 	import { albumEntryKey } from '#lib/albums/album-entry/album-entry.ts';
@@ -30,6 +31,10 @@
 		return (await form?.confirmLeave()) ?? true;
 	}
 
+	async function pick(): Promise<void> {
+		if (await confirmLeave()) walk.pick();
+	}
+
 	async function finish(event: MouseEvent): Promise<void> {
 		event.preventDefault();
 		if (await confirmLeave()) await onfinish();
@@ -40,6 +45,26 @@
 	<Alert title={m.albums.albumLoadErrorTitle} tone="danger">
 		{walk.error}
 	</Alert>
+{:else if walk.version && walk.picking}
+	<div class="picking">
+		<ComparisonPicker
+			empty="left"
+			lead={m.albums.walk.pickLead}
+			onpick={(number) => walk.compareWith(number)}
+			other={walk.version.artwork}
+			sides={{ left: null, right: null }}
+		/>
+		{#if walk.pickError}
+			<Alert title={m.compare.loadFailedTitle} tone="danger">
+				{walk.pickError}
+			</Alert>
+		{/if}
+		<FormActions>
+			<Button onclick={onfinish}>{m.albums.walk.finish}</Button>
+			<Button onclick={onskip}>{m.albums.walk.skip}</Button>
+			<Button onclick={() => walk.cancelPick()}>{m.albums.walk.backToForm}</Button>
+		</FormActions>
+	</div>
 {:else if walk.version && walk.mine && walk.comparing}
 	{@const version = walk.version}
 	{@const mine = walk.mine}
@@ -47,7 +72,9 @@
 		<AlbumComparison {mine} onsaved={oncompleted} {ownFields} {saveLabel} {version}>
 			{#snippet notice()}
 				<Alert tone="warning">
-					{m.albums.walk.similar(formatRecordNumber(mine.number))}
+					{walk.chosen
+						? m.albums.walk.chosen(formatRecordNumber(mine.number))
+						: m.albums.walk.similar(formatRecordNumber(mine.number))}
 				</Alert>
 			{/snippet}
 			{#snippet actions()}
@@ -77,6 +104,7 @@
 			suggestions={new FormSuggestions()}
 		>
 			{#snippet secondary()}
+				<Button onclick={pick}>{m.albums.walk.inAtelier}</Button>
 				<Button onclick={onskip}>{m.albums.walk.skip}</Button>
 			{/snippet}
 		</ArtworkForm>
@@ -84,3 +112,10 @@
 {:else}
 	<p class="lead">{m.albums.walk.loading}</p>
 {/if}
+
+<style>
+	.picking {
+		display: grid;
+		gap: var(--spacing-4);
+	}
+</style>

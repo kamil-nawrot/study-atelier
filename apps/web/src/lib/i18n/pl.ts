@@ -3369,6 +3369,11 @@ export const pl = {
 			similar: (number: string): string =>
 				`W Twoim atelier jest już podobne dzieło ${number}. Zaznacz, co z wersji z albumu ma do niego trafić, albo, jeśli to inne dzieło, dodaj je jako nowe.`,
 			addAsNew: 'To inne dzieło, dodaj jako nowe',
+			chosen: (number: string): string =>
+				`Porównujesz je z dziełem ${number} z Twojego atelier. Zaznacz, co z wersji z albumu ma do niego trafić.`,
+			inAtelier: 'Mam je już w atelier',
+			pickLead: 'Które dzieło z atelier to',
+			backToForm: 'Wróć do formularza',
 			loading: 'Wczytywanie dzieła…',
 			done: (album: string, artworks: number, completed: number): string =>
 				`Gotowe, z albumu „${album}” ${albumOutcome(artworks, completed)}.`
