@@ -102,6 +102,7 @@ export class AlbumWalk {
 	}
 
 	cancelPick(): void {
+		this.#opening++;
 		this.picking = false;
 	}
 

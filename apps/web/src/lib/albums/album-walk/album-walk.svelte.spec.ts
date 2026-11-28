@@ -214,4 +214,22 @@ describe('AlbumWalk', () => {
 		expect(walk.picking).toBe(false);
 		expect(walk.version?.entryId).toBe('venus');
 	});
+
+	it('ignores a picked artwork that arrives after going back to the form', async () => {
+		let release: (value: { artwork: ArtworkRecord }) => void = () => {};
+		vi.mocked(loadArtwork).mockImplementationOnce(
+			() => new Promise((resolve) => (release = resolve))
+		);
+		const walk = walkOf();
+		await walk.open();
+		walk.pick();
+		const slow = walk.compareWith(9);
+
+		walk.cancelPick();
+		release({ artwork: { id: 'artwork-9', number: 9 } as ArtworkRecord });
+		await slow;
+
+		expect(walk.mine).toBeUndefined();
+		expect(walk.comparing).toBe(false);
+	});
 });

@@ -47,6 +47,11 @@
 	</Alert>
 {:else if walk.version && walk.picking}
 	<div class="picking">
+		{#if walk.pickError}
+			<Alert title={m.compare.loadFailedTitle} tone="danger">
+				{walk.pickError}
+			</Alert>
+		{/if}
 		<ComparisonPicker
 			empty="left"
 			lead={m.albums.walk.pickLead}
@@ -54,11 +59,6 @@
 			other={walk.version.artwork}
 			sides={{ left: null, right: null }}
 		/>
-		{#if walk.pickError}
-			<Alert title={m.compare.loadFailedTitle} tone="danger">
-				{walk.pickError}
-			</Alert>
-		{/if}
 		<FormActions>
 			<Button onclick={onfinish}>{m.albums.walk.finish}</Button>
 			<Button onclick={onskip}>{m.albums.walk.skip}</Button>
