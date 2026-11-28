@@ -94,6 +94,12 @@ describe('AlbumComparison', () => {
 		await expect.element(page.getByRole('button', { name: m.compare.saveChanges })).toBeEnabled();
 	});
 
+	it('repeats the row label above both sides', async () => {
+		await render(AlbumComparison, { mine: MINE, version: VERSION, ownFields: [] });
+
+		await expect.element(page.getByText(m.artworkForm.location, { exact: true })).toHaveLength(2);
+	});
+
 	it('moves the pick between the two values without moving them', async () => {
 		await render(AlbumComparison, { mine: MINE, version: VERSION, ownFields: [] });
 		const mine = page.getByRole('button', { name: m.compare.keep('Wiedeń') });

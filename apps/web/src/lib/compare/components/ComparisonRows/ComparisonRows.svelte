@@ -61,7 +61,7 @@
 	.row {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: var(--spacing-1) var(--spacing-4);
+		gap: var(--spacing-1) var(--spacing-8);
 		padding: var(--spacing-3) 0;
 		border-top: var(--border-width-hairline) solid var(--color-tag);
 	}
