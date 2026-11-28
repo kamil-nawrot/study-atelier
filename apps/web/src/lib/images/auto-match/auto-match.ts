@@ -8,7 +8,9 @@ export const AUTO_MATCH_DELAY_MS = 600;
 export function matchPool(result: ImageSearchResult, authorUnknown: boolean): ImageCandidate[] {
 	if (result.error !== undefined) return [];
 	if (result.authorMatch) return result.candidates;
-	return authorUnknown && result.candidates.length === 1 ? result.candidates : [];
+	return authorUnknown && !result.further && result.candidates.length === 1
+		? result.candidates
+		: [];
 }
 
 export function matchKey(title: string, authors: string[]): string {

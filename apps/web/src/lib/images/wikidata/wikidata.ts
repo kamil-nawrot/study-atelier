@@ -1,3 +1,10 @@
+import {
+	artworkSearchQuery,
+	furtherArtworkSearchQuery,
+	LABEL_LANGUAGES,
+	SEARCH_LIMIT,
+	sparqlString
+} from '#lib/images/artwork-query/artwork-query.ts';
 import { fetchJson, SPARQL_TIMEOUT_SECONDS } from '#lib/images/wikimedia/wikimedia.ts';
 import {
 	ARTWORK_ROOTS,
@@ -12,8 +19,6 @@ import type { WikidataPerson } from '#lib/images/types/wikidata-person.ts';
 const SPARQL_ENDPOINT = 'https://query.wikidata.org/sparql';
 const WIKIDATA_API = 'https://www.wikidata.org/w/api.php';
 const COMMONS_CATEGORY = 'P373';
-const SEARCH_LIMIT = 30;
-const LABEL_LANGUAGES = ['pl', 'en'];
 const HUMAN = 'Q5';
 const FIGURE_ROOTS = [HUMAN, 'Q95074', 'Q4271324', 'Q178885', 'Q20643955', 'Q15632617'];
 
@@ -38,67 +43,6 @@ type PersonBinding = Partial<Record<'item' | 'name' | 'file' | 'born' | 'died', 
 type ClassBinding = Partial<Record<'cls' | 'root', { value: string }>>;
 
 type SparqlResponse<T = Binding> = { results?: { bindings?: T[] } };
-
-function sparqlString(text: string): string {
-	return JSON.stringify(text.replace(/\s+/g, ' ').trim());
-}
-
-export function artworkSearchQuery(title: string): string {
-	const languages = LABEL_LANGUAGES.map((language) => `"${language}"`).join(', ');
-	const search = sparqlString(title);
-	return `SELECT ?item ?title (MIN(?searchRank) AS ?order) (SAMPLE(?image) AS ?file) (SAMPLE(CONCAT(STR(?inception), "/", STR(?precision))) AS ?date)
-(GROUP_CONCAT(DISTINCT ?creatorLabel; separator="|") AS ?creators)
-(GROUP_CONCAT(DISTINCT ?creatorName; separator="|") AS ?creatorNames)
-(COUNT(DISTINCT ?creatorStatement) AS ?creatorCount)
-(GROUP_CONCAT(DISTINCT STRAFTER(STR(?type), STR(wd:)); separator="|") AS ?types)
-(COUNT(DISTINCT ?collection) AS ?collectionCount)
-(COUNT(DISTINCT ?superclass) AS ?superclassCount) WHERE {
-  hint:Query hint:optimizer "None".
-  {
-    SERVICE wikibase:mwapi {
-      bd:serviceParam wikibase:endpoint "www.wikidata.org"; wikibase:api "EntitySearch";
-        mwapi:search ${search}; mwapi:language "${LABEL_LANGUAGES[0]}"; mwapi:limit "${SEARCH_LIMIT}".
-      ?item wikibase:apiOutputItem mwapi:item.
-      ?ordinal wikibase:apiOrdinal true.
-    }
-    BIND(?ordinal AS ?searchRank)
-  } UNION {
-    SERVICE wikibase:mwapi {
-      bd:serviceParam wikibase:endpoint "www.wikidata.org"; wikibase:api "Search";
-        mwapi:srsearch ${search}; mwapi:srlimit "${SEARCH_LIMIT}"; wikibase:limit "${SEARCH_LIMIT}".
-      ?item wikibase:apiOutputItem mwapi:title.
-      ?ordinal wikibase:apiOrdinal true.
-    }
-    BIND(?ordinal + ${SEARCH_LIMIT} AS ?searchRank)
-  }
-  ?item wdt:P18 ?image.
-  OPTIONAL { ?item wdt:P31 ?type }
-  OPTIONAL { ?item wdt:P195 ?collection }
-  OPTIONAL { ?item wdt:P279 ?superclass }
-  OPTIONAL {
-    ?item p:P571 ?dateStatement.
-    ?dateStatement wikibase:rank ?rank; psv:P571 ?dateValue.
-    ?dateValue wikibase:timeValue ?inception; wikibase:timePrecision ?precision.
-    FILTER(?rank != wikibase:DeprecatedRank)
-  }
-  OPTIONAL { ?item p:P170|p:P84 ?creatorStatement }
-  OPTIONAL {
-    ?item wdt:P170|wdt:P84 ?creator.
-    FILTER(STRSTARTS(STR(?creator), STR(wd:)))
-    OPTIONAL {
-      ?creator rdfs:label|skos:altLabel ?creatorName.
-      FILTER(LANG(?creatorName) IN (${languages}))
-    }
-  }
-  SERVICE wikibase:label {
-    bd:serviceParam wikibase:language "${LABEL_LANGUAGES.join(',')},mul".
-    ?item rdfs:label ?title.
-    ?creator rdfs:label ?creatorLabel.
-  }
-}
-GROUP BY ?item ?title
-ORDER BY ?order`;
-}
 
 function lifeDate(property: string, name: string): string {
 	return `OPTIONAL {
@@ -176,14 +120,22 @@ function toArtwork(binding: Binding): WikidataArtwork | null {
 	};
 }
 
-export async function searchWikidataArtworks(title: string): Promise<WikidataArtwork[]> {
-	const params = new URLSearchParams({ query: artworkSearchQuery(title), format: 'json' });
+async function queryArtworks(query: string): Promise<WikidataArtwork[]> {
+	const params = new URLSearchParams({ query, format: 'json' });
 	const response = await fetchJson<SparqlResponse>(
 		`${SPARQL_ENDPOINT}?${params}`,
 		{ Accept: 'application/sparql-results+json' },
 		SPARQL_TIMEOUT_SECONDS
 	);
 	return (response.results?.bindings ?? []).flatMap((binding) => toArtwork(binding) ?? []);
+}
+
+export function searchWikidataArtworks(title: string): Promise<WikidataArtwork[]> {
+	return queryArtworks(artworkSearchQuery(title));
+}
+
+export function searchFurtherWikidataArtworks(title: string): Promise<WikidataArtwork[]> {
+	return queryArtworks(furtherArtworkSearchQuery(title));
 }
 
 function toPerson(binding: PersonBinding): WikidataPerson | null {
