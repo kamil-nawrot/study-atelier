@@ -139,7 +139,9 @@ describe('ComparisonPicker', () => {
 		});
 
 		await expect
-			.element(page.getByRole('heading', { name: 'Które dzieło z atelier to Venus of Willendorf?' }))
+			.element(
+				page.getByRole('heading', { name: 'Które dzieło z atelier to Venus of Willendorf?' })
+			)
 			.toBeVisible();
 		await page.getByRole('link', { name: /The Night Watch/ }).click();
 
