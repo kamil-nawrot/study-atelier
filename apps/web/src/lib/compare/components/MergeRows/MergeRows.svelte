@@ -115,6 +115,9 @@
 	{#each rows as row (row.key)}
 		<div class="row" aria-labelledby="{id}-{row.key}" role="group">
 			<p id="{id}-{row.key}" class="label">{row.label}</p>
+			{#if row.kind !== 'same'}
+				<p class="label twin" aria-hidden="true">{row.label}</p>
+			{/if}
 			{#if row.kind === 'pick'}
 				{@render choice(row.mine, !row.fromAlbum, () => row.onpick(false), row.text ?? false)}
 				{@render choice(row.album, row.fromAlbum, () => row.onpick(true), row.text ?? false)}
@@ -144,7 +147,7 @@
 	.row {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: var(--spacing-2) var(--spacing-4);
+		gap: var(--spacing-2) var(--spacing-8);
 	}
 
 	.head {
@@ -162,11 +165,15 @@
 	}
 
 	.label {
-		grid-column: 1 / -1;
+		grid-column: 1;
 		margin: 0;
 		color: var(--color-fg-muted);
 		font-size: var(--font-size-xs);
 		line-height: var(--line-height-xs);
+	}
+
+	.twin {
+		grid-column: 2;
 	}
 
 	.side {
@@ -256,22 +263,7 @@
 	@media (min-width: 768px) {
 		.head,
 		.row {
-			grid-template-columns: 9rem repeat(2, minmax(0, 1fr));
-			column-gap: var(--spacing-6);
-		}
-
-		.head::before {
-			content: '';
-		}
-
-		.label {
-			grid-column: 1;
-			padding-top: var(--spacing-3);
-		}
-
-		.same {
-			grid-column: 2 / -1;
-			padding-top: var(--spacing-3);
+			column-gap: var(--spacing-12);
 		}
 	}
 </style>
