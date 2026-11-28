@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Alert, ArtworkTile, SearchField } from '@study-atelier/ui';
 	import { onMount } from 'svelte';
+	import { resolve } from '$app/paths';
 	import { MediaQuery } from 'svelte/reactivity';
 	import { eraIcon, eraName } from '#lib/catalogue/eras/eras.ts';
 	import type { WallArtwork } from '#lib/catalogue/types/wall-artwork.ts';
@@ -21,9 +22,11 @@
 		sides: CompareSides;
 		empty: keyof CompareSides;
 		other?: { title: string };
+		lead?: string;
+		onpick?: (number: number) => void;
 	};
 
-	let { sides, empty, other }: Props = $props();
+	let { sides, empty, other, lead = m.compare.questionLead, onpick }: Props = $props();
 
 	const COLUMNS = 3;
 	const NARROW_COLUMNS = 2;
@@ -58,7 +61,23 @@
 	});
 
 	function hrefOf(artwork: WallArtwork): string {
+		if (onpick) return resolve('/(app)/atelier/[number]', { number: String(artwork.number) });
 		return compareHref({ ...sides, [empty]: artwork.number });
+	}
+
+	function pickOnClick(artwork: WallArtwork): (element: HTMLElement) => (() => void) | void {
+		return (element) => {
+			if (!onpick) return;
+			const pick = onpick;
+			const listener = (event: MouseEvent): void => {
+				if (!(event.target instanceof Element) || !event.target.closest('a')) return;
+				if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey) return;
+				event.preventDefault();
+				pick(artwork.number);
+			};
+			element.addEventListener('click', listener);
+			return () => element.removeEventListener('click', listener);
+		};
 	}
 
 	function watchScreen(artwork: WallArtwork): (element: HTMLElement) => (() => void) | void {
@@ -85,7 +104,7 @@
 
 <section class="picker" data-sveltekit-replacestate>
 	{#if other}
-		<h2>{m.compare.questionLead} <cite class="artwork-title">{other.title}</cite>?</h2>
+		<h2>{lead} <cite class="artwork-title">{other.title}</cite>?</h2>
 	{:else}
 		<h2>{m.compare.questionEmpty}</h2>
 	{/if}
@@ -106,7 +125,7 @@
 			{#each columns as column, index (index)}
 				<ul class="column">
 					{#each column as artwork (artwork.id)}
-						<li {@attach watchScreen(artwork)}>
+						<li {@attach watchScreen(artwork)} {@attach pickOnClick(artwork)}>
 							<ArtworkTile
 								authors={artwork.authors}
 								date={artwork.date}

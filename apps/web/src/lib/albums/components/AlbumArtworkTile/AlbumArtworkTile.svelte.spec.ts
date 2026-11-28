@@ -45,7 +45,7 @@ describe('AlbumArtworkTile', () => {
 			.toHaveAttribute('href', '/atelier/compare?left=3&album=sample-album%2Flion');
 	});
 
-	it('keeps a similar artwork tickable with a line under the tile', async () => {
+	it('keeps a similar artwork tickable with its badge and no comparison link', async () => {
 		render(AlbumArtworkTile, {
 			slug: 'sample-album',
 			artwork,
@@ -63,6 +63,6 @@ describe('AlbumArtworkTile', () => {
 		await expect.element(page.getByText('1900')).toBeInTheDocument();
 		await expect
 			.element(page.getByRole('link', { name: m.albums.compare }))
-			.toHaveAttribute('href', '/atelier/compare?left=7&album=sample-album%2Flion');
+			.not.toBeInTheDocument();
 	});
 });

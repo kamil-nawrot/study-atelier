@@ -1,6 +1,6 @@
 # 0348. Open a similar album artwork as a comparison while adding from an album
 
-- Status: accepted
+- Status: accepted; the comparison link of a similar tile in the gallery is superseded by [0353](0353-pick-an-atelier-artwork-by-hand-while-adding-from-an-album.md)
 - Date: 2026-11-27
 
 ## Context and problem statement

@@ -64,11 +64,6 @@
 			{/snippet}
 			{@render caption()}
 		</TickTile>
-		{#if state.kind === 'similar'}
-			<a class="action compare" href={compareWithAlbumHref(state.number, slug, artwork.id)}>
-				{m.albums.compare}
-			</a>
-		{/if}
 	</div>
 {/if}
 
@@ -169,9 +164,5 @@
 	.tile .badge.low {
 		top: auto;
 		bottom: var(--spacing-1);
-	}
-
-	.compare {
-		padding: 0 var(--spacing-2) var(--spacing-3);
 	}
 </style>

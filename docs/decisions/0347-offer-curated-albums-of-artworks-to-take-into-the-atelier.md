@@ -1,6 +1,6 @@
 # 0347. Offer curated albums of artworks to take into the atelier
 
-- Status: accepted; a similar title deciding nothing is superseded by [0348](0348-open-a-similar-album-artwork-as-a-comparison-while-adding.md); the actions of the comparison with an album version are superseded by [0349](0349-pick-the-values-to-keep-in-the-comparison-with-an-album-version.md)
+- Status: accepted; a similar title deciding nothing is superseded by [0348](0348-open-a-similar-album-artwork-as-a-comparison-while-adding.md); the actions of the comparison with an album version are superseded by [0349](0349-pick-the-values-to-keep-in-the-comparison-with-an-album-version.md); the comparison link of a similar tile is superseded by [0353](0353-pick-an-atelier-artwork-by-hand-while-adding-from-an-album.md)
 - Date: 2026-11-26
 
 ## Context and problem statement
