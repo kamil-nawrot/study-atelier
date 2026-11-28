@@ -354,17 +354,77 @@ describe('findImageCandidates', () => {
 		expect(commonsUrl.searchParams.get('iiurlwidth')).toBe('330');
 	});
 
-	it('does not ask Commons when no candidate has an image', async () => {
+	it('does not ask Commons when no candidate has an image, and searches further once', async () => {
 		vi.stubGlobal('fetch', fetchMock);
-		fetchMock.mockResolvedValue(new Response(JSON.stringify({ results: { bindings: [] } })));
+		fetchMock.mockImplementation(
+			async () => new Response(JSON.stringify({ results: { bindings: [] } }))
+		);
 
 		await expect(
 			findImageCandidates({ kind: 'artwork', title: 'Nothing', authors: [] })
 		).resolves.toEqual({
 			candidates: [],
-			authorMatch: false
+			authorMatch: false,
+			further: true
 		});
-		expect(fetchMock).toHaveBeenCalledOnce();
+		expect(fetchMock).toHaveBeenCalledTimes(2);
+		const further = new URL(String(fetchMock.mock.calls[1][0])).searchParams.get('query');
+		expect(further).toContain('wikibase:endpoint "pl.wikipedia.org"');
+	});
+
+	it('searches further when the first search finds only items below the confidence rule', async () => {
+		vi.stubGlobal('fetch', fetchMock);
+		const town = {
+			item: { value: 'http://www.wikidata.org/entity/Q1' },
+			title: { value: 'Lubeka' },
+			file: { value: 'http://commons.wikimedia.org/wiki/Special:FilePath/Town.jpg' },
+			types: { value: 'Q515' }
+		};
+		const gate = {
+			item: { value: 'http://www.wikidata.org/entity/Q321229' },
+			title: { value: 'Brama Holsztyńska' },
+			file: { value: 'http://commons.wikimedia.org/wiki/Special:FilePath/Gate.jpg' },
+			types: { value: 'Q82117' }
+		};
+		const sparql = [[town], [gate]];
+		fetchMock.mockImplementation(async (input) => {
+			const url = new URL(String(input));
+			if (url.hostname === 'query.wikidata.org') {
+				const query = url.searchParams.get('query') ?? '';
+				const bindings = query.includes('?cls wdt:P279*') ? [] : (sparql.shift() ?? []);
+				return new Response(JSON.stringify({ results: { bindings } }));
+			}
+			return new Response(
+				JSON.stringify({
+					query: {
+						pages: ['File:Town.jpg', 'File:Gate.jpg'].map((title) => ({
+							title,
+							imageinfo: [{ thumburl: thumb, width: 100, height: 100, extmetadata: {} }]
+						}))
+					}
+				})
+			);
+		});
+
+		const result = await findImageCandidates({
+			kind: 'artwork',
+			title: 'Brama Holsztyńska w Lubece',
+			authors: []
+		});
+
+		expect(result.candidates.map((candidate) => candidate.wikidataId)).toEqual(['Q321229']);
+		expect(result.further).toBe(true);
+	});
+
+	it('shows nothing, without an error, when the further search fails', async () => {
+		vi.stubGlobal('fetch', fetchMock);
+		fetchMock
+			.mockResolvedValueOnce(new Response(JSON.stringify({ results: { bindings: [] } })))
+			.mockResolvedValue(new Response('', { status: 500 }));
+
+		await expect(
+			findImageCandidates({ kind: 'artwork', title: 'Nothing', authors: [] })
+		).resolves.toEqual({ candidates: [], authorMatch: false, further: true });
 	});
 
 	it('gives a calm message when the service keeps limiting requests', async () => {

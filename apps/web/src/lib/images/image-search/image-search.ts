@@ -19,7 +19,11 @@ import type { CandidateImage } from '#lib/images/types/candidate-image.ts';
 import type { ImageCandidate } from '#lib/images/types/image-candidate.ts';
 import type { ImageSearchQuery } from '#lib/images/types/image-search-query.ts';
 import type { ImageSearchResult } from '#lib/images/types/image-search-result.ts';
-import { searchWikidataArtworks, searchWikidataPeople } from '#lib/images/wikidata/wikidata.ts';
+import {
+	searchFurtherWikidataArtworks,
+	searchWikidataArtworks,
+	searchWikidataPeople
+} from '#lib/images/wikidata/wikidata.ts';
 import { withDeadline } from '#lib/images/wikimedia/wikimedia.ts';
 import type { SourceDate } from '#lib/images/types/source-date.ts';
 import type { WikidataArtwork } from '#lib/images/types/wikidata-artwork.ts';
@@ -141,10 +145,14 @@ function lifeYears(person: WikidataPerson): string | undefined {
 	return formatLifeYears(lifeYear(person.born), lifeYear(person.died), approximate);
 }
 
-async function findArtworkCandidates(
-	query: Extract<ImageSearchQuery, { kind: 'artwork' }>
-): Promise<ImageSearchResult> {
-	const found = await searchWikidataArtworks(query.title.trim());
+type ArtworkQuery = Extract<ImageSearchQuery, { kind: 'artwork' }>;
+
+type RankedArtworks = { artworks: WikidataArtwork[]; files: CommonsFiles };
+
+async function confidentArtworks(
+	found: WikidataArtwork[],
+	query: ArtworkQuery
+): Promise<RankedArtworks> {
 	const [groups, files] = await Promise.all([
 		resolveClassGroups(found.flatMap((artwork) => artwork.types)),
 		fetchCommonsFiles(
@@ -152,7 +160,19 @@ async function findArtworkCandidates(
 			CANDIDATE_THUMBNAIL_WIDTH
 		)
 	]);
-	const artworks = rankArtworks(found, query.authors, groups, query);
+	return { artworks: rankArtworks(found, query.authors, groups, query), files };
+}
+
+async function searchFurther(title: string, query: ArtworkQuery): Promise<RankedArtworks> {
+	const found = await searchFurtherWikidataArtworks(title).catch(() => []);
+	return confidentArtworks(found, query);
+}
+
+async function findArtworkCandidates(query: ArtworkQuery): Promise<ImageSearchResult> {
+	const title = query.title.trim();
+	const direct = await confidentArtworks(await searchWikidataArtworks(title), query);
+	const further = direct.artworks.length === 0;
+	const { artworks, files } = further ? await searchFurther(title, query) : direct;
 	const authorMatch = artworks.some((artwork) =>
 		matchesAuthor([...artwork.creators, ...artwork.creatorNames], query.authors)
 	);
@@ -170,7 +190,7 @@ async function findArtworkCandidates(
 				]
 			: [];
 	});
-	return { candidates, authorMatch };
+	return further ? { candidates, authorMatch, further } : { candidates, authorMatch };
 }
 
 function lifeYearMatches(found: SourceDate | null, typed: number | null | undefined): boolean {

@@ -40,6 +40,14 @@ describe('matchPool', () => {
 		).toEqual([]);
 	});
 
+	it('does not take a single result of the further search unless it matches an author', () => {
+		const single = [candidate('Q1')];
+		expect(matchPool({ candidates: single, authorMatch: false, further: true }, true)).toEqual([]);
+		expect(matchPool({ candidates: single, authorMatch: true, further: true }, false)).toEqual(
+			single
+		);
+	});
+
 	it('takes nothing when the search failed', () => {
 		expect(matchPool({ candidates: [], error: 'offline' }, true)).toEqual([]);
 	});
